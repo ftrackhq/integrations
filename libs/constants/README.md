@@ -1,4 +1,3 @@
-# constants
+# Constants
 
-Documentation: [https://ftrackhq.github.io/integrations/libs/constants/](https://ftrackhq.github.io/integrations/libs/constants/)
-
+This is the ftrack integrations constants library.

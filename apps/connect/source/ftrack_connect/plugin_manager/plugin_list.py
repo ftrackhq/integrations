@@ -15,10 +15,8 @@ from ftrack_connect.qt import QtWidgets, QtCore, QtGui
 
 from ftrack_connect.util import (
     qt_main_thread,
-    is_conflicting_plugin,
     is_incompatible_plugin,
     is_deprecated_plugin,
-    is_loadable_plugin,
     get_platform_identifier,
     get_plugin_json_url_from_environment,
     fetch_github_releases,
@@ -139,7 +137,7 @@ class DndPluginList(QtWidgets.QFrame):
                     : -len(data["platform"]) - 1
                 ]
 
-        loadable = is_loadable_plugin(data)
+        incompatible = is_incompatible_plugin(data)
         deprecated = is_deprecated_plugin(data)
 
         # create new plugin item and populate it with data
@@ -161,12 +159,12 @@ class DndPluginList(QtWidgets.QFrame):
         plugin_item.setData(plugin_id, ROLES.PLUGIN_ID)
         plugin_item.setIcon(STATUS_ICONS[status])
 
-        if not loadable or deprecated:
-            if not loadable:
+        if incompatible or deprecated:
+            if incompatible:
                 plugin_item.setIcon(
                     QtGui.QIcon(qta.icon('mdi6.alert-circle-outline'))
                 )
-                plugin_item.setText(f'{plugin_item.text()} [Not loadable]')
+                plugin_item.setText(f'{plugin_item.text()} [Incompatible]')
             else:
                 plugin_item.setIcon(QtGui.QIcon(qta.icon('mdi6.alert')))
                 plugin_item.setText(f'{plugin_item.text()} [Deprecated]')
@@ -292,18 +290,15 @@ class DndPluginList(QtWidgets.QFrame):
                 self.add_plugin(release['url'], STATUSES.DOWNLOAD)
                 self._downloadable_plugin_count += 1
 
-    def get_conflicting_plugins(self):
-        result = []
-        plugins = os.listdir(self.default_plugin_directory)
-        for plugin in plugins:
-            plugin_path = os.path.join(self.default_plugin_directory, plugin)
-            if is_conflicting_plugin(get_plugin_data(plugin_path)):
-                result.append(plugin)
-        return result
-
     def get_incompatible_plugins(self):
         result = []
-        plugins = os.listdir(self.default_plugin_directory)
+        # Filter out files and hidden items.
+        plugins = [
+            f
+            for f in os.listdir(self.default_plugin_directory)
+            if not f.startswith('.')
+            and os.path.isdir(os.path.join(self.default_plugin_directory, f))
+        ]
         for plugin in plugins:
             plugin_path = os.path.join(self.default_plugin_directory, plugin)
             if is_incompatible_plugin(get_plugin_data(plugin_path)):
@@ -312,7 +307,13 @@ class DndPluginList(QtWidgets.QFrame):
 
     def get_deprecated_plugins(self):
         result = []
-        plugins = os.listdir(self.default_plugin_directory)
+        # Filter out files and hidden items.
+        plugins = [
+            f
+            for f in os.listdir(self.default_plugin_directory)
+            if not f.startswith('.')
+            and os.path.isdir(os.path.join(self.default_plugin_directory, f))
+        ]
         for plugin in plugins:
             plugin_path = os.path.join(self.default_plugin_directory, plugin)
             if is_deprecated_plugin(get_plugin_data(plugin_path)):

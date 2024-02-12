@@ -24,28 +24,29 @@ logger = logging.getLogger(__name__)
 
 _resource = {"loaded": False}
 
-
-# Legacy plugins that can't be bootstrapped by Connect, will not be loaded.
-CONFLICTING_PLUGINS = [
-    'ftrack-connect-action-launcher-widget',
-    'ftrack-connect-plugin-manager',
-]
-
 # Legacy plugins that is incompatible with Connect and needs to be re-installed
 # if they not are on the new plugin format, will not be loaded.
 # Please maintain the version formatting ><=....
 INCOMPATIBLE_PLUGINS = [
     {'name': 'ftrack-connect-publisher-widget', 'version': '<24'},
     {'name': 'ftrack-connect-timetracker-widget', 'version': '<24'},
+    {'name': 'ftrack-connect-action-launcher-widget', 'version': '>0'},
+    {'name': 'ftrack-connect-plugin-manager', 'version': '>0'},
 ]
 
 # Legacy plugins that still works but are deprecated, will be loaded.
 DEPRECATED_PLUGINS = [
-    'ftrack-application-launcher',
-    'ftrack-connect-pipeline',
-    'ftrack-connect-nuke-studio',
-    'ftrack-connect-rv',
-    'ftrack-connect-cinema-4d',
+    {'name': 'ftrack-application-launcher', 'version': '>0'},
+    {'name': 'ftrack-connect-pipeline', 'version': '>0'},
+    {'name': 'ftrack-connect-pipeline-qt', 'version': '>0'},
+    {'name': 'ftrack-connect-pipeline-maya', 'version': '>0'},
+    {'name': 'ftrack-connect-pipeline-nuke', 'version': '>0'},
+    {'name': 'ftrack-connect-pipeline-houdini', 'version': '>0'},
+    {'name': 'ftrack-connect-pipeline-3dsmax', 'version': '>0'},
+    {'name': 'ftrack-connect-pipeline-unreal', 'version': '>0'},
+    {'name': 'ftrack-connect-nuke-studio', 'version': '>0'},
+    {'name': 'ftrack-connect-rv', 'version': '>0'},
+    {'name': 'ftrack-connect-cinema-4d', 'version': '>0'},
 ]
 
 # ftrack integrations repo URL from were to discover and download plugins

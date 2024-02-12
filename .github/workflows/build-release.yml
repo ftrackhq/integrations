@@ -15,7 +15,6 @@ jobs:
   set-variables:
     runs-on: ubuntu-latest
     outputs:
-      to_pypi: ${{ env.TO_PYPI }}
       folder: ${{ env.FOLDER }}
       package: ${{ env.PACKAGE }}
       version: ${{ env.VERSION }}
@@ -33,7 +32,6 @@ jobs:
         shell: bash
         run: |
           echo "FOLDER=apps/${{ env.PACKAGE }}" >> $GITHUB_ENV
-          echo "TO_PYPI=false" >> $GITHUB_ENV
       - name: set installers folder
         if: ${{ env.PACKAGE == 'connect-installer' }}
         run: echo Not supported by this CI && exit 1
@@ -42,17 +40,14 @@ jobs:
         shell: bash
         run: |
           echo "FOLDER=libs/${{ env.PACKAGE }}" >> $GITHUB_ENV
-          echo "TO_PYPI=true" >> $GITHUB_ENV
       - name: set projects folder
         if: ${{ env.PACKAGE == 'connect-publisher-widget' || env.PACKAGE == 'connect-timetracker-widget' || env.PACKAGE == 'framework-photoshop' || env.PACKAGE == 'nuke-studio' || env.PACKAGE == 'rv' }}
         shell: bash
         run: |
           echo "FOLDER=projects/${{ env.PACKAGE }}" >> $GITHUB_ENV
-          echo "TO_PYPI=false" >> $GITHUB_ENV
       - name: debug
         shell: bash
         run: |
-          echo 'TO_PYPI: ${{ env.TO_PYPI }}'
           echo 'FOLDER: ${{ env.FOLDER }}'
           echo 'PACKAGE: ${{ env.PACKAGE }}'
           echo 'VERSION: ${{ env.VERSION }}'
@@ -188,6 +183,16 @@ jobs:
           pip install -r tools/requirements.txt
           # TODO: remove --testpypi once libraries are published to pypi
           python tools/build.py --remove_intermediate_folder build_connect_plugin --testpypi ${{ needs.set-variables.outputs.folder }}
+      - name: build PS CEP extension
+        if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' }}
+        shell: bash
+        run: |
+          # Install ZXPsign
+          wget -c https://raw.github.com/Adobe-CEP/CEP-Resources/master/ZXPSignCMD/4.1.2/macOS/ZXPSignCmd-64bit.dmg  -O /tmp/ZXPSignCmd-64bit.dmg
+          hdiutil attach /tmp/ZXPSignCmd-64bit.dmg
+          ln -s /Volumes/ZXPSignCmd-64bit/ZXPSignCmd-64bit /usr/local/bin/ZXPSignCMD
+          export ADOBE_CERTIFICATE_PASSWORD=${{ secrets.ADOBE_CERTIFICATE_PASSWORD }}
+          python tools/build.py build_cep --remove_intermediate_folder ${{ needs.set-variables.outputs.folder }}
       - name: upload artifacts to release
         shell: bash
         run: |
@@ -195,42 +200,3 @@ jobs:
           gh release upload ${{ needs.set-variables.outputs.tag }} dist/*  --clobber
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  publish-test:
-    name: Publish to PyPi (test)
-    runs-on: ubuntu-latest
-    needs: build-linux
-    if: ${{ needs.build-linux.outputs.to_pypi == 'true' }}
-    environment:
-      name: staging
-      url: https://test.pypi.org/project/ftrack-${{ needs.build-linux.outputs.package }}/
-    steps:
-      - name: Download temp artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: dist
-          path: dist
-      - name: Publish to Test PyPi
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
-          repository_url: https://test.pypi.org/legacy/
-
-  publish-prod:
-    name: Publish to PyPi (prod)
-    runs-on: ubuntu-latest
-    needs: build-linux
-    if: ${{ needs.build-linux.outputs.to_pypi == 'true' }}
-    environment:
-      name: production
-      url: https://pypi.org/project/ftrack-${{ needs.build-linux.outputs.package }}/
-    steps:
-      - name: Download temp artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: dist
-          path: dist
-      - name: Publish to PyPi
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          password: ${{ secrets.PYPI_API_TOKEN }}

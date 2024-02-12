@@ -703,11 +703,11 @@ class Application(QtWidgets.QMainWindow):
             for candidate in os.listdir(path):
                 candidate_path = os.path.join(path, candidate)
                 if os.path.isdir(candidate_path):
-                    if not ftrack_connect.util.is_loadable_plugin(
+                    if ftrack_connect.util.is_incompatible_plugin(
                         ftrack_connect.util.get_plugin_data(candidate_path)
                     ):
                         self.logger.warning(
-                            f'Ignoring plugin that is not loadable: {candidate_path}'
+                            f'Ignoring plugin that is incompatible: {candidate_path}'
                         )
                         continue
                     full_hook_path = os.path.join(candidate_path, 'hook')
