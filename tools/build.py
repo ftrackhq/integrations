@@ -10,6 +10,7 @@ official CI/CD build implementation in place.
 
 Release notes:
 
+0.4.13 [24.02.12] Build qt-style when building CEP plugin.
 0.4.12 [24.02.05] Build qt-style if from_source flag to build script
 0.4.11 [23.12.18] Added missing ftrack-framework-qt dependency to Photoshop
 0.4.10 [23.12.12] Platform dependent support in plugin manager.
@@ -425,7 +426,7 @@ def build_package(pkg_path, args, command=None):
                     shutil.rmtree(dist_path)
                 if filename == 'qt-style':
                     # Need to build qt resources
-                    logging.info('Building resources for {}'.format(filename))
+                    logging.info('Building style for {}'.format(filename))
                     save_cwd = os.getcwd()
                     os.chdir(MONOREPO_PATH)
                     build_package(
@@ -690,6 +691,13 @@ def build_package(pkg_path, args, command=None):
         os.makedirs(os.path.join(STAGING_PATH, 'image'))
         os.makedirs(os.path.join(STAGING_PATH, 'css'))
 
+        # Build resources
+        logging.info('Building style...')
+        save_cwd = os.getcwd()
+        os.chdir(MONOREPO_PATH)
+        build_package('libs/qt-style', args, command='build_qt_resources')
+        os.chdir(save_cwd)
+
         style_path = args.style_path
         if style_path is None:
             style_path = DEFAULT_STYLE_PATH
@@ -819,6 +827,10 @@ def build_package(pkg_path, args, command=None):
                 'Not signing and creating ZPX plugin, result for for '
                 'manual deploy can be found here: {}'.format(STAGING_PATH)
             )
+
+        if args.remove_intermediate_folder:
+            logging.warning(f'Removing: {STAGING_PATH}')
+            shutil.rmtree(STAGING_PATH, ignore_errors=True)
 
     if command == 'clean':
         clean(args)
