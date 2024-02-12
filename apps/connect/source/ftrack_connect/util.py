@@ -7,6 +7,7 @@ import sys
 import logging
 import re
 import requests
+import glob
 
 import platformdirs
 from packaging.version import parse
@@ -17,7 +18,6 @@ from ftrack_connect import INTEGRATIONS_REPO
 
 from ftrack_connect import (
     INCOMPATIBLE_PLUGINS,
-    CONFLICTING_PLUGINS,
     DEPRECATED_PLUGINS,
 )
 
@@ -112,6 +112,7 @@ def get_plugin_data(plugin_path):
     else:
         return False
 
+    data['path'] = plugin_path
     data['platform'] = 'noarch'
     if data['version'].lower().endswith('.zip'):
         # pop zip extension from the version.
@@ -123,23 +124,6 @@ def get_plugin_data(plugin_path):
             data['platform'] = parts[-1]
 
     return data
-
-
-def is_loadable_plugin(plugin_data):
-    '''Return True if plugin @ *plugin_path* is able to load in current version
-    of Connect'''
-    return not (
-        is_conflicting_plugin(plugin_data)
-        or is_incompatible_plugin(plugin_data)
-    )
-
-
-def is_conflicting_plugin(plugin_data):
-    '''Return true if plugin from *plugin_data* is conflicting with Connect'''
-    for conflicting_plugin in CONFLICTING_PLUGINS:
-        if plugin_data['name'].lower() in conflicting_plugin:
-            return True
-    return False
 
 
 def is_incompatible_plugin(plugin_data):
@@ -158,8 +142,25 @@ def is_incompatible_plugin(plugin_data):
                 logger.debug(
                     f"Version {plugin_data['version']} is compatible."
                 )
-                return False
+                break
+            logger.debug(
+                f"{plugin_data['name']} version {plugin_data['version']} is "
+                f"incompatible"
+            )
             return True
+    # Don't check anything else if path is zip file.
+    if plugin_data['path'].endswith('.zip'):
+        return False
+    # Check hook folder exists
+    connect_hook = os.path.join(plugin_data['path'], 'hook')
+    if not os.path.exists(connect_hook) or not glob.glob(
+        f'{connect_hook}/*.py'
+    ):
+        logger.debug(
+            f"{plugin_data['name']} version {plugin_data['version']} is "
+            f"incompatible, hook folder or hook python file is missing"
+        )
+        return True
     return False
 
 
@@ -167,7 +168,23 @@ def is_deprecated_plugin(plugin_data):
     '''Return true if plugin from *plugin_data* is deprecated within Connect,
     but still can be loaded'''
     for deprecated_plugin in DEPRECATED_PLUGINS:
-        if plugin_data['name'].lower() in deprecated_plugin:
+        if plugin_data['name'].lower() == deprecated_plugin['name']:
+            parsed_plugin_version = parse(plugin_data['version'])
+
+            # Create the specifier compatible with pre-releases
+            deprecated_specifier = SpecifierSet(
+                deprecated_plugin['version'], prereleases=True
+            )
+
+            if parsed_plugin_version not in deprecated_specifier:
+                logger.debug(
+                    f"Version {plugin_data['version']} is compatible."
+                )
+                return False
+            logger.debug(
+                f"{plugin_data['name']} version {plugin_data['version']} is "
+                f"deprecated"
+            )
             return True
     return False
 

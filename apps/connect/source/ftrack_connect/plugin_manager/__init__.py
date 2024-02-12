@@ -275,14 +275,11 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
 
     def _on_apply_changes(self):
         '''User wants to apply the updates, warn about conflicting plugins.'''
-        conflicting_plugins = (
-            self._plugin_list_widget.get_conflicting_plugins()
-        )
         incompatible_plugins = (
             self._plugin_list_widget.get_incompatible_plugins()
         )
         deprecated_plugins = self._plugin_list_widget.get_deprecated_plugins()
-        unloadable_plugins = conflicting_plugins + incompatible_plugins
+        unloadable_plugins = incompatible_plugins
         if unloadable_plugins:
             msgbox = QtWidgets.QMessageBox(
                 QtWidgets.QMessageBox.Warning,
