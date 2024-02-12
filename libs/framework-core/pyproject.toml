@@ -30,10 +30,8 @@ six = ">= 1, < 2" # TODO: remove this ASAP
 platformdirs = "^4.0.0"
 pyyaml = "^6.0.1"
 #ftrack
-# We specify the lower version, also we allow prereleases.
-# TODO: change to ^2.0.0 once public release
-ftrack-constants= {  version = "^2.0.0rc1", optional = true }
-ftrack-utils = { version = "^2.0.0rc1", optional = true }
+ftrack-constants= {  version = "^2.0.0", optional = true }
+ftrack-utils = { version = "^2.0.0", optional = true }
 
 
 [tool.poetry.extras]
