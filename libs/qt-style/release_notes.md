@@ -1,6 +1,6 @@
 # ftrack Framework QT Style library release Notes
 
-## Upcoming
-YYYY-mm-dd
+## V2.0.0
+2024-02-12
 
-*  [new] Initial release; partially ported from ftrack-connect-pipeline-qt and extended.
+*  [new] Initial release.
