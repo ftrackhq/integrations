@@ -17,7 +17,6 @@ from ftrack_connect.qt import (
 from ftrack_connect.config import get_log_directory
 
 import ftrack_connect.util
-from ftrack_connect import __version__
 
 
 class AboutDialog(QtWidgets.QDialog):

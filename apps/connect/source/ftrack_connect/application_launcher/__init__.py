@@ -1180,7 +1180,6 @@ class ApplicationLaunchAction(BaseAction):
             application_information = {
                 k: str(v) for k, v in application.items()
             }
-            print(f'@@@ application: {application}')
             founds = []
             all_discovered, _ = self.launcher.discover_integrations(
                 application, None
