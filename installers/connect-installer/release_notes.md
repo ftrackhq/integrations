@@ -1,7 +1,7 @@
 # ftrack Connect installer release Notes
 
-## Upcoming
-YYYY-mm-dd
+## v24.2.0
+2024-02-13
 
 * [changed] Augmented installer to cope with new Connect 3 module format.
 
