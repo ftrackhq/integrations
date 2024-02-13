@@ -1178,9 +1178,9 @@ class ApplicationLaunchAction(BaseAction):
         result = {'identifier': self.identifier, 'applications': []}
         for application in self.application_store.applications:
             application_information = {
-                'identifier': application['identifier'],
-                'found': [],
+                k: str(v) for k, v in application.items()
             }
+            print(f'@@@ application: {application}')
             founds = []
             all_discovered, _ = self.launcher.discover_integrations(
                 application, None
