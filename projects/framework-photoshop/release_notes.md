@@ -1,6 +1,6 @@
 # ftrack Framework Photoshop integration release Notes
 
-## Upcoming
-YYYY-mm-dd
+## v24.2.0
+2024-02-13
 
 * [new] Initial release.

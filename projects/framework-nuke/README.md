@@ -1,8 +1,6 @@
-# ftrack Nuke integration
+# Framework Nuke integration
 
 Community owned Nuke integration for ftrack.
-
-# Documentation
 
 ## Building
 
