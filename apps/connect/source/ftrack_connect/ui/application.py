@@ -269,6 +269,7 @@ class Application(QtWidgets.QMainWindow):
         self.setTheme(theme)
 
         self.plugins = {}
+        self._application_launcher = None
 
         self.setObjectName('ftrack-connect-window')
         self.setWindowTitle('ftrack Connect')
@@ -978,6 +979,12 @@ class Application(QtWidgets.QMainWindow):
 
         debug_information = {'environment': environment_data, 'widgets': []}
 
+        # Provide debug information from application launcher
+        if self._application_launcher:
+            debug_information[
+                'application_launcher'
+            ] = self._application_launcher.get_debug_information()
+
         # Provide information from builtin widget plugins.
         for plugin in self._widget_plugin_instancens:
             if isinstance(plugin, ConnectWidget):
@@ -1066,10 +1073,10 @@ class Application(QtWidgets.QMainWindow):
                 launcher_config_paths.append(launcher_config_path)
 
         # Create store containing launchable applications.
-        applications = DiscoverApplications(
+        self._application_launcher = DiscoverApplications(
             self.session, launcher_config_paths
         )
-        applications.register()
+        self._application_launcher.register()
 
     def _configure_action_launcher_widget(self):
         '''Append action launcher widget to list of build in

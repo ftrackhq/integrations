@@ -1174,16 +1174,23 @@ class ApplicationLaunchAction(BaseAction):
 
         return self.launcher.launch(application_identifier, context)
 
-    def get_version_information(self, event):
-        founds = []
+    def get_version_information(self):
+        result = {'identifier': self.identifier, 'applications': []}
         for application in self.application_store.applications:
+            application_information = {
+                'identifier': application['identifier'],
+                'found': [],
+            }
+            founds = []
             all_discovered, _ = self.launcher.discover_integrations(
                 application, None
             )
             for discovered in all_discovered:
                 if discovered not in founds:
                     founds.append(discovered)
-        return founds
+            application_information['found'] = founds
+            result['applications'].append(application_information)
+        return result
 
     def register(self):
         '''Register discover actions on logged in user.'''
@@ -1203,11 +1210,5 @@ class ApplicationLaunchAction(BaseAction):
                 self.session.api_user, self.identifier, platform.node()
             ),
             self._launch,
-            priority=self.priority,
-        )
-
-        self.session.event_hub.subscribe(
-            'topic=ftrack.connect.plugin.debug-information',
-            self.get_version_information,
             priority=self.priority,
         )
