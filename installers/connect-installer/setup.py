@@ -3,7 +3,7 @@
 
 '''
 requires :
-pyside2 = 5.14.1
+pyside2 = 5.13.2
 
 
 '''
@@ -379,8 +379,8 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             os.path.join(pyside_path, "Qt", "plugins", "imageformats"),
             os.path.join(pyside_path, "Qt", "plugins", "iconengines"),
             # Include PySide and Shiboken libs
-            os.path.join(pyside_path, "libpyside2.abi3.5.14.dylib"),
-            os.path.join(shiboken_path, "libshiboken2.abi3.5.14.dylib"),
+            os.path.join(pyside_path, "libpyside2.abi3.5.13.dylib"),
+            os.path.join(shiboken_path, "libshiboken2.abi3.5.13.dylib"),
         ]
 
     elif sys.platform == 'linux':
