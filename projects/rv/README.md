@@ -1,12 +1,6 @@
-# rv
+# Rv integration
 
 ftrack connect rv integration.
-
-## Documentation
-
-User documentation: https://ftrack-connect-rv.readthedocs.io/en/latest/index.html
-
-Developer documentation: [https://ftrackhq.github.io/integrations/projects/rv/](https://ftrackhq.github.io/integrations/projects/rv/)
 
 ## Building
 

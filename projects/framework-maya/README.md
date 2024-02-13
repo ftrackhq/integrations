@@ -1,8 +1,6 @@
-# ftrack Maya integration
+# Framework Maya integration
 
 Community owned Maya integration for ftrack.
-
-# Documentation
 
 ## Building
 
