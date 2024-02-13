@@ -1,8 +1,6 @@
-# ftrack connect NUKE STUDIO
+# Nuke Studio integration
 
 ftrack integration with NUKE STUDIO.
-
-Documentation: [https://ftrackhq.github.io/integrations/projects/nuke-studio/](https://ftrackhq.github.io/integrations/project/nuke-studio/)
 
 ## Building
 

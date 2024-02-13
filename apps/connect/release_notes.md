@@ -1,7 +1,7 @@
 # ftrack Connect release Notes
 
-## Upcoming
-YYYY-mm-dd
+## v3.0.0
+2024-02-13
 
 * [changed] Improved about window - More information to include debug information from widget plugins.
 * [changed] Do not prevent Connect from launching if there is no system tray.

@@ -1,7 +1,7 @@
 # ftrack Connect Timetracker widget release Notes
 
-## Upcoming
-YYYY-mm-dd
+## v24.2.0
+2024-02-13
 
 * [changed] Ported from ftrack-connect-timetracker-widget repo and aligned with Connect 3
 * [changed] Use poetry as build system.

@@ -1,8 +1,6 @@
-# ftrack Photoshop integration
+# Framework Photoshop integration
 
 Community owned Photoshop integration for ftrack.
-
-# Documentation
 
 ## Building
 
