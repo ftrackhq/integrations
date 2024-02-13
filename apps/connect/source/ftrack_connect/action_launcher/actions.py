@@ -85,6 +85,11 @@ class Actions(QtWidgets.QWidget):
         '''Return current session.'''
         return self._session
 
+    @property
+    def actions(self):
+        '''Return actions.'''
+        return self._actions
+
     def __init__(self, session, parent=None):
         '''Initiate a actions view.'''
         super(Actions, self).__init__(parent)

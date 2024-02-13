@@ -18,3 +18,11 @@ class ActionLauncherWidget(ConnectWidget):
 
         self._actions_view = Actions(self.session)
         layout.addWidget(self._actions_view)
+
+    def get_debug_information(self):
+        '''Append all identified plugins as debug information.'''
+        result = super(ActionLauncherWidget, self).get_debug_information()
+        result['available_actions'] = []
+        for action in self._actions_view.actions:
+            result['available_actions'].append(action)
+        return result

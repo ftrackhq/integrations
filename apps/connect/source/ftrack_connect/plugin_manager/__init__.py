@@ -343,3 +343,13 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
         except:
             # Do not leave the overlay in a bad state.
             self.installation_failed.emit(traceback.format_exc())
+
+    def get_debug_information(self):
+        '''Append all identified plugins as debug information.'''
+        result = super(PluginManager, self).get_debug_information()
+        result['installed_plugins'] = []
+        num_items = self._plugin_list_widget.plugin_model.rowCount()
+        for i in range(num_items):
+            item = self._plugin_list_widget.plugin_model.item(i)
+            result['installed_plugins'].append(item.text())
+        return result

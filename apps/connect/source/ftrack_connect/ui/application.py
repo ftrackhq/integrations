@@ -108,6 +108,13 @@ class ConnectWidget(QtWidgets.QWidget):
         '''Return identifier for widget.'''
         return self.getName().lower().replace(' ', '.')
 
+    def get_debug_information(self):
+        '''Return debug information for about dialog, should be overriden.'''
+        return {
+            'name': self.getName(),
+            'identifier': self.getIdentifier(),
+        }
+
 
 class Application(QtWidgets.QMainWindow):
     '''Main application window for ftrack connect.'''
@@ -122,7 +129,8 @@ class Application(QtWidgets.QMainWindow):
     loginSignal = QtCore.Signal(object, object, object)
     loginSuccessSignal = QtCore.Signal()
 
-    _builtin_plugins = []
+    _builtin_widget_plugins = []
+    _widget_plugin_instancens = []
 
     def restart(self):
         '''restart connect application'''
@@ -803,7 +811,7 @@ class Application(QtWidgets.QMainWindow):
         # Load icons
         load_icons(os.path.join(os.path.dirname(__file__), '..', 'fonts'))
 
-        for plugin_class in self._builtin_plugins + responses:
+        for plugin_class in self._builtin_widget_plugins + responses:
             widget_plugin = None
             try:
                 widget_plugin = plugin_class(self.session)
@@ -913,6 +921,7 @@ class Application(QtWidgets.QMainWindow):
         )
         plugin.requestConnectRestart.connect(self.restart)
 
+        self._widget_plugin_instancens.append(plugin)
         self.logger.debug(f'Plugin {name}({plugin.__class__.__name__}) added')
 
     def removePlugin(self, plugin):
@@ -959,22 +968,31 @@ class Application(QtWidgets.QMainWindow):
 
         aboutDialog = _about.AboutDialog(self)
 
-        environmentData = os.environ.copy()
-        environmentData.update(
+        environment_data = os.environ.copy()
+        environment_data.update(
             {
                 'PLATFORM': platform.platform(),
                 'PYTHON_VERSION': platform.python_version(),
             }
         )
 
-        versionData = [
-            {
-                'name': 'ftrack connect',
-                'version': ftrack_connect.__version__,
-                'core': True,
-                'debug_information': environmentData,
-            }
-        ]
+        debug_information = {'environment': environment_data, 'widgets': []}
+
+        # Provide information from builtin widget plugins.
+        for plugin in self._widget_plugin_instancens:
+            if isinstance(plugin, ConnectWidget):
+                debug_information['widgets'].append(
+                    plugin.get_debug_information()
+                )
+
+        connect_version_data = {
+            'name': 'ftrack connect',
+            'version': ftrack_connect.__version__,
+            'core': True,
+            'debug_information': debug_information,
+        }
+
+        versionData = [connect_version_data]
 
         # Gather information about API versions and other
         # plugin hooks.
@@ -1060,7 +1078,7 @@ class Application(QtWidgets.QMainWindow):
         from ftrack_connect.action_launcher import ActionLauncherWidget
 
         # Add together with discovered widgets
-        self._builtin_plugins.append(ActionLauncherWidget)
+        self._builtin_widget_plugins.append(ActionLauncherWidget)
 
     def _configure_plugin_manager_widget(self):
         '''Append plugin manager widget to list of build in
@@ -1069,7 +1087,7 @@ class Application(QtWidgets.QMainWindow):
         from ftrack_connect.plugin_manager import PluginManager
 
         # Add together with discovered widgets
-        self._builtin_plugins.append(PluginManager)
+        self._builtin_widget_plugins.append(PluginManager)
 
     def closeEvent(self, event):
         ''' ' Quit application when main window is closed, and no tray'''
