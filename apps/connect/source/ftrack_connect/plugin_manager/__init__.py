@@ -39,6 +39,15 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
     apply_changes = QtCore.Signal(object)
     # List of plugins to archive as argument
 
+    @property
+    def items(self):
+        result = []
+        num_items = self._plugin_list_widget.plugin_model.rowCount()
+        for i in range(num_items):
+            item = self._plugin_list_widget.plugin_model.item(i)
+            result.append(item)
+        return result
+
     # default methods
     def __init__(self, session, parent=None):
         '''Instantiate the plugin widget.'''
@@ -348,8 +357,6 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
         '''Append all identified plugins as debug information.'''
         result = super(PluginManager, self).get_debug_information()
         result['installed_plugins'] = []
-        num_items = self._plugin_list_widget.plugin_model.rowCount()
-        for i in range(num_items):
-            item = self._plugin_list_widget.plugin_model.item(i)
+        for item in self.items:
             result['installed_plugins'].append(item.text())
         return result

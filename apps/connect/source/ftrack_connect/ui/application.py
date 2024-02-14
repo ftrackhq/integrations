@@ -30,7 +30,13 @@ from ftrack_connect import load_icons
 import ftrack_connect
 import ftrack_connect.event_hub_thread as _event_hub_thread
 import ftrack_connect.error
-import ftrack_connect.util
+from ftrack_connect.util import (
+    get_plugins_from_path,
+    is_incompatible_plugin,
+    is_deprecated_plugin,
+    get_plugin_data,
+    open_directory,
+)
 import ftrack_connect.ui.theme
 import ftrack_connect.ui.widget.overlay
 from ftrack_connect.ui.widget import uncaught_error as _uncaught_error
@@ -709,12 +715,10 @@ class Application(QtWidgets.QMainWindow):
             return paths
         self.logger.debug(u'Searching {0!r} for plugin hooks.'.format(path))
         if os.path.isdir(path):
-            for candidate in ftrack_connect.util.get_plugins_from_path(path):
+            for candidate in get_plugins_from_path(path):
                 candidate_path = os.path.join(path, candidate)
                 if os.path.isdir(candidate_path):
-                    if ftrack_connect.util.is_incompatible_plugin(
-                        ftrack_connect.util.get_plugin_data(candidate_path)
-                    ):
+                    if is_incompatible_plugin(get_plugin_data(candidate_path)):
                         self.logger.warning(
                             f'Ignoring plugin that is incompatible: {candidate_path}'
                         )
@@ -965,6 +969,7 @@ class Application(QtWidgets.QMainWindow):
 
     def showAbout(self):
         '''Display window with about information.'''
+
         self.focus()
 
         aboutDialog = _about.AboutDialog(self)
@@ -1020,7 +1025,7 @@ class Application(QtWidgets.QMainWindow):
         except Exception as error:
             self.logger.error(error)
 
-        # Append bootstrapped plugins that did not respond to event
+        # Append bootstrapped plugins that were not reported
         for plugin_path in self.plugin_paths:
             folder_name = os.path.basename(plugin_path)
             # Expect "ftrack-application-launcher-1.0.11"
@@ -1045,6 +1050,13 @@ class Application(QtWidgets.QMainWindow):
                             'version': version,
                         }
                     )
+
+        # Check compatibility of plugins
+        for version_data in versionData:
+            if is_incompatible_plugin(version_data):
+                version_data['name'] = f'{version_data["name"]} [Incompatible]'
+            elif is_deprecated_plugin(version_data):
+                version_data['name'] = f'{version_data["name"]} [Deprecated]'
 
         sorted_version_data = sorted(versionData, key=itemgetter('name'))
 
@@ -1084,7 +1096,7 @@ class Application(QtWidgets.QMainWindow):
             messageBox.exec_()
             return
 
-        ftrack_connect.util.open_directory(self.defaultPluginDirectory)
+        open_directory(self.defaultPluginDirectory)
 
     def _discover_applications(self):
         '''Walk through Connect plugins and pick up application launcher
