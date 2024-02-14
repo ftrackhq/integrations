@@ -166,9 +166,11 @@ class DndPluginList(QtWidgets.QFrame):
                     QtGui.QIcon(qta.icon('mdi6.alert-circle-outline'))
                 )
                 plugin_item.setText(f'{plugin_item.text()} [Incompatible]')
+                plugin_item.setData(True, ROLES.PLUGIN_INCOMPATIBLE)
             else:
                 plugin_item.setIcon(QtGui.QIcon(qta.icon('mdi6.alert')))
                 plugin_item.setText(f'{plugin_item.text()} [Deprecated]')
+                plugin_item.setData(True, ROLES.PLUGIN_DEPRECATED)
         else:
             plugin_item.setIcon(STATUS_ICONS[status])
 

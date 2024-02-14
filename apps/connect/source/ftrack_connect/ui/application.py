@@ -969,6 +969,8 @@ class Application(QtWidgets.QMainWindow):
 
     def showAbout(self):
         '''Display window with about information.'''
+        from ftrack_connect.plugin_manager import PluginManager
+        from ftrack_connect.plugin_manager.processor import ROLES, STATUSES
 
         self.focus()
 
@@ -1053,10 +1055,28 @@ class Application(QtWidgets.QMainWindow):
 
         # Check compatibility of plugins
         for version_data in result:
-            if is_incompatible_plugin(version_data):
-                version_data['name'] = f'{version_data["name"]} [Incompatible]'
-            elif is_deprecated_plugin(version_data):
+            if is_deprecated_plugin(version_data):
                 version_data['name'] = f'{version_data["name"]} [Deprecated]'
+
+        # Add incompatible ones just for verbosity
+        plugin_manager = None
+        for plugin in self._widget_plugin_instancens:
+            if isinstance(plugin, PluginManager):
+                plugin_manager = plugin
+                break
+        print(f'@@@ plugin_manager: {plugin_manager}')
+        if plugin_manager:
+            for item in plugin_manager.items:
+                if (
+                    item.data(ROLES.PLUGIN_STATUS) == STATUSES.INSTALLED
+                    or item.data(ROLES.PLUGIN_STATUS) == STATUSES.UPDATE
+                ) and item.data(ROLES.PLUGIN_INCOMPATIBLE):
+                    result.append(
+                        {
+                            'name': f'{item.data(ROLES.PLUGIN_NAME)} [Incompatible]',
+                            'version': '-',
+                        }
+                    )
 
         sorted_version_data = sorted(result, key=itemgetter('name'))
 
