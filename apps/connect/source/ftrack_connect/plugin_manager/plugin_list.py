@@ -21,6 +21,7 @@ from ftrack_connect.util import (
     get_plugin_json_url_from_environment,
     fetch_github_releases,
     get_plugin_data,
+    get_plugins_from_path,
 )
 
 from ftrack_connect.plugin_manager.processor import (
@@ -244,13 +245,7 @@ class DndPluginList(QtWidgets.QFrame):
         self._installed_plugin_count = 0
         self._plugin_model.clear()
 
-        # Filter out files and hidden items.
-        plugins = [
-            f
-            for f in os.listdir(self.default_plugin_directory)
-            if not f.startswith('.')
-            and os.path.isdir(os.path.join(self.default_plugin_directory, f))
-        ]
+        plugins = get_plugins_from_path(self.default_plugin_directory)
 
         for plugin in plugins:
             try:
@@ -292,13 +287,7 @@ class DndPluginList(QtWidgets.QFrame):
 
     def get_incompatible_plugins(self):
         result = []
-        # Filter out files and hidden items.
-        plugins = [
-            f
-            for f in os.listdir(self.default_plugin_directory)
-            if not f.startswith('.')
-            and os.path.isdir(os.path.join(self.default_plugin_directory, f))
-        ]
+        plugins = get_plugins_from_path(self.default_plugin_directory)
         for plugin in plugins:
             plugin_path = os.path.join(self.default_plugin_directory, plugin)
             if is_incompatible_plugin(get_plugin_data(plugin_path)):
@@ -307,13 +296,7 @@ class DndPluginList(QtWidgets.QFrame):
 
     def get_deprecated_plugins(self):
         result = []
-        # Filter out files and hidden items.
-        plugins = [
-            f
-            for f in os.listdir(self.default_plugin_directory)
-            if not f.startswith('.')
-            and os.path.isdir(os.path.join(self.default_plugin_directory, f))
-        ]
+        plugins = get_plugins_from_path(self.default_plugin_directory)
         for plugin in plugins:
             plugin_path = os.path.join(self.default_plugin_directory, plugin)
             if is_deprecated_plugin(get_plugin_data(plugin_path)):
