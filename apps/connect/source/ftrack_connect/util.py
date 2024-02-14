@@ -82,6 +82,18 @@ class InvokeEvent(QtCore.QEvent):
         self.kwargs = kwargs
 
 
+def get_plugins_from_path(plugin_directory):
+    '''Return folders from the given *connect_plugin_path* directory'''
+    # Filter out files and hidden items.
+    plugins = [
+        f
+        for f in os.listdir(plugin_directory)
+        if not f.startswith('.')
+        and os.path.isdir(os.path.join(plugin_directory, f))
+    ]
+    return plugins
+
+
 def get_connect_plugin_version(connect_plugin_path):
     '''Return Connect plugin version string for *connect_plugin_path*'''
     result = None
