@@ -1,7 +1,7 @@
 # ftrack Connect release Notes
 
-## Upcoming
-YYYY-mm-dd
+## v3.0.0
+2024-02-14
 
 * [changed] Do not prevent Connect from launching if there is no system tray.
 * [changed] Support for detecting and warning about integrations requiring Rosetta on Apple Silicon. 
