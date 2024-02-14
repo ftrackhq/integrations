@@ -1020,6 +1020,29 @@ class Application(QtWidgets.QMainWindow):
         except Exception as error:
             self.logger.error(error)
 
+        # Append bootstrapped plugins that did not respond to event
+        for plugin_path in self.plugin_paths:
+            folder_name = os.path.basename(plugin_path)
+            # Expect "ftrack-application-launcher-1.0.11"
+            idx = folder_name.rfind('-')
+            if 0 < idx < len(folder_name) - 1:
+                # First part is name and last part is version
+                name = folder_name[:idx]
+                version = folder_name[idx + 1 :]
+                # Already reported?
+                found = False
+                for version_data in versionData:
+                    if version_data['name'].lower().find(name) > -1:
+                        found = True
+                        break
+                if not found:
+                    versionData.append(
+                        {
+                            'name': name,
+                            'version': version,
+                        }
+                    )
+
         sorted_version_data = sorted(versionData, key=itemgetter('name'))
 
         aboutDialog.setInformation(
