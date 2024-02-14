@@ -709,7 +709,7 @@ class Application(QtWidgets.QMainWindow):
             return paths
         self.logger.debug(u'Searching {0!r} for plugin hooks.'.format(path))
         if os.path.isdir(path):
-            for candidate in os.listdir(path):
+            for candidate in ftrack_connect.util.get_plugins_from_path(path):
                 candidate_path = os.path.join(path, candidate)
                 if os.path.isdir(candidate_path):
                     if ftrack_connect.util.is_incompatible_plugin(
