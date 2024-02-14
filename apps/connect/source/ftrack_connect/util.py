@@ -110,6 +110,9 @@ def get_plugin_data(plugin_path):
     if match:
         data = match.groupdict()
     else:
+        logger.warning(
+            f"The provided plugin path can't be recognized: {plugin_path}"
+        )
         return False
 
     data['path'] = plugin_path
