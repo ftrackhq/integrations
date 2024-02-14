@@ -1032,7 +1032,10 @@ class Application(QtWidgets.QMainWindow):
                 # Already reported?
                 found = False
                 for version_data in versionData:
-                    if version_data['name'].lower().find(name) > -1:
+                    if (
+                        version_data['name'].lower().find(name.lower()) > -1
+                        or name.lower().find(version_data['name'].lower()) > -1
+                    ):
                         found = True
                         break
                 if not found:
