@@ -1004,7 +1004,7 @@ class Application(QtWidgets.QMainWindow):
             'debug_information': debug_information,
         }
 
-        versionData = [connect_version_data]
+        result = [connect_version_data]
 
         # Gather information about API versions and other
         # plugin hooks.
@@ -1018,9 +1018,9 @@ class Application(QtWidgets.QMainWindow):
 
             for response in responses:
                 if isinstance(response, dict):
-                    versionData.append(response)
+                    result.append(response)
                 elif isinstance(response, list):
-                    versionData = versionData + response
+                    result = result + response
 
         except Exception as error:
             self.logger.error(error)
@@ -1036,7 +1036,7 @@ class Application(QtWidgets.QMainWindow):
                 version = folder_name[idx + 1 :]
                 # Already reported?
                 found = False
-                for version_data in versionData:
+                for version_data in result:
                     if (
                         version_data['name'].lower().find(name.lower()) > -1
                         or name.lower().find(version_data['name'].lower()) > -1
@@ -1044,7 +1044,7 @@ class Application(QtWidgets.QMainWindow):
                         found = True
                         break
                 if not found:
-                    versionData.append(
+                    result.append(
                         {
                             'name': name,
                             'version': version,
@@ -1052,13 +1052,13 @@ class Application(QtWidgets.QMainWindow):
                     )
 
         # Check compatibility of plugins
-        for version_data in versionData:
+        for version_data in result:
             if is_incompatible_plugin(version_data):
                 version_data['name'] = f'{version_data["name"]} [Incompatible]'
             elif is_deprecated_plugin(version_data):
                 version_data['name'] = f'{version_data["name"]} [Deprecated]'
 
-        sorted_version_data = sorted(versionData, key=itemgetter('name'))
+        sorted_version_data = sorted(result, key=itemgetter('name'))
 
         aboutDialog.setInformation(
             versionData=sorted_version_data,

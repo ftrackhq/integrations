@@ -41,6 +41,7 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
 
     @property
     def items(self):
+        '''Return items in plugin list.'''
         result = []
         num_items = self._plugin_list_widget.plugin_model.rowCount()
         for i in range(num_items):
