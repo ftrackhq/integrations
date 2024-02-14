@@ -209,7 +209,14 @@ class AboutDialog(QtWidgets.QDialog):
                     name=_plugin['name'], version=_plugin['version']
                 )
 
-            content += '<h4>Plugins:</h4>{0}'.format(pluginVersions)
+            content += f'<h4>Plugins:</h4>{pluginVersions}'
+
+        if widget_plugins:
+            widgetNames = []
+            for _widget in list(widget_plugins.values()):
+                widgetNames.append(_widget.getName())
+
+            content += f'<h4>Widgets:</h4>{",".join(widgetNames)}'
 
         self.messageLabel.setText(content)
         self.debugTextEdit.insertPlainText(

@@ -3,6 +3,7 @@
 ## v3.0.0
 2024-02-14
 
+* [changed] Improved about window - More information to include debug information from widget plugins.
 * [changed] Do not prevent Connect from launching if there is no system tray.
 * [changed] Support for detecting and warning about integrations requiring Rosetta on Apple Silicon. 
 * [changed] Ported and integrated the ftrack-application-launcher module and switched over to YAML configuration support.

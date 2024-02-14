@@ -153,6 +153,18 @@ class DiscoverApplications(object):
 
             self._actions.append(action)
 
+    def get_debug_information(self):
+        result = {
+            'name': 'Application Launcher',
+            'identifier': 'application.launch',
+            'actions': [],
+        }
+        for action in self._actions:
+            result['actions'].append(action.get_version_information())
+        return result
+
     def register(self):
         for action in self._actions:
             action.register()
+
+        self.logger.debug('Registered {} action(s)'.format(len(self._actions)))
