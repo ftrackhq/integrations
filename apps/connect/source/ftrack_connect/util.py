@@ -38,7 +38,7 @@ DEFAULT_PLUGIN_DIRECTORIES = (
         for p in os.environ['FTRACK_CONNECT_PLUGIN_PATH'].split(os.pathsep)
     ]
     if 'FTRACK_CONNECT_PLUGIN_PATH' in os.environ
-    else get_default_plugin_directory()
+    else [get_default_plugin_directory()]
 )
 
 
