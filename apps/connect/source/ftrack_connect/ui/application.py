@@ -1,6 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
-
+import copy
 import os
 import platform
 import sys
@@ -10,7 +10,6 @@ import uuid
 import logging
 import weakref
 from operator import itemgetter
-import platformdirs
 import time
 import qtawesome as qta
 
@@ -31,11 +30,13 @@ import ftrack_connect
 import ftrack_connect.event_hub_thread as _event_hub_thread
 import ftrack_connect.error
 from ftrack_connect.util import (
+    get_default_plugin_directory,
     get_plugins_from_path,
     is_incompatible_plugin,
     is_deprecated_plugin,
     get_plugin_data,
     open_directory,
+    get_plugin_directories,
 )
 import ftrack_connect.ui.theme
 import ftrack_connect.ui.widget.overlay
@@ -96,6 +97,9 @@ class ConnectWidget(QtWidgets.QWidget):
     #: Signal to emit to request connect to restart.
     requestConnectRestart = QtCore.Signal()
 
+    #: Signal to fetch discovered plugins
+    fetchPlugins = QtCore.Signal(object)
+
     @property
     def session(self):
         '''Return current session.'''
@@ -113,6 +117,10 @@ class ConnectWidget(QtWidgets.QWidget):
     def getIdentifier(self):
         '''Return identifier for widget.'''
         return self.getName().lower().replace(' ', '.')
+
+    def refresh(self):
+        '''Refresh/rebuild widget, called when widget has been fully set up. Should be overridden'''
+        pass
 
     def get_debug_information(self):
         '''Return debug information for about dialog, should be overriden.'''
@@ -136,7 +144,7 @@ class Application(QtWidgets.QMainWindow):
     loginSuccessSignal = QtCore.Signal()
 
     _builtin_widget_plugins = []
-    _widget_plugin_instancens = []
+    _widget_plugin_instances = {}
 
     def restart(self):
         '''restart connect application'''
@@ -236,6 +244,10 @@ class Application(QtWidgets.QMainWindow):
         '''Return current session.'''
         return self._session
 
+    @property
+    def plugins(self):
+        return self._plugins
+
     def __init__(self, theme='system', instance=None, log_level=None):
         '''Initialise the main application window with *theme*, singleton
         *instance* and custom *log_level*.'''
@@ -248,12 +260,9 @@ class Application(QtWidgets.QMainWindow):
         self.__connect_start_time = time.time()
         self._log_level = log_level
 
-        self.defaultPluginDirectory = platformdirs.user_data_dir(
-            'ftrack-connect-plugins', 'ftrack'
-        )
-        self._createDefaultPluginDirectory()
+        self._create_default_plugin_directory()
 
-        self.plugin_paths = self._discover_plugin_paths()
+        self._plugins = self._discover_plugin_data()
 
         # Register widget for error handling.
         self.uncaughtError = _uncaught_error.UncaughtError(parent=self)
@@ -274,7 +283,6 @@ class Application(QtWidgets.QMainWindow):
 
         self.setTheme(theme)
 
-        self.plugins = {}
         self._application_launcher = None
 
         self.setObjectName('ftrack-connect-window')
@@ -453,8 +461,13 @@ class Application(QtWidgets.QMainWindow):
             if apiPluginPath and apiPluginPath not in api_plugin_paths:
                 api_plugin_paths.append(os.path.expandvars(apiPluginPath))
 
-        for connect_plugin_path in self.plugin_paths:
-            api_plugin_paths.append(os.path.join(connect_plugin_path, 'hook'))
+        for plugin in self.plugins:
+            if ftrack_connect.util.is_incompatible_plugin(plugin):
+                self.logger.warning(
+                    f'Ignoring plugin that is incompatible: {plugin["path"]}'
+                )
+                continue
+            api_plugin_paths.append(os.path.join(plugin['path'], 'hook'))
 
         return api_plugin_paths
 
@@ -685,56 +698,64 @@ class Application(QtWidgets.QMainWindow):
 
         self._discover_connect_widgets()
 
-    def _discover_plugin_paths(self):
-        '''Return a list of paths to pass to ftrack_api.Session()'''
+    def _gather_plugins(self, plugin_directory):
+        '''Return plugin data from *plugin_directory*.'''
 
-        plugin_paths = []
-
-        plugin_paths.extend(self._gather_plugins(self.defaultPluginDirectory))
-
-        for connectPluginPath in os.environ.get(
-            'FTRACK_CONNECT_PLUGIN_PATH', ''
-        ).split(os.pathsep):
-            plugin_paths.extend(
-                self._gather_plugins(os.path.expandvars(connectPluginPath))
-            )
-
-        plugin_paths = list(set(plugin_paths))
-
-        self.logger.info(
-            u'Connect plugin directories: {0}'.format(', '.join(plugin_paths))
+        result = []
+        if not plugin_directory:
+            return result
+        self.logger.debug(
+            u'Searching {0!r} for plugin hooks.'.format(plugin_directory)
         )
+        if os.path.isdir(plugin_directory):
+            for candidate in get_plugins_from_path(plugin_directory):
+                candidate_path = os.path.join(plugin_directory, candidate)
 
-        return plugin_paths
+                # Check for hook folder
+                full_hook_path = os.path.join(candidate_path, 'hook')
+                if not os.path.isdir(full_hook_path):
+                    self.logger.debug(
+                        f'Missing "hook" folder: {candidate_path}'
+                    )
+                    continue
 
-    def _gather_plugins(self, path):
-        '''Return plugin hooks from *path*.'''
-
-        paths = []
-        if not path:
-            return paths
-        self.logger.debug(u'Searching {0!r} for plugin hooks.'.format(path))
-        if os.path.isdir(path):
-            for candidate in get_plugins_from_path(path):
-                candidate_path = os.path.join(path, candidate)
-                if os.path.isdir(candidate_path):
-                    if is_incompatible_plugin(get_plugin_data(candidate_path)):
-                        self.logger.warning(
-                            f'Ignoring plugin that is incompatible: {candidate_path}'
-                        )
-                        continue
-                    full_hook_path = os.path.join(candidate_path, 'hook')
-                    if (
-                        os.path.isdir(full_hook_path)
-                        and candidate_path not in paths
-                    ):
-                        paths.append(candidate_path)
+                plugin = get_plugin_data(candidate_path)
+                result.append(plugin)
 
         self.logger.debug(
-            u'Found {0!r} plugin hooks in {1!r}.'.format(paths, path)
+            u'Found {0!r} plugin hooks in {1!r}.'.format(
+                result, plugin_directory
+            )
         )
 
-        return paths
+        return result
+
+    def _discover_plugin_data(self):
+        '''Return a list of paths to pass to ftrack_api.Session()'''
+
+        result = []
+
+        for plugin_base_directory in get_plugin_directories():
+            for plugin in self._gather_plugins(plugin_base_directory):
+                # Append plugin if not already in there - top plugin path takes precedence
+                found = False
+                for existing_plugin in result:
+                    if (
+                        existing_plugin['name'].lower()
+                        == plugin['name'].lower()
+                    ):
+                        found = True
+                        break
+                if not found:
+                    result.append(plugin)
+
+        self.logger.info(
+            u'Connect plugin directories: {0}'.format(
+                ', '.join([plugin['path'] for plugin in result])
+            )
+        )
+
+        return result
 
     def _relayEventHubEvent(self, event):
         '''Relay all ftrack.connect events.'''
@@ -774,7 +795,7 @@ class Application(QtWidgets.QMainWindow):
         openPluginDirectoryAction = QtWidgets.QAction(
             'Open plugin directory',
             self,
-            triggered=self.openDefaultPluginDirectory,
+            triggered=self.open_default_plugin_directory,
         )
 
         aboutAction = QtWidgets.QAction(
@@ -808,9 +829,6 @@ class Application(QtWidgets.QMainWindow):
         '''Find and load connect widgets in search paths.'''
 
         event = ftrack_api.event.base.Event(topic=ConnectWidgetPlugin.topic)
-        disable_startup_widget = bool(
-            os.getenv('FTRACK_CONNECT_DISABLE_STARTUP_WIDGET', False)
-        )
         responses = self.session.event_hub.publish(event, synchronous=True)
 
         # Load icons
@@ -836,15 +854,15 @@ class Application(QtWidgets.QMainWindow):
                 continue
             try:
                 identifier = widget_plugin.getIdentifier()
-                if not self.plugins.get(identifier):
-                    self.plugins[identifier] = widget_plugin
+                if not self._widget_plugin_instances.get(identifier):
+                    self._widget_plugin_instances[identifier] = widget_plugin
                 else:
                     self.logger.debug(
                         'Widget {} already registered'.format(identifier)
                     )
                     continue
 
-                self.addPlugin(widget_plugin)
+                self.add_plugin(widget_plugin)
 
             except Exception as error:
                 self.logger.warning(
@@ -869,7 +887,7 @@ class Application(QtWidgets.QMainWindow):
         action = event['data']['action']
 
         try:
-            pluginInstance = self.plugins[plugin]
+            pluginInstance = self._widget_plugin_instances[plugin]
         except KeyError:
             raise ftrack_connect.error.ConnectError(
                 'Plugin "{0}" not found.'.format(plugin)
@@ -886,6 +904,10 @@ class Application(QtWidgets.QMainWindow):
 
         method(event)
 
+    def _on_fetch_plugins_callback(self, callback_fn):
+        '''Call *callback_fn* with list of active Connect plugins'''
+        callback_fn(self.plugins)
+
     def _onWidgetRequestApplicationFocus(self, widget):
         '''Switch tab to *widget* and bring application to front.'''
         self.tabPanel.setCurrentWidget(widget)
@@ -895,7 +917,7 @@ class Application(QtWidgets.QMainWindow):
         '''Hide application upon *widget* request.'''
         self.hide()
 
-    def addPlugin(self, plugin, name=None):
+    def add_plugin(self, plugin, name=None):
         '''Add *plugin* in new tab with *name* and *identifier*.
 
         *plugin* should be an instance of :py:class:`ApplicationPlugin`.
@@ -912,12 +934,13 @@ class Application(QtWidgets.QMainWindow):
 
         try:
             icon = qta.icon(plugin.icon)
-        except Exception as err:
+        except Exception:
             icon = QtGui.QIcon(plugin.icon)
 
         self.tabPanel.addTab(plugin, icon, name)
 
         # Connect standard plugin events.
+        plugin.fetchPlugins.connect(self._on_fetch_plugins_callback)
         plugin.requestApplicationFocus.connect(
             self._onWidgetRequestApplicationFocus
         )
@@ -926,17 +949,18 @@ class Application(QtWidgets.QMainWindow):
         )
         plugin.requestConnectRestart.connect(self.restart)
 
-        self._widget_plugin_instancens.append(plugin)
+        plugin.refresh()
+
         self.logger.debug(f'Plugin {name}({plugin.__class__.__name__}) added')
 
-    def removePlugin(self, plugin):
+    def remove_plugin(self, plugin):
         '''Remove plugin registered with *identifier*.
 
         Raise :py:exc:`KeyError` if no plugin with *identifier* has been added.
 
         '''
         identifier = plugin.getIdentifier()
-        registered_plugin = self.plugins.get(identifier)
+        registered_plugin = self._widget_plugin_instances.get(identifier)
 
         if registered_plugin is None:
             self.logger.warning(
@@ -993,7 +1017,7 @@ class Application(QtWidgets.QMainWindow):
             ] = self._application_launcher.get_debug_information()
 
         # Provide information from builtin widget plugins.
-        for plugin in self._widget_plugin_instancens:
+        for plugin in self._widget_plugin_instances:
             if isinstance(plugin, ConnectWidget):
                 debug_information['widgets'].append(
                     plugin.get_debug_information()
@@ -1008,75 +1032,47 @@ class Application(QtWidgets.QMainWindow):
 
         result = [connect_version_data]
 
+        # Append all discovered plugins
+        for plugin in self.plugins:
+            result.append(copy.deepcopy(plugin))
+
         # Gather information about API versions and other
-        # plugin hooks.
+        # plugin hooks through event, append or add to result
 
         try:
             event = ftrack_api.event.base.Event(
                 topic='ftrack.connect.plugin.debug-information'
             )
 
-            responses = self.session.event_hub.publish(event, synchronous=True)
+            raw_responses = self.session.event_hub.publish(
+                event, synchronous=True
+            )
 
-            for response in responses:
+            responses = []
+            for response in raw_responses:
                 if isinstance(response, dict):
-                    result.append(response)
+                    responses.append(response)
                 elif isinstance(response, list):
-                    result = result + response
-
+                    responses = response
+            for response in responses:
+                found = False
+                for plugin_data in result:
+                    if plugin_data['name'] == response['name']:
+                        found = True
+                        # Update information
+                        plugin_data.update(response)
+                        break
+                if not found:
+                    result.append(response)
         except Exception as error:
             self.logger.error(error)
 
-        # Append bootstrapped plugins that were not reported
-        for plugin_path in self.plugin_paths:
-            folder_name = os.path.basename(plugin_path)
-            # Expect "ftrack-application-launcher-1.0.11"
-            idx = folder_name.rfind('-')
-            if 0 < idx < len(folder_name) - 1:
-                # First part is name and last part is version
-                name = folder_name[:idx]
-                version = folder_name[idx + 1 :]
-                # Already reported?
-                found = False
-                for version_data in result:
-                    if (
-                        version_data['name'].lower().find(name.lower()) > -1
-                        or name.lower().find(version_data['name'].lower()) > -1
-                    ):
-                        found = True
-                        break
-                if not found:
-                    result.append(
-                        {
-                            'name': name,
-                            'version': version,
-                        }
-                    )
-
-        # Check compatibility of plugins
-        for version_data in result:
-            if is_deprecated_plugin(version_data):
-                version_data['name'] = f'{version_data["name"]} [Deprecated]'
-
-        # Add incompatible ones just for verbosity
-        plugin_manager = None
-        for plugin in self._widget_plugin_instancens:
-            if isinstance(plugin, PluginManager):
-                plugin_manager = plugin
-                break
-        print(f'@@@ plugin_manager: {plugin_manager}')
-        if plugin_manager:
-            for item in plugin_manager.items:
-                if (
-                    item.data(ROLES.PLUGIN_STATUS) == STATUSES.INSTALLED
-                    or item.data(ROLES.PLUGIN_STATUS) == STATUSES.UPDATE
-                ) and item.data(ROLES.PLUGIN_INCOMPATIBLE):
-                    result.append(
-                        {
-                            'name': f'{item.data(ROLES.PLUGIN_NAME)} [Incompatible]',
-                            'version': '-',
-                        }
-                    )
+        # Highlight compatibility of plugins
+        for plugin_data in result:
+            if plugin_data.get('incompatible'):
+                plugin_data['name'] = f'{plugin_data["name"]} [Incompatible]'
+            elif plugin_data.get('deprecated'):
+                plugin_data['name'] = f'{plugin_data["name"]} [Deprecated]'
 
         sorted_version_data = sorted(result, key=itemgetter('name'))
 
@@ -1084,13 +1080,13 @@ class Application(QtWidgets.QMainWindow):
             versionData=sorted_version_data,
             server=os.environ.get('FTRACK_SERVER', 'Not set'),
             user=self.session.api_user,
-            widget_plugins=self.plugins,
+            widget_plugins=self._widget_plugin_instances,
         )
 
         aboutDialog.exec_()
 
-    def _createDefaultPluginDirectory(self):
-        directory = self.defaultPluginDirectory
+    def _create_default_plugin_directory(self):
+        directory = get_default_plugin_directory()
 
         if not os.path.exists(directory):
             # Create directory if not existing.
@@ -1101,22 +1097,22 @@ class Application(QtWidgets.QMainWindow):
 
         return directory
 
-    def openDefaultPluginDirectory(self):
+    def open_default_plugin_directory(self):
         '''Open default plugin directory in platform default file browser.'''
 
         try:
-            self._createDefaultPluginDirectory()
+            self._create_default_plugin_directory()
         except OSError:
             messageBox = QtWidgets.QMessageBox(parent=self)
             messageBox.setIcon(QtWidgets.QMessageBox.Warning)
             messageBox.setText(
                 u'Could not open or create default plugin '
-                u'directory: {0}.'.format(self.defaultPluginDirectory)
+                u'directory: {0}.'.format(get_default_plugin_directory())
             )
             messageBox.exec_()
             return
 
-        open_directory(self.defaultPluginDirectory)
+        open_directory(get_default_plugin_directory())
 
     def _discover_applications(self):
         '''Walk through Connect plugins and pick up application launcher
@@ -1125,7 +1121,7 @@ class Application(QtWidgets.QMainWindow):
 
         self.logger.debug('Discovering applications launcher configs.')
 
-        for connect_plugin_path in self.plugin_paths:
+        for connect_plugin_path in [plugin['path'] for plugin in self.plugins]:
             launcher_config_path = os.path.join(connect_plugin_path, 'launch')
             if os.path.isdir(launcher_config_path):
                 launcher_config_paths.append(launcher_config_path)

@@ -82,6 +82,21 @@ class InvokeEvent(QtCore.QEvent):
         self.kwargs = kwargs
 
 
+def get_default_plugin_directory():
+    return platformdirs.user_data_dir('ftrack-connect-plugins', 'ftrack')
+
+
+def get_plugin_directories():
+    '''Return list of plugin directories from FTRACK_CONNECT_PLUGIN_PATH'''
+    result = [get_default_plugin_directory()]
+    if 'FTRACK_CONNECT_PLUGIN_PATH' in os.environ:
+        result = [
+            os.path.expandvars(p)
+            for p in os.environ['FTRACK_CONNECT_PLUGIN_PATH'].split(os.pathsep)
+        ]
+    return result
+
+
 def get_plugins_from_path(plugin_directory):
     '''Return folders from the given *connect_plugin_path* directory'''
     # Filter out files and hidden items.
@@ -137,7 +152,8 @@ def get_plugin_data(plugin_path):
         if len(parts) > 1:
             data['version'] = parts[0]
             data['platform'] = parts[-1]
-
+    data['incompatible'] = is_incompatible_plugin(data)
+    data['deprecated'] = is_deprecated_plugin(data)
     return data
 
 
