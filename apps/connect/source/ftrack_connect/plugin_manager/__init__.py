@@ -113,7 +113,7 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
         for index, plugin_directory in enumerate(DEFAULT_PLUGIN_DIRECTORIES):
             self._info_widget.layout().addWidget(
                 QtWidgets.QLabel(
-                    f'<html><code>{plugin_directory}{"</code> (target)</html>" if index == 0 else ""}'
+                    f'<html><small><code>{plugin_directory}{"</code> (target)</small></html>" if index == 0 else ""}'
                 )
             )
         self.layout().addWidget(self._info_widget)
