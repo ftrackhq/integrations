@@ -1174,7 +1174,8 @@ class ApplicationLaunchAction(BaseAction):
 
         return self.launcher.launch(application_identifier, context)
 
-    def get_version_information(self):
+    def get_debug_information(self):
+        '''Get application launcher debug information'''
         result = {'identifier': self.identifier, 'applications': []}
         for application in self.application_store.applications:
             application_information = {

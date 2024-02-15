@@ -146,6 +146,63 @@ class Application(QtWidgets.QMainWindow):
     _builtin_widget_plugins = []
     _widget_plugin_instances = {}
 
+    @property
+    def session(self):
+        '''Return current session.'''
+        return self._session
+
+    @property
+    def plugins(self):
+        return self._plugins
+
+    def __init__(self, theme='system', instance=None, log_level=None):
+        '''Initialise the main application window with *theme*, singleton
+        *instance* and custom *log_level*.'''
+        super(Application, self).__init__()
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
+        self._instance = instance
+        self._session = None
+        self.__connect_start_time = time.time()
+        self._log_level = log_level
+
+        self._create_default_plugin_directory()
+
+        self._plugins = self._discover_plugin_data()
+
+        # Register widget for error handling.
+        self.uncaughtError = _uncaught_error.UncaughtError(parent=self)
+
+        self._login_server_thread = None
+        self.tray = None
+        if not QtWidgets.QSystemTrayIcon.isSystemTrayAvailable():
+            QtWidgets.QMessageBox.warning(
+                self,
+                'Connect',
+                'No system tray located.\n\nHint: On '
+                'Linux CentOS consider installing '
+                'gnome-shell-extension-top-icons',
+            )
+        else:
+            self._initialise_tray()
+        self._initialise_menu_bar()
+
+        self._set_theme(theme)
+
+        self._application_launcher = None
+
+        self.setObjectName('ftrack-connect-window')
+        self.setWindowTitle('ftrack Connect')
+        self.resize(450, 700)
+        self.move(50, 50)
+
+        self._login_overlay = None
+        self._login_widget = _login.Login(theme=self.theme())
+        self.loginSignal.connect(self.loginWithCredentials)
+        self.loginSuccessSignal.connect(self._post_login_settings)
+        self.login()
+
     def restart(self):
         '''restart connect application'''
         self.logger.info('Connect restarting....')
@@ -239,63 +296,6 @@ class Application(QtWidgets.QMainWindow):
         if usage_tracker:
             usage_tracker.track('USED-CONNECT', metadata)
 
-    @property
-    def session(self):
-        '''Return current session.'''
-        return self._session
-
-    @property
-    def plugins(self):
-        return self._plugins
-
-    def __init__(self, theme='system', instance=None, log_level=None):
-        '''Initialise the main application window with *theme*, singleton
-        *instance* and custom *log_level*.'''
-        super(Application, self).__init__()
-        self.logger = logging.getLogger(
-            __name__ + '.' + self.__class__.__name__
-        )
-        self._instance = instance
-        self._session = None
-        self.__connect_start_time = time.time()
-        self._log_level = log_level
-
-        self._create_default_plugin_directory()
-
-        self._plugins = self._discover_plugin_data()
-
-        # Register widget for error handling.
-        self.uncaughtError = _uncaught_error.UncaughtError(parent=self)
-
-        self._login_server_thread = None
-        self.tray = None
-        if not QtWidgets.QSystemTrayIcon.isSystemTrayAvailable():
-            QtWidgets.QMessageBox.warning(
-                self,
-                'Connect',
-                'No system tray located.\n\nHint: On '
-                'Linux CentOS consider installing '
-                'gnome-shell-extension-top-icons',
-            )
-        else:
-            self._initialiseTray()
-        self._initialiseMenuBar()
-
-        self.setTheme(theme)
-
-        self._application_launcher = None
-
-        self.setObjectName('ftrack-connect-window')
-        self.setWindowTitle('ftrack Connect')
-        self.resize(450, 700)
-        self.move(50, 50)
-
-        self._login_overlay = None
-        self.loginWidget = _login.Login(theme=self.theme())
-        self.loginSignal.connect(self.loginWithCredentials)
-        self.loginSuccessSignal.connect(self._post_login_settings)
-        self.login()
-
     def _post_login_settings(self):
         if self.tray:
             self.tray.show()
@@ -308,7 +308,7 @@ class Application(QtWidgets.QMainWindow):
         '''Return current theme.'''
         return self._theme
 
-    def setTheme(self, theme='system'):
+    def _set_theme(self, theme='system'):
         '''Set *theme*.'''
         if theme not in ['light', 'dark']:
             theme = self.system_theme()
@@ -340,7 +340,7 @@ class Application(QtWidgets.QMainWindow):
         if event['topic'] != 'ftrack.connect':
             return
 
-        self._routeEvent(event)
+        self._route_event(event)
 
     def logout(self):
         '''Clear stored credentials and quit Connect.'''
@@ -423,7 +423,7 @@ class Application(QtWidgets.QMainWindow):
     def login(self):
         '''Login using stored credentials or ask user for them.'''
         credentials = self._get_credentials()
-        self.showLoginWidget()
+        self._show_login_widget()
 
         if credentials:
             # Try to login.
@@ -433,23 +433,23 @@ class Application(QtWidgets.QMainWindow):
                 credentials['api_key'],
             )
 
-    def showLoginWidget(self):
+    def _show_login_widget(self):
         '''Show the login widget.'''
         self._login_overlay = ftrack_connect.ui.widget.overlay.CancelOverlay(
-            self.loginWidget, message='<h2>Signing in<h2/>'
+            self._login_widget, message='<h2>Signing in<h2/>'
         )
 
         self._login_overlay.hide()
-        self.setCentralWidget(self.loginWidget)
-        self.loginWidget.login.connect(self._login_overlay.show)
-        self.loginWidget.login.connect(self.loginWithCredentials)
-        self.loginError.connect(self.loginWidget.loginError.emit)
+        self.setCentralWidget(self._login_widget)
+        self._login_widget.login.connect(self._login_overlay.show)
+        self._login_widget.login.connect(self.loginWithCredentials)
+        self.loginError.connect(self._login_widget.loginError.emit)
         self.loginError.connect(self._login_overlay.hide)
         self.focus()
 
         # Set focus on the login widget to remove any focus from its child
         # widgets.
-        self.loginWidget.setFocus()
+        self._login_widget.setFocus()
         self._login_overlay.hide()
 
     def _get_api_plugin_paths(self):
@@ -614,7 +614,7 @@ class Application(QtWidgets.QMainWindow):
                     self.session
                 )
                 scenario_widget.configuration_completed.connect(
-                    self.location_configuration_finished
+                    self._location_configuration_finished
                 )
                 self.setCentralWidget(scenario_widget)
                 self.focus()
@@ -622,10 +622,10 @@ class Application(QtWidgets.QMainWindow):
                 return
 
         # No change so build if needed
-        self.location_configuration_finished(reconfigure_session=False)
+        self._location_configuration_finished(reconfigure_session=False)
         self.loginSuccessSignal.emit()
 
-    def location_configuration_finished(self, reconfigure_session=True):
+    def _location_configuration_finished(self, reconfigure_session=True):
         '''Continue connect setup after location configuration is done.'''
         if reconfigure_session:
             try:
@@ -638,7 +638,7 @@ class Application(QtWidgets.QMainWindow):
         self._session = self._setup_session()
 
         try:
-            self.configureConnectAndDiscoverPlugins()
+            self._configure_connect_and_discover_plugins()
         except Exception as error:
             self.logger.exception(u'Error during location configuration:')
             self._report_session_setup_error(error)
@@ -663,7 +663,7 @@ class Application(QtWidgets.QMainWindow):
             msgBox.setText('\n\n'.join(problems))
             msgBox.exec_()
 
-    def configureConnectAndDiscoverPlugins(self):
+    def _configure_connect_and_discover_plugins(self):
         '''Configure connect and load plugins.'''
 
         self.tabPanel = _tab_widget.TabWidget()
@@ -674,7 +674,7 @@ class Application(QtWidgets.QMainWindow):
             'topic=ftrack.connect and source.user.username="{0}"'.format(
                 self.session.api_user
             ),
-            self._relayEventHubEvent,
+            self._relay_event,
         )
         self.eventHubSignal.connect(self._onConnectTopicEvent)
 
@@ -757,19 +757,19 @@ class Application(QtWidgets.QMainWindow):
 
         return result
 
-    def _relayEventHubEvent(self, event):
+    def _relay_event(self, event):
         '''Relay all ftrack.connect events.'''
         self.eventHubSignal.emit(event)
 
-    def _initialiseTray(self):
+    def _initialise_tray(self):
         '''Initialise and add application icon to system tray.'''
-        self.trayMenu = self._createTrayMenu()
+        self.trayMenu = self._create_tray_menu()
 
         self.tray = QtWidgets.QSystemTrayIcon(self)
 
         self.tray.setContextMenu(self.trayMenu)
 
-    def _initialiseMenuBar(self):
+    def _initialise_menu_bar(self):
         '''Initialise and add connect widget to widgets menu.'''
 
         self.menu_bar = QtWidgets.QMenuBar()
@@ -778,7 +778,7 @@ class Application(QtWidgets.QMainWindow):
         self.menu_widget = widget_menu
         self.menu_bar.setVisible(False)
 
-    def _createTrayMenu(self):
+    def _create_tray_menu(self):
         '''Return a menu for system tray.'''
         menu = QtWidgets.QMenu(self)
 
@@ -795,11 +795,11 @@ class Application(QtWidgets.QMainWindow):
         openPluginDirectoryAction = QtWidgets.QAction(
             'Open plugin directory',
             self,
-            triggered=self.open_default_plugin_directory,
+            triggered=self._open_default_plugin_directory,
         )
 
         aboutAction = QtWidgets.QAction(
-            'About', self, triggered=self.showAbout
+            'About', self, triggered=self._show_about
         )
 
         alwaysOnTopAction = QtWidgets.QAction('Always on top', self)
@@ -807,7 +807,7 @@ class Application(QtWidgets.QMainWindow):
             'Restart', self, triggered=self.restart
         )
         alwaysOnTopAction.setCheckable(True)
-        alwaysOnTopAction.triggered[bool].connect(self.setAlwaysOnTop)
+        alwaysOnTopAction.triggered[bool].connect(self._set_always_on_top)
 
         menu.addAction(aboutAction)
         menu.addSeparator()
@@ -862,7 +862,7 @@ class Application(QtWidgets.QMainWindow):
                     )
                     continue
 
-                self.add_plugin(widget_plugin)
+                self._add_plugin(widget_plugin)
 
             except Exception as error:
                 self.logger.warning(
@@ -871,7 +871,7 @@ class Application(QtWidgets.QMainWindow):
                     )
                 )
 
-    def _routeEvent(self, event):
+    def _route_event(self, event):
         '''Route websocket *event* to publisher plugin.
 
         Expect event['data'] to contain:
@@ -908,16 +908,16 @@ class Application(QtWidgets.QMainWindow):
         '''Call *callback_fn* with list of active Connect plugins'''
         callback_fn(self.plugins)
 
-    def _onWidgetRequestApplicationFocus(self, widget):
+    def _on_widget_request_application_focus_callback(self, widget):
         '''Switch tab to *widget* and bring application to front.'''
         self.tabPanel.setCurrentWidget(widget)
         self.focus()
 
-    def _onWidgetRequestApplicationClose(self, widget):
+    def _on_widget_request_acpplication_close_callback(self, widget):
         '''Hide application upon *widget* request.'''
         self.hide()
 
-    def add_plugin(self, plugin, name=None):
+    def _add_plugin(self, plugin, name=None):
         '''Add *plugin* in new tab with *name* and *identifier*.
 
         *plugin* should be an instance of :py:class:`ApplicationPlugin`.
@@ -942,10 +942,10 @@ class Application(QtWidgets.QMainWindow):
         # Connect standard plugin events.
         plugin.fetchPlugins.connect(self._on_fetch_plugins_callback)
         plugin.requestApplicationFocus.connect(
-            self._onWidgetRequestApplicationFocus
+            self._on_widget_request_application_focus_callback
         )
         plugin.requestApplicationClose.connect(
-            self._onWidgetRequestApplicationClose
+            self._on_widget_request_acpplication_close_callback
         )
         plugin.requestConnectRestart.connect(self.restart)
 
@@ -953,7 +953,7 @@ class Application(QtWidgets.QMainWindow):
 
         self.logger.debug(f'Plugin {name}({plugin.__class__.__name__}) added')
 
-    def remove_plugin(self, plugin):
+    def _remove_plugin(self, plugin):
         '''Remove plugin registered with *identifier*.
 
         Raise :py:exc:`KeyError` if no plugin with *identifier* has been added.
@@ -979,7 +979,7 @@ class Application(QtWidgets.QMainWindow):
         self.show()
         self.raise_()
 
-    def setAlwaysOnTop(self, state):
+    def _set_always_on_top(self, state):
         '''Set the application window to be on top'''
         if state:
             self.setWindowFlags(
@@ -991,7 +991,7 @@ class Application(QtWidgets.QMainWindow):
             )
         self.focus()
 
-    def showAbout(self):
+    def _show_about(self):
         '''Display window with about information.'''
         from ftrack_connect.plugin_manager import PluginManager
         from ftrack_connect.plugin_manager.processor import ROLES, STATUSES
@@ -1097,7 +1097,7 @@ class Application(QtWidgets.QMainWindow):
 
         return directory
 
-    def open_default_plugin_directory(self):
+    def _open_default_plugin_directory(self):
         '''Open default plugin directory in platform default file browser.'''
 
         try:

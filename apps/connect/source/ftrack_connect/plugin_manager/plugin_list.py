@@ -95,7 +95,7 @@ class DndPluginList(QtWidgets.QFrame):
 
     # custom methods
     @qt_main_thread
-    def add_plugin(self, plugin_data, status=STATUSES.NEW):
+    def _add_plugin(self, plugin_data, status=STATUSES.NEW):
         '''Add provided *plugin_data* as plugin with given *status*.'''
 
         if not plugin_data:
@@ -248,7 +248,7 @@ class DndPluginList(QtWidgets.QFrame):
 
         for plugin in plugins:
             try:
-                self.add_plugin(plugin, STATUSES.INSTALLED)
+                self._add_plugin(plugin, STATUSES.INSTALLED)
                 self._installed_plugins.append(plugin)
             except Exception as e:
                 logger.exception(e)
@@ -271,14 +271,14 @@ class DndPluginList(QtWidgets.QFrame):
             response_json = json.loads(response.read())
 
             for link in response_json['integrations']:
-                self.add_plugin(get_plugin_data(link), STATUSES.DOWNLOAD)
+                self._add_plugin(get_plugin_data(link), STATUSES.DOWNLOAD)
                 self._downloadable_plugin_count += 1
         else:
             # Read latest releases from ftrack integrations repository
             releases = fetch_github_releases()
 
             for release in releases:
-                self.add_plugin(
+                self._add_plugin(
                     get_plugin_data(release['url']), STATUSES.DOWNLOAD
                 )
                 self._downloadable_plugin_count += 1
@@ -364,7 +364,7 @@ class DndPluginList(QtWidgets.QFrame):
         paths = self._process_mime_data(event.mimeData())
 
         for path in paths:
-            self.add_plugin(get_plugin_data(path), STATUSES.NEW)
+            self._add_plugin(get_plugin_data(path), STATUSES.NEW)
 
         event.accept()
         self._set_drop_zone_state()
