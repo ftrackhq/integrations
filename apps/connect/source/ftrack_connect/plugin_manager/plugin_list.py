@@ -58,7 +58,7 @@ class DndPluginList(QtWidgets.QFrame):
     def __init__(self, parent=None):
         super(DndPluginList, self).__init__(parent=parent)
 
-        # Set the plugin directory to install to
+        # Set the plugin directory to install to the first path on DEFAULT_PLUGIN_DIRECTORIES
         self.default_install_plugin_directory = DEFAULT_PLUGIN_DIRECTORIES[0]
 
         # If set, download plugins from this url instead of the releases
