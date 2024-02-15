@@ -32,7 +32,9 @@ def get_default_plugin_directory():
     return platformdirs.user_data_dir('ftrack-connect-plugins', 'ftrack')
 
 
-DEFAULT_PLUGIN_DIRECTORIES = (
+DEFAULT_PLUGIN_DIRECTORIES = [
+    os.path.expandvars(p) for p in os.getenv('FTRACK_CONNECT_PLUGIN_PATH', get_default_plugin_directory()).split(os.pathsep)
+    ]
     [
         os.path.expandvars(p)
         for p in os.environ['FTRACK_CONNECT_PLUGIN_PATH'].split(os.pathsep)
