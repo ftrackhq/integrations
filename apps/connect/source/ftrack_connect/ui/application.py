@@ -460,7 +460,7 @@ class Application(QtWidgets.QMainWindow):
                 api_plugin_paths.append(os.path.expandvars(apiPluginPath))
 
         for plugin in self.plugins:
-            if ftrack_connect.util.is_incompatible_plugin(plugin):
+            if plugin['incompatible']:
                 self.logger.warning(
                     f'Ignoring plugin that is incompatible: {plugin["path"]}'
                 )
@@ -708,15 +708,6 @@ class Application(QtWidgets.QMainWindow):
         if os.path.isdir(plugin_directory):
             for candidate in get_plugins_from_path(plugin_directory):
                 candidate_path = os.path.join(plugin_directory, candidate)
-
-                # Check for hook folder
-                full_hook_path = os.path.join(candidate_path, 'hook')
-                if not os.path.isdir(full_hook_path):
-                    self.logger.debug(
-                        f'Missing "hook" folder: {candidate_path}'
-                    )
-                    continue
-
                 plugin = get_plugin_data(candidate_path)
                 result.append(plugin)
 
