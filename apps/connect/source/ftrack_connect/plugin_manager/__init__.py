@@ -7,7 +7,7 @@ import os
 
 from ftrack_connect.qt import QtWidgets, QtCore, QtGui
 
-from ftrack_connect.util import qt_main_thread, DEFAULT_PLUGIN_DIRECTORIES
+from ftrack_connect.util import qt_main_thread, PLUGIN_DIRECTORIES
 
 from ftrack_connect.ui.widget.overlay import BlockingOverlay, BusyOverlay
 import ftrack_connect.ui.application
@@ -110,7 +110,7 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
                 "<html><u>Plugin directory search order:</u></html>"
             )
         )
-        for index, plugin_directory in enumerate(DEFAULT_PLUGIN_DIRECTORIES):
+        for index, plugin_directory in enumerate(PLUGIN_DIRECTORIES):
             self._info_widget.layout().addWidget(
                 QtWidgets.QLabel(
                     f'<html><small><code>{plugin_directory}{"</code> (target)</small></html>" if index == 0 else ""}'

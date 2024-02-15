@@ -34,7 +34,7 @@ from ftrack_connect.util import (
     get_plugins_from_path,
     get_plugin_data,
     open_directory,
-    DEFAULT_PLUGIN_DIRECTORIES,
+    PLUGIN_DIRECTORIES,
 )
 import ftrack_connect.ui.theme
 import ftrack_connect.ui.widget.overlay
@@ -167,7 +167,10 @@ class Application(QtWidgets.QMainWindow):
 
         self._create_default_plugin_directory()
 
-        self._plugins = self._discover_plugin_data()
+        self._discovered_plugins = (
+            self._discover_plugin_data_from_plugin_directories()
+        )
+        self._plugins = self._available_plugin_data_from_plugin_directories()
 
         # Register widget for error handling.
         self.uncaughtError = _uncaught_error.UncaughtError(parent=self)
@@ -459,12 +462,17 @@ class Application(QtWidgets.QMainWindow):
             if apiPluginPath and apiPluginPath not in api_plugin_paths:
                 api_plugin_paths.append(os.path.expandvars(apiPluginPath))
 
+        checked_plugins = []
         for plugin in self.plugins:
+            # Always pick the
+            if plugin['name'] in checked_plugins:
+                continue
             if plugin['incompatible']:
                 self.logger.warning(
                     f'Ignoring plugin that is incompatible: {plugin["path"]}'
                 )
                 continue
+            checked_plugins.append(plugin['name'])
             api_plugin_paths.append(os.path.join(plugin['path'], 'hook'))
 
         return api_plugin_paths
@@ -696,7 +704,7 @@ class Application(QtWidgets.QMainWindow):
 
         self._discover_connect_widgets()
 
-    def _gather_plugins(self, plugin_directory):
+    def _gather_plugins(self, plugin_directory, source_index=None):
         '''Return plugin data from *plugin_directory*.'''
 
         result = []
@@ -708,8 +716,10 @@ class Application(QtWidgets.QMainWindow):
         if os.path.isdir(plugin_directory):
             for candidate in get_plugins_from_path(plugin_directory):
                 candidate_path = os.path.join(plugin_directory, candidate)
-                plugin = get_plugin_data(candidate_path)
-                result.append(plugin)
+                plugin_data = get_plugin_data(candidate_path)
+                if source_index >= 0:
+                    plugin_data['source_index'] = source_index
+                result.append(plugin_data)
 
         self.logger.debug(
             u'Found {0!r} plugin hooks in {1!r}.'.format(
@@ -719,14 +729,17 @@ class Application(QtWidgets.QMainWindow):
 
         return result
 
-    def _discover_plugin_data(self):
-        '''Return a list of paths to pass to ftrack_api.Session()'''
+    def _available_plugin_data_from_plugin_directories(self):
+        '''Return a list of plugin data'''
 
         result = []
-
-        for plugin_base_directory in DEFAULT_PLUGIN_DIRECTORIES:
-            for plugin in self._gather_plugins(plugin_base_directory):
-                # Append plugin if not already in there - top plugin path takes precedence
+        i = 0
+        for plugin_base_directory in PLUGIN_DIRECTORIES:
+            current_dir_plugins = []
+            for plugin in self._gather_plugins(
+                plugin_base_directory, source_index=i
+            ):
+                # Append plugin if not already in more prioritized paths. - top plugin path takes preference
                 found = False
                 for existing_plugin in result:
                     if (
@@ -735,15 +748,53 @@ class Application(QtWidgets.QMainWindow):
                     ):
                         found = True
                         break
+                # Make sure we pick the compatible latest version of the plugin from the current folder
+                for current_dir_plugin in current_dir_plugins:
+                    if (
+                        current_dir_plugin['name'].lower()
+                        == plugin['name'].lower()
+                    ):
+                        if (
+                            current_dir_plugin['incompatible']
+                            and not plugin['incompatible']
+                        ):
+                            current_dir_plugins.remove(current_dir_plugin)
+                            break
+                        elif (
+                            current_dir_plugin['deprecated']
+                            and not plugin['incompatible']
+                            and not plugin['deprecated']
+                        ):
+                            current_dir_plugins.remove(current_dir_plugin)
+                            break
+                        elif (
+                            not plugin['incompatible']
+                            and not plugin['deprecated']
+                        ):
+                            if (
+                                current_dir_plugin['version']
+                                < plugin['version']
+                            ):
+                                current_dir_plugins.remove(current_dir_plugin)
+                                break
+                        found = True
+                        break
                 if not found:
-                    result.append(plugin)
+                    current_dir_plugins.append(plugin)
+            result.extend(current_dir_plugins)
+            i += 1
+        return result
 
-        self.logger.info(
-            u'Connect plugin directories: {0}'.format(
-                ', '.join([plugin['path'] for plugin in result])
+    def _discover_plugin_data_from_plugin_directories(self):
+        '''Return a list of all plugin data from the plugin directories'''
+
+        result = []
+        i = 0
+        for plugin_base_directory in PLUGIN_DIRECTORIES:
+            result.extend(
+                self._gather_plugins(plugin_base_directory, source_index=i)
             )
-        )
-
+            i += 1
         return result
 
     def _relay_event(self, event):
@@ -1021,8 +1072,8 @@ class Application(QtWidgets.QMainWindow):
 
         result = [connect_version_data]
 
-        # Append all discovered plugins
-        for plugin in self.plugins:
+        # Append all available plugins
+        for plugin in self._discovered_plugins:
             result.append(copy.deepcopy(plugin))
 
         # Gather information about API versions and other
@@ -1056,12 +1107,19 @@ class Application(QtWidgets.QMainWindow):
         except Exception as error:
             self.logger.error(error)
 
-        # Highlight compatibility of plugins
+        current_plugins_path = [plugin['path'] for plugin in self.plugins]
+        # Highlight compatibility and source of plugins
         for plugin_data in result:
+            if plugin_data.get('core'):
+                continue
+            tags = []
             if plugin_data.get('incompatible'):
-                plugin_data['name'] = f'{plugin_data["name"]} [Incompatible]'
+                tags.append('Incompatible')
             elif plugin_data.get('deprecated'):
-                plugin_data['name'] = f'{plugin_data["name"]} [Deprecated]'
+                tags.append('Deprecated')
+            if plugin_data['path'] not in current_plugins_path:
+                tags.append('Ignored')
+            plugin_data['tags'] = ",".join(tags)
 
         sorted_version_data = sorted(result, key=itemgetter('name'))
 

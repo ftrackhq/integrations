@@ -198,7 +198,9 @@ class TimeTracker(ftrack_connect.ui.application.ConnectWidget):
 
 def get_version_information(event):
     '''Return version information for ftrack connect plugin.'''
-    return [dict(name='connect-timetracker-widget', version=__version__)]
+    return [
+        dict(name='ftrack-connect-timetracker-widget', version=__version__)
+    ]
 
 
 def register(session, **kw):

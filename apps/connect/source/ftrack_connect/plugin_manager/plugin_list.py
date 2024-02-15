@@ -15,7 +15,7 @@ from ftrack_connect.qt import QtWidgets, QtCore, QtGui
 
 from ftrack_connect.util import (
     qt_main_thread,
-    DEFAULT_PLUGIN_DIRECTORIES,
+    PLUGIN_DIRECTORIES,
     get_platform_identifier,
     get_plugin_json_url_from_environment,
     fetch_github_releases,
@@ -58,8 +58,8 @@ class DndPluginList(QtWidgets.QFrame):
     def __init__(self, parent=None):
         super(DndPluginList, self).__init__(parent=parent)
 
-        # Set the plugin directory to install to the first path on DEFAULT_PLUGIN_DIRECTORIES
-        self.default_install_plugin_directory = DEFAULT_PLUGIN_DIRECTORIES[0]
+        # Set the plugin directory to install to the first path on PLUGIN_DIRECTORIES
+        self.default_install_plugin_directory = PLUGIN_DIRECTORIES[0]
 
         # If set, download plugins from this url instead of the releases
         self._json_config_url = get_plugin_json_url_from_environment()
