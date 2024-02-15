@@ -33,15 +33,11 @@ def get_default_plugin_directory():
 
 
 DEFAULT_PLUGIN_DIRECTORIES = [
-    os.path.expandvars(p) for p in os.getenv('FTRACK_CONNECT_PLUGIN_PATH', get_default_plugin_directory()).split(os.pathsep)
-    ]
-    [
-        os.path.expandvars(p)
-        for p in os.environ['FTRACK_CONNECT_PLUGIN_PATH'].split(os.pathsep)
-    ]
-    if 'FTRACK_CONNECT_PLUGIN_PATH' in os.environ
-    else [get_default_plugin_directory()]
-)
+    os.path.expandvars(p)
+    for p in os.getenv(
+        'FTRACK_CONNECT_PLUGIN_PATH', get_default_plugin_directory()
+    ).split(os.pathsep)
+]
 
 
 def open_directory(path):
