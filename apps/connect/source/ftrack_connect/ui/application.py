@@ -32,11 +32,9 @@ import ftrack_connect.error
 from ftrack_connect.util import (
     get_default_plugin_directory,
     get_plugins_from_path,
-    is_incompatible_plugin,
-    is_deprecated_plugin,
     get_plugin_data,
     open_directory,
-    get_plugin_directories,
+    DEFAULT_PLUGIN_DIRECTORIES,
 )
 import ftrack_connect.ui.theme
 import ftrack_connect.ui.widget.overlay
@@ -735,7 +733,7 @@ class Application(QtWidgets.QMainWindow):
 
         result = []
 
-        for plugin_base_directory in get_plugin_directories():
+        for plugin_base_directory in DEFAULT_PLUGIN_DIRECTORIES:
             for plugin in self._gather_plugins(plugin_base_directory):
                 # Append plugin if not already in there - top plugin path takes precedence
                 found = False

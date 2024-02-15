@@ -7,7 +7,7 @@ import os
 
 from ftrack_connect.qt import QtWidgets, QtCore, QtGui
 
-from ftrack_connect.util import qt_main_thread
+from ftrack_connect.util import qt_main_thread, DEFAULT_PLUGIN_DIRECTORIES
 
 from ftrack_connect.ui.widget.overlay import BlockingOverlay, BusyOverlay
 import ftrack_connect.ui.application
@@ -101,6 +101,22 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
         # plugin list
         self._plugin_list_widget = DndPluginList()
         self.layout().addWidget(self._plugin_list_widget)
+
+        self._info_widget = QtWidgets.QFrame()
+        self._info_widget.setLayout(QtWidgets.QVBoxLayout())
+
+        self._info_widget.layout().addWidget(
+            QtWidgets.QLabel(
+                "<html><u>Plugin directory search order:</u></html>"
+            )
+        )
+        for index, plugin_directory in enumerate(DEFAULT_PLUGIN_DIRECTORIES):
+            self._info_widget.layout().addWidget(
+                QtWidgets.QLabel(
+                    f'<html><code>{plugin_directory}{"</code> (target)</html>" if index == 0 else ""}'
+                )
+            )
+        self.layout().addWidget(self._info_widget)
 
         # apply and reset button.
         self._button_layout = QtWidgets.QHBoxLayout()
@@ -211,7 +227,6 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
         performed in QT main thread.'''
         self.refresh_started.emit()
         self.fetchPlugins.emit(self._on_plugin_fetch_callback)
-        self._plugin_list_widget.populate_download_plugins()
         self._enable_apply_button(None)
         self._reset_plugin_list()
         self.refresh_done.emit()
@@ -221,6 +236,7 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
         '''Callback on fetching installed plugins from Connect'''
         self._installed_plugins = plugins
         self._plugin_list_widget.populate_installed_plugins(plugins)
+        self._plugin_list_widget.populate_download_plugins()
         if (
             not self._initialised
             and len(self._plugin_list_widget.installed_plugins) == 0

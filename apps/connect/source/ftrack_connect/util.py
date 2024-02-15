@@ -25,6 +25,22 @@ from ftrack_utils.json import read_json_file, write_json_file
 
 logger = logging.getLogger(__name__)
 
+# Default plugin directory
+
+
+def get_default_plugin_directory():
+    return platformdirs.user_data_dir('ftrack-connect-plugins', 'ftrack')
+
+
+DEFAULT_PLUGIN_DIRECTORIES = (
+    [
+        os.path.expandvars(p)
+        for p in os.environ['FTRACK_CONNECT_PLUGIN_PATH'].split(os.pathsep)
+    ]
+    if 'FTRACK_CONNECT_PLUGIN_PATH' in os.environ
+    else get_default_plugin_directory()
+)
+
 
 def open_directory(path):
     '''Open a filesystem directory from *path* in the OS file browser.
@@ -80,21 +96,6 @@ class InvokeEvent(QtCore.QEvent):
         self.fn = fn
         self.args = args
         self.kwargs = kwargs
-
-
-def get_default_plugin_directory():
-    return platformdirs.user_data_dir('ftrack-connect-plugins', 'ftrack')
-
-
-def get_plugin_directories():
-    '''Return list of plugin directories from FTRACK_CONNECT_PLUGIN_PATH'''
-    result = [get_default_plugin_directory()]
-    if 'FTRACK_CONNECT_PLUGIN_PATH' in os.environ:
-        result = [
-            os.path.expandvars(p)
-            for p in os.environ['FTRACK_CONNECT_PLUGIN_PATH'].split(os.pathsep)
-        ]
-    return result
 
 
 def get_plugins_from_path(plugin_directory):

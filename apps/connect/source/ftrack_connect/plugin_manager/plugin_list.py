@@ -15,7 +15,7 @@ from ftrack_connect.qt import QtWidgets, QtCore, QtGui
 
 from ftrack_connect.util import (
     qt_main_thread,
-    get_plugin_directories,
+    DEFAULT_PLUGIN_DIRECTORIES,
     get_platform_identifier,
     get_plugin_json_url_from_environment,
     fetch_github_releases,
@@ -59,7 +59,7 @@ class DndPluginList(QtWidgets.QFrame):
         super(DndPluginList, self).__init__(parent=parent)
 
         # Set the plugin directory to install to
-        self.default_install_plugin_directory = get_plugin_directories()[0]
+        self.default_install_plugin_directory = DEFAULT_PLUGIN_DIRECTORIES[0]
 
         # If set, download plugins from this url instead of the releases
         self._json_config_url = get_plugin_json_url_from_environment()
@@ -263,10 +263,10 @@ class DndPluginList(QtWidgets.QFrame):
     def populate_download_plugins(self):
         '''Populate model with remotely configured plugins.'''
         # Read plugins from json config url if set by user
-        # TODO: remove this when there is a way for users to point plugin manager
-        # to their own repository releases
         self._downloadable_plugin_count = 0
         if self._json_config_url:
+            # TODO: remove this when there is a way for users to point plugin manager
+            # to their own repository releases
             response = urlopen(self._json_config_url)
             response_json = json.loads(response.read())
 
