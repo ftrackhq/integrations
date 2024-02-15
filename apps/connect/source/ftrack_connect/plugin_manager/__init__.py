@@ -336,14 +336,13 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
         '''User wants to apply the updates, warn about conflicting plugins.'''
         incompatible_plugin_names = self._get_incompatible_plugin_names()
         deprecated_plugins = self._get_deprecated_plugin_names()
-        unloadable_plugins = incompatible_plugin_names
-        if unloadable_plugins:
+        if incompatible_plugin_names:
             msgbox = QtWidgets.QMessageBox(
                 QtWidgets.QMessageBox.Warning,
                 'Warning',
-                'The following conflicting and incompatible plugin(s) is installed and will be ignored by Connect'
+                'The following conflicting and incompatible plugins are installed and will be ignored by Connect'
                 ':\n\n{}\n\nClean up and archive them?'.format(
-                    '\n'.join(unloadable_plugins)
+                    '\n'.join(incompatible_plugin_names)
                 ),
                 buttons=QtWidgets.QMessageBox.Yes
                 | QtWidgets.QMessageBox.No
@@ -354,14 +353,14 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
             if answer == QtWidgets.QMessageBox.Yes:
                 pass
             elif answer == QtWidgets.QMessageBox.No:
-                unloadable_plugins = []  # Keep them
+                incompatible_plugin_names = []  # Keep them
             elif answer == QtWidgets.QMessageBox.Cancel:
                 return
         if deprecated_plugins:
             msgbox = QtWidgets.QMessageBox(
                 QtWidgets.QMessageBox.Warning,
                 'Warning',
-                'The following deprecated plugin(s) is installed'
+                'The following deprecated plugins are installed'
                 ':\n\n{}\n\nClean up and archive them?\n\nNote: they might still function, please '
                 'check release notes for further details.'.format(
                     '\n'.join(deprecated_plugins)
@@ -378,7 +377,7 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
                 deprecated_plugins = []  # Keep them
             else:
                 return
-        self.apply_changes.emit(unloadable_plugins + deprecated_plugins)
+        self.apply_changes.emit(incompatible_plugin_names + deprecated_plugins)
 
     @asynchronous
     def on_apply_changes_confirmed_callback(self, archive_plugins):
