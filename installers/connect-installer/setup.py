@@ -21,7 +21,7 @@ import zipfile
 
 # The Connect installer version, remember to bump this and update release notes
 # prior to release
-__version__ = '24.2.0'
+__version__ = '24.2.1rc1'  # TODO: put this back to 24.2.0 before merging
 
 # Embedded plugins.
 
