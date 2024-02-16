@@ -79,14 +79,14 @@ jobs:
         run: |
           cd ${{ needs.set-variables.outputs.folder }}
           poetry build
-      - name: Get package version
+      - name: Get Connect version
         id: get_version # This ID is used to reference the output of the step
         shell: bash
         run: |
           cd ${{ needs.set-variables.outputs.folder }}
           CONNECT_VERSION=$(poetry version -s)
-          echo "Package version: $CONNECT_VERSION"
-          echo "::set-output name=connect_version::$CONNECT_VERSION" # Setting the version as an output
+          echo "Connect version: $CONNECT_VERSION"
+          echo "connect_version=$CONNECT_VERSION" >> $GITHUB_OUTPUT
       - name: upload artifacts to release
         uses: actions/upload-artifact@v2
         with:
@@ -123,6 +123,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          echo "Listing contents of installers/connect-installer/dist:"
+          ls -l installers/connect-installer/dist
+          echo "Listing contents of installers/connect-installer/build:"
+          ls -l installers/connect-installer/build
+
           gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack_connect-${{ needs.connect-build.outputs.connect_version }}-py3-none-any.whl" --clobber
           cd installers/connect-installer/dist
+          echo dir
           gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack Connect-${{ needs.set-variables.outputs.package_version }}-win64.msi" --clobber
