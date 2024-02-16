@@ -33,7 +33,7 @@ jobs:
     outputs:
       folder: ${{ env.FOLDER }}
       package: ${{ env.PACKAGE }}
-      version: ${{ env.VERSION }}
+      package_version: ${{ env.PACKAGE_VERSION }}
       tag: ${{ env.TAG }}
     steps:
       - uses: actions/checkout@v3
@@ -41,7 +41,7 @@ jobs:
         shell: bash
         run: |
           echo "PACKAGE=$(echo ${{ github.ref }} | cut -d/ -f 3-3)" >> $GITHUB_ENV
-          echo "VERSION=$(echo ${{ github.ref }} | cut -d/ -f 4-4)" >> $GITHUB_ENV
+          echo "PACKAGE_VERSION=$(echo ${{ github.ref }} | cut -d/ -f 4-4)" >> $GITHUB_ENV
           echo "TAG=$(echo ${{ github.ref }} | cut -d/ -f 3-4)" >> $GITHUB_ENV
       - name: set apps folder
         if: ${{ env.PACKAGE == 'connect' }}
@@ -53,7 +53,7 @@ jobs:
         run: |
           echo 'FOLDER: ${{ env.FOLDER }}'
           echo 'PACKAGE: ${{ env.PACKAGE }}'
-          echo 'VERSION: ${{ env.VERSION }}'
+          echo 'PACKAGE_VERSION: ${{ env.PACKAGE_VERSION }}'
           echo 'TAG: ${{ env.TAG }}'
 
   connect-build:
@@ -64,7 +64,7 @@ jobs:
     outputs:
       to_pypi: ${{ needs.set-variables.outputs.to_pypi }}
       package: ${{ needs.set-variables.outputs.package }}
-      connect_whl: ${{ env.WHL }}
+      connect_version: ${{ steps.get_version.outputs.connect_version }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
@@ -79,11 +79,19 @@ jobs:
         run: |
           cd ${{ needs.set-variables.outputs.folder }}
           poetry build
+      - name: Get package version
+        id: get_version # This ID is used to reference the output of the step
+        shell: bash
+        run: |
+          cd ${{ needs.set-variables.outputs.folder }}
+          CONNECT_VERSION=$(poetry version -s)
+          echo "Package version: $CONNECT_VERSION"
+          echo "::set-output name=connect_version::$CONNECT_VERSION" # Setting the version as an output
       - name: upload artifacts to release
         uses: actions/upload-artifact@v2
         with:
           name: ftrack-connect-whl
-          path: ${{ needs.set-variables.outputs.folder }}/dist/ftrack_connect-${{ needs.set-variables.outputs.version }}-py3-none-any.whl
+          path: ${{ needs.set-variables.outputs.folder }}/dist/ftrack_connect-${{ steps.get_version.outputs.connect_version }}-py3-none-any.whl
 
   installer-windows:
     name: Build Windows platform dependent artifacts
@@ -102,7 +110,7 @@ jobs:
           name: ftrack-connect-whl
       - name: Use the .whl file
         run: |
-          pip install ftrack_connect-${{ needs.set-variables.outputs.version }}-py3-none-any.whl
+          pip install ftrack_connect-${{ needs.connect-build.outputs.connect_version }}-py3-none-any.whl
       - name: install installer requirements
         run: |
           cd installers/connect-installer
@@ -115,6 +123,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack_connect-${{ needs.set-variables.outputs.version }}-py3-none-any.whl" --clobber
+          gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack_connect-${{ needs.connect-build.outputs.connect_version }}-py3-none-any.whl" --clobber
           cd installers/connect-installer/dist
-          gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack Connect-${{ needs.set-variables.outputs.version }}-win64.msi" --clobber
+          gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack Connect-${{ needs.set-variables.outputs.package_version }}-win64.msi" --clobber
