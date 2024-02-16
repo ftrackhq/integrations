@@ -117,6 +117,7 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
                 )
             )
         self.layout().addWidget(self._info_widget)
+        self._info_widget.setVisible(False)
 
         # apply and reset button.
         self._button_layout = QtWidgets.QHBoxLayout()
