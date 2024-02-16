@@ -57,9 +57,8 @@ jobs:
           echo 'TAG: ${{ env.TAG }}'
 
   connect-build:
-    name: Build platform independent artifacts, and Linux specific artifacts
+    name: Build Connect
     needs: set-variables
-    if: ${{ needs.set-variables.outputs.package == 'connect' }}
     runs-on: ubuntu-latest
     outputs:
       to_pypi: ${{ needs.set-variables.outputs.to_pypi }}
@@ -94,7 +93,7 @@ jobs:
           path: ${{ needs.set-variables.outputs.folder }}/dist/ftrack_connect-${{ steps.get_version.outputs.connect_version }}-py3-none-any.whl
 
   installer-windows:
-    name: Build Windows platform dependent artifacts
+    name: Build Connect Installer on Windows
     needs: [ set-variables, connect-build ]
     runs-on: windows-latest
     steps:
@@ -127,8 +126,10 @@ jobs:
           ls -l installers/connect-installer/dist
           echo "Listing contents of installers/connect-installer/build:"
           ls -l installers/connect-installer/build
-
+          echo "ftrack_connect-${{ needs.connect-build.outputs.connect_version }}-py3-none-any.whl"
           gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack_connect-${{ needs.connect-build.outputs.connect_version }}-py3-none-any.whl" --clobber
           cd installers/connect-installer/dist
-          echo dir
+          package_version=${{ needs.set-variables.outputs.package_version }}
+          clean_package_version=${package_version#v}  # Remove leading 'v' from version
+          echo "Uploading ftrack Connect-${clean_package_version}-win64.msi"
           gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack Connect-${{ needs.set-variables.outputs.package_version }}-win64.msi" --clobber
