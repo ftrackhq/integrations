@@ -22,6 +22,7 @@ class MayaSaveToTempPlugin(BasePlugin):
             raise PluginExecutionError(
                 "Can't query the scene type of the current opened scene"
             )
+        # TODO: Possible missing "." prefix on scene_type
         if scene_type[0] == 'mayaBinary':
             scene_type = 'mb'
         elif scene_type[0] == 'mayaAscii':

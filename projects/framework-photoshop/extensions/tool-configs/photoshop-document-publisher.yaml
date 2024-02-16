@@ -91,5 +91,12 @@ engine:
         plugin: image_exporter
         ui: image_options
 
+  # Common validator check all exported paths exists.
+  - type: plugin
+    tags:
+      - validator
+    plugin: exported_paths_validator
+    ui: validator_label
+
   # Publish to ftrack.
   - publish_to_ftrack

@@ -1,8 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
-import os
-
 from ftrack_framework_core.plugin import BasePlugin
 
 
@@ -17,7 +15,7 @@ class DocumentValidatorPlugin(BasePlugin):
 
     def run(self, store):
         '''
-        Expects collected_data in the <component_name> key of the given *store*.
+        Validate collected_data in the <component_name> key of the given *store*.
         '''
         component_name = self.options.get('component')
         collected_file = store['components'][component_name]['collected_data']

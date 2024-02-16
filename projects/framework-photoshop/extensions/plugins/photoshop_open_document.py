@@ -15,7 +15,8 @@ class OpenDocumentPlugin(BasePlugin):
     def run(self, store):
         '''
         Expects collected_path in the <component_name> key of the given *store*,
-        opens it in Photoshop.
+        opens it in Photoshop and stores the result as 'open_result' under the
+        <component_name> key of the given *store*.
         '''
         component_name = self.options.get('component')
 

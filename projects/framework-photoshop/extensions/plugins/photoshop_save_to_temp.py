@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
-import tempfile
 
+from ftrack_utils.paths import get_temp_path
 from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
@@ -13,13 +13,10 @@ class SaveToTemp(BasePlugin):
 
     def run(self, store):
         '''
-        This method tells Photoshop to save the current document in a temp location.
+        Tell Photoshop to save the current document in a temp location.
         '''
 
-        temp_path = tempfile.NamedTemporaryFile(
-            delete=False, suffix='.psd'
-        ).name
-
+        temp_path = get_temp_path(filename_extension='.psd')
         try:
             # Get existing RPC connection instance
             photoshop_connection = PhotoshopRPCCEP.instance()
@@ -37,6 +34,8 @@ class SaveToTemp(BasePlugin):
             raise PluginExecutionError(
                 f'Exception saving document to temp: {e}'
             )
+
+        self.logger.debug(f"Photoshop save result: {save_result}")
 
         if isinstance(save_result, str):
             raise PluginExecutionError(

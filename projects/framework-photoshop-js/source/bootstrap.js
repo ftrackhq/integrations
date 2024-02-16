@@ -149,6 +149,7 @@ function handleIntegrationContextDataCallback(event) {
         }
         if (event.data.context_id !== context_id) {
             context_id = event.data.context_id;
+            project_id = event.data.project_id;
             document.getElementById("context_thumbnail").src = event.data.context_thumbnail;
             document.getElementById("context_name").innerHTML = event.data.context_name;
             document.getElementById("context_path").innerHTML = event.data.context_path;

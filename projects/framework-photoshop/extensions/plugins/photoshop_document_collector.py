@@ -1,6 +1,8 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2024 ftrack
 import os
-import tempfile
 
+from ftrack_utils.paths import get_temp_path
 from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
@@ -13,7 +15,7 @@ class DocumentCollectorPlugin(BasePlugin):
     def run(self, store):
         '''
         Collect the current document data from Photoshop
-        and store the collected_data in the given *store*.
+        and store in the given *store* on "collected_data"
         '''
         # Get existing RPC connection instance
         photoshop_connection = PhotoshopRPCCEP.instance()
@@ -38,9 +40,7 @@ class DocumentCollectorPlugin(BasePlugin):
         if not document_saved_result:
             # Document is not saved, save it first.
             self.logger.warning('Photoshop document not saved, asking to save')
-            temp_path = tempfile.NamedTemporaryFile(
-                delete=False, suffix='.psd'
-            ).name
+            temp_path = get_temp_path(filename_extension='.psd')
             save_result = photoshop_connection.rpc('saveDocument', [temp_path])
             # Will return a boolean containing the result.
             if not save_result or isinstance(save_result, str):
