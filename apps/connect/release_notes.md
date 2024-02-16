@@ -1,7 +1,7 @@
 # ftrack Connect release Notes
 
 ## v3.0.0
-2024-02-15
+2024-02-16
 
 * [changed] Consolidated plugin management: FTRACK_CONNECT_PLUGIN_PATH now overrides the local plugin directory instead of merging. Plugins already in plugin path are not added twice.
 * [changed] Plugin manager now considers plugins in FTRACK_CONNECT_PLUGIN_PATH.
