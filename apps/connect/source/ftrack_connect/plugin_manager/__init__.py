@@ -117,6 +117,7 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
                 )
             )
         self.layout().addWidget(self._info_widget)
+        # TODO: Display in text area with word wrap. Hide the info widget for now.
         self._info_widget.setVisible(False)
 
         # apply and reset button.
