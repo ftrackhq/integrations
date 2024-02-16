@@ -1,7 +1,7 @@
 # ftrack Connect Timetracker widget release Notes
 
 ## v24.2.0
-2024-02-14
+2024-02-16
 
 * [fix] Fixed bug with wrong plugin name reported back with debug information to Connect about dialog.
 * [changed] Ported from ftrack-connect-timetracker-widget repo and aligned with Connect 3
