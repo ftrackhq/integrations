@@ -17,10 +17,11 @@ jobs:
     steps:
       - name: Check tag pattern
         run: |
-          echo "PACKAGE=$(echo ${{ github.ref }} | cut -d/ -f 3-3)" >> $GITHUB_ENV
-
-          # Check if the package is "connect"
-          if [[ "${PACKAGE}" != connect ]]; then
+          TAG_NAME=$(echo ${{ github.ref }} | sed 's|refs/tags/||')
+          echo "TAG_NAME=${TAG_NAME}"
+          
+          # Check if the tag name starts with "connect/"
+          if [[ "${TAG_NAME}" != connect/* ]]; then
             echo "Not supported by this CI"
             exit 1
           fi
