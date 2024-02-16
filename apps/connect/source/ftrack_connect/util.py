@@ -25,6 +25,20 @@ from ftrack_utils.json import read_json_file, write_json_file
 
 logger = logging.getLogger(__name__)
 
+# Default plugin directory
+
+
+def get_default_plugin_directory():
+    return platformdirs.user_data_dir('ftrack-connect-plugins', 'ftrack')
+
+
+PLUGIN_DIRECTORIES = [
+    os.path.expandvars(p)
+    for p in os.getenv(
+        'FTRACK_CONNECT_PLUGIN_PATH', get_default_plugin_directory()
+    ).split(os.pathsep)
+]
+
 
 def open_directory(path):
     '''Open a filesystem directory from *path* in the OS file browser.
@@ -137,7 +151,8 @@ def get_plugin_data(plugin_path):
         if len(parts) > 1:
             data['version'] = parts[0]
             data['platform'] = parts[-1]
-
+    data['incompatible'] = is_incompatible_plugin(data)
+    data['deprecated'] = is_deprecated_plugin(data)
     return data
 
 
@@ -176,6 +191,7 @@ def is_incompatible_plugin(plugin_data):
             f"incompatible, hook folder or hook python file is missing"
         )
         return True
+
     return False
 
 

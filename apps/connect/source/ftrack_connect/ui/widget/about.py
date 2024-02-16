@@ -180,11 +180,15 @@ class AboutDialog(QtWidgets.QDialog):
             <p><b>Server: </b>{server}</p>
             <p><b>User: </b>{user}</p>
         '''
-        itemTemplate = '{name}: {version}<br>'
+        core_item_template = '{name}: {version}<br>'
+
+        plugin_item_template = '{name}: {version} {tags}<br>'
+
+        sources_item_template = '{name} ( {index} )<br>'
 
         coreVersions = ''
         for _core in core:
-            coreVersions += itemTemplate.format(
+            coreVersions += core_item_template.format(
                 name=_core['name'], version=_core['version']
             )
 
@@ -200,16 +204,65 @@ class AboutDialog(QtWidgets.QDialog):
             os=platform.platform(),
         )
 
+        source_dirs = ""
+        for index, plugin_directory in enumerate(
+            ftrack_connect.util.PLUGIN_DIRECTORIES
+        ):
+            if index == 0:
+                index = 'Target'
+            source_dirs += sources_item_template.format(
+                name=plugin_directory, index=index
+            )
+
+        content += f'<h4>Sources:</h4>{source_dirs}'
+
         if plugins:
             # deduplicate list of dictionary.
             plugins = [dict(t) for t in {tuple(d.items()) for d in plugins}]
-            pluginVersions = ''
+
+            # Group plugins by index
+            grouped_plugins = {}
             for _plugin in plugins:
-                pluginVersions += itemTemplate.format(
-                    name=_plugin['name'], version=_plugin['version']
+                source_index = _plugin.get('source_index', 0)
+                if source_index in grouped_plugins:
+                    grouped_plugins[source_index].append(_plugin)
+                else:
+                    grouped_plugins[source_index] = [_plugin]
+
+            def _sort_keys(d):
+                # Prioritize by incompatible, deprecated and ignored values
+                # False values are considered "smaller" so they will come first with this setup
+                return (
+                    d.get('incompatible'),
+                    d.get('deprecated'),
+                    not d.get('ignored'),
                 )
 
-            content += '<h4>Plugins:</h4>{0}'.format(pluginVersions)
+            for group, _group_plugins in sorted(grouped_plugins.items()):
+                plugin_versions = ''
+                if group == 0:
+                    group = 'Target'
+                for _plugin in sorted(_group_plugins, key=_sort_keys):
+                    formatted_tags = ''
+                    if _plugin.get('tags'):
+                        formatted_tags = ' '.join(
+                            f"[{tag}]" for tag in _plugin['tags'].split(",")
+                        )
+                    plugin_versions += plugin_item_template.format(
+                        name=_plugin['name'],
+                        version=_plugin['version'],
+                        tags=formatted_tags,
+                    )
+                content += (
+                    f'<h4>Plugins from source {group} :</h4>{plugin_versions}'
+                )
+
+        if widget_plugins:
+            widgetNames = []
+            for _widget in list(widget_plugins.values()):
+                widgetNames.append(_widget.getName())
+
+            content += f'<h4>Widgets:</h4>{",".join(widgetNames)}'
 
         self.messageLabel.setText(content)
         self.debugTextEdit.insertPlainText(
