@@ -4,7 +4,7 @@
 from ftrack_framework_core.plugin import BasePlugin
 
 
-class DocumentValidatorPlugin(BasePlugin):
+class PhotoshopDocumentValidatorPlugin(BasePlugin):
     name = 'document_validator'
 
     def validate(self, collected_data):

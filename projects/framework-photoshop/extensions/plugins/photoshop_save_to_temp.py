@@ -8,7 +8,7 @@ from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 from ftrack_framework_photoshop.rpc_cep import PhotoshopRPCCEP
 
 
-class SaveToTemp(BasePlugin):
+class PhotoshopSaveToTemp(BasePlugin):
     name = 'save_to_temp'
 
     def run(self, store):

@@ -7,7 +7,7 @@ from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
 
-class DocumentExporterPlugin(BasePlugin):
+class PhotoshopDocumentExporterPlugin(BasePlugin):
     name = 'document_exporter'
 
     def run(self, store):

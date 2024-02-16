@@ -9,7 +9,7 @@ from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 from ftrack_framework_photoshop.rpc_cep import PhotoshopRPCCEP
 
 
-class OpenDocumentPlugin(BasePlugin):
+class PhotoshopOpenDocumentPlugin(BasePlugin):
     name = 'open_document'
 
     def run(self, store):

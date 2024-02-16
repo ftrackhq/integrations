@@ -8,7 +8,7 @@ from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 from ftrack_framework_photoshop.rpc_cep import PhotoshopRPCCEP
 
 
-class ImageExporterPlugin(BasePlugin):
+class PhotoshopImageExporterPlugin(BasePlugin):
     name = 'image_exporter'
 
     def run(self, store):

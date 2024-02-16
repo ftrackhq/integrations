@@ -9,7 +9,7 @@ from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 from ftrack_framework_photoshop.rpc_cep import PhotoshopRPCCEP
 
 
-class DocumentCollectorPlugin(BasePlugin):
+class PhotoshopDocumentCollectorPlugin(BasePlugin):
     name = 'document_collector'
 
     def run(self, store):
