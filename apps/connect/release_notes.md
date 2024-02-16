@@ -1,8 +1,11 @@
 # ftrack Connect release Notes
 
 ## v3.0.0
-2024-02-13
+2024-02-15
 
+* [changed] Consolidated plugin management: FTRACK_CONNECT_PLUGIN_PATH now overrides the local plugin directory instead of merging. Plugins already in plugin path are not added twice.
+* [changed] Plugin manager now considers plugins in FTRACK_CONNECT_PLUGIN_PATH.
+* [changed] Improved about window - More information to include debug information from widget plugins.
 * [changed] Do not prevent Connect from launching if there is no system tray.
 * [changed] Support for detecting and warning about integrations requiring Rosetta on Apple Silicon. 
 * [changed] Ported and integrated the ftrack-application-launcher module and switched over to YAML configuration support.

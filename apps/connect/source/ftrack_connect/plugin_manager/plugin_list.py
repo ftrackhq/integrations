@@ -15,8 +15,7 @@ from ftrack_connect.qt import QtWidgets, QtCore, QtGui
 
 from ftrack_connect.util import (
     qt_main_thread,
-    is_incompatible_plugin,
-    is_deprecated_plugin,
+    PLUGIN_DIRECTORIES,
     get_platform_identifier,
     get_plugin_json_url_from_environment,
     fetch_github_releases,
@@ -47,9 +46,9 @@ class DndPluginList(QtWidgets.QFrame):
         return self._plugin_model
 
     @property
-    def installed_plugin_count(self):
+    def installed_plugins(self):
         '''Return installed plugin count.'''
-        return self._installed_plugin_count
+        return self._installed_plugins
 
     @property
     def downloadable_plugin_count(self):
@@ -59,13 +58,13 @@ class DndPluginList(QtWidgets.QFrame):
     def __init__(self, parent=None):
         super(DndPluginList, self).__init__(parent=parent)
 
+        # Set the plugin directory to install to the first path on PLUGIN_DIRECTORIES
+        self.default_install_plugin_directory = PLUGIN_DIRECTORIES[0]
+
         # If set, download plugins from this url instead of the releases
         self._json_config_url = get_plugin_json_url_from_environment()
 
-        self.default_plugin_directory = platformdirs.user_data_dir(
-            'ftrack-connect-plugins', 'ftrack'
-        )
-
+        self._installed_plugins = []
         self._plugin_list = None
         self._plugin_model = None
         self._proxy_model = None
@@ -96,23 +95,19 @@ class DndPluginList(QtWidgets.QFrame):
 
     # custom methods
     @qt_main_thread
-    def add_plugin(self, file_path, status=STATUSES.NEW):
-        '''Add provided *file_path* as plugin with given *status*.'''
-        if not file_path:
-            return
+    def _add_plugin(self, plugin_data, status=STATUSES.NEW):
+        '''Add provided *plugin_data* as plugin with given *status*.'''
 
-        data = get_plugin_data(file_path)
-
-        if not data:
+        if not plugin_data:
             return
 
         # Check platform
         platform = get_platform_identifier()
-        destination_filename = os.path.basename(file_path)
+        destination_filename = os.path.basename(plugin_data['path'])
         if destination_filename.lower().endswith('.zip'):
             destination_filename = destination_filename[:-4]
-        if data['platform'] != 'noarch':
-            if data['platform'] != platform:
+        if plugin_data['platform'] != 'noarch':
+            if plugin_data['platform'] != platform:
                 # Not our platform, ask user if they want to install anyway
                 msgbox = QtWidgets.QMessageBox(
                     QtWidgets.QMessageBox.Warning,
@@ -132,17 +127,14 @@ class DndPluginList(QtWidgets.QFrame):
                 elif answer == QtWidgets.QMessageBox.Cancel:
                     raise Exception('Plugin installation cancelled by user.')
 
-            if destination_filename.endswith(f'-{data["platform"]}'):
+            if destination_filename.endswith(f'-{plugin_data["platform"]}'):
                 destination_filename = destination_filename[
-                    : -len(data["platform"]) - 1
+                    : -len(plugin_data["platform"]) - 1
                 ]
 
-        incompatible = is_incompatible_plugin(data)
-        deprecated = is_deprecated_plugin(data)
-
         # create new plugin item and populate it with data
-        plugin_id = str(hash(data['name']))
-        data['id'] = plugin_id
+        plugin_id = str(hash(plugin_data['name']))
+        plugin_data['id'] = plugin_id
 
         plugin_item = QtGui.QStandardItem()
 
@@ -151,40 +143,48 @@ class DndPluginList(QtWidgets.QFrame):
         plugin_item.setSelectable(False)
         plugin_item.setEnabled(True)
 
-        plugin_item.setText(f'{data["name"]} | {data["version"]}')
+        plugin_item.setText(
+            f'{plugin_data["name"]} | {plugin_data["version"]}'
+        )
         plugin_item.setData(status, ROLES.PLUGIN_STATUS)
-        plugin_item.setData(str(data['name']), ROLES.PLUGIN_NAME)
-        new_plugin_version = parse_version(data['version'])
+        plugin_item.setData(str(plugin_data['name']), ROLES.PLUGIN_NAME)
+        new_plugin_version = parse_version(plugin_data['version'])
         plugin_item.setData(new_plugin_version, ROLES.PLUGIN_VERSION)
         plugin_item.setData(plugin_id, ROLES.PLUGIN_ID)
         plugin_item.setIcon(STATUS_ICONS[status])
 
-        if incompatible or deprecated:
-            if incompatible:
+        if plugin_data['incompatible'] or plugin_data['deprecated']:
+            if plugin_data['incompatible']:
                 plugin_item.setIcon(
                     QtGui.QIcon(qta.icon('mdi6.alert-circle-outline'))
                 )
                 plugin_item.setText(f'{plugin_item.text()} [Incompatible]')
+                plugin_item.setData(True, ROLES.PLUGIN_INCOMPATIBLE)
             else:
                 plugin_item.setIcon(QtGui.QIcon(qta.icon('mdi6.alert')))
                 plugin_item.setText(f'{plugin_item.text()} [Deprecated]')
+                plugin_item.setData(True, ROLES.PLUGIN_DEPRECATED)
         else:
             plugin_item.setIcon(STATUS_ICONS[status])
 
         # check if is a new plugin.....
-        stored_item = self.plugin_is_available(data)
+        stored_item = self.plugin_is_available(plugin_data)
 
         if not stored_item:
             # add new plugin
             if status == STATUSES.INSTALLED:
-                plugin_item.setData(file_path, ROLES.PLUGIN_INSTALLED_PATH)
+                plugin_item.setData(
+                    plugin_data['path'], ROLES.PLUGIN_INSTALLED_PATH
+                )
                 plugin_item.setEnabled(False)
                 plugin_item.setCheckable(False)
 
             elif status in [STATUSES.NEW, STATUSES.DOWNLOAD]:
-                plugin_item.setData(file_path, ROLES.PLUGIN_SOURCE_PATH)
+                plugin_item.setData(
+                    plugin_data['path'], ROLES.PLUGIN_SOURCE_PATH
+                )
                 destination_path = os.path.join(
-                    self.default_plugin_directory, destination_filename
+                    self.default_install_plugin_directory, destination_filename
                 )
                 plugin_item.setData(
                     destination_path, ROLES.PLUGIN_DESTINATION_PATH
@@ -215,12 +215,12 @@ class DndPluginList(QtWidgets.QFrame):
             stored_item.setData(STATUSES.UPDATE, ROLES.PLUGIN_STATUS)
             stored_item.setIcon(STATUS_ICONS[STATUSES.UPDATE])
             destination_path = os.path.join(
-                self.default_plugin_directory, destination_filename
+                self.default_install_plugin_directory, destination_filename
             )
             stored_item.setData(
                 destination_path, ROLES.PLUGIN_DESTINATION_PATH
             )
-            stored_item.setData(file_path, ROLES.PLUGIN_SOURCE_PATH)
+            stored_item.setData(plugin_data['path'], ROLES.PLUGIN_SOURCE_PATH)
 
             stored_item.setData(new_plugin_version, ROLES.PLUGIN_VERSION)
 
@@ -239,26 +239,17 @@ class DndPluginList(QtWidgets.QFrame):
                 return item
         return None
 
-    def populate_installed_plugins(self):
+    def populate_installed_plugins(self, plugins):
         '''Populate model with installed plugins.'''
         self._installed_plugin_count = 0
         self._plugin_model.clear()
 
-        # Filter out files and hidden items.
-        plugins = [
-            f
-            for f in os.listdir(self.default_plugin_directory)
-            if not f.startswith('.')
-            and os.path.isdir(os.path.join(self.default_plugin_directory, f))
-        ]
+        self._installed_plugins = []
 
         for plugin in plugins:
             try:
-                plugin_path = os.path.join(
-                    self.default_plugin_directory, plugin
-                )
-                self.add_plugin(plugin_path, STATUSES.INSTALLED)
-                self._installed_plugin_count += 1
+                self._add_plugin(plugin, STATUSES.INSTALLED)
+                self._installed_plugins.append(plugin)
             except Exception as e:
                 logger.exception(e)
                 # Show message box to user
@@ -272,62 +263,36 @@ class DndPluginList(QtWidgets.QFrame):
     def populate_download_plugins(self):
         '''Populate model with remotely configured plugins.'''
         # Read plugins from json config url if set by user
-        # TODO: remove this when there is a way for users to point plugin manager
-        # to their own repository releases
         self._downloadable_plugin_count = 0
         if self._json_config_url:
+            # TODO: remove this when there is a way for users to point plugin manager
+            # to their own repository releases
             response = urlopen(self._json_config_url)
             response_json = json.loads(response.read())
 
             for link in response_json['integrations']:
-                self.add_plugin(link, STATUSES.DOWNLOAD)
+                self._add_plugin(get_plugin_data(link), STATUSES.DOWNLOAD)
                 self._downloadable_plugin_count += 1
         else:
             # Read latest releases from ftrack integrations repository
             releases = fetch_github_releases()
 
             for release in releases:
-                self.add_plugin(release['url'], STATUSES.DOWNLOAD)
+                self._add_plugin(
+                    get_plugin_data(release['url']), STATUSES.DOWNLOAD
+                )
                 self._downloadable_plugin_count += 1
-
-    def get_incompatible_plugins(self):
-        result = []
-        # Filter out files and hidden items.
-        plugins = [
-            f
-            for f in os.listdir(self.default_plugin_directory)
-            if not f.startswith('.')
-            and os.path.isdir(os.path.join(self.default_plugin_directory, f))
-        ]
-        for plugin in plugins:
-            plugin_path = os.path.join(self.default_plugin_directory, plugin)
-            if is_incompatible_plugin(get_plugin_data(plugin_path)):
-                result.append(plugin)
-        return result
-
-    def get_deprecated_plugins(self):
-        result = []
-        # Filter out files and hidden items.
-        plugins = [
-            f
-            for f in os.listdir(self.default_plugin_directory)
-            if not f.startswith('.')
-            and os.path.isdir(os.path.join(self.default_plugin_directory, f))
-        ]
-        for plugin in plugins:
-            plugin_path = os.path.join(self.default_plugin_directory, plugin)
-            if is_deprecated_plugin(get_plugin_data(plugin_path)):
-                result.append(plugin)
-        return result
 
     def archive_legacy_plugin(self, plugin_name):
         '''Move legacy plugin identified by *plugin_name* to archive folder'''
-        install_path = os.path.join(self.default_plugin_directory, plugin_name)
+        install_path = os.path.join(
+            self.default_install_plugin_directory, plugin_name
+        )
         logger.debug(f'Archiving legacy plugin: {install_path}')
         if os.path.exists(install_path) and os.path.isdir(install_path):
             archive_base_path = os.path.relpath(
                 os.path.join(
-                    self.default_plugin_directory,
+                    self.default_install_plugin_directory,
                     '..',
                     'ftrack-connect-plugins-ARCHIVED',
                 )
@@ -399,7 +364,7 @@ class DndPluginList(QtWidgets.QFrame):
         paths = self._process_mime_data(event.mimeData())
 
         for path in paths:
-            self.add_plugin(path, STATUSES.NEW)
+            self._add_plugin(get_plugin_data(path), STATUSES.NEW)
 
         event.accept()
         self._set_drop_zone_state()

@@ -37,6 +37,8 @@ class ROLES(object):
     PLUGIN_INSTALLED_PATH = PLUGIN_SOURCE_PATH + 1
     PLUGIN_DESTINATION_PATH = PLUGIN_INSTALLED_PATH + 1
     PLUGIN_ID = PLUGIN_DESTINATION_PATH + 1
+    PLUGIN_INCOMPATIBLE = PLUGIN_ID + 1
+    PLUGIN_DEPRECATED = PLUGIN_INCOMPATIBLE + 1
 
 
 # Icon representation for statuses
@@ -128,7 +130,11 @@ class PluginProcessor(QtCore.QObject):
         '''Remove provided *plugin* item.'''
         install_path = plugin.data(ROLES.PLUGIN_INSTALLED_PATH)
         logger.debug(f'Removing {install_path}')
-        if os.path.exists(install_path) and os.path.isdir(install_path):
+        if (
+            install_path
+            and os.path.exists(install_path)
+            and os.path.isdir(install_path)
+        ):
             shutil.rmtree(install_path, ignore_errors=False, onerror=None)
         else:
             logger.warning(f'Could not remove {install_path} - not found!')
