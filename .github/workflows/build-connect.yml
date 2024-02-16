@@ -1,0 +1,119 @@
+# On release creation:
+#  - Build and publishes libraries to PyPi or
+#  - Building Connect plugin artifacts and upload them to the release
+
+name: CI-CONNECT-RELEASE
+
+on:
+  release:
+    types: [created]
+
+
+jobs:
+
+  # This job checks the tag pattern and decides whether to proceed or halt the workflow
+  check-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check tag pattern
+        run: |
+          echo "PACKAGE=$(echo ${{ github.ref }} | cut -d/ -f 3-3)" >> $GITHUB_ENV
+
+          # Check if the package is "connect"
+          if [[ "${PACKAGE}" != connect ]]; then
+            echo "Not supported by this CI"
+            exit 1
+          fi
+
+  # Set the environment variables for the rest of release workflow
+  set-variables:
+    needs: check-tag
+    runs-on: ubuntu-latest
+    outputs:
+      folder: ${{ env.FOLDER }}
+      package: ${{ env.PACKAGE }}
+      version: ${{ env.VERSION }}
+      tag: ${{ env.TAG }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: set environments on full release
+        shell: bash
+        run: |
+          echo "PACKAGE=$(echo ${{ github.ref }} | cut -d/ -f 3-3)" >> $GITHUB_ENV
+          echo "VERSION=$(echo ${{ github.ref }} | cut -d/ -f 4-4)" >> $GITHUB_ENV
+          echo "TAG=$(echo ${{ github.ref }} | cut -d/ -f 3-4)" >> $GITHUB_ENV
+      - name: set apps folder
+        if: ${{ env.PACKAGE == 'connect' }}
+        shell: bash
+        run: |
+          echo "FOLDER=apps/${{ env.PACKAGE }}" >> $GITHUB_ENV
+      - name: debug
+        shell: bash
+        run: |
+          echo 'FOLDER: ${{ env.FOLDER }}'
+          echo 'PACKAGE: ${{ env.PACKAGE }}'
+          echo 'VERSION: ${{ env.VERSION }}'
+          echo 'TAG: ${{ env.TAG }}'
+
+  connect-build:
+    name: Build platform independent artifacts, and Linux specific artifacts
+    needs: set-variables
+    if: ${{ needs.set-variables.outputs.package == 'connect' }}
+    runs-on: ubuntu-latest
+    outputs:
+      to_pypi: ${{ needs.set-variables.outputs.to_pypi }}
+      package: ${{ needs.set-variables.outputs.package }}
+      connect_whl: ${{ env.WHL }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.7'
+      - name: install poetry
+        shell: bash
+        run: |
+          pip install poetry==1.5.1
+      - name: poetry build
+        shell: bash
+        run: |
+          cd ${{ needs.set-variables.outputs.folder }}
+          poetry build
+      - name: upload artifacts to release
+        uses: actions/upload-artifact@v2
+        with:
+          name: ftrack-connect-whl
+          path: ${{ needs.set-variables.outputs.folder }}/dist/ftrack_connect-${{ needs.set-variables.outputs.version }}-py3-none-any.whl
+
+  installer-windows:
+    name: Build Windows platform dependent artifacts
+    needs: [ set-variables, connect-build ]
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.7'
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Download the .whl file artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: ftrack-connect-whl
+      - name: Use the .whl file
+        run: |
+          pip install ftrack_connect-${{ needs.set-variables.outputs.version }}-py3-none-any.whl
+      - name: install installer requirements
+        run: |
+          cd installers/connect-installer
+          pip install  -r requirements.txt
+      - name: make installer
+        run: |
+          cd installers/connect-installer
+          python setup.py bdist_msi
+      - name: Upload MSI installer and Connect build to GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack_connect-${{ needs.set-variables.outputs.version }}-py3-none-any.whl" --clobber
+          cd installers/connect-installer/dist
+          gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack Connect-${{ needs.set-variables.outputs.version }}-win64.msi" --clobber
