@@ -3,6 +3,7 @@
 ## v24.2.0
 2024-02-13
 
+* [new] Windows codesign support.
 * [changed] Augmented installer to cope with new Connect 3 module format.
 
 ## v2.1.1
