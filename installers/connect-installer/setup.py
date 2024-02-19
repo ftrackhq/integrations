@@ -706,8 +706,7 @@ def codesign_osx(create_dmg=True, notarize=True):
                         time.sleep(sleep_min * 60)
 
 
-if sys.platform in ['darwin','win32']:
-
+if sys.platform in ['darwin', 'win32']:
     import argparse
 
     if sys.platform == 'darwin':
@@ -763,28 +762,29 @@ def clean_download_dir():
     if os.path.exists(DOWNLOAD_PLUGIN_PATH):
         shutil.rmtree(DOWNLOAD_PLUGIN_PATH)
 
+
 def codesign_windows(relative_path):
-    return_code = subprocess.call(["CMD.EXE", "/C","codesign.bat", relative_path], shell=True)
+    return_code = subprocess.call(
+        ["CMD.EXE", "/C", "codesign.bat", relative_path], shell=True
+    )
     logging.info(f'Exitcode from code sign: {return_code}')
 
+
 def add_codesign_cx_Freeze():
-
     from cx_Freeze.dist import build_exe
-
-    import warnings
-    from cx_Freeze.freezer import Freezer
-    from cx_Freeze.module import ConstantsModule
 
     build_exe_run = build_exe.run
 
     def run(self):
         build_exe_run(self)
-        exe_path = f'{self.build_exe}\\{self.distribution.executables[0].target_name}'
-        print(f'@@@ base: '+str(self.build_exe)+', executables: '+str(self.distribution.executables[0].target_name))
+        exe_path = (
+            f'{self.build_exe}\\{self.distribution.executables[0].target_name}'
+        )
         codesign_windows(exe_path)
 
     # Redefine run function to support code sign ad end of execution
     build_exe.run = run
+
 
 if sys.platform == 'win32' and 'args' in locals():
     if args.codesign:
@@ -799,9 +799,7 @@ if 'args' in locals():
     if sys.platform == 'darwin':
         post_setup(codesign_frameworks=args.codesign_frameworks)
         if args.codesign:
-            codesign_osx(
-                create_dmg=args.create_dmg, notarize=args.notarize
-            )
+            codesign_osx(create_dmg=args.create_dmg, notarize=args.notarize)
         elif args.create_dmg:
             dmg_name = '{0}-{1}.dmg'.format(bundle_name, __version__)
             dmg_path = os.path.join(BUILD_PATH, dmg_name)

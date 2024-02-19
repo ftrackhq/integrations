@@ -98,12 +98,16 @@ Preparations:
  -  Install Google cloud CLI: https://cloud.google.com/sdk/docs/install
  -  Authenticate:
 
+```bash
     $ gcloud auth login
-
+```
 
 Build with:
 
+```bash
     $ python setup.py bdist_msi --codesign
+```
+
 
 
 ## Linux
