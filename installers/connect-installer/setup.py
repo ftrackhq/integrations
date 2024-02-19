@@ -785,7 +785,7 @@ def add_codesign_cx_freeze_windows():
         )
         codesign_windows(exe_path)
 
-    # Redefine run function to support code sign ad end of execution
+    # Redefine run function to support code sign after executable has been built
     build_exe.run = run
 
 
