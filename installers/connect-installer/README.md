@@ -68,8 +68,8 @@ To install using libraries from PyPy test:
     $ pip install --pre --index-url https://test.pypi.org/simple --extra-index-url https://pypi.org/simple  -r requirements.txt
 ```
 
-## Windows
 
+## Windows
 
 Visual studio and [c++ build
 tools](https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019)
@@ -90,6 +90,8 @@ ftrack Connect-**\<VERSION>**-win64-redist.zip
 ### Code sign
 
 > **_NOTE:_** This is an internal (closed) routine and is documented here: https://sites.google.com/backlight.co/theshire/product-development/products/integrations/deployment.
+
+
 
 ## Linux
 
