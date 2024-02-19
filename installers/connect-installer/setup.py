@@ -768,7 +768,7 @@ def clean_download_dir():
 def codesign_windows(path):
     '''Codesign artifact *path* using jsign tool in Windows'''
     return_code = subprocess.call(
-        ["CMD.EXE", "/C", "codesign.bat", relative_path], shell=True
+        ["CMD.EXE", "/C", "codesign.bat", path], shell=True
     )
     logging.info(f'Exitcode from code sign: {return_code}')
 
