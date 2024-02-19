@@ -774,6 +774,8 @@ def codesign_windows(path):
 
 
 def add_codesign_cx_freeze_windows():
+    '''Redefine cx_Freeze build_exe run function to support code sign after the
+    executable has been built'''
     from cx_Freeze.dist import build_exe
 
     build_exe_run = build_exe.run
@@ -785,7 +787,6 @@ def add_codesign_cx_freeze_windows():
         )
         codesign_windows(exe_path)
 
-    # Redefine run function to support code sign after executable has been built
     build_exe.run = run
 
 
