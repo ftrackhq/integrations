@@ -706,65 +706,103 @@ def codesign_osx(create_dmg=True, notarize=True):
                         time.sleep(sleep_min * 60)
 
 
-if sys.platform == 'darwin':
+if sys.platform in ['darwin','win32']:
+
     import argparse
 
-    parser = argparse.ArgumentParser(
-        prog='setup.py bdist_mac',
-        add_help=True,
-        description=''' Override help for Connect build in MacOs. These are the 
-        accepted arguments for connect build. ''',
-        epilog='Make sure you have the CODESIGN_IDENTITY and APPLE_USER_NAME '
-        'environment variables and the ftrack_connect_sign_pass on the '
-        'keychain before codesign. Also make sure to have appdmg installed '
-        'by running "npm install -g appdmg"',
-    )
-    parser.add_argument(
-        '-cf',
-        '--codesign_frameworks',
-        action='store_true',
-        help='Codesign the frameworks on the Frameworks folder on MacOS',
-    )
+    if sys.platform == 'darwin':
+        parser = argparse.ArgumentParser(
+            prog='setup.py bdist_mac',
+            add_help=True,
+            description=''' Override help for Connect build in MacOs. These are the 
+            accepted arguments for connect build. ''',
+            epilog='Make sure you have the CODESIGN_IDENTITY and APPLE_USER_NAME '
+            'environment variables and the ftrack_connect_sign_pass on the '
+            'keychain before codesign. Also make sure to have appdmg installed '
+            'by running "npm install -g appdmg"',
+        )
+        parser.add_argument(
+            '-cf',
+            '--codesign_frameworks',
+            action='store_true',
+            help='Codesign the frameworks on the Frameworks folder on MacOS',
+        )
+    else:
+        parser = argparse.ArgumentParser(
+            prog='setup.py bdist_msi|build_exe',
+            add_help=True,
+            description=''' Override help for Connect build in Windows. These are the 
+            accepted arguments for connect build. ''',
+            epilog='Make sure you have installed Java & gloud CLI tools and have '
+            'authenticated with Google cloud. ',
+        )
     parser.add_argument(
         '-cs',
         '--codesign',
         action='store_true',
-        help='Codesign the .app in MacOS',
+        help='Codesign Connect',
     )
-    parser.add_argument(
-        '-dmg',
-        '--create_dmg',
-        action='store_true',
-        help='Create the dmg file for MacOS',
-    )
-    parser.add_argument(
-        '-not',
-        '--notarize',
-        action='store_true',
-        help='Notarize the dmg application after codesign',
-    )
+    if sys.platform == 'darwin':
+        parser.add_argument(
+            '-dmg',
+            '--create_dmg',
+            action='store_true',
+            help='Create the dmg file for MacOS',
+        )
+        parser.add_argument(
+            '-not',
+            '--notarize',
+            action='store_true',
+            help='Notarize the dmg application after codesign',
+        )
     args, unknown = parser.parse_known_args()
     sys.argv = [sys.argv[0]] + unknown
-    osx_args = args
 
 
 def clean_download_dir():
     if os.path.exists(DOWNLOAD_PLUGIN_PATH):
         shutil.rmtree(DOWNLOAD_PLUGIN_PATH)
 
+def codesign_windows(relative_path):
+    return_code = subprocess.call(["CMD.EXE", "/C","codesign.bat", relative_path], shell=True)
+    logging.info(f'Exitcode from code sign: {return_code}')
+
+def add_codesign_cx_Freeze():
+
+    from cx_Freeze.dist import build_exe
+
+    import warnings
+    from cx_Freeze.freezer import Freezer
+    from cx_Freeze.module import ConstantsModule
+
+    build_exe_run = build_exe.run
+
+    def run(self):
+        build_exe_run(self)
+        exe_path = f'{self.build_exe}\\{self.distribution.executables[0].target_name}'
+        print(f'@@@ base: '+str(self.build_exe)+', executables: '+str(self.distribution.executables[0].target_name))
+        codesign_windows(exe_path)
+
+    # Redefine run function to support code sign ad end of execution
+    build_exe.run = run
+
+if sys.platform == 'win32' and 'args' in locals():
+    if args.codesign:
+        add_codesign_cx_Freeze()
 
 # Call main setup.
 setup(**configuration)
 
 clean_download_dir()
-if sys.platform == 'darwin':
-    if 'osx_args' in locals():
-        post_setup(codesign_frameworks=osx_args.codesign_frameworks)
-        if osx_args.codesign:
+
+if 'args' in locals():
+    if sys.platform == 'darwin':
+        post_setup(codesign_frameworks=args.codesign_frameworks)
+        if args.codesign:
             codesign_osx(
-                create_dmg=osx_args.create_dmg, notarize=osx_args.notarize
+                create_dmg=args.create_dmg, notarize=args.notarize
             )
-        elif osx_args.create_dmg:
+        elif args.create_dmg:
             dmg_name = '{0}-{1}.dmg'.format(bundle_name, __version__)
             dmg_path = os.path.join(BUILD_PATH, dmg_name)
             dmg_command = 'appdmg resource/appdmg.json "{}"'.format(dmg_path)
@@ -773,3 +811,7 @@ if sys.platform == 'darwin':
                 raise (Exception("dmg creation not working please check."))
             else:
                 logging.info(' {} Created.'.format(dmg_path))
+    elif sys.platform == 'win32':
+        if args.codesign and 'bdist_msi' in sys.argv:
+            msi_name = '{0}-{1}-win64.msi'.format(bundle_name, __version__)
+            codesign_windows(f'dist\\{msi_name}')
