@@ -30,7 +30,6 @@ embedded_plugins = [
     # new/updated releases
 ]
 
-
 bundle_name = 'ftrack Connect'
 import PySide2
 import shiboken2
@@ -43,7 +42,6 @@ shiboken_path = os.path.join(shiboken2.__path__[0])
 logging.basicConfig(level=logging.INFO)
 
 from setuptools import setup as setup
-
 
 ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
 SOURCE_PATH = os.path.join(ROOT_PATH, 'source')
@@ -76,7 +74,6 @@ with open(
 
 print('BUILDING VERSION : {}'.format(__version__))
 
-
 connect_resource_hook = os.path.join(
     pkg_resources.get_distribution("ftrack-connect").location,
     'ftrack_connect/hook',
@@ -85,7 +82,6 @@ connect_resource_hook = os.path.join(
 external_connect_plugins = []
 for plugin in embedded_plugins:
     external_connect_plugins.append((plugin, plugin.replace('.zip', '')))
-
 
 # General configuration.
 configuration = dict(
@@ -115,7 +111,6 @@ configuration = dict(
     options={},
     python_requires=">=3, <4",
 )
-
 
 # Platform specific distributions.
 if sys.platform in ('darwin', 'win32', 'linux'):
@@ -706,54 +701,61 @@ def codesign_osx(create_dmg=True, notarize=True):
                         time.sleep(sleep_min * 60)
 
 
-if sys.platform in ['darwin', 'win32']:
-    import argparse
+import argparse
 
-    if sys.platform == 'darwin':
-        parser = argparse.ArgumentParser(
-            prog='setup.py bdist_mac',
-            add_help=True,
-            description=''' Override help for Connect build in MacOs. These are the 
-            accepted arguments for connect build. ''',
-            epilog='Make sure you have the CODESIGN_IDENTITY and APPLE_USER_NAME '
-            'environment variables and the ftrack_connect_sign_pass on the '
-            'keychain before codesign. Also make sure to have appdmg installed '
-            'by running "npm install -g appdmg"',
-        )
-        parser.add_argument(
-            '-cf',
-            '--codesign_frameworks',
-            action='store_true',
-            help='Codesign the frameworks on the Frameworks folder on MacOS',
-        )
-    else:
-        parser = argparse.ArgumentParser(
-            prog='setup.py bdist_msi|build_exe',
-            add_help=True,
-            description=''' Override help for Connect build in Windows. These are the 
-            accepted arguments for connect build. ''',
-            epilog='Make sure you have installed Java & gloud CLI tools and have '
-            'authenticated with Google cloud. ',
-        )
+if sys.platform == 'darwin':
+    parser = argparse.ArgumentParser(
+        prog='setup.py bdist_mac',
+        add_help=True,
+        description=''' Override help for Connect build in MacOs. These are the 
+        accepted arguments for connect build. ''',
+        epilog='Make sure you have the CODESIGN_IDENTITY and APPLE_USER_NAME '
+        'environment variables and the ftrack_connect_sign_pass on the '
+        'keychain before codesign. Also make sure to have appdmg installed '
+        'by running "npm install -g appdmg"',
+    )
+    parser.add_argument(
+        '-cf',
+        '--codesign_frameworks',
+        action='store_true',
+        help='Codesign the frameworks on the Frameworks folder on MacOS',
+    )
     parser.add_argument(
         '-cs',
         '--codesign',
         action='store_true',
-        help='Codesign Connect',
+        help='Codesign the .app in MacOS',
     )
-    if sys.platform == 'darwin':
-        parser.add_argument(
-            '-dmg',
-            '--create_dmg',
-            action='store_true',
-            help='Create the dmg file for MacOS',
-        )
-        parser.add_argument(
-            '-not',
-            '--notarize',
-            action='store_true',
-            help='Notarize the dmg application after codesign',
-        )
+    parser.add_argument(
+        '-dmg',
+        '--create_dmg',
+        action='store_true',
+        help='Create the dmg file for MacOS',
+    )
+    parser.add_argument(
+        '-not',
+        '--notarize',
+        action='store_true',
+        help='Notarize the dmg application after codesign',
+    )
+    args, unknown = parser.parse_known_args()
+    sys.argv = [sys.argv[0]] + unknown
+
+elif sys.platform == 'win32':
+    parser = argparse.ArgumentParser(
+        prog='setup.py bdist_msi|build_exe',
+        add_help=True,
+        description=''' Override help for Connect build in Windows. These are the 
+        accepted arguments for connect build. ''',
+        epilog='Make sure you have installed Java & gloud CLI tools and have '
+        'authenticated with Google cloud. ',
+    )
+    parser.add_argument(
+        '-cs',
+        '--codesign',
+        action='store_true',
+        help='Codesign Connect .exe and msi install on Windows',
+    )
     args, unknown = parser.parse_known_args()
     sys.argv = [sys.argv[0]] + unknown
 
@@ -763,14 +765,15 @@ def clean_download_dir():
         shutil.rmtree(DOWNLOAD_PLUGIN_PATH)
 
 
-def codesign_windows(relative_path):
+def codesign_windows(path):
+    '''Codesign artifact *path* using jsign tool in Windows'''
     return_code = subprocess.call(
         ["CMD.EXE", "/C", "codesign.bat", relative_path], shell=True
     )
     logging.info(f'Exitcode from code sign: {return_code}')
 
 
-def add_codesign_cx_Freeze():
+def add_codesign_cx_freeze_windows():
     from cx_Freeze.dist import build_exe
 
     build_exe_run = build_exe.run
@@ -788,7 +791,7 @@ def add_codesign_cx_Freeze():
 
 if sys.platform == 'win32' and 'args' in locals():
     if args.codesign:
-        add_codesign_cx_Freeze()
+        add_codesign_cx_freeze_windows()
 
 # Call main setup.
 setup(**configuration)
