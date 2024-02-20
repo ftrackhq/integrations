@@ -30,7 +30,6 @@ embedded_plugins = [
     # new/updated releases
 ]
 
-
 bundle_name = 'ftrack Connect'
 import PySide2
 import shiboken2
@@ -43,7 +42,6 @@ shiboken_path = os.path.join(shiboken2.__path__[0])
 logging.basicConfig(level=logging.INFO)
 
 from setuptools import setup as setup
-
 
 ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
 SOURCE_PATH = os.path.join(ROOT_PATH, 'source')
@@ -76,7 +74,6 @@ with open(
 
 print('BUILDING VERSION : {}'.format(__version__))
 
-
 connect_resource_hook = os.path.join(
     pkg_resources.get_distribution("ftrack-connect").location,
     'ftrack_connect/hook',
@@ -85,7 +82,6 @@ connect_resource_hook = os.path.join(
 external_connect_plugins = []
 for plugin in embedded_plugins:
     external_connect_plugins.append((plugin, plugin.replace('.zip', '')))
-
 
 # General configuration.
 configuration = dict(
@@ -115,7 +111,6 @@ configuration = dict(
     options={},
     python_requires=">=3, <4",
 )
-
 
 # Platform specific distributions.
 if sys.platform in ('darwin', 'win32', 'linux'):
@@ -706,9 +701,9 @@ def codesign_osx(create_dmg=True, notarize=True):
                         time.sleep(sleep_min * 60)
 
 
-if sys.platform == 'darwin':
-    import argparse
+import argparse
 
+if sys.platform == 'darwin':
     parser = argparse.ArgumentParser(
         prog='setup.py bdist_mac',
         add_help=True,
@@ -745,7 +740,24 @@ if sys.platform == 'darwin':
     )
     args, unknown = parser.parse_known_args()
     sys.argv = [sys.argv[0]] + unknown
-    osx_args = args
+
+elif sys.platform == 'win32':
+    parser = argparse.ArgumentParser(
+        prog='setup.py bdist_msi|build_exe',
+        add_help=True,
+        description=''' Override help for Connect build in Windows. These are the 
+        accepted arguments for connect build. ''',
+        epilog='Make sure you have installed Java & gloud CLI tools and have '
+        'authenticated with Google cloud. ',
+    )
+    parser.add_argument(
+        '-cs',
+        '--codesign',
+        action='store_true',
+        help='Codesign Connect .exe and msi install on Windows',
+    )
+    args, unknown = parser.parse_known_args()
+    sys.argv = [sys.argv[0]] + unknown
 
 
 def clean_download_dir():
@@ -753,18 +765,46 @@ def clean_download_dir():
         shutil.rmtree(DOWNLOAD_PLUGIN_PATH)
 
 
+def codesign_windows(path):
+    '''Codesign artifact *path* using jsign tool in Windows'''
+    return_code = subprocess.call(
+        ["CMD.EXE", "/C", "codesign.bat", path], shell=True
+    )
+    logging.info(f'Exitcode from code sign: {return_code}')
+
+
+def add_codesign_cx_freeze_windows():
+    '''Redefine cx_Freeze build_exe run function to support code sign after the
+    executable has been built'''
+    from cx_Freeze.dist import build_exe
+
+    build_exe_run = build_exe.run
+
+    def run(self):
+        build_exe_run(self)
+        exe_path = (
+            f'{self.build_exe}\\{self.distribution.executables[0].target_name}'
+        )
+        codesign_windows(exe_path)
+
+    build_exe.run = run
+
+
+if sys.platform == 'win32' and 'args' in locals():
+    if args.codesign:
+        add_codesign_cx_freeze_windows()
+
 # Call main setup.
 setup(**configuration)
 
 clean_download_dir()
-if sys.platform == 'darwin':
-    if 'osx_args' in locals():
-        post_setup(codesign_frameworks=osx_args.codesign_frameworks)
-        if osx_args.codesign:
-            codesign_osx(
-                create_dmg=osx_args.create_dmg, notarize=osx_args.notarize
-            )
-        elif osx_args.create_dmg:
+
+if 'args' in locals():
+    if sys.platform == 'darwin':
+        post_setup(codesign_frameworks=args.codesign_frameworks)
+        if args.codesign:
+            codesign_osx(create_dmg=args.create_dmg, notarize=args.notarize)
+        elif args.create_dmg:
             dmg_name = '{0}-{1}.dmg'.format(bundle_name, __version__)
             dmg_path = os.path.join(BUILD_PATH, dmg_name)
             dmg_command = 'appdmg resource/appdmg.json "{}"'.format(dmg_path)
@@ -773,3 +813,7 @@ if sys.platform == 'darwin':
                 raise (Exception("dmg creation not working please check."))
             else:
                 logging.info(' {} Created.'.format(dmg_path))
+    elif sys.platform == 'win32':
+        if args.codesign and 'bdist_msi' in sys.argv:
+            msi_name = '{0}-{1}-win64.msi'.format(bundle_name, __version__)
+            codesign_windows(f'dist\\{msi_name}')

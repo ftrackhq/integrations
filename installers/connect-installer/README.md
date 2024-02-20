@@ -68,8 +68,8 @@ To install using libraries from PyPy test:
     $ pip install --pre --index-url https://test.pypi.org/simple --extra-index-url https://pypi.org/simple  -r requirements.txt
 ```
 
-## Windows
 
+## Windows
 
 Visual studio and [c++ build
 tools](https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019)
@@ -89,7 +89,26 @@ ftrack Connect-**\<VERSION>**-win64-redist.zip
 
 ### Code sign
 
-> **_NOTE:_** This is an internal (closed) routine and is documented here: https://sites.google.com/backlight.co/theshire/product-development/products/integrations/deployment.
+> **_NOTE:_** The routine is fully documented here: https://sites.google.com/backlight.co/theshire/product-development/products/integrations/deployment.
+
+
+Preparations:
+
+ -  Install Java
+ -  Install Google cloud CLI: https://cloud.google.com/sdk/docs/install
+ -  Authenticate:
+
+```bash
+    $ gcloud auth login
+```
+
+Build with:
+
+```bash
+    $ python setup.py bdist_msi --codesign
+```
+
+
 
 ## Linux
 
@@ -129,6 +148,8 @@ Please remember to set **\<PLATFORM\>** to either:
 
 -   C7 for Centos 7 compatible releases.
 -   C8 for centos 8 compatible releases.
+
+
 
 ## MacOs
 
@@ -171,7 +192,9 @@ Execute the following build command and follow the instructions:
 
     $ python setup.py bdist_mac --codesign_frameworks --codesign --create_dmg --notarize
 
-#### Docker
+
+
+## Docker
 
 As part of this repository, 3 Dockerfiles are available to sendbox the
 build of ftrack-connect-installer.
