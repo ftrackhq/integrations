@@ -738,8 +738,6 @@ if sys.platform == 'darwin':
         action='store_true',
         help='Notarize the dmg application after codesign',
     )
-    args, unknown = parser.parse_known_args()
-    sys.argv = [sys.argv[0]] + unknown
 
 elif sys.platform == 'win32':
     parser = argparse.ArgumentParser(
@@ -756,8 +754,25 @@ elif sys.platform == 'win32':
         action='store_true',
         help='Codesign Connect .exe and msi install on Windows',
     )
-    args, unknown = parser.parse_known_args()
-    sys.argv = [sys.argv[0]] + unknown
+elif sys.platform == 'linux':
+    parser = argparse.ArgumentParser(
+        prog='setup.py build_exe',
+        add_help=True,
+        description=''' Override help for Connect build in Linux. These are the 
+            accepted arguments for connect build. ''',
+        epilog='Make sure you have patchelf installed in your Python environment.',
+    )
+    parser.add_argument(
+        '-cb',
+        '--create_deployment',
+        action='store_true',
+        help='Create compressed tar deployment with MD5 checksum',
+    )
+else:
+    raise Exception('Unsupported build platform!')
+
+args, unknown = parser.parse_known_args()
+sys.argv = [sys.argv[0]] + unknown
 
 
 def clean_download_dir():
@@ -799,21 +814,67 @@ setup(**configuration)
 
 clean_download_dir()
 
-if 'args' in locals():
-    if sys.platform == 'darwin':
-        post_setup(codesign_frameworks=args.codesign_frameworks)
-        if args.codesign:
-            codesign_osx(create_dmg=args.create_dmg, notarize=args.notarize)
-        elif args.create_dmg:
-            dmg_name = '{0}-{1}.dmg'.format(bundle_name, __version__)
-            dmg_path = os.path.join(BUILD_PATH, dmg_name)
-            dmg_command = 'appdmg resource/appdmg.json "{}"'.format(dmg_path)
-            dmg_result = os.system(dmg_command)
-            if dmg_result != 0:
-                raise (Exception("dmg creation not working please check."))
+if sys.platform == 'darwin':
+    post_setup(codesign_frameworks=args.codesign_frameworks)
+    if args.codesign:
+        codesign_osx(create_dmg=args.create_dmg, notarize=args.notarize)
+    elif args.create_dmg:
+        dmg_name = '{0}-{1}.dmg'.format(bundle_name, __version__)
+        dmg_path = os.path.join(BUILD_PATH, dmg_name)
+        dmg_command = 'appdmg resource/appdmg.json "{}"'.format(dmg_path)
+        dmg_result = os.system(dmg_command)
+        if dmg_result != 0:
+            raise Exception("dmg creation not working please check.")
+        else:
+            logging.info(f' {dmg_path} created.')
+elif sys.platform == 'win32':
+    if args.codesign and 'bdist_msi' in sys.argv:
+        msi_name = '{0}-{1}-win64.msi'.format(bundle_name, __version__)
+        codesign_windows(f'dist\\{msi_name}')
+elif sys.platform == 'linux':
+    if args.create_deployment:
+        try:
+            os.chdir(os.path.join(ROOT_PATH, 'build'))
+            exe_path = os.listdir(os.getcwd())[0]
+            # Detect platform
+            path_os_desc = '/etc/os-release'
+            assert os.path.exists(path_os_desc), 'Not a supported Linux OS!'
+            with open(path_os_desc, 'r') as f:
+                os_desc = f.read()
+            linux_distro = ''
+            if os_desc.lower().find('centos-7') > -1:
+                linux_distro = 'C7'
+            elif os_desc.lower().find('centos-8') > -1:
+                linux_distro = 'C8'
+            elif os_desc.lower().find('rocky-linux-9') > -1:
+                linux_distro = 'R9'
             else:
-                logging.info(' {} Created.'.format(dmg_path))
-    elif sys.platform == 'win32':
-        if args.codesign and 'bdist_msi' in sys.argv:
-            msi_name = '{0}-{1}-win64.msi'.format(bundle_name, __version__)
-            codesign_windows(f'dist\\{msi_name}')
+                raise Exception('Not a supported Linux distro!')
+            target_path = os.path.join(
+                ROOT_PATH,
+                'dist',
+                f'ftrack-connect-installer-{__version__}-{linux_distro}.tar.gz',
+            )
+            if not os.path.exists(os.path.dirname(target_path)):
+                os.makedirs(os.path.dirname(target_path))
+            elif os.path.exists(target_path):
+                os.unlink(target_path)
+            logging.info('Compressing...')
+            return_code = os.system(
+                f"tar -zcvf {target_path} {os.path.basename(exe_path)} --transform 's/{os.path.basename(exe_path)}/ftrack-connect-installer/'"
+            )
+            assert return_code == 0, f'TAR compress failed: {return_code}'
+            # Create md5 sum
+            checksum_path = f'{target_path}.md5'
+            if os.path.exists(checksum_path):
+                os.unlink(checksum_path)
+            logging.info('Calculating MD5 sum...')
+            return_code = os.system(f'md5sum {target_path} > {checksum_path}')
+            assert return_code == 0, f'MD5 failed: {return_code}'
+            logging.info(f' {target_path} created with checksum.')
+        except:
+            import traceback
+
+            logging.warning(traceback.format_exc())
+        finally:
+            os.chdir(ROOT_PATH)
