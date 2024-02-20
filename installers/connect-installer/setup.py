@@ -48,6 +48,7 @@ SOURCE_PATH = os.path.join(ROOT_PATH, 'source')
 RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
 README_PATH = os.path.join(ROOT_PATH, 'README.md')
 BUILD_PATH = os.path.join(ROOT_PATH, 'build')
+DIST_PATH = os.path.join(ROOT_PATH, 'dist')
 DOWNLOAD_PLUGIN_PATH = os.path.join(
     BUILD_PATH,
     'plugin-downloads-{0}'.format(
@@ -553,6 +554,33 @@ def post_setup(codesign_frameworks=True):
             )
 
 
+def create_dmg():
+    '''Create DMG on MacOS. Returns the resulting path.'''
+    dmg_name = '{0}-{1}.dmg'.format(bundle_name, __version__)
+    dmg_path = os.path.join(DIST_PATH, dmg_name)
+    if not os.path.exists(DIST_PATH):
+        os.makedirs(DIST_PATH)
+    elif os.path.exists(dmg_path):
+        logging.warning(f'Removing existing image: {dmg_path}')
+        os.unlink(dmg_path)
+    logging.info('Creating image...')
+    dmg_command = 'appdmg resource/appdmg.json "{}"'.format(dmg_path)
+    dmg_result = os.system(dmg_command)
+    if dmg_result != 0:
+        raise Exception("dmg creation not working please check.")
+    logging.info(' {} created, creating checksum...'.format(dmg_path))
+
+    # Create md5 sum
+    checksum_path = f'{dmg_path}.md5'
+    if os.path.exists(checksum_path):
+        os.unlink(checksum_path)
+    logging.info('Calculating MD5 sum...')
+    return_code = os.system(f'md5 "{dmg_path}" > "{checksum_path}"')
+    assert return_code == 0, f'MD5 failed: {return_code}'
+    logging.info(f' Checksum created: {checksum_path}')
+    return dmg_path
+
+
 def codesign_osx(create_dmg=True, notarize=True):
     '''
     Function to codesign the MacOs Build.
@@ -587,20 +615,14 @@ def codesign_osx(create_dmg=True, notarize=True):
     else:
         logging.info(' Application signed')
     if create_dmg:
-        dmg_name = '{0}-{1}.dmg'.format(bundle_name, __version__)
-        dmg_path = os.path.join(BUILD_PATH, dmg_name)
-        dmg_command = 'appdmg resource/appdmg.json "{}"'.format(dmg_path)
-        dmg_result = os.system(dmg_command)
-        if dmg_result != 0:
-            raise (Exception("dmg creation not working please check."))
-        else:
-            logging.info(' {} Created.'.format(dmg_path))
+        dmg_path = create_dmg()
+
         if notarize is True:
             logging.info(' Setting up xcode, please enter your sudo password')
             setup_xcode_cmd = 'sudo xcode-select -s /Applications/Xcode.app'
             setup_result = os.system(setup_xcode_cmd)
             if setup_result != 0:
-                raise (Exception("Setting up xcode not working please check."))
+                raise Exception("Setting up xcode not working please check.")
             else:
                 logging.info(' xcode setup completed')
             logging.info(' Starting notarize process')
@@ -782,9 +804,7 @@ def clean_download_dir():
 
 def codesign_windows(path):
     '''Codesign artifact *path* using jsign tool in Windows'''
-    return_code = subprocess.call(
-        ["CMD.EXE", "/C", "codesign.bat", path], shell=True
-    )
+    return_code = os.system(f'codesign.bat {path}')
     logging.info(f'Exitcode from code sign: {return_code}')
 
 
@@ -805,7 +825,7 @@ def add_codesign_cx_freeze_windows():
     build_exe.run = run
 
 
-if sys.platform == 'win32' and 'args' in locals():
+if sys.platform == 'win32':
     if args.codesign:
         add_codesign_cx_freeze_windows()
 
@@ -819,14 +839,7 @@ if sys.platform == 'darwin':
     if args.codesign:
         codesign_osx(create_dmg=args.create_dmg, notarize=args.notarize)
     elif args.create_dmg:
-        dmg_name = '{0}-{1}.dmg'.format(bundle_name, __version__)
-        dmg_path = os.path.join(BUILD_PATH, dmg_name)
-        dmg_command = 'appdmg resource/appdmg.json "{}"'.format(dmg_path)
-        dmg_result = os.system(dmg_command)
-        if dmg_result != 0:
-            raise Exception("dmg creation not working please check.")
-        else:
-            logging.info(f' {dmg_path} created.')
+        create_dmg()
 elif sys.platform == 'win32':
     if args.codesign and 'bdist_msi' in sys.argv:
         msi_name = '{0}-{1}-win64.msi'.format(bundle_name, __version__)
@@ -851,8 +864,7 @@ elif sys.platform == 'linux':
             else:
                 raise Exception('Not a supported Linux distro!')
             target_path = os.path.join(
-                ROOT_PATH,
-                'dist',
+                DIST_PATH,
                 f'ftrack-connect-installer-{__version__}-{linux_distro}.tar.gz',
             )
             if not os.path.exists(os.path.dirname(target_path)):
