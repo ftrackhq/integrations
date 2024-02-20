@@ -568,13 +568,12 @@ def create_dmg():
     dmg_result = os.system(dmg_command)
     if dmg_result != 0:
         raise Exception("dmg creation not working please check.")
-    logging.info(' {} created, creating checksum...'.format(dmg_path))
+    logging.info(' {} created, calculating md5 checksum...'.format(dmg_path))
 
     # Create md5 sum
     checksum_path = f'{dmg_path}.md5'
     if os.path.exists(checksum_path):
         os.unlink(checksum_path)
-    logging.info('Calculating MD5 sum...')
     return_code = os.system(f'md5 "{dmg_path}" > "{checksum_path}"')
     assert return_code == 0, f'MD5 failed: {return_code}'
     logging.info(f'Checksum created: {checksum_path}')
@@ -673,15 +672,12 @@ def codesign_osx(create_dmg=True, notarize=True):
                     os.system(staple_dmg_cmd)
 
                 elif status == 'invalid':
-                    exit_loop = True
                     log_url = query_result.split("LogFileURL: ")[-1].split(
                         "\n"
                     )[0]
-                    raise (
-                        Exception(
-                            "Notarization failed, please copy the following url "
-                            "and check the log:\n{}".format(log_url)
-                        )
+                    raise Exception(
+                        "Notarization failed, please copy the following url "
+                        "and check the log:\n{}".format(log_url)
                     )
                 else:
                     response = input(
@@ -712,8 +708,7 @@ def codesign_osx(create_dmg=True, notarize=True):
                     else:
                         try:
                             sleep_min = float(response)
-                        except Exception as e:
-                            exit_loop = True
+                        except Exception:
                             raise Exception(
                                 "Could not read the input minutes, please check "
                                 "the notarize manually and staple the code after using this command:\n\n{}\n\n"
@@ -880,7 +875,9 @@ elif sys.platform == 'linux':
             checksum_path = f'{target_path}.md5'
             if os.path.exists(checksum_path):
                 os.unlink(checksum_path)
-            logging.info(f'Created: {target_path}, calculating md5 sum...')
+            logging.info(
+                f'Created: {target_path}, calculating md5 checksum...'
+            )
             return_code = os.system(f'md5sum {target_path} > {checksum_path}')
             assert return_code == 0, f'md5 failed: {return_code}'
             logging.info(f'Checksum created: {checksum_path}')
