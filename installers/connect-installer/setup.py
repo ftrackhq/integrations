@@ -555,7 +555,7 @@ def post_setup(codesign_frameworks=True):
 
 
 def create_dmg():
-    '''Create DMG on MacOS. Returns the resulting path.'''
+    '''Create DMG on MacOS with checksum. Returns the resulting path.'''
     dmg_name = '{0}-{1}.dmg'.format(bundle_name, __version__)
     dmg_path = os.path.join(DIST_PATH, dmg_name)
     if not os.path.exists(DIST_PATH):
@@ -577,7 +577,7 @@ def create_dmg():
     logging.info('Calculating MD5 sum...')
     return_code = os.system(f'md5 "{dmg_path}" > "{checksum_path}"')
     assert return_code == 0, f'MD5 failed: {return_code}'
-    logging.info(f' Checksum created: {checksum_path}')
+    logging.info(f'Checksum created: {checksum_path}')
     return dmg_path
 
 
@@ -880,10 +880,10 @@ elif sys.platform == 'linux':
             checksum_path = f'{target_path}.md5'
             if os.path.exists(checksum_path):
                 os.unlink(checksum_path)
-            logging.info('Calculating MD5 sum...')
+            logging.info(f'Created: {target_path}, calculating md5 sum...')
             return_code = os.system(f'md5sum {target_path} > {checksum_path}')
-            assert return_code == 0, f'MD5 failed: {return_code}'
-            logging.info(f' {target_path} created with checksum.')
+            assert return_code == 0, f'md5 failed: {return_code}'
+            logging.info(f'Checksum created: {checksum_path}')
         except:
             import traceback
 
