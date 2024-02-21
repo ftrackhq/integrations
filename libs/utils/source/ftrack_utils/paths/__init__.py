@@ -41,19 +41,13 @@ def get_temp_path(filename_extension=None):
     '''Calculate and return a Connect temporary path,
     appending *filename_extension* if supplied.'''
 
-    suffix = ''
-    if filename_extension:
-        suffix = '{}{}'.format(
-            '.' if not filename_extension.startswith('.') else '',
-            filename_extension,
-        )
     result = os.path.join(
         tempfile.gettempdir(),
         'ftrack-connect',
         'ftrack',
-        '{}{}'.format(
+        '{}.{}'.format(
             os.path.basename(tempfile.NamedTemporaryFile().name),
-            suffix,
+            filename_extension.split(".")[-1] if filename_extension else '',
         ),
     )
     if not os.path.exists(os.path.dirname(result)):
