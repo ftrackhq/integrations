@@ -18,11 +18,9 @@ class PhotoshopDocumentExporterPlugin(BasePlugin):
         '''
         component_name = self.options.get('component')
 
-        collected_data = store['components'][component_name]['collected_data']
-
         new_file_path = get_temp_path(filename_extension='psd')
 
-        document_path = collected_data.get('full_path')
+        document_path = store['components'][component_name]['document_name']
 
         self.logger.debug(
             f'Copying Photoshop document from {document_path} to {new_file_path}'

@@ -66,8 +66,7 @@ engine:
     options:
       component: thumbnail
     optional: true
-    # enabled means that by default the optional checkbox will be checked
-    enabled: true
+    #enabled: True by default so is no need
     plugins:
       - type: plugin
         plugin: store_component
@@ -85,8 +84,7 @@ engine:
     options:
       component: reviewable
     optional: true
-    # enabled means that by default the optional checkbox will be checked
-    enabled: true
+    #enabled: True by default so is no need
     plugins:
       - type: plugin
         plugin: store_component
