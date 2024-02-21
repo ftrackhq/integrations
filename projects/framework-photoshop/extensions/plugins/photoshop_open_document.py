@@ -10,7 +10,7 @@ from ftrack_framework_photoshop.rpc_cep import PhotoshopRPCCEP
 
 
 class PhotoshopOpenDocumentPlugin(BasePlugin):
-    name = 'open_document'
+    name = 'photoshop_open_document'
 
     def run(self, store):
         '''

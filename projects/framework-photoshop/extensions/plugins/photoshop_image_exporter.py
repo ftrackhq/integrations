@@ -9,7 +9,7 @@ from ftrack_framework_photoshop.rpc_cep import PhotoshopRPCCEP
 
 
 class PhotoshopImageExporterPlugin(BasePlugin):
-    name = 'image_exporter'
+    name = 'photoshop_image_exporter'
 
     def run(self, store):
         '''

@@ -9,7 +9,7 @@ from ftrack_framework_photoshop.rpc_cep import PhotoshopRPCCEP
 
 
 class PhotoshopSaveToTemp(BasePlugin):
-    name = 'save_to_temp'
+    name = 'photoshop_save_to_temp'
 
     def run(self, store):
         '''

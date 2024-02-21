@@ -22,15 +22,15 @@ engine:
       - type: plugin
         tags:
           - collector
-        plugin: document_collector
+        plugin: photoshop_document_collector
       - type: plugin
         tags:
           - validator
-        plugin: document_validator
+        plugin: photoshop_document_validator
       - type: plugin
         tags:
           - exporter
-        plugin: document_exporter
+        plugin: photoshop_document_exporter
 
   # Export the image component.
   - type: group
@@ -46,7 +46,7 @@ engine:
       - type: plugin
         tags:
           - collector
-        plugin: document_collector
+        plugin: photoshop_document_collector
       - type: plugin
         tags:
           - exporter
@@ -60,7 +60,7 @@ engine:
             - .pdf
             - .png
             - .tif
-        plugin: image_exporter
+        plugin: photoshop_image_exporter
         ui: image_options
 
   # Export the reviewable component.
@@ -78,7 +78,7 @@ engine:
       - type: plugin
         tags:
           - collector
-        plugin: document_collector
+        plugin: photoshop_document_collector
       - type: plugin
         tags:
           - exporter
@@ -88,7 +88,7 @@ engine:
             - .jpg
             - .png
             - .gif
-        plugin: image_exporter
+        plugin: photoshop_image_exporter
         ui: image_options
 
   # Common validator check all exported paths exists.

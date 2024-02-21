@@ -10,7 +10,7 @@ from ftrack_framework_photoshop.rpc_cep import PhotoshopRPCCEP
 
 
 class PhotoshopDocumentCollectorPlugin(BasePlugin):
-    name = 'document_collector'
+    name = 'photoshop_document_collector'
 
     def run(self, store):
         '''
