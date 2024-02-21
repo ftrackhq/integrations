@@ -27,7 +27,7 @@ QListWidget::item QLabel
 QListWidget::item:selected,
 QListWidget::item:alternate:selected
 {
-   background: $background-selected;
+   background: $color-primary-dark;
    color: $white;
 }
 
