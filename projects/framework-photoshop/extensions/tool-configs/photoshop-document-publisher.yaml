@@ -26,7 +26,7 @@ engine:
       - type: plugin
         tags:
           - validator
-        plugin: photoshop_document_validator
+        plugin: photoshop_document_saved_validator
       - type: plugin
         tags:
           - exporter
@@ -45,10 +45,6 @@ engine:
         plugin: store_component
       - type: plugin
         tags:
-          - collector
-        plugin: photoshop_document_collector
-      - type: plugin
-        tags:
           - exporter
         options:
           extension: .jpg
@@ -63,6 +59,25 @@ engine:
         plugin: photoshop_image_exporter
         ui: image_options
 
+  # Export the thumbnail component.
+  - type: group
+    tags:
+      - component
+    options:
+      component: thumbnail
+    optional: true
+    # enabled means that by default the optional checkbox will be checked
+    enabled: true
+    plugins:
+      - type: plugin
+        plugin: store_component
+      - type: plugin
+        tags:
+          - exporter
+        options:
+          extension: .jpg
+        plugin: photoshop_image_exporter
+
   # Export the reviewable component.
   - type: group
     tags:
@@ -75,10 +90,6 @@ engine:
     plugins:
       - type: plugin
         plugin: store_component
-      - type: plugin
-        tags:
-          - collector
-        plugin: photoshop_document_collector
       - type: plugin
         tags:
           - exporter

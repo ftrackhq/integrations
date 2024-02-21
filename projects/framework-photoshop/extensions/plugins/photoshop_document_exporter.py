@@ -20,7 +20,7 @@ class PhotoshopDocumentExporterPlugin(BasePlugin):
 
         collected_data = store['components'][component_name]['collected_data']
 
-        new_file_path = get_temp_path(filename_extension='.psd')
+        new_file_path = get_temp_path(filename_extension='psd')
 
         document_path = collected_data.get('full_path')
 

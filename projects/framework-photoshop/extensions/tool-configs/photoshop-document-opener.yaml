@@ -26,7 +26,7 @@ engine:
       - type: plugin
         tags:
           - importer
-        plugin: photoshop_open_document
+        plugin: photoshop_document_opener
 
   # Open finalizer.
   - save_to_temp

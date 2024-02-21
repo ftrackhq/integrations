@@ -18,7 +18,9 @@ class PhotoshopImageExporterPlugin(BasePlugin):
         the component name.
         '''
 
-        extension = self.options.get('extension', '.jpg')
+        extension = self.options.get('extension')
+        if not extension:
+            raise PluginExecutionError(f'Not image extension provided!')
 
         component_name = self.options.get('component')
 

@@ -8,15 +8,15 @@ from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 from ftrack_framework_photoshop.rpc_cep import PhotoshopRPCCEP
 
 
-class PhotoshopSaveToTemp(BasePlugin):
-    name = 'photoshop_save_to_temp'
+class PhotoshopSaveToTempPlugin(BasePlugin):
+    name = 'photoshop_save_to_temp_finalizer'
 
     def run(self, store):
         '''
         Tell Photoshop to save the current document in a temp location.
         '''
 
-        temp_path = get_temp_path(filename_extension='.psd')
+        temp_path = get_temp_path(filename_extension='psd')
         try:
             # Get existing RPC connection instance
             photoshop_connection = PhotoshopRPCCEP.instance()

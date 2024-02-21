@@ -9,8 +9,8 @@ from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 from ftrack_framework_photoshop.rpc_cep import PhotoshopRPCCEP
 
 
-class PhotoshopOpenDocumentPlugin(BasePlugin):
-    name = 'photoshop_open_document'
+class PhotoshopDocumentOpenerPlugin(BasePlugin):
+    name = 'photoshop_document_opener'
 
     def run(self, store):
         '''
@@ -27,11 +27,9 @@ class PhotoshopOpenDocumentPlugin(BasePlugin):
         if not collected_path:
             raise PluginExecutionError(f'No path provided to open!')
 
-        document_path = collected_path
-
-        if not os.path.exists(document_path):
+        if not os.path.exists(collected_path):
             raise PluginExecutionError(
-                f'Document "{document_path}" does not exist!'
+                f'Document "{collected_path}" does not exist!'
             )
 
         try:
@@ -39,12 +37,12 @@ class PhotoshopOpenDocumentPlugin(BasePlugin):
             photoshop_connection = PhotoshopRPCCEP.instance()
 
             self.logger.debug(
-                f'Telling Photoshop to save document to: {document_path}'
+                f'Telling Photoshop to save document to: {collected_path}'
             )
 
             open_result = photoshop_connection.rpc(
                 'openDocument',
-                [document_path],
+                [collected_path],
             )
 
         except Exception as e:
