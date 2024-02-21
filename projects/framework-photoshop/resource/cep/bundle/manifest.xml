@@ -35,12 +35,12 @@
           <Menu>ftrack</Menu>
           <Geometry>
             <Size>
-              <Width>400</Width>
-              <Height>350</Height>
+              <Width>300</Width>
+              <Height>250</Height>
             </Size>
             <MaxSize>
-              <Width>600</Width>
-              <Height>600</Height>
+              <Width>400</Width>
+              <Height>300</Height>
             </MaxSize>
           </Geometry>
           <Icons>
