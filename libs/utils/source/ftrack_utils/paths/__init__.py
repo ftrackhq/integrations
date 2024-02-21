@@ -47,7 +47,9 @@ def get_temp_path(filename_extension=None):
         'ftrack',
         '{}{}'.format(
             os.path.basename(tempfile.NamedTemporaryFile().name),
-            filename_extension if filename_extension else '',
+            f'.{filename_extension.split(".")[-1]}'
+            if filename_extension
+            else '',
         ),
     )
     if not os.path.exists(os.path.dirname(result)):
