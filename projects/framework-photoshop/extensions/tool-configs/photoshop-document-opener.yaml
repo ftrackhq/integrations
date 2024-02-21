@@ -25,8 +25,12 @@ engine:
           asset_type_name: scene
       - type: plugin
         tags:
-          - importer
+          - validator
+        plugin: file_exists_validator
+      - type: plugin
+        tags:
+          - opener
         plugin: photoshop_document_opener
+      - type: plugin
+        plugin: photoshop_save_to_temp_finalizer
 
-  # Open finalizer.
-  - save_to_temp

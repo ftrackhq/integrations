@@ -8,7 +8,7 @@ from Qt import QtWidgets, QtCore, QtGui
 from ftrack_framework_qt.widgets import BaseWidget
 
 
-class ImageExportOptionsWidget(BaseWidget):
+class PhotoshopImageExportOptionsWidget(BaseWidget):
     '''Main class to represent image export options widget on a publish process.'''
 
     name = 'image_options'
@@ -27,13 +27,13 @@ class ImageExportOptionsWidget(BaseWidget):
         on_run_ui_hook,
         parent=None,
     ):
-        '''initialise FileExportOptionsWidget with *parent*, *session*, *data*,
+        '''initialise PhotoshopImageExportOptionsWidget with *parent*, *session*, *data*,
         *name*, *description*, *options* and *context*
         '''
 
         self._format_selector = None
 
-        super(ImageExportOptionsWidget, self).__init__(
+        super(PhotoshopImageExportOptionsWidget, self).__init__(
             event_manager,
             client_id,
             context_id,
@@ -83,7 +83,8 @@ class ImageExportOptionsWidget(BaseWidget):
                 self._extensions.index(extension)
             )
 
-    def _on_format_changed(self, currentIndex):
-        '''Callback when format is changed'''
-        extension = self._extensions[currentIndex]
+    def _on_format_changed(self, current_index):
+        '''Callback when format is changed, with *current_índex* pointing
+        the combobox index changed to.'''
+        extension = self._extensions[current_index]
         self.set_plugin_option('extension', extension)
