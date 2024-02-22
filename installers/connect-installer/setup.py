@@ -48,6 +48,7 @@ SOURCE_PATH = os.path.join(ROOT_PATH, 'source')
 RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
 README_PATH = os.path.join(ROOT_PATH, 'README.md')
 BUILD_PATH = os.path.join(ROOT_PATH, 'build')
+DIST_PATH = os.path.join(ROOT_PATH, 'dist')
 DOWNLOAD_PLUGIN_PATH = os.path.join(
     BUILD_PATH,
     'plugin-downloads-{0}'.format(
@@ -553,6 +554,32 @@ def post_setup(codesign_frameworks=True):
             )
 
 
+def create_dmg():
+    '''Create DMG on MacOS with checksum. Returns the resulting path.'''
+    dmg_name = '{0}-{1}.dmg'.format(bundle_name, __version__)
+    dmg_path = os.path.join(DIST_PATH, dmg_name)
+    if not os.path.exists(DIST_PATH):
+        os.makedirs(DIST_PATH)
+    elif os.path.exists(dmg_path):
+        logging.warning(f'Removing existing image: {dmg_path}')
+        os.unlink(dmg_path)
+    logging.info('Creating image...')
+    dmg_command = 'appdmg resource/appdmg.json "{}"'.format(dmg_path)
+    dmg_result = os.system(dmg_command)
+    if dmg_result != 0:
+        raise Exception("dmg creation not working please check.")
+    logging.info(' {} created, calculating md5 checksum...'.format(dmg_path))
+
+    # Create md5 sum
+    checksum_path = f'{dmg_path}.md5'
+    if os.path.exists(checksum_path):
+        os.unlink(checksum_path)
+    return_code = os.system(f'md5 "{dmg_path}" > "{checksum_path}"')
+    assert return_code == 0, f'MD5 failed: {return_code}'
+    logging.info(f'Checksum created: {checksum_path}')
+    return dmg_path
+
+
 def codesign_osx(create_dmg=True, notarize=True):
     '''
     Function to codesign the MacOs Build.
@@ -587,20 +614,14 @@ def codesign_osx(create_dmg=True, notarize=True):
     else:
         logging.info(' Application signed')
     if create_dmg:
-        dmg_name = '{0}-{1}.dmg'.format(bundle_name, __version__)
-        dmg_path = os.path.join(BUILD_PATH, dmg_name)
-        dmg_command = 'appdmg resource/appdmg.json "{}"'.format(dmg_path)
-        dmg_result = os.system(dmg_command)
-        if dmg_result != 0:
-            raise (Exception("dmg creation not working please check."))
-        else:
-            logging.info(' {} Created.'.format(dmg_path))
+        dmg_path = create_dmg()
+
         if notarize is True:
             logging.info(' Setting up xcode, please enter your sudo password')
             setup_xcode_cmd = 'sudo xcode-select -s /Applications/Xcode.app'
             setup_result = os.system(setup_xcode_cmd)
             if setup_result != 0:
-                raise (Exception("Setting up xcode not working please check."))
+                raise Exception("Setting up xcode not working please check.")
             else:
                 logging.info(' xcode setup completed')
             logging.info(' Starting notarize process')
@@ -651,15 +672,12 @@ def codesign_osx(create_dmg=True, notarize=True):
                     os.system(staple_dmg_cmd)
 
                 elif status == 'invalid':
-                    exit_loop = True
                     log_url = query_result.split("LogFileURL: ")[-1].split(
                         "\n"
                     )[0]
-                    raise (
-                        Exception(
-                            "Notarization failed, please copy the following url "
-                            "and check the log:\n{}".format(log_url)
-                        )
+                    raise Exception(
+                        "Notarization failed, please copy the following url "
+                        "and check the log:\n{}".format(log_url)
                     )
                 else:
                     response = input(
@@ -690,8 +708,7 @@ def codesign_osx(create_dmg=True, notarize=True):
                     else:
                         try:
                             sleep_min = float(response)
-                        except Exception as e:
-                            exit_loop = True
+                        except Exception:
                             raise Exception(
                                 "Could not read the input minutes, please check "
                                 "the notarize manually and staple the code after using this command:\n\n{}\n\n"
@@ -738,8 +755,6 @@ if sys.platform == 'darwin':
         action='store_true',
         help='Notarize the dmg application after codesign',
     )
-    args, unknown = parser.parse_known_args()
-    sys.argv = [sys.argv[0]] + unknown
 
 elif sys.platform == 'win32':
     parser = argparse.ArgumentParser(
@@ -756,8 +771,25 @@ elif sys.platform == 'win32':
         action='store_true',
         help='Codesign Connect .exe and msi install on Windows',
     )
-    args, unknown = parser.parse_known_args()
-    sys.argv = [sys.argv[0]] + unknown
+elif sys.platform == 'linux':
+    parser = argparse.ArgumentParser(
+        prog='setup.py build_exe',
+        add_help=True,
+        description=''' Override help for Connect build in Linux. These are the 
+            accepted arguments for connect build. ''',
+        epilog='Make sure you have patchelf installed in your Python environment.',
+    )
+    parser.add_argument(
+        '-cb',
+        '--create_deployment',
+        action='store_true',
+        help='Create compressed tar deployment with MD5 checksum',
+    )
+else:
+    raise Exception('Unsupported build platform!')
+
+args, unknown = parser.parse_known_args()
+sys.argv = [sys.argv[0]] + unknown
 
 
 def clean_download_dir():
@@ -767,9 +799,7 @@ def clean_download_dir():
 
 def codesign_windows(path):
     '''Codesign artifact *path* using jsign tool in Windows'''
-    return_code = subprocess.call(
-        ["CMD.EXE", "/C", "codesign.bat", path], shell=True
-    )
+    return_code = os.system(f'codesign.bat {path}')
     logging.info(f'Exitcode from code sign: {return_code}')
 
 
@@ -790,7 +820,7 @@ def add_codesign_cx_freeze_windows():
     build_exe.run = run
 
 
-if sys.platform == 'win32' and 'args' in locals():
+if sys.platform == 'win32':
     if args.codesign:
         add_codesign_cx_freeze_windows()
 
@@ -799,21 +829,61 @@ setup(**configuration)
 
 clean_download_dir()
 
-if 'args' in locals():
-    if sys.platform == 'darwin':
-        post_setup(codesign_frameworks=args.codesign_frameworks)
-        if args.codesign:
-            codesign_osx(create_dmg=args.create_dmg, notarize=args.notarize)
-        elif args.create_dmg:
-            dmg_name = '{0}-{1}.dmg'.format(bundle_name, __version__)
-            dmg_path = os.path.join(BUILD_PATH, dmg_name)
-            dmg_command = 'appdmg resource/appdmg.json "{}"'.format(dmg_path)
-            dmg_result = os.system(dmg_command)
-            if dmg_result != 0:
-                raise (Exception("dmg creation not working please check."))
+if sys.platform == 'darwin':
+    post_setup(codesign_frameworks=args.codesign_frameworks)
+    if args.codesign:
+        codesign_osx(create_dmg=args.create_dmg, notarize=args.notarize)
+    elif args.create_dmg:
+        create_dmg()
+elif sys.platform == 'win32':
+    if args.codesign and 'bdist_msi' in sys.argv:
+        msi_name = '{0}-{1}-win64.msi'.format(bundle_name, __version__)
+        codesign_windows(f'dist\\{msi_name}')
+elif sys.platform == 'linux':
+    if args.create_deployment:
+        try:
+            os.chdir(os.path.join(ROOT_PATH, 'build'))
+            exe_path = os.listdir(os.getcwd())[0]
+            # Detect platform
+            path_os_desc = '/etc/os-release'
+            assert os.path.exists(path_os_desc), 'Not a supported Linux OS!'
+            with open(path_os_desc, 'r') as f:
+                os_desc = f.read()
+            linux_distro = ''
+            if os_desc.lower().find('centos-7') > -1:
+                linux_distro = 'C7'
+            elif os_desc.lower().find('centos-8') > -1:
+                linux_distro = 'C8'
+            elif os_desc.lower().find('rocky-linux-9') > -1:
+                linux_distro = 'R9'
             else:
-                logging.info(' {} Created.'.format(dmg_path))
-    elif sys.platform == 'win32':
-        if args.codesign and 'bdist_msi' in sys.argv:
-            msi_name = '{0}-{1}-win64.msi'.format(bundle_name, __version__)
-            codesign_windows(f'dist\\{msi_name}')
+                raise Exception('Not a supported Linux distro!')
+            target_path = os.path.join(
+                DIST_PATH,
+                f'ftrack-connect-installer-{__version__}-{linux_distro}.tar.gz',
+            )
+            if not os.path.exists(os.path.dirname(target_path)):
+                os.makedirs(os.path.dirname(target_path))
+            elif os.path.exists(target_path):
+                os.unlink(target_path)
+            logging.info('Compressing...')
+            return_code = os.system(
+                f"tar -zcvf {target_path} {os.path.basename(exe_path)} --transform 's/{os.path.basename(exe_path)}/ftrack-connect-installer/'"
+            )
+            assert return_code == 0, f'TAR compress failed: {return_code}'
+            # Create md5 sum
+            checksum_path = f'{target_path}.md5'
+            if os.path.exists(checksum_path):
+                os.unlink(checksum_path)
+            logging.info(
+                f'Created: {target_path}, calculating md5 checksum...'
+            )
+            return_code = os.system(f'md5sum {target_path} > {checksum_path}')
+            assert return_code == 0, f'md5 failed: {return_code}'
+            logging.info(f'Checksum created: {checksum_path}')
+        except:
+            import traceback
+
+            logging.warning(traceback.format_exc())
+        finally:
+            os.chdir(ROOT_PATH)
