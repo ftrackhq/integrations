@@ -18,11 +18,11 @@ class PhotoshopImageExporterPlugin(BasePlugin):
         the component name.
         '''
 
-        extension = self.options.get('extension')
-        if not extension:
-            raise PluginExecutionError(f'Not image extension provided!')
-
         component_name = self.options.get('component')
+
+        extension = store['components'][component_name].get('export_type')
+        if not extension:
+            raise PluginExecutionError(f'No image extension provided!')
 
         new_file_path = get_temp_path(filename_extension=extension)
 

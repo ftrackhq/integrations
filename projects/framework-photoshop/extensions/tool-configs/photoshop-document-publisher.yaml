@@ -26,6 +26,8 @@ engine:
       - type: plugin
         tags:
           - validator
+        options:
+          export_type: .jpg
         plugin: photoshop_document_saved_validator
       - type: plugin
         tags:
@@ -45,19 +47,16 @@ engine:
         plugin: store_component
       - type: plugin
         tags:
-          - exporter
+          - collector
         options:
-          extension: .jpg
-          extensions:
-            - .bmp
-            - .eps
-            - .gif
-            - .jpg
-            - .pdf
-            - .png
-            - .tif
+          export_type: jpg
+        plugin: photoshop_image_options_collector
+        ui: photoshop_image_options
+      - type: plugin
+        tags:
+          - exporter
         plugin: photoshop_image_exporter
-        ui: image_options
+
 
   # Export the thumbnail component.
   - type: group
@@ -72,9 +71,13 @@ engine:
         plugin: store_component
       - type: plugin
         tags:
-          - exporter
+          - collector
         options:
-          extension: .jpg
+          export_type: jpg
+        plugin: photoshop_image_options_collector
+      - type: plugin
+        tags:
+          - exporter
         plugin: photoshop_image_exporter
 
   # Export the reviewable component.
@@ -90,15 +93,19 @@ engine:
         plugin: store_component
       - type: plugin
         tags:
-          - exporter
+          - collector
         options:
-          extension: .jpg
-          extensions:
-            - .jpg
-            - .png
-            - .gif
+          export_type: jpg
+          compatible_types:
+            - jpg
+            - png
+            - gif
+        plugin: photoshop_image_options_collector
+        ui: photoshop_image_options
+      - type: plugin
+        tags:
+          - exporter
         plugin: photoshop_image_exporter
-        ui: image_options
 
   # Common validator check all exported paths exists.
   - type: plugin

@@ -15,7 +15,7 @@ class PhotoshopDocumentCollectorPlugin(BasePlugin):
     def run(self, store):
         '''
         Collect the current document data from Photoshop
-        and store in the given *store* on "collected_data"
+        and store in the given *store* on "document_name" and "document_saved"
         '''
         # Get existing RPC connection instance
         photoshop_connection = PhotoshopRPCCEP.instance()
