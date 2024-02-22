@@ -34,7 +34,6 @@ engine:
           - validator
         plugin: file_exists_validator
         ui: validator_label
-        options:
       - type: plugin
         tags:
           - exporter
