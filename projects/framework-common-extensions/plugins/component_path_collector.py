@@ -19,6 +19,7 @@ class ComponentPathCollectorPlugin(BasePlugin):
         '''
 
         context_id = payload['context_id']
+        component_name = payload['component']
         # Determine if we have a task or not
         context = self.session.get('Context', context_id)
         # If it's a fake asset, context will be None so return empty list.
@@ -35,18 +36,18 @@ class ComponentPathCollectorPlugin(BasePlugin):
             asset_versions = self.session.query(
                 'select asset.name, asset_id, id, date, version, '
                 'is_latest_version, thumbnail_url, user.first_name, '
-                'user.last_name, date from AssetVersion where '
-                'task_id is {} and asset.type.id is {}'.format(
-                    context_id, asset_type_entity['id']
+                'user.last_name, date, components.name from AssetVersion where '
+                'task_id is {} and asset.type.id is {} and components.name is {}'.format(
+                    context_id, asset_type_entity['id'], component_name
                 )
             ).all()
         else:
             asset_versions = self.session.query(
                 'select asset.name, asset_id, id, date, version, '
                 'is_latest_version, thumbnail_url, user.first_name, '
-                'user.last_name, date from AssetVersion where '
-                'parent.id is {} and asset.type.id is {}'.format(
-                    context_id, asset_type_entity['id']
+                'user.last_name, date, components.name from AssetVersion where '
+                'parent.id is {} and asset.type.id is {} and components.name is {}'.format(
+                    context_id, asset_type_entity['id'], component_name
                 )
             ).all()
 
