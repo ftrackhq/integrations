@@ -118,7 +118,7 @@ Install patchelf platform dependent package:
     $ pip install patchelf
 ```
 
-Build tar.gz release with:
+Build executable with:
 
 ```bash
     $ python setup.py build_exe
@@ -127,27 +127,14 @@ Build tar.gz release with:
 Once build the result will be available in
 build/exe.linux-x86_64-**\<PYTHON VERSION\>**
 
-To generate the tar.gz run from the build folder:
+
+Build tar.gz release and Md5 with:
 
 ```bash
-    $ cd build
-    $ tar -zcvf ftrack-connect-installer-<PACKAGE VERSION>-<PLATFORM>.tar.gz exe.linux-x86_64-3.7 --transform 's/exe.linux-x86_64-3.7/ftrack-connect-installer/'
+    $ python setup.py build_exe --create_deployment
 ```
 
 Sample output filename: ftrack Connect-2.1.1-C8.tar.gz
-
-Generate the md5 with:
-
-```bash
-    $ md5sum ftrack-connect-installer-<PACKAGE VERSION>-<PLATFORM>.tar.gz > ftrack-connect-installer-<PACKAGE VERSION>-<PLATFORM>.tar.gz.md5
-```
-
-Note
-
-Please remember to set **\<PLATFORM\>** to either:
-
--   C7 for Centos 7 compatible releases.
--   C8 for centos 8 compatible releases.
 
 
 
