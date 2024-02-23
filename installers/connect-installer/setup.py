@@ -570,7 +570,7 @@ def post_setup(codesign_frameworks=True):
             )
 
 
-def create_dmg():
+def create_mac_dmg():
     '''Create DMG on MacOS with checksum. Returns the resulting path.'''
     dmg_name = '{0}-{1}.dmg'.format(bundle_name, __version__)
     dmg_path = os.path.join(DIST_PATH, dmg_name)
@@ -630,7 +630,7 @@ def codesign_osx(create_dmg=True, notarize=True):
     else:
         logging.info(' Application signed')
     if create_dmg:
-        dmg_path = create_dmg()
+        dmg_path = create_mac_dmg()
 
         if notarize is True:
             logging.info(' Setting up xcode, please enter your sudo password')
@@ -850,7 +850,7 @@ if sys.platform == 'darwin':
     if args.codesign:
         codesign_osx(create_dmg=args.create_dmg, notarize=args.notarize)
     elif args.create_dmg:
-        create_dmg()
+        create_mac_dmg()
 elif sys.platform == 'win32':
     if args.codesign and 'bdist_msi' in sys.argv:
         msi_name = '{0}-{1}-win64.msi'.format(bundle_name, __version__)
