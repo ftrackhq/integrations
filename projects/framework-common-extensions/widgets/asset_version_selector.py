@@ -82,6 +82,7 @@ class AssetVersionSelectorWidget(BaseWidget):
             'asset_type_name': self.plugin_config['options'].get(
                 'asset_type_name'
             ),
+            'component': self.group_config['options'].get('component'),
         }
         self.run_ui_hook(payload)
 
