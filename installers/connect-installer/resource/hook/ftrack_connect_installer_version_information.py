@@ -27,7 +27,7 @@ with open(
 
 def get_version_information(event):
     '''Return version information for ftrack connect installer.'''
-    return [dict(name='Package', version=VERSION, core=True)]
+    return [dict(name='Installer', version=VERSION, core=True)]
 
 
 def register(api_object, **kw):
