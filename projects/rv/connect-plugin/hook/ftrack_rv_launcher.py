@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2023 ftrack
+# :copyright: Copyright (c) 2024 ftrack
 
 import os
 import pprint
@@ -31,7 +31,7 @@ python_dependencies = os.path.join(connect_plugin_path, 'dependencies')
 RV_LINUX_INSTALLATION_PATH = os.getenv('RV_INSTALLATION_PATH', '/usr/local/rv')
 
 
-class ApplicationLauncher(ApplicationLauncher):
+class RvApplicationLauncher(ApplicationLauncher):
     '''Discover and launch rv.'''
 
     def _get_application_environment(self, application, context=None):
@@ -40,7 +40,7 @@ class ApplicationLauncher(ApplicationLauncher):
         # Make sure to call super to retrieve original environment
         # which contains the selection and ftrack API.
         environment = super(
-            ApplicationLauncher, self
+            RvApplicationLauncher, self
         )._get_application_environment(application, context)
 
         environment = append_path(
@@ -102,7 +102,7 @@ class LaunchRvAction(ApplicationLaunchAction):
         return self.launcher.launch(applicationIdentifier, context)
 
 
-class ApplicationStore(ApplicationStore):
+class RvApplicationStore(ApplicationStore):
     def _discover_applications(self):
         '''Return a list of applications that can be launched from this host.
 
@@ -144,7 +144,7 @@ class ApplicationStore(ApplicationStore):
             applications.extend(
                 self._search_filesystem(
                     expression=prefix
-                    + ['[Tweak|Shotgun]', 'RV.\d.+', 'bin', 'rv.exe'],
+                    + ['[Tweak|Shotgun|ShotGrid]', 'RV.\d.+', 'bin', 'rv.exe'],
                     label='Review with RV',
                     variant='{version}',
                     applicationIdentifier='rv_{variant}_with_review',
@@ -179,6 +179,7 @@ class ApplicationStore(ApplicationStore):
                     prefix.insert(0, separator)
 
                 applications.extend(
+                    # Detect if Centos7 or Rocky Linux 9
                     self._search_filesystem(
                         expression=prefix
                         + ['rv-centos7-x86-64-\d.+', 'bin', 'rv$'],
@@ -213,13 +214,13 @@ def register(session, **kw):
         return
 
     # Create store containing applications.
-    application_store = ApplicationStore(session)
+    application_store = RvApplicationStore(session)
 
     # Create a launcher with the store containing applications.
-    launcher = ApplicationLauncher(application_store)
+    launcher = RvApplicationLauncher(application_store)
 
     # Create action and register to respond to discover and launch actions.
     action = LaunchRvAction(session, application_store, launcher)
     action.register()
 
-    logger.info('Registered rv launch hook v{}.'.format(__version__))
+    logger.info('Registered rv launcher v{}.'.format(__version__))

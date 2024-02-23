@@ -100,11 +100,9 @@ jobs:
         if: ${{ needs.set-variables.outputs.package == 'rv' }}
         shell: bash
         run: |
-          cd projects/rv
-          python build_rv_plugin.py resource/plugin /tmp/
-          cd ../..
           pip install -r tools/requirements.txt
-          python tools/build.py --remove_intermediate_folder --include_assets /tmp/ftrack-5.1.0.rvpkg build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+          python tools/build.py --output_path /tmp build_rvpkg  projects/rv
+          python tools/build.py --remove_intermediate_folder --include_assets $(find /tmp/ -type f -name "*.rvpkg") build_connect_plugin ${{ needs.set-variables.outputs.folder }}
       - name: upload artifacts to release
         shell: bash
         run: |

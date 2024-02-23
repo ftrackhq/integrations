@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2023 ftrack
+# :copyright: Copyright (c) 2024 ftrack
 
 import functools
 import os
@@ -7,6 +7,9 @@ import logging
 
 import ftrack_api
 from ftrack_connect.util import get_connect_plugin_version
+
+NAME = 'ftrack-rv'
+''' The name of the integration, should match name in bootstrap and launcher '''
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +23,7 @@ sources = os.path.abspath(os.path.join(connect_plugin_path, 'dependencies'))
 
 
 def on_discover_rv_integration(session, event):
-    data = {'integration': {'name': 'ftrack-rv', 'version': __version__}}
+    data = {'integration': {'name': NAME, 'version': __version__}}
     return data
 
 
@@ -36,7 +39,7 @@ def on_launch_rv_integration(session, event):
 
 def get_version_information(event):
     '''Return version information for ftrack connect installer.'''
-    return [dict(name='ftrack-rv', version=__version__)]
+    return [dict(name=NAME, version=__version__)]
 
 
 def register(session):

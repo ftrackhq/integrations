@@ -2,7 +2,7 @@
 name = "ftrack-rv"
 # RV just accepts minor and major version
 # To match Backlight versioning we use year month patch (YY.MMP)
-version = "24.020"
+version = "24.20"
 description='ftrack Connect RV integration'
 authors = ["ftrack Integrations Team <integrations@backlight.co>"]
 readme = "README.md"

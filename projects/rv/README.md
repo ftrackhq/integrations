@@ -47,7 +47,8 @@ Build with Poetry:
 Create the RV plugin, it will read the version number from pyproject.toml:
 
 ```bash
-  python build_rv_plugin.py resource/plugin /tmp/
+  cd integrations
+  python tools/build.py --output_path /tmp build_rvpkg  projects/rv
 ```
 
 
@@ -55,7 +56,7 @@ Go to the root of the Monorepo and create the Connect plugin:
 
 ```bash
   cd integrations
-  python tools/build.py --include_assets /tmp/ftrack-5.1.0.rvpkg  build_connect_plugin projects/rv
+  python tools/build.py --include_assets /tmp/ftrack-24.20.rvpkg  build_connect_plugin projects/rv
 ```
 
 
@@ -64,7 +65,7 @@ to build the plugin.
 
 ```bash
   cd integrations
-  python tools/build.py --testpypi --include_assets /tmp/ftrack-5.1.0.rvpkg build_connect_plugin projects/rv
+  python tools/build.py --testpypi --include_assets /tmp/ftrack-24.20.rvpkg build_connect_plugin projects/rv
 ```
 
 The Connect plugin will be output to the dist/ folder.

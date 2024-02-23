@@ -8,8 +8,9 @@ Temporary replaces original setuptools implementation until there is an
 official CI/CD build implementation in place.
 
 
-Release notes:
+Changelog:
 
+0.4.14 [24.02.23] Incorporate RV pkg build.
 0.4.13 [24.02.12] Build qt-style when building CEP plugin.
 0.4.12 [24.02.05] Build qt-style if from_source flag to build script
 0.4.11 [23.12.18] Added missing ftrack-framework-qt dependency to Photoshop
@@ -36,10 +37,10 @@ import os
 import shutil
 import logging
 import sys
-import re
 import subprocess
 from distutils.spawn import find_executable
 import fileinput
+import tempfile
 
 __version__ = '0.4.12'
 
@@ -832,6 +833,76 @@ def build_package(pkg_path, args, command=None):
             logging.warning(f'Removing: {STAGING_PATH}')
             shutil.rmtree(STAGING_PATH, ignore_errors=True)
 
+    def build_rvpkg(args):
+        '''Wrapper for building RV plugin package'''
+
+        def copytree(src, dst, symlinks=False, ignore=None):
+            '''Copy file tree from *src* to *dst*, replacing PACKAGE.yml with PACKAGE'''
+            print('Copying {0} to {1}'.format(src, dst))
+            for item in os.listdir(src):
+                if item == 'BUILD_PANTS':
+                    continue
+                s = os.path.join(src, item)
+                d = os.path.join(
+                    dst, item if item != "PACKAGE.yml" else "PACKAGE"
+                )
+                if os.path.isdir(s):
+                    shutil.copytree(s, d, symlinks, ignore)
+                else:
+                    if not os.path.exists(os.path.dirname(d)):
+                        os.makedirs(os.path.dirname(d))
+                    print(shutil.copy2(s, d))
+
+        rvpkg_staging = os.path.join(tempfile.mkdtemp(), 'rvpkg')
+
+        source_path = os.path.join(ROOT_PATH, 'resource', 'plugin')
+
+        # Copy plugin files
+        copytree(source_path, rvpkg_staging)
+
+        # Strip off patch version from the tool: M.m rather than M.m.p
+        plugin_name = 'ftrack-{0}'.format(VERSION)
+
+        assert args.output_path, 'RV pkg output path not given'
+        plugin_destination_path = args.output_path
+
+        if not os.path.exists(plugin_destination_path):
+            os.makedirs(plugin_destination_path)
+
+        if not os.path.exists(os.path.join(rvpkg_staging, 'PACKAGE')):
+            raise IOError('no PACKAGE.yml file in {0}'.format(rvpkg_staging))
+
+        package_file_path = os.path.join(rvpkg_staging, 'PACKAGE')
+        package_file = fileinput.input(package_file_path, inplace=True)
+        for line in package_file:
+            if '{VERSION}' in line:
+                sys.stdout.write(line.format(VERSION=VERSION))
+            else:
+                sys.stdout.write(line)
+
+        zip_destination_file_path = os.path.join(
+            plugin_destination_path, plugin_name
+        )
+
+        rvpkg_destination_file_path = os.path.join(
+            plugin_destination_path, plugin_name + '.rvpkg'
+        )
+
+        # prepare zip with rv plugin
+        print('packing rv plugin to {0}'.format(rvpkg_destination_file_path))
+
+        zip_name = shutil.make_archive(
+            base_name=zip_destination_file_path,
+            format='zip',
+            root_dir=rvpkg_staging,
+        )
+
+        shutil.move(zip_name, rvpkg_destination_file_path)
+
+        if args.remove_intermediate_folder:
+            logging.warning(f'Removing: {rvpkg_staging}')
+            shutil.rmtree(rvpkg_staging, ignore_errors=True)
+
     if command == 'clean':
         clean(args)
     elif command == 'build_connect_plugin':
@@ -842,6 +913,8 @@ def build_package(pkg_path, args, command=None):
         build_sphinx(args)
     elif command == 'build_cep':
         build_cep(args)
+    elif command == 'build_rvpkg':
+        build_rvpkg(args)
 
 
 if __name__ == '__main__':
@@ -888,7 +961,7 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         '--output_path',
-        help='(QT resource build) Override the QT resource output directory.',
+        help='(QT resource build/RV pkg build) Override the QT resource output directory.',
     )
 
     # CEP options
@@ -911,6 +984,7 @@ if __name__ == '__main__':
             'build_qt_resources',
             'build_sphinx',
             'build_cep',
+            'build_rvpkg',
         ],
     )
 
