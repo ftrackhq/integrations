@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2023 ftrack
+# :copyright: Copyright (c) 2024 ftrack
 
 import os
 import logging
@@ -98,20 +98,6 @@ set_environ_default(
 
 # The httplib in python +2.7.9 requires a cacert file.
 set_environ_default('SSL_CERT_FILE', os.environ.get('REQUESTS_CA_BUNDLE'))
-
-# handle default connect and event plugin paths
-ftrack_connect_plugin_paths = [
-    os.path.abspath(os.path.join(resource_path, 'connect-standard-plugins'))
-]
-
-if 'FTRACK_CONNECT_PLUGIN_PATH' in os.environ:
-    ftrack_connect_plugin_paths.append(
-        os.environ['FTRACK_CONNECT_PLUGIN_PATH']
-    )
-
-os.environ['FTRACK_CONNECT_PLUGIN_PATH'] = os.path.pathsep.join(
-    ftrack_connect_plugin_paths
-)
 
 # handle default event plugin paths
 ftrack_event_plugin_paths = [

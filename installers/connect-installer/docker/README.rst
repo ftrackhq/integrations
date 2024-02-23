@@ -1,4 +1,4 @@
-# :copyright: Copyright (c) 2014-2023 ftrack
+# :copyright: Copyright (c) 2024 ftrack
 
 Docker for building ftrack-connect-installer
 ==========================================

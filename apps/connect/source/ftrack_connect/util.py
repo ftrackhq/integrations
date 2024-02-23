@@ -283,7 +283,13 @@ def check_major_version(version, major_version_start=24):
         major_version = int(match.group(1))
         return major_version >= major_version_start
     else:
-        return False
+        # Could be without patch
+        match = re.match(r'v(\d+)\.\d+\.*', version)
+        if match:
+            major_version = int(match.group(1))
+            return major_version >= major_version_start
+        else:
+            return False
 
 
 def fetch_github_releases(latest=True, prereleases=False):
@@ -319,7 +325,7 @@ def fetch_github_releases(latest=True, prereleases=False):
             # TODO: solve the issue when library major version is catching up to
             #  Connect major version
             logger.debug(
-                f'   Not a Connect release on YY.m.p format: {tag_name} \n '
+                f'   Not a Connect release on YY.m.p|YY.mp format: {tag_name} \n '
                 f'Minimum compatible major version is 24.X.X'
             )
             continue

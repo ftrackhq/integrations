@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2023 ftrack
+# :copyright: Copyright (c) 2024 ftrack
 
 '''
 requires :
@@ -59,11 +59,11 @@ AWS_PLUGIN_DOWNLOAD_PATH = (
     'https://download.ftrack.com/ftrack-connect/integrations/'
 )
 
-# Write to _version.py
+# Write out versions
 
 version_template = '''
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2023 ftrack
+# :copyright: Copyright (c) 2024 ftrack
 
 __version__ = {version!r}
 '''
@@ -72,6 +72,16 @@ with open(
     os.path.join(SOURCE_PATH, 'ftrack_connect_installer', '_version.py'), 'w'
 ) as file:
     file.write(version_template.format(version=__version__))
+
+import ftrack_connect
+
+with open(
+    os.path.join(
+        SOURCE_PATH, 'ftrack_connect_installer', '_connect_version.py'
+    ),
+    'w',
+) as file:
+    file.write(version_template.format(version=ftrack_connect.__version__))
 
 print('BUILDING VERSION : {}'.format(__version__))
 
@@ -183,6 +193,12 @@ if sys.platform in ('darwin', 'win32', 'linux'):
                 SOURCE_PATH, 'ftrack_connect_installer', '_version.py'
             ),
             'resource/ftrack_connect_installer_version.py',
+        ),
+        (
+            os.path.join(
+                SOURCE_PATH, 'ftrack_connect_installer', '_connect_version.py'
+            ),
+            'resource/ftrack_connect_version.py',
         ),
         ('qt.conf', 'qt.conf'),
         ('logo.svg', 'logo.svg'),
