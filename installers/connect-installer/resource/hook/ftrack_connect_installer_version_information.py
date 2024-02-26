@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2023 ftrack
+# :copyright: Copyright (c) 2024 ftrack
 
 import logging
 import os
@@ -27,15 +27,11 @@ with open(
 
 def get_version_information(event):
     '''Return version information for ftrack connect installer.'''
-    return [dict(name='Package', version=VERSION, core=True)]
+    return [dict(name='Installer', version=VERSION, core=True)]
 
 
 def register(api_object, **kw):
     '''Register version information hook.'''
-
-    logger = logging.getLogger(
-        'ftrack_connect_installer_version_information:register'
-    )
 
     # Validate that api_object is an instance of ftrack_api.Session. If not,
     # assume that register is being called from an incompatible API

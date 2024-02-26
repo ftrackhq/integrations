@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2023 ftrack
+# :copyright: Copyright (c) 2024 ftrack
 
 '''
 requires :
@@ -59,11 +59,11 @@ AWS_PLUGIN_DOWNLOAD_PATH = (
     'https://download.ftrack.com/ftrack-connect/integrations/'
 )
 
-# Write to _version.py
+# Write out versions
 
 version_template = '''
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2023 ftrack
+# :copyright: Copyright (c) 2024 ftrack
 
 __version__ = {version!r}
 '''
@@ -72,6 +72,16 @@ with open(
     os.path.join(SOURCE_PATH, 'ftrack_connect_installer', '_version.py'), 'w'
 ) as file:
     file.write(version_template.format(version=__version__))
+
+import ftrack_connect
+
+with open(
+    os.path.join(
+        SOURCE_PATH, 'ftrack_connect_installer', '_connect_version.py'
+    ),
+    'w',
+) as file:
+    file.write(version_template.format(version=ftrack_connect.__version__))
 
 print('BUILDING VERSION : {}'.format(__version__))
 
@@ -183,6 +193,12 @@ if sys.platform in ('darwin', 'win32', 'linux'):
                 SOURCE_PATH, 'ftrack_connect_installer', '_version.py'
             ),
             'resource/ftrack_connect_installer_version.py',
+        ),
+        (
+            os.path.join(
+                SOURCE_PATH, 'ftrack_connect_installer', '_connect_version.py'
+            ),
+            'resource/ftrack_connect_version.py',
         ),
         ('qt.conf', 'qt.conf'),
         ('logo.svg', 'logo.svg'),
@@ -554,7 +570,7 @@ def post_setup(codesign_frameworks=True):
             )
 
 
-def create_dmg():
+def create_mac_dmg():
     '''Create DMG on MacOS with checksum. Returns the resulting path.'''
     dmg_name = '{0}-{1}.dmg'.format(bundle_name, __version__)
     dmg_path = os.path.join(DIST_PATH, dmg_name)
@@ -614,7 +630,7 @@ def codesign_osx(create_dmg=True, notarize=True):
     else:
         logging.info(' Application signed')
     if create_dmg:
-        dmg_path = create_dmg()
+        dmg_path = create_mac_dmg()
 
         if notarize is True:
             logging.info(' Setting up xcode, please enter your sudo password')
@@ -834,7 +850,7 @@ if sys.platform == 'darwin':
     if args.codesign:
         codesign_osx(create_dmg=args.create_dmg, notarize=args.notarize)
     elif args.create_dmg:
-        create_dmg()
+        create_mac_dmg()
 elif sys.platform == 'win32':
     if args.codesign and 'bdist_msi' in sys.argv:
         msi_name = '{0}-{1}-win64.msi'.format(bundle_name, __version__)
