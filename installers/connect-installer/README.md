@@ -68,8 +68,8 @@ To install using libraries from PyPy test:
     $ pip install --pre --index-url https://test.pypi.org/simple --extra-index-url https://pypi.org/simple  -r requirements.txt
 ```
 
-## Windows
 
+## Windows
 
 Visual studio and [c++ build
 tools](https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019)
@@ -89,7 +89,26 @@ ftrack Connect-**\<VERSION>**-win64-redist.zip
 
 ### Code sign
 
-> **_NOTE:_** This is an internal (closed) routine and is documented here: https://sites.google.com/backlight.co/theshire/product-development/products/integrations/deployment.
+> **_NOTE:_** The routine is fully documented here: https://sites.google.com/backlight.co/theshire/product-development/products/integrations/deployment.
+
+
+Preparations:
+
+ -  Install Java
+ -  Install Google cloud CLI: https://cloud.google.com/sdk/docs/install
+ -  Authenticate:
+
+```bash
+    $ gcloud auth login
+```
+
+Build with:
+
+```bash
+    $ python setup.py bdist_msi --codesign
+```
+
+
 
 ## Linux
 
@@ -99,7 +118,7 @@ Install patchelf platform dependent package:
     $ pip install patchelf
 ```
 
-Build tar.gz release with:
+Build executable with:
 
 ```bash
     $ python setup.py build_exe
@@ -108,27 +127,16 @@ Build tar.gz release with:
 Once build the result will be available in
 build/exe.linux-x86_64-**\<PYTHON VERSION\>**
 
-To generate the tar.gz run from the build folder:
+
+Build tar.gz release and Md5 with:
 
 ```bash
-    $ cd build
-    $ tar -zcvf ftrack-connect-installer-<PACKAGE VERSION>-<PLATFORM>.tar.gz exe.linux-x86_64-3.7 --transform 's/exe.linux-x86_64-3.7/ftrack-connect-installer/'
+    $ python setup.py build_exe --create_deployment
 ```
 
 Sample output filename: ftrack Connect-2.1.1-C8.tar.gz
 
-Generate the md5 with:
 
-```bash
-    $ md5sum ftrack-connect-installer-<PACKAGE VERSION>-<PLATFORM>.tar.gz > ftrack-connect-installer-<PACKAGE VERSION>-<PLATFORM>.tar.gz.md5
-```
-
-Note
-
-Please remember to set **\<PLATFORM\>** to either:
-
--   C7 for Centos 7 compatible releases.
--   C8 for centos 8 compatible releases.
 
 ## MacOs
 
@@ -171,7 +179,9 @@ Execute the following build command and follow the instructions:
 
     $ python setup.py bdist_mac --codesign_frameworks --codesign --create_dmg --notarize
 
-#### Docker
+
+
+## Docker
 
 As part of this repository, 3 Dockerfiles are available to sendbox the
 build of ftrack-connect-installer.

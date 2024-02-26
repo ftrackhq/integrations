@@ -140,9 +140,11 @@ class StandardOpenerDialog(BaseContextDialog):
 
         for group_config in component_groups:
             component_name = group_config.get('options').get('component')
-            component_label = QtWidgets.QLabel(component_name)
+            component_label = QtWidgets.QLabel(f"Component: {component_name}")
             component_label.setObjectName('h3')
-            component_label.setToolTip("Component: {}".format(component_name))
+            component_label.setToolTip(
+                f"The component to be open is {component_name}"
+            )
             self._scroll_area_widget.layout().addWidget(component_label)
 
             collectors = get_plugins(

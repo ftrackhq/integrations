@@ -1,5 +1,5 @@
 #########################################################################
-# :copyright: Copyright (c) 2014-2023 ftrack
+# :copyright: Copyright (c) 2024 ftrack
 #
 
 FROM inveniosoftware/centos8-python:3.7
