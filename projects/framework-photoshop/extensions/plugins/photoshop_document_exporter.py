@@ -17,10 +17,12 @@ class PhotoshopDocumentExporterPlugin(BasePlugin):
         path in the :obj:`store`
         '''
         component_name = self.options.get('component')
-
-        new_file_path = get_temp_path(filename_extension='psd')
-
+        extension_format = store['components'][component_name].get(
+            'extension_format'
+        )
         document_path = store['components'][component_name]['document_name']
+
+        new_file_path = get_temp_path(filename_extension=extension_format)
 
         self.logger.debug(
             f'Copying Photoshop document from {document_path} to {new_file_path}'

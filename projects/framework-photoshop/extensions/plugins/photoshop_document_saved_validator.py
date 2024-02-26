@@ -20,7 +20,7 @@ class PhotoshopDocumentSavedValidatorPlugin(BasePlugin):
 
     name = 'photoshop_document_saved_validator'
 
-    def save_document_to_temp(self, store):
+    def save_document_to_temp(self, store, extension_format):
         '''
         Save the current Photoshop document.
         '''
@@ -29,7 +29,7 @@ class PhotoshopDocumentSavedValidatorPlugin(BasePlugin):
         photoshop_connection = PhotoshopRPCCEP.instance()
 
         self.logger.warning('Photoshop document not saved, asking to save')
-        temp_path = get_temp_path('psd')
+        temp_path = get_temp_path(filename_extension=extension_format)
         save_result = photoshop_connection.rpc('saveDocument', [temp_path])
         # Will return a boolean containing the result.
         if not save_result or isinstance(save_result, str):
@@ -53,6 +53,9 @@ class PhotoshopDocumentSavedValidatorPlugin(BasePlugin):
         document_name = store['components'][component_name].get(
             'document_name'
         )
+        extension_format = store['components'][component_name].get(
+            'extension_format'
+        )
         document_saved = store['components'][component_name].get(
             'document_saved'
         )
@@ -67,6 +70,7 @@ class PhotoshopDocumentSavedValidatorPlugin(BasePlugin):
             raise PluginValidationError(
                 message='Photoshop document has never been saved, Click fix to save it to a temp file',
                 on_fix_callback=self.save_document_to_temp,
+                fix_kwargs={'extension_format': extension_format},
             )
 
         self.logger.debug("Document is saved validation passed.")

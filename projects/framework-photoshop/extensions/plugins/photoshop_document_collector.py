@@ -64,8 +64,21 @@ class PhotoshopDocumentCollectorPlugin(BasePlugin):
         # Convert forward slashes to backslashes on Windows
         document_name = os.path.normpath(document_name)
 
+        try:
+            extension_format = self.options['extension_format']
+        except Exception as error:
+            raise PluginExecutionError(
+                f"Could not provide extension_format: {error}"
+            )
+
+        self.logger.debug(f"Current document name is: {document_name}.")
+        self.logger.debug(f"Extension format set to {extension_format}.")
+
         component_name = self.options.get('component', 'main')
         store['components'][component_name]['document_name'] = document_name
+        store['components'][component_name][
+            'extension_format'
+        ] = extension_format
         store['components'][component_name][
             'document_saved'
         ] = document_saved_result
