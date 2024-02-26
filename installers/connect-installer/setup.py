@@ -317,7 +317,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
                 pl = plistlib.load(file)
             if 'CFBundleGetInfoString' in pl.keys():
                 pl["CFBundleShortVersionString"] = str(
-                    'ftrack Connect {}, copyright: Copyright (c) 2014-2023 ftrack'.format(
+                    'ftrack Connect {}, copyright: Copyright (c) 2024 ftrack'.format(
                         __version__
                     )
                 )
