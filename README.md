@@ -18,7 +18,7 @@
 | libs/constants/source/ftrack\_constants/status/\_\_init\_\_.py                |       10 |        0 |    100% |           |
 | libs/framework-core/source/ftrack\_framework\_core/\_\_init\_\_.py            |        8 |        2 |     75% |     13-14 |
 | libs/framework-core/source/ftrack\_framework\_core/configure\_logging.py      |       47 |        6 |     87% |31-35, 72-78 |
-| libs/framework-core/source/ftrack\_framework\_core/engine/\_\_init\_\_.py     |      111 |       37 |     67% |29, 58, 76-77, 85, 123-161, 170, 185, 196, 232-249 |
+| libs/framework-core/source/ftrack\_framework\_core/engine/\_\_init\_\_.py     |      111 |       37 |     67% |29, 58, 76-77, 85, 123-161, 170, 185, 198, 234-251 |
 | libs/framework-core/source/ftrack\_framework\_core/exceptions/\_\_init\_\_.py |        2 |        0 |    100% |           |
 | libs/framework-core/source/ftrack\_framework\_core/exceptions/engine.py       |        3 |        1 |     67% |        11 |
 | libs/framework-core/source/ftrack\_framework\_core/exceptions/plugin.py       |       21 |       12 |     43% |15, 25-27, 33-42, 51 |
