@@ -8,7 +8,7 @@ from Qt import QtWidgets, QtCore, QtGui
 from ftrack_framework_qt.widgets import BaseWidget
 
 
-class PhotoshopImageExportOptionsWidget(BaseWidget):
+class PhotoshopImageOptionsSelectorWidget(BaseWidget):
     '''Main class to represent image export options widget on a publish process.'''
 
     DEFAULT_SUPPORTED_FORMATS = [
