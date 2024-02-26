@@ -317,7 +317,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
                 pl = plistlib.load(file)
             if 'CFBundleGetInfoString' in pl.keys():
                 pl["CFBundleShortVersionString"] = str(
-                    'ftrack Connect {}, copyright: Copyright (c) 2014-2023 ftrack'.format(
+                    'ftrack Connect {}, copyright: Copyright (c) 2024 ftrack'.format(
                         __version__
                     )
                 )
@@ -572,7 +572,7 @@ def post_setup(codesign_frameworks=True):
 
 def create_mac_dmg():
     '''Create DMG on MacOS with checksum. Returns the resulting path.'''
-    dmg_name = '{0}-{1}.dmg'.format(bundle_name, __version__)
+    dmg_name = '{0}-{1}.dmg'.format(bundle_name.replace(' ', '-'), __version__)
     dmg_path = os.path.join(DIST_PATH, dmg_name)
     if not os.path.exists(DIST_PATH):
         os.makedirs(DIST_PATH)
@@ -852,9 +852,25 @@ if sys.platform == 'darwin':
     elif args.create_dmg:
         create_mac_dmg()
 elif sys.platform == 'win32':
-    if args.codesign and 'bdist_msi' in sys.argv:
-        msi_name = '{0}-{1}-win64.msi'.format(bundle_name, __version__)
-        codesign_windows(f'dist\\{msi_name}')
+    if 'bdist_msi' in sys.argv:
+        msi_path_orig = os.path.join(
+            DIST_PATH, '{0}-{1}-win64.msi'.format(bundle_name, __version__)
+        )
+        if not os.path.isfile(msi_path_orig):
+            raise Exception(
+                f'MSI file not output were expected: {msi_path_orig}'
+            )
+        # Rename - remove whitespace as this is not supported on Github releases
+        msi_path = os.path.join(
+            DIST_PATH,
+            '{0}-{1}-win64.msi'.format(
+                bundle_name.replace(' ', '-'), __version__
+            ),
+        )
+        logging.info(f'Renaming artifact: {msi_path_orig} > {msi_path}')
+        os.rename(msi_path_orig, msi_path)
+        if args.codesign:
+            codesign_windows(msi_path)
 elif sys.platform == 'linux':
     if args.create_deployment:
         try:
@@ -876,7 +892,7 @@ elif sys.platform == 'linux':
                 raise Exception('Not a supported Linux distro!')
             target_path = os.path.join(
                 DIST_PATH,
-                f'ftrack-connect-installer-{__version__}-{linux_distro}.tar.gz',
+                f'ftrack-Connect-{__version__}-{linux_distro}.tar.gz',
             )
             if not os.path.exists(os.path.dirname(target_path)):
                 os.makedirs(os.path.dirname(target_path))
@@ -884,7 +900,8 @@ elif sys.platform == 'linux':
                 os.unlink(target_path)
             logging.info('Compressing...')
             return_code = os.system(
-                f"tar -zcvf {target_path} {os.path.basename(exe_path)} --transform 's/{os.path.basename(exe_path)}/ftrack-connect-installer/'"
+                f"tar -zcvf {target_path} {os.path.basename(exe_path)} "
+                f"--transform 's/{os.path.basename(exe_path)}/ftrack-connect/'"
             )
             assert return_code == 0, f'TAR compress failed: {return_code}'
             # Create md5 sum
