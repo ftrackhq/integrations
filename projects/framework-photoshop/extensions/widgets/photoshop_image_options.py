@@ -21,7 +21,7 @@ class PhotoshopImageExportOptionsWidget(BaseWidget):
         'tif',
     ]
 
-    name = 'photoshop_image_options'
+    name = 'photoshop_image_options_selector'
     ui_type = 'qt'
 
     on_format_changed = QtCore.Signal(int)
