@@ -8,7 +8,7 @@ from Qt import QtWidgets, QtCore, QtGui
 from ftrack_framework_qt.widgets import BaseWidget
 
 
-class PhotoshopImageExportOptionsWidget(BaseWidget):
+class PhotoshopImageOptionsSelectorWidget(BaseWidget):
     '''Main class to represent image export options widget on a publish process.'''
 
     DEFAULT_SUPPORTED_FORMATS = [
@@ -21,7 +21,7 @@ class PhotoshopImageExportOptionsWidget(BaseWidget):
         'tif',
     ]
 
-    name = 'photoshop_image_options'
+    name = 'photoshop_image_options_selector'
     ui_type = 'qt'
 
     on_format_changed = QtCore.Signal(int)

@@ -13,7 +13,7 @@ from ftrack_framework_core.exceptions.plugin import (
 from ftrack_framework_photoshop.rpc_cep import PhotoshopRPCCEP
 
 
-class PhotoshopSceneSavedValidatorPlugin(BasePlugin):
+class PhotoshopDocumentSavedValidatorPlugin(BasePlugin):
     '''
     Plugin to validate if the Photoshop document has been saved.
     '''
