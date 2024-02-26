@@ -26,9 +26,8 @@ engine:
       - type: plugin
         tags:
           - validator
-        options:
-          export_type: .jpg
         plugin: photoshop_document_saved_validator
+        ui: validator_label
       - type: plugin
         tags:
           - exporter
