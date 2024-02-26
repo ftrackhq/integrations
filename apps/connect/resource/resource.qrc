@@ -42,9 +42,9 @@
     </qresource>
 
     <qresource prefix='ftrack/font'>
-        <file alias='regular'>font/Roboto-Regular.ttf</file>
-        <file alias='medium'>font/Roboto-Medium.ttf</file>
-        <file alias='ftrack'>font/ftrack-icon.ttf</file>
+        <file alias='regular'>fonts/Roboto-Regular.ttf</file>
+        <file alias='medium'>fonts/Roboto-Medium.ttf</file>
+        <file alias='ftrack'>fonts/ftrack-icon.ttf</file>
     </qresource>
 
 </RCC>
