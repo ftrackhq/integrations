@@ -279,17 +279,16 @@ def get_plugin_json_url_from_environment():
 
 def check_major_version(version, major_version_start=24):
     match = re.match(r'v(\d+)\.\d+\.\d+.*', version)
+    no_path_match = re.match(r'v(\d+)\.\d+\.*', version)
     if match:
         major_version = int(match.group(1))
         return major_version >= major_version_start
+    elif no_path_match:
+        # Without patch
+        major_version = int(no_path_match.group(1))
+        return major_version >= major_version_start
     else:
-        # Could be without patch
-        match = re.match(r'v(\d+)\.\d+\.*', version)
-        if match:
-            major_version = int(match.group(1))
-            return major_version >= major_version_start
-        else:
-            return False
+        return False
 
 
 def fetch_github_releases(latest=True, prereleases=False):
