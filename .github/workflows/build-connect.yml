@@ -137,5 +137,5 @@ jobs:
           cd installers/connect-installer/dist
           version="${{ needs.set-variables.outputs.package_version }}"
           clean_package_version="${version#v}"  # Remove leading 'v' from version
-          echo "Uploading ftrack Connect-${clean_package_version}-win64.msi"
-          gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack Connect-${clean_package_version}-win64.msi" --clobber
+          echo "Uploading ftrack-Connect-${clean_package_version}-win64.msi"
+          gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack-Connect-${clean_package_version}-win64.msi" --clobber
