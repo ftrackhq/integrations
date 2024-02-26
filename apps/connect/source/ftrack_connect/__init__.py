@@ -4,6 +4,9 @@
 import os
 import logging
 import qtawesome as qta
+import re
+
+logger = logging.getLogger(__name__)
 
 # Evaluate version and log package version
 try:
@@ -16,11 +19,30 @@ try:
 except Exception:
     import traceback
 
-    print(traceback.format_exc())
+    logging.warning(traceback.format_exc())
     __version__ = "0.0.0"
 
+if (
+    __version__ == "0.0.0"
+    and 'FTRACK_CONNECT_INSTALLER_RESOURCE_PATH' in os.environ
+):
+    # If the version is still 0.0.0, we are probably running as executable from within
+    # the installer. In this case, we can use the version stored by the installer.
+    FTRACK_CONNECT_INSTALLER_RESOURCE_PATH = os.environ.get(
+        'FTRACK_CONNECT_INSTALLER_RESOURCE_PATH',
+        os.path.abspath(os.path.join(os.path.dirname(__file__), '..')),
+    )
 
-logger = logging.getLogger(__name__)
+    with open(
+        os.path.join(
+            FTRACK_CONNECT_INSTALLER_RESOURCE_PATH,
+            'ftrack_connect_version.py',
+        )
+    ) as _version_file:
+        __version__ = re.match(
+            r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
+        ).group(1)
+
 
 _resource = {"loaded": False}
 

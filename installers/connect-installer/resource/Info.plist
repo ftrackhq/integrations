@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>ftrack Connect</string>
 	<key>CFBundleGetInfoString</key>
-	<string>ftrack Connect, copyright: Copyright (c) 2014-2023 ftrack</string>
+	<string>ftrack Connect, copyright: Copyright (c) 2024 ftrack</string>
 	<key>CFBundleIconFile</key>
 	<string>icon.icns</string>
 	<key>CFBundlePackageType</key>
