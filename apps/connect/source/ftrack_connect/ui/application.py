@@ -1093,8 +1093,11 @@ class Application(QtWidgets.QMainWindow):
                 if isinstance(response, dict):
                     responses.append(response)
                 elif isinstance(response, list):
-                    responses = response
+                    responses.extend(response)
             for response in responses:
+                if response.get('core'):
+                    result.append(response)
+                    continue
                 found = False
                 for plugin_data in result:
                     if plugin_data['name'] == response['name']:
@@ -1110,7 +1113,7 @@ class Application(QtWidgets.QMainWindow):
         current_plugins_path = [plugin['path'] for plugin in self.plugins]
         # Highlight compatibility and source of plugins
         for plugin_data in result:
-            if plugin_data.get('core'):
+            if plugin_data.get('core') or 'path' not in plugin_data:
                 continue
             tags = []
             if plugin_data.get('incompatible'):

@@ -187,9 +187,11 @@ class BaseEngine(object):
             elif isinstance(item, dict):
                 # If it's a group, execute all plugins from the group
                 if item["type"] == "group":
-                    group_options = item.get("options", {})
+                    group_options = item.get("options") or {}
                     group_reference = item['reference']
-                    group_options.update(user_options.get(group_reference, {}))
+                    group_options.update(
+                        user_options.get(group_reference) or {}
+                    )
                     for plugin_item in item.get("plugins", []):
                         # Use plugin options if plugin is defined as string
                         if isinstance(plugin_item, str):
@@ -198,10 +200,10 @@ class BaseEngine(object):
                             # Deepcopy the group option to override them for
                             # this plugin
                             options = copy.deepcopy(group_options)
-                            options.update(plugin_item.get("options", {}))
+                            options.update(plugin_item.get("options") or {})
                             plugin_reference = plugin_item['reference']
                             options.update(
-                                user_options.get(plugin_reference, {})
+                                user_options.get(plugin_reference) or {}
                             )
                             self.run_plugin(
                                 plugin_item["plugin"],
@@ -218,7 +220,7 @@ class BaseEngine(object):
                     # defined outside the group
                     plugin_reference = item['reference']
                     options = item.get("options", {})
-                    options.update(user_options.get(plugin_reference, {}))
+                    options.update(user_options.get(plugin_reference) or {})
                     self.run_plugin(
                         item["plugin"], store, options, plugin_reference
                     )

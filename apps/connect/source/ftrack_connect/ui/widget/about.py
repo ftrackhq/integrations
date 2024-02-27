@@ -164,7 +164,9 @@ class AboutDialog(QtWidgets.QDialog):
         '''Set displayed *versionData*, *user*, *server*.'''
         core = [plugin for plugin in versionData if plugin.get('core')]
         plugins = [
-            plugin for plugin in versionData if plugin.get('core') is not True
+            plugin
+            for plugin in versionData
+            if 'path' in plugin and plugin.get('core') is not True
         ]
 
         coreTemplate = '''
