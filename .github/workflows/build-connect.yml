@@ -267,7 +267,7 @@ jobs:
           ls -l installers/connect-installer/dist
           echo "Listing contents of installers/connect-installer/build:"
           ls -l installers/connect-installer/build
-          cd installers/connect-installer/build
+          cd installers/connect-installer/dist
           version="${{ needs.set-variables.outputs.package_version }}"
           clean_package_version="${version#v}"  # Remove leading 'v' from version
           echo "Uploading ftrack-Connect-${clean_package_version}-R${{ matrix.rocky-version }}.tar.gz"
