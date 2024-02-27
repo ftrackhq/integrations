@@ -202,17 +202,14 @@ jobs:
     needs: [ set-variables, connect-build ]
     runs-on: ubuntu-latest
     container:
-      image: centos:8
+      image: rockylinux/rockylinux:8
     steps:
       - uses: actions/checkout@v3
-      - name: Install system dependencies
+      - name: Install python 3.7
         run: |
-          yum update -y
-          yum install -y python37 python37-pip
-      - name: Set up Python
-        run: |
+          dnf install -y python3.7 python3.7-pip
           alternatives --set python /usr/bin/python3.7
-          python -m pip install --upgrade pip
+          python3.7 -m pip install --upgrade pip
       - name: Install patchelf platform dependent package
         run: pip install patchelf
       - name: Checkout code
