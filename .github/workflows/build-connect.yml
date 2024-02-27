@@ -248,6 +248,7 @@ jobs:
         run: |
           source ~/.bashrc
           cd installers/connect-installer
+          pyenv exec python setup.py build_exe
           pyenv exec python setup.py build_exe --create_deployment
       - name: Upload Connect DMG to GitHub Release
         env:
@@ -260,7 +261,7 @@ jobs:
           #ls -l installers/connect-installer/dist
           echo "Listing contents of installers/connect-installer/build:"
           ls -l installers/connect-installer/build
-          cd installers/connect-installer/dist
+          cd installers/connect-installer/build
           # version="${{ needs.set-variables.outputs.package_version }}"
           # clean_package_version="${version#v}"  # Remove leading 'v' from version
           # echo "Uploading ftrack-Connect-${clean_package_version}.dmg"
