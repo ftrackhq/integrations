@@ -147,6 +147,7 @@ jobs:
           gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack-Connect-${clean_package_version}-win64.msi" --clobber
 
 
+
   installer-macos:
     name: Build Connect Installer on MacOs
     needs: [ set-variables, connect-build ]
@@ -194,3 +195,54 @@ jobs:
           clean_package_version="${version#v}"  # Remove leading 'v' from version
           echo "Uploading ftrack-Connect-${clean_package_version}.dmg"
           gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack-Connect-${clean_package_version}.dmg" --clobber
+
+
+  installer-centos8:
+    name: Build Connect Installer on Centos8
+    needs: [ set-variables, connect-build ]
+    runs-on: ubuntu-latest
+    container:
+      image: centos:8
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install system dependencies
+        run: |
+          yum update -y
+          yum install -y python37 python37-pip
+      - name: Set up Python
+        run: |
+          alternatives --set python /usr/bin/python3.7
+          python -m pip install --upgrade pip
+      - name: Install patchelf platform dependent package
+        run: pip install patchelf
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Download the .whl file artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: ftrack-connect-whl
+      - name: Use the .whl file
+        run: |
+          pip install ftrack_connect-${{ needs.connect-build.outputs.connect_version }}-py3-none-any.whl
+      - name: install installer requirements
+        run: |
+          cd installers/connect-installer
+          pip install  -r requirements.txt
+      - name: make installer build tar.gz
+        run: |
+          cd installers/connect-installer
+          python setup.py build_exe --create_deployment
+      - name: Upload Connect DMG to GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          echo "Listing contents of installers/connect-installer/dist:"
+          ls -l installers/connect-installer/dist
+          echo "Listing contents of installers/connect-installer/build:"
+          ls -l installers/connect-installer/build
+          cd installers/connect-installer/dist
+          # version="${{ needs.set-variables.outputs.package_version }}"
+          # clean_package_version="${version#v}"  # Remove leading 'v' from version
+          # echo "Uploading ftrack-Connect-${clean_package_version}.dmg"
+          # gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack-Connect-${clean_package_version}.dmg" --clobber

@@ -128,7 +128,7 @@ Once build the result will be available in
 build/exe.linux-x86_64-**\<PYTHON VERSION\>**
 
 
-Build tar.gz release and Md5 with:
+Or to Build the tar.gz release and Md5 use:
 
 ```bash
     $ python setup.py build_exe --create_deployment
