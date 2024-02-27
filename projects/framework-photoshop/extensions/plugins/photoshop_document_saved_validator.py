@@ -30,7 +30,9 @@ class PhotoshopDocumentSavedValidatorPlugin(BasePlugin):
 
         self.logger.warning('Photoshop document not saved, asking to save')
         temp_path = get_temp_path(filename_extension=extension_format)
-        save_result = photoshop_connection.rpc('saveDocument', [temp_path])
+        save_result = photoshop_connection.rpc(
+            'saveDocument', [temp_path, extension_format]
+        )
         # Will return a boolean containing the result.
         if not save_result or isinstance(save_result, str):
             raise PluginExecutionError(

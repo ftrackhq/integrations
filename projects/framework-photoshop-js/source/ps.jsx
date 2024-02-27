@@ -65,17 +65,28 @@ function getDocumentData() {
 
 }
 
-function saveDocument(temp_path) {
+function saveDocument(temp_path, extension_format) {
     /*
      * Saves the document to the given temp_path, return "true" if successful,
-     * "false" otherwise.
+     * "false" otherwise. Support psd or psb format.
     */
     try {
         if (documents.length == 0) {
             // No document open
             return "false";
         }
-        app.activeDocument.saveAs(new File(temp_path));
+
+        if (extension_format == 'psd') {
+            app.activeDocument.saveAs(new File(temp_path));
+        } else {
+            var desc1 = new ActionDescriptor();
+            var desc2 = new ActionDescriptor();
+            desc2.putBoolean( stringIDToTypeID('maximizeCompatibility'), true );
+            desc1.putObject( charIDToTypeID('As  '), charIDToTypeID('Pht8'), desc2 );
+            desc1.putPath( charIDToTypeID('In  '), new File(temp_path) );
+            desc1.putBoolean( charIDToTypeID('LwCs'), true );
+            executeAction( charIDToTypeID('save'), desc1, DialogModes.NO );
+        }
         return "true";
     } catch (e) {
         alert(e);
