@@ -219,8 +219,24 @@ jobs:
           source ~/.bashrc
           pyenv install 3.7.16
           pyenv global 3.7.16
+      - name: Verify Python version debug
+        run: |
+          python --version
+          pip --version
+      - name: Verify Python version
+        run: |
+          source ~/.bashrc
+          pyenv versions
+          python --version
+          pyenv exec python -m pip install --upgrade pip
+#      - name: Install patchelf using pip
+#        run: |
+#          source ~/.bashrc
+#          pyenv exec pip install patchelf
       - name: Install patchelf platform dependent package
-        run: pip install patchelf
+        run: |
+          source ~/.bashrc
+          pip install patchelf
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Download the .whl file artifact
