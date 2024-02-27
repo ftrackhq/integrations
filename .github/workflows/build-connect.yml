@@ -197,8 +197,8 @@ jobs:
           gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack-Connect-${clean_package_version}.dmg" --clobber
 
 
-  installer-rocky8:
-    name: Build Connect Installer on Rocky linux 8
+  installer-rocky:
+    name: Build Connect Installer on Rocky linux
     needs: [ set-variables, connect-build ]
     runs-on: ubuntu-latest
     strategy:
@@ -217,6 +217,11 @@ jobs:
           echo 'eval "$(pyenv init --path)"' >> ~/.bashrc
           echo 'eval "$(pyenv virtualenv-init -)"' >> ~/.bashrc
           source ~/.bashrc
+      - name: Install GitHub CLI
+        run: |
+          curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+          echo "deb [signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+          dnf install -y gh
       - name: Install Python 3.7 using pyenv
         run: |
           source ~/.bashrc
@@ -252,7 +257,7 @@ jobs:
           source ~/.bashrc
           cd installers/connect-installer
           pyenv exec python setup.py build_exe --create_deployment
-      - name: Upload Connect DMG to GitHub Release
+      - name: Upload Connect tar.gz and md5 to GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
