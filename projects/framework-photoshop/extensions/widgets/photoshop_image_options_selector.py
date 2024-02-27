@@ -43,7 +43,7 @@ class PhotoshopImageOptionsSelectorWidget(BaseWidget):
 
         self._format_selector = None
 
-        super(PhotoshopImageExportOptionsWidget, self).__init__(
+        super(PhotoshopImageOptionsSelectorWidget, self).__init__(
             event_manager,
             client_id,
             context_id,

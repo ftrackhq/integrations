@@ -68,7 +68,19 @@ class PhotoshopDocumentSavedValidatorPlugin(BasePlugin):
             # Document is not saved or path not found, save it first.
             self.logger.warning('Photoshop document has never been saved.')
             raise PluginValidationError(
-                message='Photoshop document has never been saved, Click fix to save it to a temp file',
+                message='Photoshop document has never been saved, Click fix to '
+                'save it to a temp file',
+                on_fix_callback=self.save_document_to_temp,
+                fix_kwargs={'extension_format': extension_format},
+            )
+        elif not document_name.lower().endswith(extension_format.lower()):
+            self.logger.warning(
+                f'Photoshop document saved in wrong format, '
+                f're-saving as {extension_format}'
+            )
+            raise PluginValidationError(
+                message=f'Photoshop document saved in wrong format, Click fix to '
+                f'save it to a {extension_format} temp file',
                 on_fix_callback=self.save_document_to_temp,
                 fix_kwargs={'extension_format': extension_format},
             )

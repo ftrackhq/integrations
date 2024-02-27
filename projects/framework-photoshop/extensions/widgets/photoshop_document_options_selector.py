@@ -6,7 +6,7 @@ from Qt import QtWidgets, QtCore
 from ftrack_framework_qt.widgets import BaseWidget
 
 
-class PhotoshopSceneOptionsSelectorWidget(BaseWidget):
+class PhotoshopDocumentOptionsSelectorWidget(BaseWidget):
     '''Main class to represent a document widget on a publish process.'''
 
     name = 'photoshop_document_options_selector'
@@ -25,7 +25,7 @@ class PhotoshopSceneOptionsSelectorWidget(BaseWidget):
     ):
         self._extension_format_cb = None
 
-        super(PhotoshopSceneOptionsSelectorWidget, self).__init__(
+        super(PhotoshopDocumentOptionsSelectorWidget, self).__init__(
             event_manager,
             client_id,
             context_id,
@@ -61,10 +61,14 @@ class PhotoshopSceneOptionsSelectorWidget(BaseWidget):
         )
         self._extension_format_cb.setCurrentText(default_extension_format)
 
-        # Manually call the signals on build
-        self._on_extension_changed(default_extension_format)
+        self._extension_format_cb.currentTextChanged.connect(
+            self._on_extension_format_changed
+        )
 
-    def _on_extension_changed(self, extension_format):
+        # Manually call the signals on build
+        self._on_extension_format_changed(default_extension_format)
+
+    def _on_extension_format_changed(self, extension_format):
         '''Updates the option dictionary with provided *extension_format* when
         the selected extension format in the combobox has changed'''
         if not extension_format:
