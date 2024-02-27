@@ -16,7 +16,16 @@ class PhotoshopSaveToTempPlugin(BasePlugin):
         Tell Photoshop to save the current document in a temp location.
         '''
 
-        temp_path = get_temp_path(filename_extension='psd')
+        component_name = self.options.get('component')
+        collected_path = store['components'][component_name].get(
+            'collected_path'
+        )
+
+        # Figure out extension format
+        extension_format = 'psb' if collected_path.endswith('.psb') else 'psd'
+
+        temp_path = get_temp_path(filename_extension=extension_format)
+
         try:
             # Get existing RPC connection instance
             photoshop_connection = PhotoshopRPCCEP.instance()
@@ -27,7 +36,7 @@ class PhotoshopSaveToTempPlugin(BasePlugin):
 
             save_result = photoshop_connection.rpc(
                 'saveDocument',
-                [temp_path],
+                [temp_path, extension_format],
             )
         except Exception as e:
             self.logger.exception(e)

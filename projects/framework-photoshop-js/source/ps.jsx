@@ -76,9 +76,7 @@ function saveDocument(temp_path, extension_format) {
             return "false";
         }
 
-        if (extension_format == 'psd') {
-            app.activeDocument.saveAs(new File(temp_path));
-        } else {
+        if (extension_format == 'psb') {
             var desc1 = new ActionDescriptor();
             var desc2 = new ActionDescriptor();
             desc2.putBoolean( stringIDToTypeID('maximizeCompatibility'), true );
@@ -86,6 +84,8 @@ function saveDocument(temp_path, extension_format) {
             desc1.putPath( charIDToTypeID('In  '), new File(temp_path) );
             desc1.putBoolean( charIDToTypeID('LwCs'), true );
             executeAction( charIDToTypeID('save'), desc1, DialogModes.NO );
+        } else {
+            app.activeDocument.saveAs(new File(temp_path));
         }
         return "true";
     } catch (e) {
