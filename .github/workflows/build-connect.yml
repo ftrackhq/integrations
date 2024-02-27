@@ -248,7 +248,6 @@ jobs:
         run: |
           source ~/.bashrc
           cd installers/connect-installer
-          pyenv exec python setup.py build_exe
           pyenv exec python setup.py build_exe --create_deployment
       - name: Upload Connect DMG to GitHub Release
         env:
