@@ -886,6 +886,8 @@ elif sys.platform == 'linux':
                 linux_distro = 'C7'
             elif os_desc.lower().find('centos-8') > -1:
                 linux_distro = 'C8'
+            elif os_desc.lower().find('rocky-linux-8') > -1:
+                linux_distro = 'R8'
             elif os_desc.lower().find('rocky-linux-9') > -1:
                 linux_distro = 'R9'
             else:
