@@ -197,8 +197,8 @@ jobs:
           gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack-Connect-${clean_package_version}.dmg" --clobber
 
 
-  installer-centos8:
-    name: Build Connect Installer on Centos8
+  installer-rocky8:
+    name: Build Connect Installer on Rocky linux 8
     needs: [ set-variables, connect-build ]
     runs-on: ubuntu-latest
     container:
@@ -219,10 +219,10 @@ jobs:
           source ~/.bashrc
           pyenv install 3.7.16
           pyenv global 3.7.16
-      - name: Verify Python version debug
-        run: |
-          python --version
-          pip --version
+#      - name: Verify Python version debug
+#        run: |
+#          python --version
+#          pip --version
       - name: Verify Python version
         run: |
           source ~/.bashrc
