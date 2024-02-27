@@ -208,7 +208,7 @@ jobs:
       - name: Install dependencies and pyenv
         run: |
           dnf groupinstall -y "Development Tools"
-          dnf install -y gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz-devel git findutils patch wget tar make libuuid-devel
+          dnf install -y gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz-devel git findutils patch wget tar make libuuid-devel mesa-libGL
           curl https://pyenv.run | bash
           echo 'export PATH="$HOME/.pyenv/bin:$PATH"' >> ~/.bashrc
           echo 'eval "$(pyenv init --path)"' >> ~/.bashrc
