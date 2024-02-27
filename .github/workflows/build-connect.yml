@@ -254,8 +254,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
+          source ~/.bashrc
+          ls -l installers/connect-installer
           echo "Listing contents of installers/connect-installer/dist:"
-          ls -l installers/connect-installer/dist
+          #ls -l installers/connect-installer/dist
           echo "Listing contents of installers/connect-installer/build:"
           ls -l installers/connect-installer/build
           cd installers/connect-installer/dist
