@@ -201,8 +201,11 @@ jobs:
     name: Build Connect Installer on Rocky linux 8
     needs: [ set-variables, connect-build ]
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        rocky-version: [ '8', '9' ]
     container:
-      image: rockylinux/rockylinux:8
+      image: rockylinux/rockylinux:${{ matrix.rocky-version }}
     steps:
       - uses: actions/checkout@v3
       - name: Install dependencies and pyenv
@@ -255,13 +258,13 @@ jobs:
         shell: bash
         run: |
           source ~/.bashrc
-          ls -l installers/connect-installer
           echo "Listing contents of installers/connect-installer/dist:"
-          #ls -l installers/connect-installer/dist
+          ls -l installers/connect-installer/dist
           echo "Listing contents of installers/connect-installer/build:"
           ls -l installers/connect-installer/build
           cd installers/connect-installer/build
-          # version="${{ needs.set-variables.outputs.package_version }}"
-          # clean_package_version="${version#v}"  # Remove leading 'v' from version
-          # echo "Uploading ftrack-Connect-${clean_package_version}.dmg"
-          # gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack-Connect-${clean_package_version}.dmg" --clobber
+          version="${{ needs.set-variables.outputs.package_version }}"
+          clean_package_version="${version#v}"  # Remove leading 'v' from version
+          echo "Uploading ftrack-Connect-${clean_package_version}-R${{ matrix.rocky-version }}.tar.gz"
+          gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack-Connect-${clean_package_version}-R${{ matrix.rocky-version }}.tar.gz" --clobber
+          gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack-Connect-${clean_package_version}-R${{ matrix.rocky-version }}.tar.gz.md5" --clobber
