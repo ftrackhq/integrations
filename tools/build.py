@@ -42,7 +42,7 @@ from distutils.spawn import find_executable
 import fileinput
 import tempfile
 
-__version__ = '0.4.12'
+__version__ = '0.4.14'
 
 ZXPSIGN_CMD = 'ZXPSignCmd'
 
