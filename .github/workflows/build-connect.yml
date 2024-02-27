@@ -205,14 +205,19 @@ jobs:
       image: rockylinux/rockylinux:8
     steps:
       - uses: actions/checkout@v3
-      - name: Install python 3.7
+      - name: Install dependencies and pyenv
         run: |
-          dnf install -y epel-release
-          dnf module list python37
-          dnf module enable -y python37
-          dnf install -y python37 python37-pip
-          alternatives --set python /usr/bin/python3.7
-          python3.7 -m pip install --upgrade pip
+          dnf install -y gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz-devel
+          curl https://pyenv.run | bash
+          echo 'export PATH="$HOME/.pyenv/bin:$PATH"' >> ~/.bashrc
+          echo 'eval "$(pyenv init --path)"' >> ~/.bashrc
+          echo 'eval "$(pyenv virtualenv-init -)"' >> ~/.bashrc
+          source ~/.bashrc
+      - name: Install Python 3.7 using pyenv
+        run: |
+          source ~/.bashrc
+          pyenv install 3.7.16
+          pyenv global 3.7.16
       - name: Install patchelf platform dependent package
         run: pip install patchelf
       - name: Checkout code
