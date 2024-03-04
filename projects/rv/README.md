@@ -65,7 +65,7 @@ to build the plugin.
 
 ```bash
   cd integrations
-  python tools/build.py --testpypi --include_assets /tmp/ftrack-24.20.rvpkg build_connect_plugin projects/rv
+  python tools/build.py --testpypi --include_assets /tmp/ftrack-24.0.rvpkg build_connect_plugin projects/rv
 ```
 
 The Connect plugin will be output to the dist/ folder.
