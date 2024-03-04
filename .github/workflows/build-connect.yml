@@ -60,8 +60,6 @@ jobs:
     needs: set-variables
     runs-on: ubuntu-latest
     outputs:
-      to_pypi: ${{ needs.set-variables.outputs.to_pypi }}
-      package: ${{ needs.set-variables.outputs.package }}
       connect_version: ${{ steps.get_version.outputs.connect_version }}
     steps:
       - uses: actions/checkout@v3
