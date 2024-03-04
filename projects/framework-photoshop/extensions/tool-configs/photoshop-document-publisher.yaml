@@ -22,15 +22,19 @@ engine:
       - type: plugin
         tags:
           - collector
-        plugin: document_collector
+        plugin: photoshop_document_collector
+        ui: photoshop_document_options_selector
+        options:
+          extension_format: psd # psb is also available
       - type: plugin
         tags:
           - validator
-        plugin: document_validator
+        plugin: photoshop_document_saved_validator
+        ui: validator_label
       - type: plugin
         tags:
           - exporter
-        plugin: document_exporter
+        plugin: photoshop_document_exporter
 
   # Export the image component.
   - type: group
@@ -46,22 +50,37 @@ engine:
       - type: plugin
         tags:
           - collector
-        plugin: document_collector
+        options:
+          export_type: jpg
+        plugin: photoshop_image_options_collector
+        ui: photoshop_image_options_selector
       - type: plugin
         tags:
           - exporter
+        plugin: photoshop_image_exporter
+
+
+  # Export the thumbnail component.
+  - type: group
+    tags:
+      - component
+    options:
+      component: thumbnail
+    optional: true
+    #enabled: True by default so is no need
+    plugins:
+      - type: plugin
+        plugin: store_component
+      - type: plugin
+        tags:
+          - collector
         options:
-          extension: .jpg
-          extensions:
-            - .bmp
-            - .eps
-            - .gif
-            - .jpg
-            - .pdf
-            - .png
-            - .tif
-        plugin: image_exporter
-        ui: image_options
+          export_type: jpg
+        plugin: photoshop_image_options_collector
+      - type: plugin
+        tags:
+          - exporter
+        plugin: photoshop_image_exporter
 
   # Export the reviewable component.
   - type: group
@@ -70,26 +89,32 @@ engine:
     options:
       component: reviewable
     optional: true
-    # enabled means that by default the optional checkbox will be checked
-    enabled: true
+    #enabled: True by default so is no need
     plugins:
       - type: plugin
         plugin: store_component
       - type: plugin
         tags:
           - collector
-        plugin: document_collector
+        options:
+          export_type: jpg
+          compatible_types:
+            - jpg
+            - png
+            - gif
+        plugin: photoshop_image_options_collector
+        ui: photoshop_image_options_selector
       - type: plugin
         tags:
           - exporter
-        options:
-          extension: .jpg
-          extensions:
-            - .jpg
-            - .png
-            - .gif
-        plugin: image_exporter
-        ui: image_options
+        plugin: photoshop_image_exporter
+
+  # Common validator check all exported paths exists.
+  - type: plugin
+    tags:
+      - validator
+    plugin: exported_paths_validator
+    ui: validator_label
 
   # Publish to ftrack.
   - publish_to_ftrack

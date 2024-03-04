@@ -2,38 +2,33 @@ type: launcher
 name: framework-photoshop
 priority: 100
 context:
-- Task
+  - Task
 identifier: ftrack-framework-launch-photoshop
 applicationIdentifier: photoshop_{variant}
 integrations:
   framework:
-  - framework-photoshop
+    - framework-photoshop
 label: Adobe Photoshop
 icon: photoshop
 variant: "{version}"
 search_path:
   windows:
     prefix:
-    - C:\
-    - Program Files.*
-    - Adobe
+      - C:\
+      - Program Files.*
+      - Adobe
     expression:
-    - Adobe Photoshop*
-    - Photoshop.exe
+      - Adobe Photoshop*
+      - Photoshop.exe
   darwin:
     prefix:
-    - "/"
-    - Applications
+      - "/"
+      - Applications
     expression:
-    - Adobe Photoshop*
-    - Adobe Photoshop .*\.app
+      - Adobe Photoshop*
+      - Adobe Photoshop .*\.app
     rosetta: true
 standalone_module: ftrack_framework_photoshop
 extensions_path:
   - extensions/common
   - extensions/photoshop
-# TODO: remove this on documentation update
-#environment_variables:
-#  TEST_ENVIRONMENT_VARIABLE_WITH_ENV:
-#    - ${PATH}
-#    - N:\additional_path
