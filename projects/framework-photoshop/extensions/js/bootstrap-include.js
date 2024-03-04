@@ -3,7 +3,7 @@
 
  Included
 
- Copyright (c) 2014-2023 ftrack
+ Copyright (c) 2024 ftrack
 */
 
 try {

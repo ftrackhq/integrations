@@ -1,31 +1,30 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
-import tempfile
 
+from ftrack_utils.paths import get_temp_path
 from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
 from ftrack_framework_photoshop.rpc_cep import PhotoshopRPCCEP
 
 
-class ImageExporterPlugin(BasePlugin):
-    '''Save Photoshop document to temp location as an image for publish'''
-
-    name = 'image_exporter'
+class PhotoshopImageExporterPlugin(BasePlugin):
+    name = 'photoshop_image_exporter'
 
     def run(self, store):
         '''
-        Expects extension(format) from the :obj:`self.options`, stores the
-        exported image path in the :obj:`store` under the component name.
+        Expects extension(format) from the :obj:`self.options`, exports and
+        image to temp location and stores the path in the  :obj:`store` under
+        the component name.
         '''
-
-        extension = self.options.get('extension', '.jpg')
 
         component_name = self.options.get('component')
 
-        new_file_path = tempfile.NamedTemporaryFile(
-            delete=False, suffix=extension
-        ).name
+        extension = store['components'][component_name].get('export_type')
+        if not extension:
+            raise PluginExecutionError(f'No image extension provided!')
+
+        new_file_path = get_temp_path(filename_extension=extension)
 
         try:
             # Get existing RPC connection instance

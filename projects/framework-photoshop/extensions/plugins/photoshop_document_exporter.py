@@ -1,31 +1,28 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
-import tempfile
 import shutil
 
+from ftrack_utils.paths import get_temp_path
 from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
 
-class DocumentExporterPlugin(BasePlugin):
-    '''Save Photoshop document to temp location for publish'''
-
-    name = 'document_exporter'
+class PhotoshopDocumentExporterPlugin(BasePlugin):
+    name = 'photoshop_document_exporter'
 
     def run(self, store):
         '''
         Expects full_path in collected_data in the <component_name> key of the
-        given *store*, stores the exported document path in the :obj:`store`
+        given *store*, copies it to temp location and stores the exported document
+        path in the :obj:`store`
         '''
         component_name = self.options.get('component')
+        extension_format = store['components'][component_name].get(
+            'extension_format'
+        )
+        document_path = store['components'][component_name]['document_name']
 
-        collected_data = store['components'][component_name]['collected_data']
-
-        new_file_path = tempfile.NamedTemporaryFile(
-            delete=False, suffix='.psd'
-        ).name
-
-        document_path = collected_data.get('full_path')
+        new_file_path = get_temp_path(filename_extension=extension_format)
 
         self.logger.debug(
             f'Copying Photoshop document from {document_path} to {new_file_path}'
