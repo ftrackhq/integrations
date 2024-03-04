@@ -56,7 +56,7 @@ Go to the root of the Monorepo and create the Connect plugin:
 
 ```bash
   cd integrations
-  python tools/build.py --include_assets /tmp/ftrack-24.20.rvpkg  build_connect_plugin projects/rv
+  python tools/build.py --include_assets /tmp/ftrack-24.0.rvpkg  build_connect_plugin projects/rv
 ```
 
 
