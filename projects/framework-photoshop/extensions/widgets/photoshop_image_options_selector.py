@@ -24,8 +24,6 @@ class PhotoshopImageOptionsSelectorWidget(BaseWidget):
     name = 'photoshop_image_options_selector'
     ui_type = 'qt'
 
-    on_format_changed = QtCore.Signal(int)
-
     def __init__(
         self,
         event_manager,

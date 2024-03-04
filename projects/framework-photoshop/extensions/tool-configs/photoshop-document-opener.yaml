@@ -23,6 +23,9 @@ engine:
         ui: asset_version_selector
         options:
           asset_type_name: scene
+          file_extensions:
+            - psd
+            - psb
       - type: plugin
         tags:
           - validator
