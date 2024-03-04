@@ -572,7 +572,9 @@ def post_setup(codesign_frameworks=True):
 
 def create_mac_dmg():
     '''Create DMG on MacOS with checksum. Returns the resulting path.'''
-    dmg_name = '{0}-{1}.dmg'.format(bundle_name.replace(' ', '-'), __version__)
+    dmg_name = '{0}-{1}-macOS.dmg'.format(
+        bundle_name.replace(' ', '-'), __version__
+    )
     dmg_path = os.path.join(DIST_PATH, dmg_name)
     if not os.path.exists(DIST_PATH):
         os.makedirs(DIST_PATH)

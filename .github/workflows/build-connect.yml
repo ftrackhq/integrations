@@ -1,6 +1,5 @@
 # On release creation:
-#  - Build and publishes libraries to PyPi or
-#  - Building Connect plugin artifacts and upload them to the release
+#  - Build and release connect for all platforms
 
 name: CI-CONNECT-RELEASE
 
@@ -194,7 +193,7 @@ jobs:
           version="${{ needs.set-variables.outputs.package_version }}"
           clean_package_version="${version#v}"  # Remove leading 'v' from version
           echo "Uploading ftrack-Connect-${clean_package_version}.dmg"
-          gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack-Connect-${clean_package_version}.dmg" --clobber
+          gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack-Connect-${clean_package_version}-macOS.dmg" --clobber
 
 
   installer-rocky:
