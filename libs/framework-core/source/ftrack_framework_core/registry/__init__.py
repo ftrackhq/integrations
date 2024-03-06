@@ -94,7 +94,7 @@ class Registry(object):
         self.__registry = defaultdict(list)
 
     # Register
-    def scan_extensions(self, paths):
+    def scan_extensions(self, paths, extension_types=False):
         '''
         Scan framework extension modules from the given *paths*
         '''
@@ -102,7 +102,9 @@ class Registry(object):
         discovered_extensions = []
         for path in paths:
             # Merge/override
-            for extension in registry.get_extensions_from_directory(path):
+            for extension in registry.get_extensions_from_directory(
+                path, extension_types=extension_types
+            ):
                 existing_extension = None
                 for discovered_extension in discovered_extensions:
                     if (
@@ -117,7 +119,11 @@ class Registry(object):
                     discovered_extensions.append(extension)
                 else:
                     # Can we merge?
-                    if extension['extension_type'] == 'tool_config':
+                    if extension['extension_type'] in [
+                        'launcher',
+                        'dcc_config',
+                        'tool_config',
+                    ]:
                         discovered_extensions.remove(existing_extension)
                         logging.info(
                             f'Merging extension {existing_extension} on top of {extension}.'
@@ -146,7 +152,7 @@ class Registry(object):
                                 module_name
                                 == existing_extension['extension'].__module__
                             ):
-                                logging.warning(
+                                logging.debug(
                                     'Reloading original extension module: {}'.format(
                                         module_name
                                     )
@@ -171,7 +177,7 @@ class Registry(object):
         Add the given *extension_type* with *name*, *extension* and *path to
         the registry
         '''
-        if extension_type in ['launcher', 'dcc_config', 'tool_config']:
+        if extension_type == 'tool_config':
             self.augment_tool_config(extension)
         # We use extension_type and not type to not interfere with python
         # build in type
@@ -250,7 +256,8 @@ class Registry(object):
         and each plugin and group
         '''
         tool_config['reference'] = uuid.uuid4().hex
-        self._recursive_create_reference(tool_config.get('engine'))
+        if 'engine' in tool_config:
+            self._recursive_create_reference(tool_config['engine'])
         return tool_config
 
     def _recursive_create_reference(self, tool_config_engine_portion):

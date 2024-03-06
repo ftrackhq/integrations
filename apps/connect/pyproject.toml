@@ -41,9 +41,11 @@ pyyaml = "^6.0.1"
 #ftrack
 ftrack-action-handler = "*"
 ftrack-utils = {  version = "^2.0.0", optional = true }
+ftrack-framework-core = {  version = "^2.0.0", optional = true }
 
 [tool.poetry.extras]
 ftrack-libs = ["ftrack-utils"]
+framework-libs = ["ftrack-framework-core"]
 
 [tool.poetry.group.documentation]
 optional = true

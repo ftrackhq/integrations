@@ -47,7 +47,6 @@ os.environ[
 
 
 FTRACK_CONNECT_EXTENSIONS_PATH = [
-    '/Users/henriknorin/Documents/ftrack/testdata/extensions',
     os.path.join(
         ROOT_INTEGRATIONS_FOLDER, 'projects', 'framework-common-extensions'
     ),

@@ -5,7 +5,10 @@ from collections import defaultdict
 import logging
 import yaml
 
-from ftrack_utils.extensions.registry import register_yaml_files
+from ftrack_utils.extensions.environment import (
+    get_extensions_path_from_environment,
+)
+from ftrack_framework_core import registry
 
 from ftrack_connect.application_launcher import (
     ApplicationStore,
@@ -36,7 +39,9 @@ class DiscoverApplications(object):
         self._build_launchers(configurations)
 
     def _parse_configurations(self, config_paths):
+        '''Use the extensions library to load and merge launch configurations'''
         loaded_filtered_files = []
+        extensions_path = get_extensions_path_from_environment()
         for config_path in config_paths:
             if not os.path.exists(config_path) or not os.path.isdir(
                 config_path
@@ -46,23 +51,23 @@ class DiscoverApplications(object):
                 )
                 continue
 
-            files = os.listdir(config_path)
+            extensions_path.append(config_path)
 
-            yaml_config_file_paths = [
-                os.path.join(config_path, str(config))
-                for config in files
-                if config.endswith('yaml')
-            ]
+        # Load and merge all launch configs from the extensions path
+        registry_instance = registry.Registry()
+        registry_instance.scan_extensions(
+            paths=extensions_path, extension_types=['launcher']
+        )
 
-            for extension in register_yaml_files(yaml_config_file_paths):
-                loaded_filtered_files.append(
-                    (extension['extension'], extension['path'])
+        for launcher_extension in registry_instance.launchers:
+            loaded_filtered_files.append(
+                (launcher_extension['extension'], launcher_extension['path'])
+            )
+            self.logger.info(
+                'Loaded launcher config extension: {}'.format(
+                    launcher_extension['extension']
                 )
-                self.logger.info(
-                    'Found launcher config extension: {}'.format(
-                        extension['path']
-                    )
-                )
+            )
 
         self.logger.debug(
             'Launcher configs found: {}'.format(len(loaded_filtered_files))
