@@ -18,6 +18,7 @@ import subprocess
 import time
 import datetime
 import zipfile
+import re
 
 # The Connect installer version, remember to bump this and update release notes
 # prior to release
@@ -625,7 +626,7 @@ def codesign_osx(create_dmg=True, notarize=True):
         raise (
             Exception(
                 "Codesign not working please make sure you have the "
-                "CODESIGN_IDENTITY, APPLE_USER_NAME environment variables and "
+                "MACOS_CERTIFICATE_NAME, environment variables and "
                 "ftrack_connect_sign_pass on the keychain."
             )
         )
@@ -636,7 +637,7 @@ def codesign_osx(create_dmg=True, notarize=True):
 
         if notarize is True:
             store_credentials_command = 'xcrun notarytool store-credentials "notarytool-profile" --apple-id "$PROD_MACOS_NOTARIZATION_APPLE_ID" --team-id "$PROD_MACOS_NOTARIZATION_TEAM_ID" --password "$PROD_MACOS_NOTARIZATION_PWD"'
-            store_credentials_result = os.system(store_credentials_command)
+            os.system(store_credentials_command)
             logging.info(' Setting up xcode, please enter your sudo password')
             setup_xcode_cmd = 'sudo xcode-select -s /Applications/Xcode.app'
             setup_result = os.system(setup_xcode_cmd)
@@ -650,88 +651,65 @@ def codesign_osx(create_dmg=True, notarize=True):
             )
 
             notarize_result = subprocess.check_output(
-                notarize_command, shell=True
+                notarize_command, shell=True, text=True
             )
-            notarize_result = notarize_result.decode("utf-8")
-            logging.info(' notarize_result: {}'.format(notarize_result))
-            os.system('echo notarize result {}'.format(notarize_result))
 
-            status, uuid = notarize_result.split('\n')[0:2]
-            os.system('echo notarize status {}'.format(status))
-            os.system('echo notarize uuid {}'.format(uuid))
-            uuid_num = uuid.split(' = ')[-1]
+            # Log the full output
+            logging.info(f"notarize_result: {notarize_result}")
 
-            logging.info(' uuid_num: {}'.format(uuid_num))
+            # Use regular expressions to search for the submission ID and final status
+            id_match = re.search(r'id: (\S+)', notarize_result)
+            status_match = re.search(r'status: (\S+)', notarize_result)
 
-            logging.info(' Notarize upload status: {}'.format(status))
-            logging.info(' Request UUID: {}'.format(uuid_num))
+            submission_id = None
+            final_status = None
 
-            status = "in progress"
-            exit_loop = False
-            while status == "in progress" and exit_loop is False:
-                # Query status
-                notarize_query = 'xcrun notarytool info --keychain-profile "notarytool-profile" {}'.format(
-                    uuid_num
+            if id_match:
+                # Extract the submission ID
+                submission_id = id_match.group(1)
+                logging.info(f"Submission ID: {submission_id}")
+            else:
+                logging.error("Submission ID not found in the output.")
+
+            if status_match:
+                # Extract the final status
+                final_status = status_match.group(1)
+                logging.info(f"Final Status: {final_status}")
+            else:
+                logging.error("Final status not found in the output.")
+
+            if final_status == 'Accepted':
+                staple_app_cmd = 'xcrun stapler staple "{}"'.format(
+                    bundle_path
+                )
+                staple_dmg_cmd = 'xcrun stapler staple "{}"'.format(dmg_path)
+                os.system(staple_app_cmd)
+                os.system(staple_dmg_cmd)
+
+            else:
+                # Show notarize info
+                notarize_info = 'xcrun notarytool info --keychain-profile "notarytool-profile" {}'.format(
+                    submission_id
                 )
                 query_result = subprocess.check_output(
-                    notarize_query, shell=True
+                    notarize_info, shell=True, text=True
                 )
-                query_result = query_result.decode("utf-8")
-                status = query_result.split("Status: ")[-1].split("\n")[0]
-                if status == 'success':
-                    exit_loop = True
-                    staple_app_cmd = 'xcrun stapler staple "{}"'.format(
-                        bundle_path
-                    )
-                    staple_dmg_cmd = 'xcrun stapler staple "{}"'.format(
-                        dmg_path
-                    )
-                    os.system(staple_app_cmd)
-                    os.system(staple_dmg_cmd)
+                logging.info("Notarize info: {}".format(query_result))
 
-                elif status == 'invalid':
-                    log_url = query_result.split("LogFileURL: ")[-1].split(
-                        "\n"
-                    )[0]
-                    raise Exception(
-                        "Notarization failed, please copy the following url "
-                        "and check the log:\n{}".format(log_url)
+                # Fetch notary Log
+                notarize_log = 'xcrun notarytool log --keychain-profile "notarytool-profile" {}'.format(
+                    submission_id
+                )
+                log_result = subprocess.check_output(
+                    notarize_log, shell=True, text=True
+                )
+                logging.info("Notarize log: {}".format(log_result))
+
+                raise Exception(
+                    "Notarization failed, please check the log: \n{}".format(
+                        log_result
                     )
-                else:
-                    response = input(
-                        "The status of the current notarization is: {}\n Please "
-                        "type exit if you want to manually wait for notarization "
-                        "process to finish. Or type the minutes you want to wait "
-                        "for automatically check for the notarization process\n "
-                        "example: (exit or 5) : ".format(status)
-                    )
-                    if response == 'exit' or response == 'Exit':
-                        exit_loop = True
-                        logging.info(
-                            ' Please check the status of the notarization using '
-                            'the command:\nxcrun notarytool info --keychain-profile "notarytool-profile {}'.format(
-                                uuid_num
-                            )
-                        )
-                        logging.info(
-                            ' Please once notarization is succeed use the '
-                            'following command to staple the app and the dmg: \n'
-                            'xcrum stapler staple "{}" \n'
-                            'xcrun stapler staple "{}"'.format(
-                                bundle_path, dmg_path
-                            )
-                        )
-                    else:
-                        try:
-                            sleep_min = float(response)
-                        except Exception:
-                            raise Exception(
-                                "Could not read the input minutes, please check "
-                                "the notarize manually and staple the code after using this command:\n\n{}\n\n"
-                                "Response: {}".format(notarize_query, response)
-                            )
-                        exit_loop = False
-                        time.sleep(sleep_min * 60)
+                )
 
 
 import argparse
