@@ -1,5 +1,9 @@
 # ftrack Connect release Notes
 
+## Upcoming
+
+* [changed] Changed the name of FTRACK_EXTENSIONS_PATH environment variable to FTRACK_CONNECT_EXTENSIONS_PATH.
+
 ## v3.0.0
 2024-02-16
 

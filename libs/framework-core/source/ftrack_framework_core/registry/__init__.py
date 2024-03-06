@@ -1,6 +1,9 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
+import os.path
 import uuid
+import pkgutil
+import inspect
 
 import logging
 from collections import defaultdict
@@ -98,9 +101,68 @@ class Registry(object):
 
         discovered_extensions = []
         for path in paths:
-            discovered_extensions.extend(
-                registry.get_extensions_from_directory(path)
-            )
+            # Merge/override
+            for extension in registry.get_extensions_from_directory(path):
+                existing_extension = None
+                for discovered_extension in discovered_extensions:
+                    if (
+                        discovered_extension['extension_type']
+                        == extension['extension_type']
+                        and discovered_extension['name'] == extension['name']
+                    ):
+                        existing_extension = discovered_extension
+                        break
+                if not existing_extension:
+                    # Add to discovered extensions
+                    discovered_extensions.append(extension)
+                else:
+                    # Can we merge?
+                    if extension['extension_type'] == 'tool_config':
+                        discovered_extensions.remove(existing_extension)
+                        logging.info(
+                            f'Merging extension {existing_extension} on top of {extension}.'
+                        )
+                        # Have the latter extension be overridden by the former
+                        extension['extension'].update(
+                            existing_extension['extension']
+                        )
+                        # Use the latter extension
+                        discovered_extensions.append(extension)
+                    else:
+                        logger.warning(
+                            'Extension is overridden: {}, ignoring.'.format(
+                                extension
+                            )
+                        )
+                        # Need load the original module again as it got overridden
+                        for (
+                            loader,
+                            module_name,
+                            is_pkg,
+                        ) in pkgutil.walk_packages(
+                            [os.path.dirname(existing_extension['path'])]
+                        ):
+                            if (
+                                module_name
+                                == existing_extension['extension'].__module__
+                            ):
+                                logging.warning(
+                                    'Reloading original extension module: {}'.format(
+                                        module_name
+                                    )
+                                )
+                                module = loader.find_module(
+                                    module_name
+                                ).load_module(module_name)
+                                cls_members = inspect.getmembers(
+                                    module, inspect.isclass
+                                )
+                                for name, obj in cls_members:
+                                    if obj.__module__ == module.__name__:
+                                        existing_extension['extension'] = obj
+                                        break
+                                break
+
         for extension in discovered_extensions:
             self.add(**extension)
 
@@ -109,7 +171,7 @@ class Registry(object):
         Add the given *extension_type* with *name*, *extension* and *path to
         the registry
         '''
-        if extension_type == 'tool_config':
+        if extension_type in ['launcher', 'dcc_config', 'tool_config']:
             self.augment_tool_config(extension)
         # We use extension_type and not type to not interfere with python
         # build in type
