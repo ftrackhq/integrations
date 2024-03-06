@@ -102,48 +102,48 @@ jobs:
           gh release upload ${{ needs.set-variables.outputs.tag }} ${{ needs.set-variables.outputs.folder }}/dist/ftrack_connect-${{ steps.get_version.outputs.connect_version }}-py3-none-any.whl --clobber
           
 
-  installer-windows:
-    name: Build Connect Installer on Windows
-    needs: [ set-variables, connect-build ]
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.7'
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Download the .whl file artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: ftrack-connect-whl
-      - name: Use the .whl file
-        run: |
-          pip install ftrack_connect-${{ needs.connect-build.outputs.connect_version }}-py3-none-any.whl
-      - name: install installer requirements
-        run: |
-          cd installers/connect-installer
-          pip install  -r requirements.txt
-      - name: make installer
-        run: |
-          cd installers/connect-installer
-          python setup.py bdist_msi
-      - name: Upload MSI installer to GitHub Release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        shell: bash
-        run: |
-          echo "Listing contents of installers/connect-installer/dist:"
-          ls -l installers/connect-installer/dist
-          echo "Listing contents of installers/connect-installer/build:"
-          ls -l installers/connect-installer/build
-          cd installers/connect-installer/dist
-          version="${{ needs.set-variables.outputs.package_version }}"
-          clean_package_version="${version#v}"  # Remove leading 'v' from version
-          echo "Uploading ftrack-Connect-${clean_package_version}-win64.msi"
-          gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack-Connect-${clean_package_version}-win64.msi" --clobber
-
-
+#  installer-windows:
+#    name: Build Connect Installer on Windows
+#    needs: [ set-variables, connect-build ]
+#    runs-on: windows-latest
+#    steps:
+#      - uses: actions/checkout@v3
+#      - uses: actions/setup-python@v4
+#        with:
+#          python-version: '3.7'
+#      - name: Checkout code
+#        uses: actions/checkout@v2
+#      - name: Download the .whl file artifact
+#        uses: actions/download-artifact@v2
+#        with:
+#          name: ftrack-connect-whl
+#      - name: Use the .whl file
+#        run: |
+#          pip install ftrack_connect-${{ needs.connect-build.outputs.connect_version }}-py3-none-any.whl
+#      - name: install installer requirements
+#        run: |
+#          cd installers/connect-installer
+#          pip install  -r requirements.txt
+#      - name: make installer
+#        run: |
+#          cd installers/connect-installer
+#          python setup.py bdist_msi
+#      - name: Upload MSI installer to GitHub Release
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        shell: bash
+#        run: |
+#          echo "Listing contents of installers/connect-installer/dist:"
+#          ls -l installers/connect-installer/dist
+#          echo "Listing contents of installers/connect-installer/build:"
+#          ls -l installers/connect-installer/build
+#          cd installers/connect-installer/dist
+#          version="${{ needs.set-variables.outputs.package_version }}"
+#          clean_package_version="${version#v}"  # Remove leading 'v' from version
+#          echo "Uploading ftrack-Connect-${clean_package_version}-win64.msi"
+#          gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack-Connect-${clean_package_version}-win64.msi" --clobber
+#
+#
 
   installer-macos:
     name: Build Connect Installer on MacOs
@@ -174,101 +174,177 @@ jobs:
         run: |
           cd installers/connect-installer
           pip install  -r requirements.txt
-      - name: make installer
-        run: |
-          cd installers/connect-installer
-          python setup.py bdist_mac --create_dmg
-      - name: Upload Connect DMG to GitHub Release
+
+      - name: Codesign app bundle
+        # Guidance pick from https://federicoterzi.com/blog/automatic-code-signing-and-notarization-for-macos-apps-using-github-actions/
+        # Extract the secrets we defined earlier as environment variables
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        shell: bash
+          MACOS_CERTIFICATE: ${{ secrets.PROD_MACOS_CERTIFICATE }}
+          MACOS_CERTIFICATE_PWD: ${{ secrets.PROD_MACOS_CERTIFICATE_PWD }}
+          MACOS_CERTIFICATE_NAME: ${{ secrets.PROD_MACOS_CERTIFICATE_NAME }}
+          MACOS_CI_KEYCHAIN_PWD: ${{ secrets.PROD_MACOS_CI_KEYCHAIN_PWD }}
         run: |
-          echo "Listing contents of installers/connect-installer/dist:"
-          ls -l installers/connect-installer/dist
-          echo "Listing contents of installers/connect-installer/build:"
-          ls -l installers/connect-installer/build
-          cd installers/connect-installer/dist
-          version="${{ needs.set-variables.outputs.package_version }}"
-          clean_package_version="${version#v}"  # Remove leading 'v' from version
-          echo "Uploading ftrack-Connect-${clean_package_version}.dmg"
-          gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack-Connect-${clean_package_version}-macOS.dmg" --clobber
+          # Turn our base64-encoded certificate back to a regular .p12 file
+
+          echo $MACOS_CERTIFICATE | base64 --decode > certificate.p12
+
+          # We need to create a new keychain, otherwise using the certificate will prompt
+          # with a UI dialog asking for the certificate password, which we can't
+          # use in a headless CI environment
+
+          security create-keychain -p "$MACOS_CI_KEYCHAIN_PWD" build.keychain 
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "$MACOS_CI_KEYCHAIN_PWD" build.keychain
+          security import certificate.p12 -k build.keychain -P "$MACOS_CERTIFICATE_PWD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$MACOS_CI_KEYCHAIN_PWD" build.keychain
+          
+          # Verify certificate
+          echo "Verify certificate: "
+          security find-identity -v
+          
+          # We finally codesign our app bundle, specifying the Hardened runtime option
+          
+          
+          cd installers/connect-installer
+          python setup.py bdist_mac
+          entitlements_path = "installers/connect-installer/resource/entitlements.plist"
+          bundle_path = "installers/connect-installer/build/ftrack Connect.app"
+          /usr/bin/codesign --verbose --force --options runtime --timestamp --deep --strict --entitlements "${entitlements_path}" --sign "$MACOS_CERTIFICATE_NAME" "{bundle_path}"
+          
+          echo "codesign of the app done"
+          echo "check codesign"
+          codesign -vvv --deep --strict build/ftrack-connect.app
+          spctl -a -v build/ftrack-connect.app
+          # /usr/bin/codesign --force -s "$MACOS_CERTIFICATE_NAME" --options runtime target/mac/Espanso.app -v
+          
+#      - name: "Notarize app bundle"
+#        # Extract the secrets we defined earlier as environment variables
+#        env:
+#          PROD_MACOS_NOTARIZATION_APPLE_ID: ${{ secrets.PROD_MACOS_NOTARIZATION_APPLE_ID }}
+#          PROD_MACOS_NOTARIZATION_TEAM_ID: ${{ secrets.PROD_MACOS_NOTARIZATION_TEAM_ID }}
+#          PROD_MACOS_NOTARIZATION_PWD: ${{ secrets.PROD_MACOS_NOTARIZATION_PWD }}
+#        run: |
+#          # Store the notarization credentials so that we can prevent a UI password dialog
+#          # from blocking the CI
+#
+#          echo "Create keychain profile"
+#          xcrun notarytool store-credentials "notarytool-profile" --apple-id "$PROD_MACOS_NOTARIZATION_APPLE_ID" --team-id "$PROD_MACOS_NOTARIZATION_TEAM_ID" --password "$PROD_MACOS_NOTARIZATION_PWD"
+#
+#          # We can't notarize an app bundle directly, but we need to compress it as an archive.
+#          # Therefore, we create a zip file containing our app bundle, so that we can send it to the
+#          # notarization service
+#
+#          echo "Creating temp notarization archive"
+#          ditto -c -k --keepParent "target/mac/Espanso.app" "notarization.zip"
+#
+#          # Here we send the notarization request to the Apple's Notarization service, waiting for the result.
+#          # This typically takes a few seconds inside a CI environment, but it might take more depending on the App
+#          # characteristics. Visit the Notarization docs for more information and strategies on how to optimize it if
+#          # you're curious
+#
+#          echo "Notarize app"
+#          xcrun notarytool submit "notarization.zip" --keychain-profile "notarytool-profile" --wait
+#
+#          # Finally, we need to "attach the staple" to our executable, which will allow our app to be
+#          # validated by macOS even when an internet connection is not available.
+#          echo "Attach staple"
+#          xcrun stapler staple "target/mac/Espanso.app"
+#
+#      - name: make installer
+#        run: |
+#          cd installers/connect-installer
+#          python setup.py bdist_mac --create_dmg
+#      - name: Upload Connect DMG to GitHub Release
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        shell: bash
+#        run: |
+#          echo "Listing contents of installers/connect-installer/dist:"
+#          ls -l installers/connect-installer/dist
+#          echo "Listing contents of installers/connect-installer/build:"
+#          ls -l installers/connect-installer/build
+#          cd installers/connect-installer/dist
+#          version="${{ needs.set-variables.outputs.package_version }}"
+#          clean_package_version="${version#v}"  # Remove leading 'v' from version
+#          echo "Uploading ftrack-Connect-${clean_package_version}.dmg"
+#          gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack-Connect-${clean_package_version}-macOS.dmg" --clobber
 
 
-  installer-rocky:
-    name: Build Connect Installer on Rocky linux
-    needs: [ set-variables, connect-build ]
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        rocky-version: [ '8', '9' ]
-    container:
-      image: rockylinux/rockylinux:${{ matrix.rocky-version }}
-    steps:
-      - uses: actions/checkout@v3
-      - name: Install dependencies and pyenv
-        run: |
-          dnf groupinstall -y "Development Tools"
-          dnf install -y gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz-devel git findutils patch wget tar make libuuid-devel mesa-libGL
-          curl https://pyenv.run | bash
-          echo 'export PATH="$HOME/.pyenv/bin:$PATH"' >> ~/.bashrc
-          echo 'eval "$(pyenv init --path)"' >> ~/.bashrc
-          echo 'eval "$(pyenv virtualenv-init -)"' >> ~/.bashrc
-          source ~/.bashrc
-      - name: Install GitHub CLI
-        run: |
-          dnf install -y dnf-plugins-core
-          dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
-          dnf install -y gh
-          # Configure Git to allow the current directory
-          git config --global --add safe.directory /__w/integrations/integrations
-      - name: Install Python 3.7 using pyenv
-        run: |
-          source ~/.bashrc
-          pyenv install 3.7.16
-          pyenv global 3.7.16
-      - name: Verify Python version
-        run: |
-          source ~/.bashrc
-          pyenv versions
-          python --version
-          pyenv exec python -m pip install --upgrade pip
-      - name: Install patchelf using pip
-        run: |
-          source ~/.bashrc
-          pyenv exec pip install patchelf
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Download the .whl file artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: ftrack-connect-whl
-      - name: Use the .whl file
-        run: |
-          source ~/.bashrc
-          pyenv exec pip install ftrack_connect-${{ needs.connect-build.outputs.connect_version }}-py3-none-any.whl
-      - name: install installer requirements
-        run: |
-          source ~/.bashrc
-          cd installers/connect-installer
-          pyenv exec pip install  -r requirements.txt
-      - name: make installer build tar.gz
-        run: |
-          source ~/.bashrc
-          cd installers/connect-installer
-          pyenv exec python setup.py build_exe --create_deployment
-      - name: Upload Connect tar.gz and md5 to GitHub Release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        shell: bash
-        run: |
-          source ~/.bashrc
-          echo "Listing contents of installers/connect-installer/dist:"
-          ls -l installers/connect-installer/dist
-          echo "Listing contents of installers/connect-installer/build:"
-          ls -l installers/connect-installer/build
-          cd installers/connect-installer/dist
-          version="${{ needs.set-variables.outputs.package_version }}"
-          clean_package_version="${version#v}"  # Remove leading 'v' from version
-          echo "Uploading ftrack-Connect-${clean_package_version}-R${{ matrix.rocky-version }}.tar.gz"
-          gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack-Connect-${clean_package_version}-R${{ matrix.rocky-version }}.tar.gz" --clobber
-          gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack-Connect-${clean_package_version}-R${{ matrix.rocky-version }}.tar.gz.md5" --clobber
+#  installer-rocky:
+#    name: Build Connect Installer on Rocky linux
+#    needs: [ set-variables, connect-build ]
+#    runs-on: ubuntu-latest
+#    strategy:
+#      matrix:
+#        rocky-version: [ '8', '9' ]
+#    container:
+#      image: rockylinux/rockylinux:${{ matrix.rocky-version }}
+#    steps:
+#      - uses: actions/checkout@v3
+#      - name: Install dependencies and pyenv
+#        run: |
+#          dnf groupinstall -y "Development Tools"
+#          dnf install -y gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz-devel git findutils patch wget tar make libuuid-devel mesa-libGL
+#          curl https://pyenv.run | bash
+#          echo 'export PATH="$HOME/.pyenv/bin:$PATH"' >> ~/.bashrc
+#          echo 'eval "$(pyenv init --path)"' >> ~/.bashrc
+#          echo 'eval "$(pyenv virtualenv-init -)"' >> ~/.bashrc
+#          source ~/.bashrc
+#      - name: Install GitHub CLI
+#        run: |
+#          dnf install -y dnf-plugins-core
+#          dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+#          dnf install -y gh
+#          # Configure Git to allow the current directory
+#          git config --global --add safe.directory /__w/integrations/integrations
+#      - name: Install Python 3.7 using pyenv
+#        run: |
+#          source ~/.bashrc
+#          pyenv install 3.7.16
+#          pyenv global 3.7.16
+#      - name: Verify Python version
+#        run: |
+#          source ~/.bashrc
+#          pyenv versions
+#          python --version
+#          pyenv exec python -m pip install --upgrade pip
+#      - name: Install patchelf using pip
+#        run: |
+#          source ~/.bashrc
+#          pyenv exec pip install patchelf
+#      - name: Checkout code
+#        uses: actions/checkout@v2
+#      - name: Download the .whl file artifact
+#        uses: actions/download-artifact@v2
+#        with:
+#          name: ftrack-connect-whl
+#      - name: Use the .whl file
+#        run: |
+#          source ~/.bashrc
+#          pyenv exec pip install ftrack_connect-${{ needs.connect-build.outputs.connect_version }}-py3-none-any.whl
+#      - name: install installer requirements
+#        run: |
+#          source ~/.bashrc
+#          cd installers/connect-installer
+#          pyenv exec pip install  -r requirements.txt
+#      - name: make installer build tar.gz
+#        run: |
+#          source ~/.bashrc
+#          cd installers/connect-installer
+#          pyenv exec python setup.py build_exe --create_deployment
+#      - name: Upload Connect tar.gz and md5 to GitHub Release
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        shell: bash
+#        run: |
+#          source ~/.bashrc
+#          echo "Listing contents of installers/connect-installer/dist:"
+#          ls -l installers/connect-installer/dist
+#          echo "Listing contents of installers/connect-installer/build:"
+#          ls -l installers/connect-installer/build
+#          cd installers/connect-installer/dist
+#          version="${{ needs.set-variables.outputs.package_version }}"
+#          clean_package_version="${version#v}"  # Remove leading 'v' from version
+#          echo "Uploading ftrack-Connect-${clean_package_version}-R${{ matrix.rocky-version }}.tar.gz"
+#          gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack-Connect-${clean_package_version}-R${{ matrix.rocky-version }}.tar.gz" --clobber
+#          gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack-Connect-${clean_package_version}-R${{ matrix.rocky-version }}.tar.gz.md5" --clobber
