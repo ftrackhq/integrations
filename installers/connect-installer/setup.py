@@ -659,7 +659,7 @@ def codesign_osx(create_dmg=True, notarize=True):
 
             # Use regular expressions to search for the submission ID and final status
             id_match = re.search(r'id: (\S+)', notarize_result)
-            status_match = re.search(r'status: (\S+)', notarize_result)
+            status_matches = re.findall(r'status: (\S+)', notarize_result)
 
             submission_id = None
             final_status = None
@@ -671,9 +671,9 @@ def codesign_osx(create_dmg=True, notarize=True):
             else:
                 logging.error("Submission ID not found in the output.")
 
-            if status_match:
+            if status_matches:
                 # Extract the final status
-                final_status = status_match.group(1)
+                final_status = status_matches[-1] if status_matches else None
                 logging.info(f"Final Status: {final_status}")
             else:
                 logging.error("Final status not found in the output.")
