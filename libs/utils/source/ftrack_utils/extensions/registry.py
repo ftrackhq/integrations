@@ -106,11 +106,10 @@ def get_extensions_from_directory(scan_dir, extension_types=None):
 
     if (
         extension_types is None
-        or 'plugin' in extension_types
         or 'engine' in extension_types
         or 'plugin' in extension_types
-        or 'dialog' in extension_types
         or 'widget' in extension_types
+        or 'dialog' in extension_types
     ):
         for loader, module_name, is_pkg in pkgutil.walk_packages(subfolders):
             _module = loader.find_module(module_name).load_module(module_name)

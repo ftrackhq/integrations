@@ -96,7 +96,8 @@ class Registry(object):
     # Register
     def scan_extensions(self, paths, extension_types=False):
         '''
-        Scan framework extension modules from the given *paths*
+        Scan framework extension modules from the given *paths*. If *extension_types*
+        is given, only consider the given extension types.
         '''
 
         discovered_extensions = []
