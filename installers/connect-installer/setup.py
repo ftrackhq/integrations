@@ -548,7 +548,7 @@ def post_setup(codesign_frameworks=True):
                 bashCommand = (
                     'codesign --verbose --deep --strict --force --sign "{}" '
                     '"{}/versions/5/{}"'.format(
-                        os.getenv('CODESIGN_IDENTITY'),
+                        os.getenv('MACOS_CERTIFICATE_NAME'),
                         full_path,
                         framework_name,
                     )
