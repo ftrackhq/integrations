@@ -654,16 +654,14 @@ def codesign_osx(create_dmg=True, notarize=True):
             )
             notarize_result = notarize_result.decode("utf-8")
             logging.info(' notarize_result: {}'.format(notarize_result))
+            os.system('echo notarize result {}'.format(notarize_result))
 
             status, uuid = notarize_result.split('\n')[0:2]
+            os.system('echo notarize status {}'.format(status))
+            os.system('echo notarize uuid {}'.format(uuid))
             uuid_num = uuid.split(' = ')[-1]
 
             logging.info(' uuid_num: {}'.format(uuid_num))
-
-            # Show History Notarizations.
-
-            notarize_history = 'xcrun notarytool history --keychain-profile "notarytool-profile"'
-            history_result = os.system(notarize_history)
 
             logging.info(' Notarize upload status: {}'.format(status))
             logging.info(' Request UUID: {}'.format(uuid_num))
@@ -672,7 +670,7 @@ def codesign_osx(create_dmg=True, notarize=True):
             exit_loop = False
             while status == "in progress" and exit_loop is False:
                 # Query status
-                notarize_query = 'xcrun notarytool info --keychain-profile "notarytool-profile {}'.format(
+                notarize_query = 'xcrun notarytool info --keychain-profile "notarytool-profile" {}'.format(
                     uuid_num
                 )
                 query_result = subprocess.check_output(
