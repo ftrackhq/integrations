@@ -263,20 +263,20 @@ jobs:
 #        run: |
 #          cd installers/connect-installer
 #          python setup.py bdist_mac --create_dmg
-#      - name: Upload Connect DMG to GitHub Release
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#        shell: bash
-#        run: |
-#          echo "Listing contents of installers/connect-installer/dist:"
-#          ls -l installers/connect-installer/dist
-#          echo "Listing contents of installers/connect-installer/build:"
-#          ls -l installers/connect-installer/build
-#          cd installers/connect-installer/dist
-#          version="${{ needs.set-variables.outputs.package_version }}"
-#          clean_package_version="${version#v}"  # Remove leading 'v' from version
-#          echo "Uploading ftrack-Connect-${clean_package_version}.dmg"
-#          gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack-Connect-${clean_package_version}-macOS.dmg" --clobber
+      - name: Upload Connect DMG to GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          echo "Listing contents of installers/connect-installer/dist:"
+          ls -l installers/connect-installer/dist
+          echo "Listing contents of installers/connect-installer/build:"
+          ls -l installers/connect-installer/build
+          cd installers/connect-installer/dist
+          version="${{ needs.set-variables.outputs.package_version }}"
+          clean_package_version="${version#v}"  # Remove leading 'v' from version
+          echo "Uploading ftrack-Connect-${clean_package_version}.dmg"
+          gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack-Connect-${clean_package_version}-macOS.dmg" --clobber
 
 
 #  installer-rocky:
