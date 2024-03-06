@@ -645,7 +645,7 @@ def codesign_osx(create_dmg=True, notarize=True):
             logging.info(' Starting notarize process')
             notarize_command = (
                 'xcrun altool --notarize-app --verbose --primary-bundle-id "com.ftrack.connect" '
-                '--username $APPLE_USER_NAME --password "@keychain:ftrack_connect_sign_pass" '
+                '--keychain-profile "notarytool-profile" '
                 '--file "{}"'.format(dmg_path)
             )
             notarize_result = subprocess.check_output(
@@ -656,10 +656,7 @@ def codesign_osx(create_dmg=True, notarize=True):
             uuid_num = uuid.split(' = ')[-1]
 
             # Show History Notarizations.
-            notarize_history = (
-                'xcrun altool --notarization-history 0 -u $APPLE_USER_NAME '
-                '-p "@keychain:ftrack_connect_sign_pass"'
-            )
+            notarize_history = 'xcrun altool --notarization-history 0 --keychain-profile "notarytool-profile"'
             history_result = os.system(notarize_history)
 
             logging.info(' Notarize upload status: {}'.format(status))
@@ -669,9 +666,8 @@ def codesign_osx(create_dmg=True, notarize=True):
             exit_loop = False
             while status == "in progress" and exit_loop is False:
                 # Query status
-                notarize_query = (
-                    'xcrun altool --notarization-info {} -u $APPLE_USER_NAME '
-                    '-p "@keychain:ftrack_connect_sign_pass"'.format(uuid_num)
+                notarize_query = 'xcrun altool --notarization-info {} --keychain-profile "notarytool-profile"'.format(
+                    uuid_num
                 )
                 query_result = subprocess.check_output(
                     notarize_query, shell=True
@@ -710,8 +706,7 @@ def codesign_osx(create_dmg=True, notarize=True):
                         logging.info(
                             ' Please check the status of the notarization using '
                             'the command:\nxcrun altool --notarization-info {} '
-                            '-u $APPLE_USER_NAME  '
-                            '-p "@keychain:ftrack_connect_sign_pass"'.format(
+                            '--keychain-profile "notarytool-profile"'.format(
                                 uuid_num
                             )
                         )
