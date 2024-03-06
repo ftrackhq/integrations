@@ -645,23 +645,24 @@ def codesign_osx(create_dmg=True, notarize=True):
             else:
                 logging.info(' xcode setup completed')
             logging.info(' Starting notarize process')
-            notarize_command = (
-                'xcrun altool --notarize-app --verbose --primary-bundle-id "com.ftrack.connect" '
-                '--username $PROD_MACOS_NOTARIZATION_APPLE_ID --password $PROD_MACOS_NOTARIZATION_PWD '
-                '--file "{}"'.format(dmg_path)
+            notarize_command = 'xcrun notarytool submit --verbose --keychain-profile "notarytool-profile" --wait {}'.format(
+                dmg_path
             )
+
             notarize_result = subprocess.check_output(
                 notarize_command, shell=True
             )
             notarize_result = notarize_result.decode("utf-8")
+            logging.info(' notarize_result: {}'.format(notarize_result))
+
             status, uuid = notarize_result.split('\n')[0:2]
             uuid_num = uuid.split(' = ')[-1]
 
+            logging.info(' uuid_num: {}'.format(uuid_num))
+
             # Show History Notarizations.
-            notarize_history = (
-                'xcrun altool --notarization-history 0 -u $PROD_MACOS_NOTARIZATION_APPLE_ID '
-                '-p $PROD_MACOS_NOTARIZATION_PWD'
-            )
+
+            notarize_history = 'xcrun notarytool history --keychain-profile "notarytool-profile"'
             history_result = os.system(notarize_history)
 
             logging.info(' Notarize upload status: {}'.format(status))
@@ -671,9 +672,8 @@ def codesign_osx(create_dmg=True, notarize=True):
             exit_loop = False
             while status == "in progress" and exit_loop is False:
                 # Query status
-                notarize_query = (
-                    'xcrun altool --notarization-info {} -u $PROD_MACOS_NOTARIZATION_APPLE_ID '
-                    '-p $PROD_MACOS_NOTARIZATION_PWD'.format(uuid_num)
+                notarize_query = 'xcrun notarytool info --keychain-profile "notarytool-profile {}'.format(
+                    uuid_num
                 )
                 query_result = subprocess.check_output(
                     notarize_query, shell=True
@@ -711,9 +711,9 @@ def codesign_osx(create_dmg=True, notarize=True):
                         exit_loop = True
                         logging.info(
                             ' Please check the status of the notarization using '
-                            'the command:\nxcrun altool --notarization-info {} '
-                            '-u $PROD_MACOS_NOTARIZATION_APPLE_ID  '
-                            '-p $PROD_MACOS_NOTARIZATION_PWD'.format(uuid_num)
+                            'the command:\nxcrun notarytool info --keychain-profile "notarytool-profile {}'.format(
+                                uuid_num
+                            )
                         )
                         logging.info(
                             ' Please once notarization is succeed use the '
