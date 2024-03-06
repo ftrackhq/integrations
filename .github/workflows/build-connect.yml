@@ -206,12 +206,10 @@ jobs:
           
           
           cd installers/connect-installer
-          python setup.py bdist_mac --codesign_frameworks
-          entitlements_path = "resource/entitlements.plist"
-          bundle_path = "build/ftrack Connect.app"
-          /usr/bin/codesign --verbose --force --options runtime --timestamp --deep --strict --entitlements "${entitlements_path}" --sign "$MACOS_CERTIFICATE_NAME" "{bundle_path}"
+          python setup.py bdist_mac --codesign_frameworks --codesign
           
           echo "codesign of the app done"
+          
           echo "check codesign"
           codesign -vvv --deep --strict build/ftrack-connect.app
           spctl -a -v build/ftrack-connect.app

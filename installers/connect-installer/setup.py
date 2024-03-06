@@ -617,7 +617,7 @@ def codesign_osx(create_dmg=True, notarize=True):
     bundle_path = os.path.join(BUILD_PATH, bundle_name + ".app")
     codesign_command = (
         'codesign --verbose --force --options runtime --timestamp --deep --strict '
-        '--entitlements "{}" --sign "$CODESIGN_IDENTITY" '
+        '--entitlements "{}" --sign "$MACOS_CERTIFICATE_NAME" '
         '"{}"'.format(entitlements_path, bundle_path)
     )
     codesign_result = os.system(codesign_command)
