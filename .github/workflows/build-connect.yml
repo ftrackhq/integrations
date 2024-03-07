@@ -138,7 +138,7 @@ jobs:
           distribution: 'adopt'
       - name: Download Jsign
         run: |
-          $JAR_URL = "https://github.com/ebourg/jsign/releases/download/jsign-6.0/jsign-6.0.jar"
+          $JAR_URL = "https://github.com/ebourg/jsign/releases/download/6.0/jsign-6.0.jar"
           Invoke-WebRequest -Uri $JAR_URL -OutFile "jsign.jar"
         shell: pwsh
       - name: make installer codesign
