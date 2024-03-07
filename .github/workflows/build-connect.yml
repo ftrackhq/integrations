@@ -124,10 +124,13 @@ jobs:
         run: |
           cd installers/connect-installer
           pip install  -r requirements.txt
+      - uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
       - name: make installer
         run: |
           cd installers/connect-installer
-          python setup.py bdist_msi
+          python setup.py bdist_msi --codesign
       - name: Upload MSI installer to GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
