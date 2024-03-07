@@ -134,8 +134,8 @@ jobs:
       - name: Setup Java JDK
         uses: actions/setup-java@v2
         with:
-          java-version: '11'
-          distribution: 'adopt'
+          java-version: '21'
+          distribution: 'oracle'
       - name: Download Jsign
         run: |
           $JAR_URL = "https://github.com/ebourg/jsign/releases/download/6.0/jsign-6.0.jar"
