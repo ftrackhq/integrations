@@ -163,6 +163,8 @@ Build with:
 
 ### To build and codesign
 
+Make sure you have the certificate installed in your keychain.
+
 Set your certificate id to **CODESIGN_IDENTITY**:
 
     $ export MACOS_CERTIFICATE_NAME="<your_certificate_id_here>" # Developer ID Application: your company (1111111)
