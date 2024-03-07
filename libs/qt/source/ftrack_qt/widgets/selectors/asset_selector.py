@@ -210,8 +210,9 @@ class AssetListAndInput(QtWidgets.QWidget):
     def size_changed(self):
         '''This method resizes the asset list to fit the widget, preventing
         unnecessary scrolling.'''
-        self._asset_list.setFixedSize(
-            self.size().width() - 1,
+        height = self.size().height()
+        optimal_height = (
             self._asset_list.sizeHintForRow(0) * self._asset_list.count()
-            + 2 * self._asset_list.frameWidth(),
         )
+        if height != optimal_height:
+            self._asset_list.setFixedHeight(optimal_height)
