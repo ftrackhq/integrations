@@ -127,10 +127,20 @@ jobs:
           cd installers/connect-installer
           pip install  -r requirements.txt
       - uses: google-github-actions/auth@v2
+        if: env.CODESIGN == 'True'
         with:
           credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
       - uses: google-github-actions/setup-gcloud@v2
-      - name: make installer
+      - name: Setup Java JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11' # Choose the version that suits your needs
+          distribution: 'adopt'
+      - name: Download Jsign
+        run: |
+          wget https://github.com/ebourg/jsign/releases/download/6.0/jsign-6.0.jar -O jsign.jar
+        shell: bash
+      - name: make installer codesign
         if: env.CODESIGN == 'True'
         run: |
           cd installers/connect-installer
