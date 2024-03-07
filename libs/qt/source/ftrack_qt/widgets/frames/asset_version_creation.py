@@ -21,6 +21,32 @@ class AssetVersionCreation(QtWidgets.QFrame):
         '''Return the id of the asset.'''
         return self._asset_id
 
+    @property
+    def active(self):
+        '''Return the active state of the widget.'''
+        return self._active
+
+    @active.setter
+    def active(self, value):
+        '''Change active state of the widget - greys out the widget if False.'''
+        if value == self._active:
+            return
+        self._active = value
+        self._asset_name_widget.style().unpolish(self._asset_name_widget)
+        self._create_label.style().unpolish(self._create_label)
+        self._version_label.style().unpolish(self._version_label)
+        if value:
+            self._asset_name_widget.setObjectName('')
+            self._create_label.setObjectName('gray')
+            self._version_label.setObjectName('color-primary')
+        else:
+            self._asset_name_widget.setObjectName('gray-dark')
+            self._create_label.setObjectName('gray-darker')
+            self._version_label.setObjectName('gray-darker')
+        self._asset_name_widget.style().polish(self._asset_name_widget)
+        self._create_label.style().polish(self._create_label)
+        self._version_label.style().polish(self._version_label)
+
     def __init__(self, asset_name, asset_id, versions, server_url):
         '''Initialize the AssetVersionCreation widget.'''
         super(AssetVersionCreation, self).__init__()
@@ -29,6 +55,7 @@ class AssetVersionCreation(QtWidgets.QFrame):
         self._asset_name = asset_name
         self._versions = versions
         self._server_url = server_url
+        self._active = True
 
         self._thumbnail_widget = None
         self._asset_name_widget = None
