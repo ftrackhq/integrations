@@ -129,9 +129,9 @@ jobs:
       - uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
+      - uses: google-github-actions/setup-gcloud@v2
       - name: make installer
         if: env.CODESIGN == 'True'
-        uses: google-github-actions/setup-gcloud@v2
         run: |
           cd installers/connect-installer
           python setup.py bdist_msi --codesign
