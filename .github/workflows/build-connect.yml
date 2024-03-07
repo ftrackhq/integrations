@@ -145,6 +145,7 @@ jobs:
         run: |
           Invoke-WebRequest -Uri "https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-core/2.14.1/log4j-core-2.14.1.jar" -OutFile "log4j-core.jar"
           Invoke-WebRequest -Uri "https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-api/2.14.1/log4j-api-2.14.1.jar" -OutFile "log4j-api.jar"
+          $Env:CLASSPATH += ";$(Get-Location)\log4j-core.jar;$(Get-Location)\log4j-api.jar"
         shell: pwsh
       - name: make installer codesign
         if: env.CODESIGN == 'True'
