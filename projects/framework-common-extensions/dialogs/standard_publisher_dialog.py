@@ -138,6 +138,11 @@ class StandardPublisherDialog(BaseContextDialog):
             self._scroll_area_widget.layout().addWidget(context_widget)
 
         # Build component widgets
+
+        self._scroll_area_widget.layout().addWidget(
+            QtWidgets.QLabel('Components')
+        )
+
         component_groups = get_groups(
             self.tool_config, filters={'tags': ['component']}
         )
