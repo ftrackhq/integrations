@@ -6,6 +6,7 @@ import sys
 import os
 import traceback
 import platform
+from functools import partial
 
 from Qt import QtWidgets, QtCore
 
@@ -27,7 +28,7 @@ from ftrack_utils.usage import set_usage_tracker, UsageTracker
 from ftrack_qt.utils.decorators import invoke_in_qt_main_thread
 
 from .rpc_cep import PhotoshopRPCCEP
-from . import process_util
+from .utils import process as process_util
 
 # Evaluate version and log package version
 try:
@@ -63,6 +64,14 @@ remote_session = None
 process_monitor = None
 
 
+@invoke_in_qt_main_thread
+def on_run_dialog_callback(client_instance, dialog_name, tool_config_names):
+    client_instance.run_dialog(
+        dialog_name,
+        dialog_options={'tool_config_names': tool_config_names},
+    )
+
+
 def bootstrap_integration(framework_extensions_path):
     '''Initialise Photoshop Framework Python standalone part,
     with panels defined in *panel_launchers*'''
@@ -85,7 +94,7 @@ def bootstrap_integration(framework_extensions_path):
 
     Host(event_manager, registry=registry_instance)
 
-    client = Client(event_manager, registry=registry_instance)
+    client_instance = Client(event_manager, registry=registry_instance)
 
     # Init tools
     dcc_config = registry_instance.get_one(
@@ -94,18 +103,14 @@ def bootstrap_integration(framework_extensions_path):
 
     logger.debug(f'Read DCC config: {dcc_config}')
 
-    @invoke_in_qt_main_thread
-    def on_run_dialog_callback(dialog_name, tool_config_names):
-        client.run_dialog(
-            dialog_name,
-            dialog_options={'tool_config_names': tool_config_names},
-        )
-
     # Init Photoshop connection
     remote_session = ftrack_api.Session(auto_connect_event_hub=True)
 
     photoshop_connection = PhotoshopRPCCEP(
-        remote_session, client, dcc_config['tools'], on_run_dialog_callback
+        remote_session,
+        client_instance,
+        dcc_config['tools'],
+        partial(on_run_dialog_callback, client_instance),
     )
 
     # TODO: clean up this dictionary creation or move it as a query function of
