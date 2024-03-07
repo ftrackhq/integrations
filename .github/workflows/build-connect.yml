@@ -134,12 +134,13 @@ jobs:
       - name: Setup Java JDK
         uses: actions/setup-java@v2
         with:
-          java-version: '11' # Choose the version that suits your needs
+          java-version: '11'
           distribution: 'adopt'
       - name: Download Jsign
         run: |
-          wget https://github.com/ebourg/jsign/releases/download/6.0/jsign-6.0.jar -O jsign.jar
-        shell: bash
+          $JAR_URL = "https://github.com/ebourg/jsign/releases/download/jsign-6.0/jsign-6.0.jar"
+          Invoke-WebRequest -Uri $JAR_URL -OutFile "jsign.jar"
+        shell: pwsh
       - name: make installer codesign
         if: env.CODESIGN == 'True'
         run: |
