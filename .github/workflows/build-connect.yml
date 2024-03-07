@@ -192,13 +192,11 @@ jobs:
 #          PROD_MACOS_NOTARIZATION_PWD: ${{ secrets.PROD_MACOS_NOTARIZATION_PWD }}
 #        run: |
 #          # Turn our base64-encoded certificate back to a regular .p12 file
-#
 #          echo $MACOS_CERTIFICATE | base64 --decode > certificate.p12
 #
 #          # We need to create a new keychain, otherwise using the certificate will prompt
 #          # with a UI dialog asking for the certificate password, which we can't
 #          # use in a headless CI environment
-#
 #          security create-keychain -p "$MACOS_CI_KEYCHAIN_PWD" build.keychain
 #          security default-keychain -s build.keychain
 #          security unlock-keychain -p "$MACOS_CI_KEYCHAIN_PWD" build.keychain
@@ -210,25 +208,13 @@ jobs:
 #          security find-identity -v
 #
 #
+#          # Create keychain credentials
 #          echo "Create keychain profile to notarize"
 #          xcrun notarytool store-credentials "notarytool-profile" --apple-id "$PROD_MACOS_NOTARIZATION_APPLE_ID" --team-id "$PROD_MACOS_NOTARIZATION_TEAM_ID" --password "$PROD_MACOS_NOTARIZATION_PWD"
 #
-#
-#
-#          # We finally codesign our app bundle, specifying the Hardened runtime option
-#
-#
+#          # Build codesign and notarize
 #          cd installers/connect-installer
 #          python setup.py bdist_mac --codesign_frameworks --codesign --create_dmg --notarize
-#
-#          echo "codesign of the app done"
-#          ls
-#
-#          #echo "check codesign"
-#          #codesign -vvv --deep --strict build/ftrack-connect.app
-#          #spctl -a -v build/ftrack-connect.app
-#          # /usr/bin/codesign --force -s "$MACOS_CERTIFICATE_NAME" --options runtime target/mac/Espanso.app -v
-#
 #
 #      - name: make installer
 #        if: env.CODESIGN == 'False'
