@@ -30,7 +30,7 @@ class PluginValidationError(Exception):
         """
         Attempt to fix the validation error.
         """
-        if self.on_fix_callback and callable(self.on_fix_callback):
+        if callable(self.on_fix_callback):
             try:
                 self.on_fix_callback(store, **self.fix_kwargs)
                 logger.debug("Fix applied successfully.")
