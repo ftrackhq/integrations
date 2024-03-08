@@ -85,6 +85,16 @@ PyTest
 PyTest tests/framework/unit/
 ```
 
+## Build and publish libraries
+- Update version of the library
+- Update the poetry.lock file
+- Update the release notes date and provide a PR
+- Create a tag for the library to be released
+- Once tag is pushed the CI action will start and will publish to PyPi test
+- Review PyPi Test publication
+- Approve the deployment on the CI and will automatically release to Prod pypi
+- **Note: Remember that libraries has dependencies to other libraries, follow this release order if you want to make sure to always use he latest version: utils - constants - framework-core - qt-style - qt - framework-qt**
+
 ## Publish to PyPi Test:
 - Add pypi test as publishable repository: https://python-poetry.org/docs/repositories/#publishable-repositories
 - Configure credentials using the token provided in 1Password PyPi-TEST-ftrack-utils : https://python-poetry.org/docs/repositories/#publishable-repositories (Make sure to point to the testpypi repo)
