@@ -136,11 +136,11 @@ jobs:
         with:
           java-version: '21'
           distribution: 'oracle'
-      - name: Download Jsign
-        run: |
-          $JAR_URL = "https://github.com/ebourg/jsign/releases/download/6.0/jsign-6.0.jar"
-          Invoke-WebRequest -Uri $JAR_URL -OutFile "jsign.jar"
-        shell: pwsh
+#      - name: Download Jsign
+#        run: |
+#          $JAR_URL = "https://github.com/ebourg/jsign/releases/download/6.0/jsign-6.0.jar"
+#          Invoke-WebRequest -Uri $JAR_URL -OutFile "jsign.jar"
+#        shell: pwsh
 #      - name: Download Log4j2 Jars
 #        run: |
 #          Invoke-WebRequest -Uri "https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-core/2.14.1/log4j-core-2.14.1.jar" -OutFile "log4j-core.jar"

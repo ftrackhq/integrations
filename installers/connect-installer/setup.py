@@ -793,7 +793,7 @@ def clean_download_dir():
 
 def codesign_windows(path):
     '''Codesign artifact *path* using jsign tool in Windows'''
-    return_code = os.system(f'codesign.bat "{path}"')
+    return_code = os.system(f'codesign_windows\\codesign.bat "{path}"')
     logging.info(f'Exitcode from code sign: {return_code}')
 
 
