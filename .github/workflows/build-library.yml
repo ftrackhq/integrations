@@ -1,7 +1,7 @@
 # On Tag creation:
 #  - Build and publishes libraries to PyPi
 
-name: CI-RELEASE-LIB
+name: CI-LIB-RELEASE
 
 on:
   push:
