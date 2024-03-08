@@ -36,7 +36,7 @@ class PhotoshopSaveToTempFinalizerPlugin(BasePlugin):
 
             save_result = photoshop_connection.rpc(
                 'saveDocument',
-                [temp_path, extension_format],
+                [temp_path.replace('\\', '/'), extension_format],
             )
         except Exception as e:
             self.logger.exception(e)
