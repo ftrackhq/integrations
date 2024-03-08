@@ -1,5 +1,9 @@
 # ftrack Framework Photoshop integration release Notes
 
+## Upcoming
+
+* [fix] Fixed bug when publishing an unsaved document causing an exception in collector.
+
 ## v24.2.0
 2024-02-13
 
