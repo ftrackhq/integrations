@@ -1,10 +1,12 @@
 # ftrack Connect installer release Notes
 
-## v24.2.0
-2024-02-13
+## v24.3.0
+2024-03-08
 
 * [new] Windows codesign support.
+* [changed] MacOs codesign process updated, replaced the deprecated alttool for the new notarytool.
 * [changed] Augmented installer to cope with new Connect 3 module format.
+* [changed] Package name renamed from ftrack-Connect-... to ftrack_connect-...
 
 ## v2.1.1
 2023-04-27
