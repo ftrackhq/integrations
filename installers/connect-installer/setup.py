@@ -574,7 +574,7 @@ def post_setup(codesign_frameworks=True):
 def create_mac_dmg():
     '''Create DMG on MacOS with checksum. Returns the resulting path.'''
     dmg_name = '{0}-{1}-macOS.dmg'.format(
-        bundle_name.replace(' ', '-'), __version__
+        bundle_name.replace(' ', '_').lower(), __version__
     )
     dmg_path = os.path.join(DIST_PATH, dmg_name)
     if not os.path.exists(DIST_PATH):
@@ -842,7 +842,7 @@ elif sys.platform == 'win32':
         msi_path = os.path.join(
             DIST_PATH,
             '{0}-{1}-win64.msi'.format(
-                bundle_name.replace(' ', '-'), __version__
+                bundle_name.replace(' ', '_').lower(), __version__
             ),
         )
         logging.info(f'Renaming artifact: {msi_path_orig} > {msi_path}')
@@ -872,7 +872,7 @@ elif sys.platform == 'linux':
                 raise Exception('Not a supported Linux distro!')
             target_path = os.path.join(
                 DIST_PATH,
-                f'ftrack-Connect-{__version__}-{linux_distro}.tar.gz',
+                f'ftrack_connect-{__version__}-{linux_distro}.tar.gz',
             )
             if not os.path.exists(os.path.dirname(target_path)):
                 os.makedirs(os.path.dirname(target_path))
