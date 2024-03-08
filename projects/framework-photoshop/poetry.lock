@@ -167,13 +167,13 @@ ftrack-libs = ["ftrack-utils (>=2.0.0,<3.0.0)"]
 
 [[package]]
 name = "ftrack-framework-core"
-version = "2.0.0"
+version = "2.0.1"
 description = "ftrack Framework Core library"
 optional = true
 python-versions = ">=3.7,<3.12"
 files = [
-    {file = "ftrack_framework_core-2.0.0-py3-none-any.whl", hash = "sha256:4ca3229df07ea26e7a128db1430673ad7f2817e34b3647abbcc5089b80f3235d"},
-    {file = "ftrack_framework_core-2.0.0.tar.gz", hash = "sha256:39a62dc3085557b52e7abff9028fe64e3ca8cf3e74b2334cab2f638349f50536"},
+    {file = "ftrack_framework_core-2.0.1-py3-none-any.whl", hash = "sha256:3a2173f2ec09f7b0931a90227ffca3710bbc8a82441bc8306e2fde108705fcad"},
+    {file = "ftrack_framework_core-2.0.1.tar.gz", hash = "sha256:07ee978c08985c65747364c79f6f044106d3e72db4f06260bc81ec4bc08975f5"},
 ]
 
 [package.dependencies]
@@ -226,13 +226,13 @@ websocket-client = ">=0.40.0,<1"
 
 [[package]]
 name = "ftrack-qt"
-version = "2.0.0"
+version = "2.0.1"
 description = "ftrack qt library"
 optional = true
 python-versions = ">=3.7,<3.12"
 files = [
-    {file = "ftrack_qt-2.0.0-py3-none-any.whl", hash = "sha256:c723a2d1763e9e855c58826547dabd65177d74ff3c6fb3b473b709123bfbfb99"},
-    {file = "ftrack_qt-2.0.0.tar.gz", hash = "sha256:d85fa23edaaa57812d02a2be23f4baea13e4b8e033872fc5bb16c6f414845a5a"},
+    {file = "ftrack_qt-2.0.1-py3-none-any.whl", hash = "sha256:9637bb63b4ba463b7e7933110f1c395728e50dbac1c278c5fcf2f5c2406febe2"},
+    {file = "ftrack_qt-2.0.1.tar.gz", hash = "sha256:eff22e10f69a8aa14a57b3b0bbc60fffab65ad9bcc8797fb55044b2f115a1d49"},
 ]
 
 [package.dependencies]
@@ -259,13 +259,13 @@ ftrack-libs = ["ftrack-utils (>=2.0.0,<3.0.0)"]
 
 [[package]]
 name = "ftrack-utils"
-version = "2.0.0"
+version = "2.0.1"
 description = "ftrack utils library"
 optional = true
 python-versions = ">=3.7,<3.12"
 files = [
-    {file = "ftrack_utils-2.0.0-py3-none-any.whl", hash = "sha256:a06b7d0f16f611849cf04eb2e8674154d15b6626aa21ec8a3bb6fa9bc08a2805"},
-    {file = "ftrack_utils-2.0.0.tar.gz", hash = "sha256:357c9c840fb173af99a300ec11041853b93212cbc7e5c72052778578903eb738"},
+    {file = "ftrack_utils-2.0.1-py3-none-any.whl", hash = "sha256:eab6ea87b7210afc67397ac02a5a6c8fea31ed13e2f1ec1dfee3514ef03b7b07"},
+    {file = "ftrack_utils-2.0.1.tar.gz", hash = "sha256:77845fb8c1a949846abc9a790bbc16d367ba4e118e45c2afec6e34e27cb65285"},
 ]
 
 [package.dependencies]
@@ -380,13 +380,13 @@ shiboken2 = "5.15.2.1"
 
 [[package]]
 name = "python-dateutil"
-version = "2.8.2"
+version = "2.9.0.post0"
 description = "Extensions to the standard Python datetime module"
 optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
 files = [
-    {file = "python-dateutil-2.8.2.tar.gz", hash = "sha256:0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86"},
-    {file = "python_dateutil-2.8.2-py2.py3-none-any.whl", hash = "sha256:961d03dc3453ebbc59dbdea9e4e11c5651520a876d0f4db161e8674aae935da9"},
+    {file = "python-dateutil-2.9.0.post0.tar.gz", hash = "sha256:37dd54208da7e1cd875388217d5e00ebd4179249f90fb72437e91a35459a0ad3"},
+    {file = "python_dateutil-2.9.0.post0-py2.py3-none-any.whl", hash = "sha256:a8b2bc7bffae282281c8140a97d3aa9c14da0b136dfe83f850eea9a5f7470427"},
 ]
 
 [package.dependencies]
