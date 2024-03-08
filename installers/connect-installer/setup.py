@@ -18,10 +18,11 @@ import subprocess
 import time
 import datetime
 import zipfile
+import re
 
 # The Connect installer version, remember to bump this and update release notes
 # prior to release
-__version__ = '24.2.0'
+__version__ = '24.3.0'
 
 # Embedded plugins.
 
@@ -548,7 +549,7 @@ def post_setup(codesign_frameworks=True):
                 bashCommand = (
                     'codesign --verbose --deep --strict --force --sign "{}" '
                     '"{}/versions/5/{}"'.format(
-                        os.getenv('CODESIGN_IDENTITY'),
+                        os.getenv('MACOS_CERTIFICATE_NAME'),
                         full_path,
                         framework_name,
                     )
@@ -572,7 +573,9 @@ def post_setup(codesign_frameworks=True):
 
 def create_mac_dmg():
     '''Create DMG on MacOS with checksum. Returns the resulting path.'''
-    dmg_name = '{0}-{1}.dmg'.format(bundle_name.replace(' ', '-'), __version__)
+    dmg_name = '{0}-{1}-macOS.dmg'.format(
+        bundle_name.replace(' ', '_').lower(), __version__
+    )
     dmg_path = os.path.join(DIST_PATH, dmg_name)
     if not os.path.exists(DIST_PATH):
         os.makedirs(DIST_PATH)
@@ -615,7 +618,7 @@ def codesign_osx(create_dmg=True, notarize=True):
     bundle_path = os.path.join(BUILD_PATH, bundle_name + ".app")
     codesign_command = (
         'codesign --verbose --force --options runtime --timestamp --deep --strict '
-        '--entitlements "{}" --sign "$CODESIGN_IDENTITY" '
+        '--entitlements "{}" --sign "$MACOS_CERTIFICATE_NAME" '
         '"{}"'.format(entitlements_path, bundle_path)
     )
     codesign_result = os.system(codesign_command)
@@ -623,7 +626,7 @@ def codesign_osx(create_dmg=True, notarize=True):
         raise (
             Exception(
                 "Codesign not working please make sure you have the "
-                "CODESIGN_IDENTITY, APPLE_USER_NAME environment variables and "
+                "MACOS_CERTIFICATE_NAME, environment variables and "
                 "ftrack_connect_sign_pass on the keychain."
             )
         )
@@ -633,6 +636,8 @@ def codesign_osx(create_dmg=True, notarize=True):
         dmg_path = create_mac_dmg()
 
         if notarize is True:
+            store_credentials_command = 'xcrun notarytool store-credentials "notarytool-profile" --apple-id "$PROD_MACOS_NOTARIZATION_APPLE_ID" --team-id "$PROD_MACOS_NOTARIZATION_TEAM_ID" --password "$PROD_MACOS_NOTARIZATION_PWD"'
+            os.system(store_credentials_command)
             logging.info(' Setting up xcode, please enter your sudo password')
             setup_xcode_cmd = 'sudo xcode-select -s /Applications/Xcode.app'
             setup_result = os.system(setup_xcode_cmd)
@@ -641,97 +646,70 @@ def codesign_osx(create_dmg=True, notarize=True):
             else:
                 logging.info(' xcode setup completed')
             logging.info(' Starting notarize process')
-            notarize_command = (
-                'xcrun altool --notarize-app --verbose --primary-bundle-id "com.ftrack.connect" '
-                '--username $APPLE_USER_NAME --password "@keychain:ftrack_connect_sign_pass" '
-                '--file "{}"'.format(dmg_path)
+            notarize_command = 'xcrun notarytool submit --verbose --keychain-profile "notarytool-profile" --wait {}'.format(
+                dmg_path
             )
+
             notarize_result = subprocess.check_output(
-                notarize_command, shell=True
+                notarize_command, shell=True, text=True
             )
-            notarize_result = notarize_result.decode("utf-8")
-            status, uuid = notarize_result.split('\n')[0:2]
-            uuid_num = uuid.split(' = ')[-1]
 
-            # Show History Notarizations.
-            notarize_history = (
-                'xcrun altool --notarization-history 0 -u $APPLE_USER_NAME '
-                '-p "@keychain:ftrack_connect_sign_pass"'
-            )
-            history_result = os.system(notarize_history)
+            # Log the full output
+            logging.info(f"notarize_result: {notarize_result}")
 
-            logging.info(' Notarize upload status: {}'.format(status))
-            logging.info(' Request UUID: {}'.format(uuid_num))
+            # Use regular expressions to search for the submission ID and final status
+            id_match = re.search(r'id: (\S+)', notarize_result)
+            status_matches = re.findall(r'status: (\S+)', notarize_result)
 
-            status = "in progress"
-            exit_loop = False
-            while status == "in progress" and exit_loop is False:
-                # Query status
-                notarize_query = (
-                    'xcrun altool --notarization-info {} -u $APPLE_USER_NAME '
-                    '-p "@keychain:ftrack_connect_sign_pass"'.format(uuid_num)
+            submission_id = None
+            final_status = None
+
+            if id_match:
+                # Extract the submission ID
+                submission_id = id_match.group(1)
+                logging.info(f"Submission ID: {submission_id}")
+            else:
+                logging.error("Submission ID not found in the output.")
+
+            if status_matches:
+                # Extract the final status
+                final_status = status_matches[-1] if status_matches else None
+                logging.info(f"Final Status: {final_status}")
+            else:
+                logging.error("Final status not found in the output.")
+
+            if final_status == 'Accepted':
+                staple_app_cmd = 'xcrun stapler staple "{}"'.format(
+                    bundle_path
+                )
+                staple_dmg_cmd = 'xcrun stapler staple "{}"'.format(dmg_path)
+                os.system(staple_app_cmd)
+                os.system(staple_dmg_cmd)
+
+            else:
+                # Show notarize info
+                notarize_info = 'xcrun notarytool info --keychain-profile "notarytool-profile" {}'.format(
+                    submission_id
                 )
                 query_result = subprocess.check_output(
-                    notarize_query, shell=True
+                    notarize_info, shell=True, text=True
                 )
-                query_result = query_result.decode("utf-8")
-                status = query_result.split("Status: ")[-1].split("\n")[0]
-                if status == 'success':
-                    exit_loop = True
-                    staple_app_cmd = 'xcrun stapler staple "{}"'.format(
-                        bundle_path
-                    )
-                    staple_dmg_cmd = 'xcrun stapler staple "{}"'.format(
-                        dmg_path
-                    )
-                    os.system(staple_app_cmd)
-                    os.system(staple_dmg_cmd)
+                logging.info("Notarize info: {}".format(query_result))
 
-                elif status == 'invalid':
-                    log_url = query_result.split("LogFileURL: ")[-1].split(
-                        "\n"
-                    )[0]
-                    raise Exception(
-                        "Notarization failed, please copy the following url "
-                        "and check the log:\n{}".format(log_url)
+                # Fetch notary Log
+                notarize_log = 'xcrun notarytool log --keychain-profile "notarytool-profile" {}'.format(
+                    submission_id
+                )
+                log_result = subprocess.check_output(
+                    notarize_log, shell=True, text=True
+                )
+                logging.info("Notarize log: {}".format(log_result))
+
+                raise Exception(
+                    "Notarization failed, please check the log: \n{}".format(
+                        log_result
                     )
-                else:
-                    response = input(
-                        "The status of the current notarization is: {}\n Please "
-                        "type exit if you want to manually wait for notarization "
-                        "process to finish. Or type the minutes you want to wait "
-                        "for automatically check for the notarization process\n "
-                        "example: (exit or 5) : ".format(status)
-                    )
-                    if response == 'exit' or response == 'Exit':
-                        exit_loop = True
-                        logging.info(
-                            ' Please check the status of the notarization using '
-                            'the command:\nxcrun altool --notarization-info {} '
-                            '-u $APPLE_USER_NAME  '
-                            '-p "@keychain:ftrack_connect_sign_pass"'.format(
-                                uuid_num
-                            )
-                        )
-                        logging.info(
-                            ' Please once notarization is succeed use the '
-                            'following command to staple the app and the dmg: \n'
-                            'xcrum stapler staple "{}" \n'
-                            'xcrun stapler staple "{}"'.format(
-                                bundle_path, dmg_path
-                            )
-                        )
-                    else:
-                        try:
-                            sleep_min = float(response)
-                        except Exception:
-                            raise Exception(
-                                "Could not read the input minutes, please check "
-                                "the notarize manually and staple the code after using this command:\n\n{}\n\n"
-                                "Response: {}".format(notarize_query, response)
-                            )
-                        exit_loop = False
-                        time.sleep(sleep_min * 60)
+                )
 
 
 import argparse
@@ -815,7 +793,7 @@ def clean_download_dir():
 
 def codesign_windows(path):
     '''Codesign artifact *path* using jsign tool in Windows'''
-    return_code = os.system(f'codesign.bat "{path}"')
+    return_code = os.system(f'codesign_windows\\codesign.bat "{path}"')
     logging.info(f'Exitcode from code sign: {return_code}')
 
 
@@ -864,7 +842,7 @@ elif sys.platform == 'win32':
         msi_path = os.path.join(
             DIST_PATH,
             '{0}-{1}-win64.msi'.format(
-                bundle_name.replace(' ', '-'), __version__
+                bundle_name.replace(' ', '_').lower(), __version__
             ),
         )
         logging.info(f'Renaming artifact: {msi_path_orig} > {msi_path}')
@@ -886,13 +864,15 @@ elif sys.platform == 'linux':
                 linux_distro = 'C7'
             elif os_desc.lower().find('centos-8') > -1:
                 linux_distro = 'C8'
+            elif os_desc.lower().find('rocky-linux-8') > -1:
+                linux_distro = 'R8'
             elif os_desc.lower().find('rocky-linux-9') > -1:
                 linux_distro = 'R9'
             else:
                 raise Exception('Not a supported Linux distro!')
             target_path = os.path.join(
                 DIST_PATH,
-                f'ftrack-Connect-{__version__}-{linux_distro}.tar.gz',
+                f'ftrack_connect-{__version__}-{linux_distro}.tar.gz',
             )
             if not os.path.exists(os.path.dirname(target_path)):
                 os.makedirs(os.path.dirname(target_path))

@@ -3,6 +3,8 @@
 ## Upcoming
 YYYY-mm-dd
 
+* [changed] Rocky Linux 9 support.
+* [changed] Moved pkg build to repo build tool.
 * [changed] Aligned with Connect 3 integrated launcher and improved hook.
 * [fixed] Rv does not play Entity selections.
 * [fixed] Log initialization breaks due to utf8 conversion.
