@@ -27,6 +27,10 @@ engine:
             - png
       - type: plugin
         tags:
+          - validator
+        plugin: file_exists_validator
+      - type: plugin
+        tags:
           - opener
         plugin: open_file
 
