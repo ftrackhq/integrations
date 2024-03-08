@@ -46,13 +46,13 @@ ftrack-libs = ["ftrack-utils (>=2.0.0,<3.0.0)"]
 
 [[package]]
 name = "ftrack-utils"
-version = "2.0.0"
+version = "2.0.1"
 description = "ftrack utils library"
 optional = true
 python-versions = ">=3.7,<3.12"
 files = [
-    {file = "ftrack_utils-2.0.0-py3-none-any.whl", hash = "sha256:a06b7d0f16f611849cf04eb2e8674154d15b6626aa21ec8a3bb6fa9bc08a2805"},
-    {file = "ftrack_utils-2.0.0.tar.gz", hash = "sha256:357c9c840fb173af99a300ec11041853b93212cbc7e5c72052778578903eb738"},
+    {file = "ftrack_utils-2.0.1-py3-none-any.whl", hash = "sha256:eab6ea87b7210afc67397ac02a5a6c8fea31ed13e2f1ec1dfee3514ef03b7b07"},
+    {file = "ftrack_utils-2.0.1.tar.gz", hash = "sha256:77845fb8c1a949846abc9a790bbc16d367ba4e118e45c2afec6e34e27cb65285"},
 ]
 
 [package.dependencies]
