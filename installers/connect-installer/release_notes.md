@@ -6,8 +6,8 @@
 * [new] Windows codesign support.
 * [new] Rocky linux 8 and 9 support added and removed Centos7 support. (Centos8 still working with Rocky8 build)
 * [changed] MacOS codesign process updated, replaced the deprecated alttool for the new notarytool.
-* [changed] Augmented installer to cope with new Connect 3 module format.
 * [changed] Package name renamed from ftrack-Connect-... to ftrack_connect-...
+* [changed] Augmented installer to cope with new Connect 3 module format.
 
 ## v2.1.1
 2023-04-27
