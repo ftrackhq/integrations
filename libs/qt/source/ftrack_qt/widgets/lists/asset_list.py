@@ -9,6 +9,9 @@ from Qt import QtWidgets, QtCore, QtGui
 class AssetList(QtWidgets.QListWidget):
     '''Widget presenting list of existing assets'''
 
+    active_changed = QtCore.Signal(object)
+    '''Signal emitted when the list is activated or deactivated, with active as argument.'''
+
     version_changed = QtCore.Signal(object)
     '''Signal emitted when version is changed, with assetversion entity as 
     argument (version select mode)'''
@@ -24,14 +27,38 @@ class AssetList(QtWidgets.QListWidget):
     def latest_published_asset_item(self):
         return self._latest_published_asset_item
 
-    def __init__(self, asset_list_widget_item, parent=None):
+    @property
+    def active(self):
+        '''Return if list is active - focus or not'''
+        return self._active
+
+    @active.setter
+    def active(self, value):
+        '''Set active state of the list'''
+        if value == self._active:
+            return
+        self._active = value
+        if not value:
+            self.blockSignals(True)
+            self.setCurrentRow(-1)  # Make sure list is deselected
+            self.blockSignals(False)
+        # Activate or deactive the list items
+        for idx in range(self.count()):
+            item = self.item(idx)
+            widget = self.itemWidget(item)
+            if hasattr(widget, 'active'):
+                widget.active = value
+        self.active_changed.emit(value)
+
+    def __init__(self, asset_list_widget_item_class, parent=None):
         '''Initialize AssetList'''
         super(AssetList, self).__init__(parent=parent)
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
-        self.asset_list_widget_item = asset_list_widget_item
+        self.asset_list_widget_item_class = asset_list_widget_item_class
         self._latest_published_asset_item = None
+        self._active = True
 
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
@@ -44,7 +71,7 @@ class AssetList(QtWidgets.QListWidget):
         self.assets = assets
 
         for asset_id, asset_dict in self.assets.items():
-            widget = self.asset_list_widget_item(
+            widget = self.asset_list_widget_item_class(
                 asset_name=asset_dict['name'],
                 asset_id=asset_id,
                 versions=asset_dict['versions'],
@@ -95,3 +122,7 @@ class AssetList(QtWidgets.QListWidget):
             self.itemWidget(current_item).version,
             self.itemWidget(current_item).asset_id,
         )
+
+    def mousePressEvent(self, event):
+        '''Override mouse press to emit signal.'''
+        self.active = True
