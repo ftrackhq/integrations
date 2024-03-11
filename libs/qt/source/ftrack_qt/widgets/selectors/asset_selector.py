@@ -151,13 +151,13 @@ class PublishAssetSelector(AssetSelectorBase):
 
     def _on_asset_list_active_changed_callback(self, active):
         if active:
-            # Deactive new input
+            # Deactivate new input
             self._new_asset_input.active = False
 
     def _on_new_asset_active_changed_callback(self, active):
         '''This method handles changes to the new asset name input.'''
         if active:
-            # Deactive list
+            # Deactivate list
             self._asset_list.active = False
             self.selected_index = None
             self.selected_item_changed.emit(None, None)
