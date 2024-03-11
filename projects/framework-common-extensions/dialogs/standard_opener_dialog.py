@@ -58,6 +58,7 @@ class StandardOpenerDialog(BaseContextDialog):
             parent=parent,
         )
         self.resize(400, 450)
+        self.setWindowTitle('ftrack Opener')
 
     def pre_build_ui(self):
         # Create scroll area to add all the widgets
