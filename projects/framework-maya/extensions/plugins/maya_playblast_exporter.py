@@ -16,8 +16,8 @@ class MayaPlayblastExporterPlugin(BasePlugin):
 
     def run(self, store):
         '''
-        Create a screenshot from the selected camera given in the *store*.
-        Save it to a temp file and this one will be published as thumbnail.
+        Create a playblast from the selected camera given in the *store*.
+        Save it to a temp file and this one will be published as reviewable.
         '''
         component_name = self.options.get('component')
         camera_name = store['components'][component_name].get('camera_name')
@@ -97,7 +97,6 @@ class MayaPlayblastExporterPlugin(BasePlugin):
             cmds.select(previous_selected_nodes)
             self.logger.debug("Previous camera has been selected.")
         self.logger.debug(f"export_result: {export_result}")
-        # export_result = export_result.replace('####', '*')
         full_path = glob.glob(export_result + '.*')[0]
         self.logger.debug(f"Full path of the exported thumbnail: {full_path}")
 
