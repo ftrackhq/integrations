@@ -38,16 +38,20 @@ class AssetList(QtWidgets.QListWidget):
         if value == self._active:
             return
         self._active = value
-        if not value:
-            self.blockSignals(True)
-            self.setCurrentRow(-1)  # Make sure list is deselected
-            self.blockSignals(False)
-        # Activate or deactive the list items
+        # Activate or deactivate the list items
         for idx in range(self.count()):
             item = self.item(idx)
             widget = self.itemWidget(item)
             if hasattr(widget, 'active'):
                 widget.active = value
+        if value:
+            # Must have something selected
+            if self.currentRow() == -1:
+                self.setCurrentItem(self.item(0))
+        else:
+            self.blockSignals(True)
+            self.setCurrentRow(-1)  # Make sure list is deselected
+            self.blockSignals(False)
         self.active_changed.emit(value)
 
     def __init__(self, asset_list_widget_item_class, parent=None):
@@ -62,9 +66,11 @@ class AssetList(QtWidgets.QListWidget):
 
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.verticalScrollBar().setDisabled(True)
+        self.setAutoScroll(False)
         self.setSpacing(1)
         self.assets = []
-        self.currentItemChanged.connect(self._on_item_changed)
+        self.currentItemChanged.connect(self.on_item_changed_callback)
 
     def set_assets(self, assets):
         '''Set assets for the list'''
@@ -111,7 +117,7 @@ class AssetList(QtWidgets.QListWidget):
         '''Handle version changed callback'''
         self.version_changed.emit(version)
 
-    def _on_item_changed(self, current_item, previous_item):
+    def on_item_changed_callback(self, current_item, previous_item):
         '''Handle item changed event'''
         if hasattr(self.itemWidget(current_item), 'enable_version_select'):
             if previous_item:
