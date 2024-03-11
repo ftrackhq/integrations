@@ -14,7 +14,6 @@ from ftrack_qt.widgets.lists import AssetList
 
 
 class AssetSelectorBase(QtWidgets.QWidget):
-
     '''This widget allows the user to select an existing asset and asset version.'''
 
     assets_added = QtCore.Signal(object)
