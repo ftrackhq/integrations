@@ -25,7 +25,6 @@ class StyledDialog(QtWidgets.QDialog):
     # Allow child classes to override the default theme and background style
     theme = qt_constants.theme.DEFAULT_THEME
     background_style = qt_constants.theme.DEFAULT_BACKGROUND_STYLE
-    docked = False
 
     @property
     def darken(self):
@@ -51,8 +50,7 @@ class StyledDialog(QtWidgets.QDialog):
         if background_style:
             self.background_style = background_style
 
-        if docked:
-            self.docked = docked
+        self.docked = docked
 
         # Apply theme and with DCC specific properties
         # TODO: This has been deactivated as it makes the filebrowser dialog

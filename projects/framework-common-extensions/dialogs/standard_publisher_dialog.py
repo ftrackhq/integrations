@@ -19,7 +19,6 @@ class StandardPublisherDialog(BaseContextDialog):
     tool_config_type_filter = ['publisher']
     ui_type = 'qt'
     run_button_title = 'PUBLISH'
-    docked = True
 
     def __init__(
         self,

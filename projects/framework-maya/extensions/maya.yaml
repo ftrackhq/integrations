@@ -8,6 +8,7 @@ tools:
     options:
       tool_configs:
         - maya-scene-publisher
+      docked: true
   - name: open
     label: "OPEN"
     dialog_name: framework_standard_opener_dialog
@@ -15,3 +16,4 @@ tools:
     options:
       tool_configs:
         - maya-scene-opener
+      docked: true

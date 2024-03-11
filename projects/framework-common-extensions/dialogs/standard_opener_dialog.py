@@ -17,7 +17,6 @@ class StandardOpenerDialog(BaseContextDialog):
     tool_config_type_filter = ['opener']
     ui_type = 'qt'
     run_button_title = 'OPEN'
-    docked = False
 
     def __init__(
         self,

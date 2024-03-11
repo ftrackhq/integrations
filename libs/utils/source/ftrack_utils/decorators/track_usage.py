@@ -110,13 +110,13 @@ def track_framework_usage(event_name, metadata, tracked_args=[]):
                 finally:
                     usage_tracker = get_usage_tracker()
 
-            # Get the function's argument names and values
-            func_args = inspect.signature(func).parameters
-            arg_names = list(func_args.keys())
+            # Get the function's signature
+            sig = inspect.signature(func)
+            bound_args = sig.bind(*args, **kwargs)
+            bound_args.apply_defaults()
 
-            # Build a dictionary of argument names and values
-            arg_values = args + tuple(kwargs.values())
-            args_metadata = dict(zip(arg_names, arg_values))
+            # Build a dictionary of argument names and their bound values
+            args_metadata = bound_args.arguments
 
             # Update metadata with function arguments if specified in kwarg_mapping_list
             for key in tracked_args:
