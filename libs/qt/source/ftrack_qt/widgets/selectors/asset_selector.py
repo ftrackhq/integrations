@@ -13,9 +13,9 @@ from ftrack_qt.widgets.frames import (
 from ftrack_qt.widgets.lists import AssetList
 
 
-class OpenAssetSelector(QtWidgets.QWidget):
-    '''This widget allows the user to select an existing asset and asset version,
-    or input an asset name for creating a new asset, depending on the mode.'''
+class AssetSelectorBase(QtWidgets.QWidget):
+
+    '''This widget allows the user to select an existing asset and asset version.'''
 
     assets_added = QtCore.Signal(object)
     '''This signal is emitted when assets are added. It sends a list of assets 
@@ -36,14 +36,12 @@ class OpenAssetSelector(QtWidgets.QWidget):
         '''
         This method initialises the asset selector widget.
         '''
-        super(OpenAssetSelector, self).__init__(parent=parent)
+        super(AssetSelectorBase, self).__init__(parent=parent)
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
 
-        self._list_and_input = None
         self._asset_list = None
-        self._new_asset_input = None
 
         self.selected_index = None
 
@@ -92,9 +90,15 @@ class OpenAssetSelector(QtWidgets.QWidget):
         self.selected_item_changed.emit(version, asset_id)
 
 
-class PublishAssetSelector(OpenAssetSelector):
-    '''This widget allows the user to select an existing asset and asset version,
-    or input an asset name for creating a new asset.'''
+class OpenAssetSelector(AssetSelectorBase):
+    '''Asset selector tailored for open.'''
+
+    pass
+
+
+class PublishAssetSelector(AssetSelectorBase):
+    '''Asset selector tailored for publish, allows user to select and existing
+    asset or input an asset name for creating a new asset.'''
 
     VALID_ASSET_NAME = QtCore.QRegExp('[A-Za-z0-9_]+')
 
@@ -109,6 +113,8 @@ class PublishAssetSelector(OpenAssetSelector):
         '''
         This method initialises the asset selector widget.
         '''
+        self._list_and_input = None
+        self._new_asset_input = None
         self.validator = QtGui.QRegExpValidator(self.VALID_ASSET_NAME)
         self.placeholder_name = "Asset Name..."
 
