@@ -60,19 +60,13 @@ class NukeNodegraphImageExporterPlugin(BasePlugin):
         '''
         component_name = self.options.get('component')
         try:
-            view = find_nodegraph_viewer(activate=True)
+            view = find_nodegraph_viewer()
 
         except Exception as e:
             self.logger.exception(e)
             raise PluginExecutionError(
                 f'Exception locating viewer to export: {e}'
             )
-
-        try:
-            activate_nodegraph_viewer(view)
-        except Exception as e:
-            self.logger.exception(e)
-            self.logger.warning(f'Could not active node graph viewer: {e}')
 
         try:
             image_path = get_temp_path(filename_extension='.png')
