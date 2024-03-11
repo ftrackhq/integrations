@@ -61,8 +61,9 @@ class PhotoshopDocumentCollectorPlugin(BasePlugin):
             document_data.get('full_path') if document_data else None
         )
 
-        # Convert forward slashes to backslashes on Windows
-        document_name = os.path.normpath(document_name)
+        if document_name:
+            # Convert forward slashes to backslashes on Windows
+            document_name = os.path.normpath(document_name)
 
         try:
             extension_format = self.options['extension_format']

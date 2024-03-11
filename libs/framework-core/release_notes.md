@@ -1,10 +1,13 @@
 # ftrack Framework Core library release Notes
 
-## Upcoming
+## v2.0.1
+2024-03-08
 
+* [fix] PluginValidationError; Have on_fix_callback as an optional argument.
 * [fix] Engine; allow empty options in tool configs.
 
-## V2.0.0
+
+## v2.0.0
 2024-02-12
 
 * [new] Initial release;

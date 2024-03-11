@@ -31,6 +31,7 @@ class PublisherAssetVersionSelectorWidget(BaseWidget):
         '''initialise PublishContextWidget with *parent*, *session*, *data*,
         *name*, *description*, *options* and *context*
         '''
+        self._title_label = None
         self._label = None
         self._asset_version_selector = None
         self._asset_status_label = None
@@ -61,6 +62,8 @@ class PublisherAssetVersionSelectorWidget(BaseWidget):
     def build_ui(self):
         '''Build the UI elements for the widget.'''
 
+        self._title_label = QtWidgets.QLabel('Assets')
+
         self._label = QtWidgets.QLabel()
         self._label.setObjectName('gray')
         self._label.setWordWrap(True)
@@ -78,6 +81,7 @@ class PublisherAssetVersionSelectorWidget(BaseWidget):
         # Build version and comment widget
         version_and_comment = QtWidgets.QWidget()
         version_and_comment.setLayout(QtWidgets.QVBoxLayout())
+        version_and_comment.layout().setContentsMargins(0, 0, 0, 0)
         version_and_comment.layout().addWidget(
             QtWidgets.QLabel('Version information')
         )
@@ -115,6 +119,7 @@ class PublisherAssetVersionSelectorWidget(BaseWidget):
         version_and_comment.layout().addLayout(comments_layout)
 
         # Add the widgets to the layout
+        self.layout().addWidget(self._title_label)
         self.layout().addWidget(self._label)
         self.layout().addLayout(asset_layout)
         self.layout().addWidget(LineWidget())
@@ -163,14 +168,11 @@ class PublisherAssetVersionSelectorWidget(BaseWidget):
         '''Update the label based on the number of assets found.'''
         if len(assets or []) > 0:
             self._label.setText(
-                'We found {} asset{} published on this task. '
-                'Choose asset'.format(
-                    len(assets),
-                    's' if len(assets) > 1 else '',
-                )
+                f'We found {len(assets)} asset{"s" if len(assets) > 1 else ""} '
+                'published related to this task and its parent. Choose asset'
             )
         else:
-            self._label.setText('<html><i>No assets found!<i></html>')
+            self._label.setText('')
 
     def _on_selected_item_changed_callback(self, version, asset_id):
         '''Update the plugin options based on the selected item.'''

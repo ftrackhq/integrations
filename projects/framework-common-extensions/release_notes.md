@@ -1,6 +1,6 @@
 # ftrack Framework Common Extensions release Notes
 
 ## Upcoming
-YYYY-mm-dd
 
+* [changed] Added labels to publisher asset selector and publisher, aligned margins.
 * [new] Initial release.
