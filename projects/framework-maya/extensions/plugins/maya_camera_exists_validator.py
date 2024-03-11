@@ -16,7 +16,7 @@ class MayaCameraExistsValidatorPlugin(BasePlugin):
 
     def run(self, store):
         '''
-        Run the validation process.
+        Check camera exists.
         '''
         component_name = self.options.get('component', 'main')
         camera_name = store['components'][component_name].get('camera_name')

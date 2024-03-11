@@ -7,7 +7,7 @@ from ftrack_framework_qt.widgets import BaseWidget
 
 
 class MayaExportOptionsSelectorWidget(BaseWidget):
-    '''Main class to represent a scene widget on a publish process.'''
+    '''Show available maya export options.'''
 
     name = 'maya_export_options_selector'
     ui_type = 'qt'
