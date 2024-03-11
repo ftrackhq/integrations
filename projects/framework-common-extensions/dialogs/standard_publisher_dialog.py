@@ -59,6 +59,7 @@ class StandardPublisherDialog(BaseContextDialog):
             dialog_options,
             parent=parent,
         )
+        self.setWindowTitle('ftrack Publisher')
 
     def pre_build_ui(self):
         # Create scroll area to add all the widgets
