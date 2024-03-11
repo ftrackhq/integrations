@@ -80,12 +80,6 @@ class OpenAssetSelector(QtWidgets.QWidget):
         '''This method sets the assets in the asset list and shows or hides it
         based on the presence of assets.'''
         self._asset_list.set_assets(assets)
-        if not assets:
-            self._asset_list.hide()
-            self._new_asset_input.active = True
-        else:
-            self._asset_list.show()
-            self._new_asset_input.active = False
 
     def _on_version_changed(self, version):
         '''This method emits the version_changed signal with the given version.'''
@@ -194,6 +188,12 @@ class PublishAssetSelector(OpenAssetSelector):
 
     def set_assets(self, assets):
         super(PublishAssetSelector, self).set_assets(assets)
+        if not assets:
+            self._asset_list.hide()
+            self._new_asset_input.active = True
+        else:
+            self._asset_list.show()
+            self._new_asset_input.active = False
         # Make sure widget expands properly to fit list
         self._list_and_input.size_changed()
 

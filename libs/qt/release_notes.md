@@ -2,6 +2,8 @@
 
 ## Upcoming
 
+* [fixed] Fixed bug in asset_selector, if no assets on startup - properly emit asset name changed signal.
+* [fixed] Disabled auto scrolling on asset list. Always select the first item on activation.
 * [new] selectors/asset_selector; Change behaviour of new asset button and the name input field, list is greyed out during creation. Asset name input is hidden when an existing asset is selected. 
 
 ## v2.0.1
