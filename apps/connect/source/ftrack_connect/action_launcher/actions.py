@@ -18,7 +18,7 @@ from ftrack_connect.ui.widget import (
     overlay,
 )
 
-from ftrack_connect.util import (
+from ftrack_connect.utils.preferences import (
     get_connect_preferences,
     write_connect_prefs_file_path,
 )

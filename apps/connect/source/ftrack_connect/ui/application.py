@@ -29,13 +29,17 @@ from ftrack_connect import load_icons
 import ftrack_connect
 import ftrack_connect.event_hub_thread as _event_hub_thread
 import ftrack_connect.error
-from ftrack_connect.util import (
+from ftrack_connect.utils.plugin import (
     get_default_plugin_directory,
     get_plugins_from_path,
     get_plugin_data,
-    open_directory,
     PLUGIN_DIRECTORIES,
 )
+from ftrack_connect.utils.login import (
+    read_json_config,
+    write_json_config,
+)
+from ftrack_connect.utils.directory import open_directory
 import ftrack_connect.ui.theme
 import ftrack_connect.ui.widget.overlay
 from ftrack_connect.ui.widget import uncaught_error as _uncaught_error
@@ -346,10 +350,10 @@ class Application(QtWidgets.QMainWindow):
     def logout(self):
         '''Clear stored credentials and quit Connect.'''
         self._clear_qsettings()
-        config = ftrack_connect.ui.config.read_json_config()
+        config = read_json_config()
 
         config['accounts'] = []
-        ftrack_connect.ui.config.write_json_config(config)
+        write_json_config(config)
 
         QtWidgets.QApplication.quit()
 
@@ -363,7 +367,7 @@ class Application(QtWidgets.QMainWindow):
         credentials = None
 
         # Read from json config file.
-        json_config = ftrack_connect.ui.config.read_json_config()
+        json_config = read_json_config()
         if json_config:
             try:
                 data = json_config['accounts'][0]
@@ -401,7 +405,7 @@ class Application(QtWidgets.QMainWindow):
         self._clear_qsettings()
 
         # Save the credentials.
-        json_config = ftrack_connect.ui.config.read_json_config()
+        json_config = read_json_config()
 
         if not json_config:
             json_config = {}
@@ -419,7 +423,7 @@ class Application(QtWidgets.QMainWindow):
             }
         ]
 
-        ftrack_connect.ui.config.write_json_config(json_config)
+        write_json_config(json_config)
 
     def login(self):
         '''Login using stored credentials or ask user for them.'''

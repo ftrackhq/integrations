@@ -13,14 +13,14 @@ import qtawesome as qta
 
 from ftrack_connect.qt import QtWidgets, QtCore, QtGui
 
-from ftrack_connect.util import (
-    qt_main_thread,
+from ftrack_connect.utils.plugin import (
     PLUGIN_DIRECTORIES,
-    get_platform_identifier,
     get_plugin_json_url_from_environment,
     fetch_github_releases,
     get_plugin_data,
+    get_platform_identifier,
 )
+from ftrack_connect.utils.thread import qt_main_thread
 
 from ftrack_connect.plugin_manager.processor import (
     STATUSES,

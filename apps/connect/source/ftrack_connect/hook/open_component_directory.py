@@ -6,7 +6,7 @@ import os
 
 import platform
 import ftrack_api
-import ftrack_connect.util
+from ftrack_connect.utils.directory import open_directory
 
 
 class OpenComponentDirectoryAction(object):
@@ -34,7 +34,7 @@ class OpenComponentDirectoryAction(object):
                     {
                         'label': 'Open directory',
                         'actionIdentifier': self.identifier,
-                        'host': self.node
+                        'host': self.node,
                     }
                 ]
             }
@@ -90,10 +90,10 @@ class OpenComponentDirectoryAction(object):
 
         if os.path.exists(path):
             # File or directory exists.
-            ftrack_connect.util.open_directory(path)
+            open_directory(path)
         elif os.path.exists(os.path.dirname(path)):
             # Handle cases where file system path is a sequence expression.
-            ftrack_connect.util.open_directory(os.path.dirname(path))
+            open_directory(os.path.dirname(path))
         else:
             # No file, directory or parent directory exists for path.
             self.logger.info(
@@ -112,10 +112,7 @@ class OpenComponentDirectoryAction(object):
         self.session.event_hub.subscribe(
             u'topic=ftrack.action.discover and '
             u'source.user.username="{0}" and '
-            u'data.host={1}'.format(
-                self.session.api_user, 
-                self.node
-            ),
+            u'data.host={1}'.format(self.session.api_user, self.node),
             self.discover,
         )
 
@@ -124,9 +121,7 @@ class OpenComponentDirectoryAction(object):
             u'data.actionIdentifier={0} and '
             u'source.user.username="{1}" and '
             u'data.host={2}'.format(
-                self.identifier, 
-                self.session.api_user, 
-                self.node
+                self.identifier, self.session.api_user, self.node
             ),
             self.launch,
         )
