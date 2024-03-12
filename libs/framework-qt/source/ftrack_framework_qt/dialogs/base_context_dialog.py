@@ -20,7 +20,6 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
     tool_config_type_filter = None
     run_button_title = 'run'
     ui_type = 'qt'
-    docked = True
 
     @property
     def selected_context_id(self):
@@ -86,7 +85,7 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
         StyledDialog.__init__(
             self,
             background_style=None,
-            docked=self.docked,
+            docked=dialog_options.get("docked", False),
             parent=parent,
         )
         FrameworkDialog.__init__(

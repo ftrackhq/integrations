@@ -341,7 +341,7 @@ class Client(object):
     @track_framework_usage(
         'FRAMEWORK_RUN_DIALOG',
         {'module': 'client'},
-        ['dialog_name', 'dialog_options', 'dock_func'],
+        ['dialog_name', 'dialog_options'],
     )
     def run_dialog(
         self,
@@ -414,7 +414,7 @@ class Client(object):
         self._register_dialog(dialog)
         self.dialog = dialog
         # If a docking function is provided, use it
-        if dock_func:
+        if dialog_options.get('docked') and dock_func:
             dock_func(self.dialog)
         else:
             self.dialog.show_ui()

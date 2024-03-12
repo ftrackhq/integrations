@@ -68,7 +68,7 @@ class UsageTracker:
             self._session,
             event_name,
             default_metadata,
-            asynchronous=True,
+            _asynchronous=True,
         )
         logger.debug(
             f"Tracking: event_name: {event_name}, metadata: {metadata}"
