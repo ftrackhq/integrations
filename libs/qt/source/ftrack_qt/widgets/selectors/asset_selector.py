@@ -92,7 +92,9 @@ class AssetSelectorBase(QtWidgets.QWidget):
 class OpenAssetSelector(AssetSelectorBase):
     '''Asset selector tailored for open.'''
 
-    pass
+    def __init__(self):
+        '''This method initialises the open asset selector widget.'''
+        super(OpenAssetSelector, self).__init__()
 
 
 class PublishAssetSelector(AssetSelectorBase):
@@ -110,7 +112,7 @@ class PublishAssetSelector(AssetSelectorBase):
         parent=None,
     ):
         '''
-        This method initialises the asset selector widget.
+        This method initialises the publish asset selector widget.
         '''
         self._list_and_input = None
         self._new_asset_input = None
