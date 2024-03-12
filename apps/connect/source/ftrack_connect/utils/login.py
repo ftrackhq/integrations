@@ -8,7 +8,7 @@ import json
 import logging
 
 
-logger = logging.getLogger('ftrack_connect.ui.config')
+logger = logging.getLogger('ftrack_connect.utils.loging')
 
 
 def get_login_file_path():

@@ -14,7 +14,6 @@ import qtawesome as qta
 from ftrack_connect.qt import QtWidgets, QtCore, QtGui
 
 from ftrack_connect.utils.plugin import (
-    PLUGIN_DIRECTORIES,
     get_plugin_json_url_from_environment,
     fetch_github_releases,
     get_plugin_data,
@@ -55,11 +54,11 @@ class DndPluginList(QtWidgets.QFrame):
         '''Return downloadable plugin count.'''
         return self._downloadable_plugin_count
 
-    def __init__(self, parent=None):
+    def __init__(self, default_plugin_directory=None, parent=None):
         super(DndPluginList, self).__init__(parent=parent)
 
         # Set the plugin directory to install to the first path on PLUGIN_DIRECTORIES
-        self.default_install_plugin_directory = PLUGIN_DIRECTORIES[0]
+        self.default_install_plugin_directory = default_plugin_directory
 
         # If set, download plugins from this url instead of the releases
         self._json_config_url = get_plugin_json_url_from_environment()

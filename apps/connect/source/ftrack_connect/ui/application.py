@@ -33,7 +33,7 @@ from ftrack_connect.utils.plugin import (
     get_default_plugin_directory,
     get_plugins_from_path,
     get_plugin_data,
-    PLUGIN_DIRECTORIES,
+    get_plugin_directories_from_config,
 )
 from ftrack_connect.utils.login import (
     read_json_login,
@@ -48,10 +48,16 @@ from ftrack_connect.ui.widget import login as _login
 from ftrack_connect.ui.widget import about as _about
 from ftrack_connect.ui import login_tools as _login_tools
 from ftrack_connect.ui.widget import configure_scenario as _scenario_widget
-import ftrack_connect.ui.config
+import ftrack_connect.utils.log
 from ftrack_connect.application_launcher.discover_applications import (
     DiscoverApplications,
 )
+
+from ftrack_connect.utils.config import (
+    get_connect_config,
+    get_connect_config_file_path,
+)
+from ftrack_connect.utils.plugin import create_plugin_directory
 
 
 class ConnectWidgetPlugin(object):
@@ -157,6 +163,10 @@ class Application(QtWidgets.QMainWindow):
     def plugins(self):
         return self._plugins
 
+    @property
+    def connect_config(self):
+        return self._connect_config
+
     def __init__(self, theme='system', instance=None, log_level=None):
         '''Initialise the main application window with *theme*, singleton
         *instance* and custom *log_level*.'''
@@ -169,7 +179,13 @@ class Application(QtWidgets.QMainWindow):
         self.__connect_start_time = time.time()
         self._log_level = log_level
 
-        self._create_default_plugin_directory()
+        self._connect_config = get_connect_config()
+        if not self.connect_config:
+            raise FileNotFoundError(
+                f"Connect config file (ftrack_connect.yaml) not found in the "
+                f"following directory: {get_connect_config_file_path()}.\n"
+                f"Please provide one before continue."
+            )
 
         self._discovered_plugins = (
             self._discover_plugin_data_from_plugin_directories()
@@ -496,7 +512,7 @@ class Application(QtWidgets.QMainWindow):
             raise ftrack_connect.error.ParseError(error)
 
         # Need to reconfigure logging after session is created.
-        ftrack_connect.config.configure_logging(
+        ftrack_connect.utils.log.configure_logging(
             'ftrack_connect', level=self._log_level, notify=False
         )
 
@@ -738,7 +754,9 @@ class Application(QtWidgets.QMainWindow):
 
         result = []
         i = 0
-        for plugin_base_directory in PLUGIN_DIRECTORIES:
+        for plugin_base_directory in get_plugin_directories_from_config(
+            self.connect_config
+        ):
             current_dir_plugins = []
             for plugin in self._gather_plugins(
                 plugin_base_directory, source_index=i
@@ -794,7 +812,9 @@ class Application(QtWidgets.QMainWindow):
 
         result = []
         i = 0
-        for plugin_base_directory in PLUGIN_DIRECTORIES:
+        for plugin_base_directory in get_plugin_directories_from_config(
+            self.connect_config
+        ):
             result.extend(
                 self._gather_plugins(plugin_base_directory, source_index=i)
             )
@@ -1042,7 +1062,7 @@ class Application(QtWidgets.QMainWindow):
 
         self.focus()
 
-        aboutDialog = _about.AboutDialog(self)
+        aboutDialog = _about.AboutDialog(self, self.connect_config)
 
         environment_data = os.environ.copy()
         environment_data.update(
@@ -1139,23 +1159,16 @@ class Application(QtWidgets.QMainWindow):
 
         aboutDialog.exec_()
 
-    def _create_default_plugin_directory(self):
-        directory = get_default_plugin_directory()
-
-        if not os.path.exists(directory):
-            # Create directory if not existing.
-            try:
-                os.makedirs(directory)
-            except Exception:
-                raise
-
-        return directory
-
     def _open_default_plugin_directory(self):
         '''Open default plugin directory in platform default file browser.'''
 
         try:
-            self._create_default_plugin_directory()
+            create_plugin_directory(
+                self.connect_config.get(
+                    'FTRACK_CONNECT_PLUGIN_PATH',
+                    get_default_plugin_directory(),
+                )
+            )
         except OSError:
             messageBox = QtWidgets.QMessageBox(parent=self)
             messageBox.setIcon(QtWidgets.QMessageBox.Warning)

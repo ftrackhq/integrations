@@ -26,12 +26,10 @@ def get_default_plugin_directory():
     return platformdirs.user_data_dir('ftrack-connect-plugins', 'ftrack')
 
 
-PLUGIN_DIRECTORIES = [
-    os.path.expandvars(p)
-    for p in os.getenv(
+def get_plugin_directories_from_config(config_file):
+    return config_file.get(
         'FTRACK_CONNECT_PLUGIN_PATH', get_default_plugin_directory()
     ).split(os.pathsep)
-]
 
 
 def get_plugins_from_path(plugin_directory):
@@ -296,3 +294,14 @@ def get_platform_identifier():
     else:
         platform = sys.platform
     return platform
+
+
+def create_plugin_directory(directory):
+    if not os.path.exists(directory):
+        # Create directory if not existing.
+        try:
+            os.makedirs(directory)
+        except Exception:
+            raise
+
+    return directory

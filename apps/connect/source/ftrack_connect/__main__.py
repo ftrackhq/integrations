@@ -10,6 +10,10 @@ import os
 import pkg_resources
 import importlib
 
+from utils.config import get_connect_config, write_connect_config_file_path
+from utils.plugin import get_default_plugin_directory, create_plugin_directory
+from utils.log import get_default_log_directory
+
 
 def main_connect(arguments=None):
     '''Launch ftrack connect.'''
@@ -20,7 +24,7 @@ def main_connect(arguments=None):
     from ftrack_connect.qt import QtWidgets, QtCore
 
     from ftrack_connect import load_icons
-    import ftrack_connect.config
+    import ftrack_connect.utils.log
     import ftrack_connect.singleton
 
     # Bootstrap hooks
@@ -76,8 +80,28 @@ def main_connect(arguments=None):
 
     namespace = parser.parse_args(arguments)
 
-    ftrack_connect.config.configure_logging(
+    ftrack_connect.utils.log.configure_logging(
         'ftrack_connect', level=loggingLevels[namespace.verbosity]
+    )
+
+    connect_config = get_connect_config()
+    if not connect_config:
+        # TODO: add a validator in the connect config to make sure at least this 3 keys are defined.
+        default_config = {
+            'FTRACK_CONNECT_PLUGIN_PATH': get_default_plugin_directory(),
+            'FTRACK_CONNECT_LAUNCH_PATH': os.path.join(
+                get_default_plugin_directory(), '{plugin_folder}', 'launch'
+            ),
+            'FTRACK_CONNECT_LOG_PATH': get_default_log_directory(),
+        }
+        write_connect_config_file_path(default_config)
+        connect_config = get_connect_config()
+
+    # Make sure plugin directory is created
+    create_plugin_directory(
+        connect_config.get(
+            'FTRACK_CONNECT_PLUGIN_PATH', get_default_plugin_directory()
+        )
     )
 
     single_instance = None
