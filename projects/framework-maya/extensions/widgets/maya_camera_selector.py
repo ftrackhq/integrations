@@ -8,7 +8,7 @@ from ftrack_qt.utils.decorators import invoke_in_qt_main_thread
 
 
 class MayaCameraSelectorWidget(BaseWidget):
-    '''Main class to represent a scene widget on a publish process.'''
+    '''Drop-down list to select the desired camera.'''
 
     name = 'maya_camera_selector'
     ui_type = 'qt'

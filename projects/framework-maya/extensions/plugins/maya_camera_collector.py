@@ -18,8 +18,7 @@ class MayaCameraCollectorPlugin(BasePlugin):
 
     def run(self, store):
         '''
-        Set the desired export_type for the current maya scene and the desired
-        extension format to be publisher to the store.
+        Set the selected camera name to the *store*
         '''
         try:
             camera_name = self.options['camera_name']

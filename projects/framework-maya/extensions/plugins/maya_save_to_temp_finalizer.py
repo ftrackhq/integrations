@@ -13,8 +13,8 @@ class MayaSaveToTempPlugin(BasePlugin):
 
     def run(self, store):
         '''
-        MAkes sure that the curren opened scene is saved to a temporal file so
-        prevents it to be overriden.
+        Makes sure that the current opened scene is saved to a temporary file so
+        prevents it to be overridden.
         '''
 
         scene_type = cmds.file(query=True, type=True)
