@@ -34,7 +34,11 @@ def find_nodegraph_viewer(activate=False):
         widget = stack.pop()
         if widget.windowTitle().lower().startswith('node graph'):
             viewers.append(widget)
-        stack.extend(c for c in widget.children() if c.isWidgetType())
+        stack.extend(
+            c
+            for c in widget.children()
+            if hasattr(c, 'isWidgetType') and c.isWidgetType()
+        )
     if len(viewers) <= 1:
         raise Exception(
             'Could not find node graph viewer to export image from'

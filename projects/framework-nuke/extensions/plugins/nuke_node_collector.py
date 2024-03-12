@@ -6,7 +6,7 @@ from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
 
-class NukeWritenodeCollectorPlugin(BasePlugin):
+class NukeNodeCollectorPlugin(BasePlugin):
     name = 'nuke_node_collector'
 
     def ui_hook(self, payload):
@@ -18,8 +18,7 @@ class NukeWritenodeCollectorPlugin(BasePlugin):
             selected_nodes = nuke.allNodes()
         node_names = []
         for node in selected_nodes:
-            if node.Class().startswith("write"):
-                node_names.append(node.name())
+            node_names.append(node.name())
         return node_names
 
     def run(self, store):

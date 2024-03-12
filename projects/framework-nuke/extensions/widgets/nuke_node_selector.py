@@ -7,7 +7,7 @@ from ftrack_framework_qt.widgets import BaseWidget
 from ftrack_qt.utils.decorators import invoke_in_qt_main_thread
 
 
-class NukeWritenodeSelectorWidget(BaseWidget):
+class NukeNodeSelectorWidget(BaseWidget):
     '''Drop-down list to select the desired writenode.'''
 
     name = 'nuke_node_selector'
@@ -26,7 +26,7 @@ class NukeWritenodeSelectorWidget(BaseWidget):
     ):
         self._writenode_cb = None
 
-        super(NukeWritenodeSelectorWidget, self).__init__(
+        super(NukeNodeSelectorWidget, self).__init__(
             event_manager,
             client_id,
             context_id,
@@ -70,9 +70,7 @@ class NukeWritenodeSelectorWidget(BaseWidget):
     @invoke_in_qt_main_thread
     def ui_hook_callback(self, ui_hook_result):
         '''Handle the result of the UI hook.'''
-        super(NukeWritenodeSelectorWidget, self).ui_hook_callback(
-            ui_hook_result
-        )
+        super(NukeNodeSelectorWidget, self).ui_hook_callback(ui_hook_result)
         self._writenode_cb.addItems(ui_hook_result)
         default_node_name = self.plugin_config['options'].get(
             'node_name', 'Write1'
