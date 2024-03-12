@@ -9,7 +9,7 @@ from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
 
-class NukePlayblastExporterPlugin(BasePlugin):
+class NukeRenderExporterPlugin(BasePlugin):
     name = 'nuke_render_exporter'
 
     def run(self, store):
