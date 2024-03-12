@@ -13,9 +13,8 @@ from ftrack_qt.widgets.frames import (
 from ftrack_qt.widgets.lists import AssetList
 
 
-class OpenAssetSelector(QtWidgets.QWidget):
-    '''This widget allows the user to select an existing asset and asset version,
-    or input an asset name for creating a new asset, depending on the mode.'''
+class AssetSelectorBase(QtWidgets.QWidget):
+    '''This widget allows the user to select an existing asset and asset version.'''
 
     assets_added = QtCore.Signal(object)
     '''This signal is emitted when assets are added. It sends a list of assets 
@@ -36,14 +35,12 @@ class OpenAssetSelector(QtWidgets.QWidget):
         '''
         This method initialises the asset selector widget.
         '''
-        super(OpenAssetSelector, self).__init__(parent=parent)
+        super(AssetSelectorBase, self).__init__(parent=parent)
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
 
-        self._list_and_input = None
         self._asset_list = None
-        self._new_asset_input = None
 
         self.selected_index = None
 
@@ -80,12 +77,6 @@ class OpenAssetSelector(QtWidgets.QWidget):
         '''This method sets the assets in the asset list and shows or hides it
         based on the presence of assets.'''
         self._asset_list.set_assets(assets)
-        if not assets:
-            self._asset_list.hide()
-            self._new_asset_input.active = True
-        else:
-            self._asset_list.show()
-            self._new_asset_input.active = False
 
     def _on_version_changed(self, version):
         '''This method emits the version_changed signal with the given version.'''
@@ -98,9 +89,17 @@ class OpenAssetSelector(QtWidgets.QWidget):
         self.selected_item_changed.emit(version, asset_id)
 
 
-class PublishAssetSelector(OpenAssetSelector):
-    '''This widget allows the user to select an existing asset and asset version,
-    or input an asset name for creating a new asset.'''
+class OpenAssetSelector(AssetSelectorBase):
+    '''Asset selector tailored for open.'''
+
+    def __init__(self):
+        '''This method initialises the open asset selector widget.'''
+        super(OpenAssetSelector, self).__init__()
+
+
+class PublishAssetSelector(AssetSelectorBase):
+    '''Asset selector tailored for publish, allows user to select and existing
+    asset or input an asset name for creating a new asset.'''
 
     VALID_ASSET_NAME = QtCore.QRegExp('[A-Za-z0-9_]+')
 
@@ -113,8 +112,10 @@ class PublishAssetSelector(OpenAssetSelector):
         parent=None,
     ):
         '''
-        This method initialises the asset selector widget.
+        This method initialises the publish asset selector widget.
         '''
+        self._list_and_input = None
+        self._new_asset_input = None
         self.validator = QtGui.QRegExpValidator(self.VALID_ASSET_NAME)
         self.placeholder_name = "Asset Name..."
 
@@ -152,13 +153,13 @@ class PublishAssetSelector(OpenAssetSelector):
 
     def _on_asset_list_active_changed_callback(self, active):
         if active:
-            # Deactive new input
+            # Deactivate new input
             self._new_asset_input.active = False
 
     def _on_new_asset_active_changed_callback(self, active):
         '''This method handles changes to the new asset name input.'''
         if active:
-            # Deactive list
+            # Deactivate list
             self._asset_list.active = False
             self.selected_index = None
             self.selected_item_changed.emit(None, None)
@@ -194,6 +195,12 @@ class PublishAssetSelector(OpenAssetSelector):
 
     def set_assets(self, assets):
         super(PublishAssetSelector, self).set_assets(assets)
+        if not assets:
+            self._asset_list.hide()
+            self._new_asset_input.active = True
+        else:
+            self._asset_list.show()
+            self._new_asset_input.active = False
         # Make sure widget expands properly to fit list
         self._list_and_input.size_changed()
 
