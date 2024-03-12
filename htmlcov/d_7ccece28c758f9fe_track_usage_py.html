@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="d_e87bfe2604243eae___init___py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.4.3">coverage.py v7.4.3</a>,
-            created at 2024-03-11 13:22 +0000
+            created at 2024-03-12 08:53 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"/>
@@ -92,13 +92,13 @@
     <p class="run"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t"><span class="nam">logger</span> <span class="op">=</span> <span class="nam">logging</span><span class="op">.</span><span class="nam">getLogger</span><span class="op">(</span><span class="str">'ftrack_utils:usage'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t"><span class="key">def</span> <span class="nam">send_usage_event</span><span class="op">(</span><span class="nam">session</span><span class="op">,</span> <span class="nam">event_name</span><span class="op">,</span> <span class="nam">metadata</span><span class="op">=</span><span class="key">None</span><span class="op">,</span> <span class="nam">asynchronous</span><span class="op">=</span><span class="key">True</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t"><span class="key">def</span> <span class="nam">send_usage_event</span><span class="op">(</span><span class="nam">session</span><span class="op">,</span> <span class="nam">event_name</span><span class="op">,</span> <span class="nam">metadata</span><span class="op">=</span><span class="key">None</span><span class="op">,</span> <span class="nam">_asynchronous</span><span class="op">=</span><span class="key">True</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t">    <span class="str">'''Send usage event with *event_name* and *metadata*.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t"><span class="str">    If asynchronous is True, the event will be sent in a new thread.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t"><span class="str">    '''</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t">    <span class="key">if</span> <span class="nam">asynchronous</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t">    <span class="key">if</span> <span class="nam">_asynchronous</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t">        <span class="nam">send_async_event</span><span class="op">(</span><span class="nam">session</span><span class="op">,</span> <span class="str">'_track_usage'</span><span class="op">,</span> <span class="nam">event_name</span><span class="op">,</span> <span class="nam">metadata</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t">    <span class="key">else</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t">        <span class="nam">send_event</span><span class="op">(</span><span class="nam">session</span><span class="op">,</span> <span class="str">'_track_usage'</span><span class="op">,</span> <span class="nam">event_name</span><span class="op">,</span> <span class="nam">metadata</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
@@ -111,7 +111,7 @@
             <a id="nextFileLink" class="nav" href="d_e87bfe2604243eae___init___py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.4.3">coverage.py v7.4.3</a>,
-            created at 2024-03-11 13:22 +0000
+            created at 2024-03-12 08:53 +0000
         </p>
     </div>
 </footer>

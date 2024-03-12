@@ -29,7 +29,7 @@
 | libs/utils/source/ftrack\_utils/decorators/\_\_init\_\_.py                    |        3 |        0 |    100% |           |
 | libs/utils/source/ftrack\_utils/decorators/asynchronous.py                    |       18 |        4 |     78% |     25-28 |
 | libs/utils/source/ftrack\_utils/decorators/session.py                         |       19 |       16 |     16% |      9-38 |
-| libs/utils/source/ftrack\_utils/decorators/track\_usage.py                    |       47 |        5 |     89% |68, 86, 107-108, 126 |
+| libs/utils/source/ftrack\_utils/decorators/track\_usage.py                    |       49 |        5 |     90% |71, 89, 110-111, 129 |
 | libs/utils/source/ftrack\_utils/directories/\_\_init\_\_.py                   |        0 |        0 |    100% |           |
 | libs/utils/source/ftrack\_utils/directories/scan\_dir.py                      |        6 |        4 |     33% |     11-18 |
 | libs/utils/source/ftrack\_utils/extensions/\_\_init\_\_.py                    |        0 |        0 |    100% |           |
@@ -44,7 +44,7 @@
 | libs/utils/source/ftrack\_utils/version/\_\_init\_\_.py                       |       18 |       10 |     44% |13-20, 24-31 |
 | tests/framework/unit/\_\_init\_\_.py                                          |        0 |        0 |    100% |           |
 | tests/framework/unit/test\_engine.py                                          |       49 |        0 |    100% |           |
-|                                                                     **TOTAL** |  **748** |  **217** | **71%** |           |
+|                                                                     **TOTAL** |  **750** |  **217** | **71%** |           |
 
 
 ## Setup coverage badge
