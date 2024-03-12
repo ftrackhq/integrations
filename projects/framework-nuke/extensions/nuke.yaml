@@ -16,4 +16,4 @@ tools:
     options:
       tool_configs:
         - nuke-script-opener
-      docked: true
+      docked: false

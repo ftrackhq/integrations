@@ -16,4 +16,4 @@ tools:
     options:
       tool_configs:
         - maya-scene-opener
-      docked: true
+      docked: false

@@ -10,7 +10,7 @@ import inspect
 logger = logging.getLogger('ftrack_utils:usage')
 
 
-def track_framework_usage(event_name, metadata, tracked_args=[]):
+def track_framework_usage(event_name, metadata, tracked_args=None):
     """
     Decorator to track usage of framework functions.
 
@@ -42,6 +42,9 @@ def track_framework_usage(event_name, metadata, tracked_args=[]):
     Returns:
     The original function wrapped with usage tracking functionality.
     """
+
+    if not tracked_args:
+        tracked_args = []
 
     def decorator(func):
         @functools.wraps(func)
