@@ -14,8 +14,7 @@ class MayaSceneOpenerPlugin(BasePlugin):
 
     def run(self, store):
         '''
-        Expects collected_file in the <component_name> key of the given *store*
-        and an export_destination from the :obj:`self.options`.
+        Calls the maya open function with the collected_path key stored in the given *store*
         '''
         component_name = self.options.get('component')
 

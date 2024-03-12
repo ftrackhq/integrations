@@ -19,7 +19,6 @@ class StandardPublisherDialog(BaseContextDialog):
     tool_config_type_filter = ['publisher']
     ui_type = 'qt'
     run_button_title = 'PUBLISH'
-    docked = True
 
     def __init__(
         self,
@@ -59,6 +58,7 @@ class StandardPublisherDialog(BaseContextDialog):
             dialog_options,
             parent=parent,
         )
+        self.setWindowTitle('ftrack Publisher')
 
     def pre_build_ui(self):
         # Create scroll area to add all the widgets

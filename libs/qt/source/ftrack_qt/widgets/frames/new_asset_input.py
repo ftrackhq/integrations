@@ -32,6 +32,7 @@ class NewAssetInput(QtWidgets.QFrame):
         self._button.setEnabled(not value)
         if value:
             self._name.setFocus()
+            self.text_changed.emit(self._name.text())
         self.active_changed.emit(value)
 
     def __init__(self, validator, placeholder_name):
