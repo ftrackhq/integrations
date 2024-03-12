@@ -7,8 +7,8 @@ import nuke, nukescripts
 from nukescripts import panels
 
 
-def dock_nuke_right(label, widget):
-    '''Dock *widget*, with *name* and *label* to the right of the properties panel in Nuke'''
+def dock_nuke_right(widget):
+    '''Dock *widget*, to the right of the properties panel in Nuke'''
     class_name = widget.__class__.__name__
 
     if class_name not in globals():
@@ -16,7 +16,7 @@ def dock_nuke_right(label, widget):
 
         # Register docked panel
         panels.registerWidgetAsPanel(
-            f'{__name__}.{class_name}', f'ftrack {label}', class_name
+            f'{__name__}.{class_name}', widget.windowTitle(), class_name
         )
 
     # Restore panel

@@ -1,5 +1,9 @@
 # ftrack Framework Core library release Notes
 
+## Upcoming
+
+* [fix] Fix error on sending mix panel event when run_dialog passing the non serializable docked_func
+
 ## v2.0.1
 2024-03-08
 
