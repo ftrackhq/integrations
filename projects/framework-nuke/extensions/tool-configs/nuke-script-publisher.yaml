@@ -44,7 +44,7 @@ engine:
       - component
     options:
       component: reviewable
-    #optional: False by default so is no need
+    optional: True
     #enabled: True by default so is no need
     plugins:
       - type: plugin
