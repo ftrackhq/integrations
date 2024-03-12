@@ -42,7 +42,7 @@ class MayaThumbnailExporterPlugin(BasePlugin):
                 else:
                     current_panel = None
         # Get the current camera
-        previous_camera = 'presp'
+        previous_camera = 'persp'
         if current_panel:
             previous_camera = cmds.modelPanel(
                 current_panel, q=True, camera=True
