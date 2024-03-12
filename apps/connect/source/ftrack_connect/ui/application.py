@@ -36,8 +36,8 @@ from ftrack_connect.utils.plugin import (
     PLUGIN_DIRECTORIES,
 )
 from ftrack_connect.utils.login import (
-    read_json_config,
-    write_json_config,
+    read_json_login,
+    write_json_login,
 )
 from ftrack_connect.utils.directory import open_directory
 import ftrack_connect.ui.theme
@@ -350,10 +350,10 @@ class Application(QtWidgets.QMainWindow):
     def logout(self):
         '''Clear stored credentials and quit Connect.'''
         self._clear_qsettings()
-        config = read_json_config()
+        config = read_json_login()
 
         config['accounts'] = []
-        write_json_config(config)
+        write_json_login(config)
 
         QtWidgets.QApplication.quit()
 
@@ -367,7 +367,7 @@ class Application(QtWidgets.QMainWindow):
         credentials = None
 
         # Read from json config file.
-        json_config = read_json_config()
+        json_config = read_json_login()
         if json_config:
             try:
                 data = json_config['accounts'][0]
@@ -405,7 +405,7 @@ class Application(QtWidgets.QMainWindow):
         self._clear_qsettings()
 
         # Save the credentials.
-        json_config = read_json_config()
+        json_config = read_json_login()
 
         if not json_config:
             json_config = {}
@@ -423,7 +423,7 @@ class Application(QtWidgets.QMainWindow):
             }
         ]
 
-        write_json_config(json_config)
+        write_json_login(json_config)
 
     def login(self):
         '''Login using stored credentials or ask user for them.'''

@@ -11,44 +11,42 @@ import logging
 logger = logging.getLogger('ftrack_connect.ui.config')
 
 
-def get_config_file_path():
+def get_login_file_path():
     '''Return config file path.'''
-    config_file = os.path.join(
-        platformdirs.user_data_dir('ftrack-connect', 'ftrack'), 'config.json'
+    login_file = os.path.join(
+        platformdirs.user_data_dir('ftrack-connect', 'ftrack'), 'login.json'
     )
 
-    return config_file
+    return login_file
 
 
-def read_json_config():
+def read_json_login():
     '''Return json config from disk storage.'''
-    config_file = get_config_file_path()
-    config = None
+    login_file = get_login_file_path()
+    login = None
 
-    if os.path.isfile(config_file):
-        logger.debug(u'Reading config from {0}'.format(config_file))
+    if os.path.isfile(login_file):
+        logger.debug(u'Reading login from {0}'.format(login_file))
 
-        with open(config_file, 'r') as file:
+        with open(login_file, 'r') as file:
             try:
                 config = json.load(file)
             except Exception:
                 logger.exception(
-                    u'Exception reading json config in {0}.'.format(
-                        config_file
-                    )
+                    u'Exception reading json config in {0}.'.format(login_file)
                 )
 
-    return config
+    return login
 
 
-def write_json_config(config):
+def write_json_login(config):
     '''Write *config* as json file.'''
-    config_file = get_config_file_path()
+    login_file = get_login_file_path()
 
     # Create folder if it does not exist.
-    folder = os.path.dirname(config_file)
+    folder = os.path.dirname(login_file)
     if not os.path.isdir(folder):
         os.makedirs(folder)
 
-    with open(config_file, 'w') as file:
+    with open(login_file, 'w') as file:
         json.dump(config, file)
