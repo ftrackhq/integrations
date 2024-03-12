@@ -51,8 +51,13 @@ engine:
         plugin: store_component
       - type: plugin
         tags:
+          - collector
+        plugin: maya_writenode_collector
+        ui: maya_writenode_selector
+      - type: plugin
+        tags:
           - exporter
-        plugin: nuke_nodegraph_image_exporter
+        plugin: nuke_render_exporter
 
   # Export the thumbnail component.
   - type: group
