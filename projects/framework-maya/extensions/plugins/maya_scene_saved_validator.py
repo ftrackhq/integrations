@@ -13,10 +13,6 @@ from ftrack_framework_core.exceptions.plugin import (
 
 
 class MayaSceneSavedValidatorPlugin(BasePlugin):
-    '''
-    Plugin to validate if the Maya scene has been saved.
-    '''
-
     name = 'maya_scene_saved_validator'
 
     def save_to_temp(self, store, extension_format):
@@ -56,7 +52,7 @@ class MayaSceneSavedValidatorPlugin(BasePlugin):
 
     def run(self, store):
         '''
-        Run the validation process for the Maya scene.
+        Check if maya scene has been saved.
         '''
         component_name = self.options.get('component', 'main')
         extension_format = store['components'][component_name].get(
