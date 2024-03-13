@@ -6,7 +6,11 @@ import logging
 
 import platformdirs
 
-from ftrack_utils.yaml import read_yaml_file, write_yaml_file
+from ftrack_utils.yaml import (
+    read_yaml_file,
+    write_yaml_file,
+    substitute_placeholders,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -30,8 +34,9 @@ def get_connect_config_file_path():
 def get_connect_config():
     '''Return the content of the ftrack_connect.yaml file'''
     config_file = get_connect_config_file_path()
+    yaml_content = read_yaml_file(config_file)
 
-    return read_yaml_file(config_file)
+    return substitute_placeholders(yaml_content, yaml_content)
 
 
 def write_connect_config_file_path(content):

@@ -213,7 +213,7 @@ class AboutDialog(QtWidgets.QDialog):
 
         source_dirs = ""
         for index, plugin_directory in enumerate(
-            get_plugin_directories_from_config(self.connect_config)
+            self.connect_config['plugin_path']
         ):
             if index == 0:
                 index = 'Target'

@@ -57,7 +57,7 @@ from ftrack_connect.utils.config import (
     get_connect_config,
     get_connect_config_file_path,
 )
-from ftrack_connect.utils.plugin import create_plugin_directory
+from ftrack_connect.utils.plugin import create_target_plugin_directory
 
 
 class ConnectWidgetPlugin(object):
@@ -1163,11 +1163,8 @@ class Application(QtWidgets.QMainWindow):
         '''Open default plugin directory in platform default file browser.'''
 
         try:
-            create_plugin_directory(
-                self.connect_config.get(
-                    'FTRACK_CONNECT_PLUGIN_PATH',
-                    get_default_plugin_directory(),
-                )
+            create_target_plugin_directory(
+                get_plugin_directories_from_config(self.connect_config)[0]
             )
         except OSError:
             messageBox = QtWidgets.QMessageBox(parent=self)
