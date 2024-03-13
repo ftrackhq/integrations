@@ -38,6 +38,32 @@ engine:
           - exporter
         plugin: nuke_script_exporter
 
+  # Export the reviewable component.
+  - type: group
+    tags:
+      - component
+    options:
+      component: reviewable
+    optional: True
+    #enabled: True by default so is no need
+    plugins:
+      - type: plugin
+        plugin: store_component
+      - type: plugin
+        tags:
+          - collector
+        plugin: nuke_node_collector
+        ui: nuke_node_selector
+      - type: plugin
+        tags:
+          - validator
+        plugin: nuke_node_exists_validator
+        ui: validator_label
+      - type: plugin
+        tags:
+          - exporter
+        plugin: nuke_render_exporter
+
   # Export the thumbnail component.
   - type: group
     tags:
