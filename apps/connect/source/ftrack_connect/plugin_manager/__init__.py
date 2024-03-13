@@ -8,7 +8,6 @@ import os
 from ftrack_connect.qt import QtWidgets, QtCore, QtGui
 
 from ftrack_connect.utils.thread import qt_main_thread
-from ftrack_connect.utils.plugin import get_plugin_directories_from_config
 from ftrack_connect.utils.config import (
     get_connect_config,
     get_connect_config_file_path,
@@ -117,8 +116,9 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
 
         # plugin list
         self._plugin_list_widget = DndPluginList(
-            get_plugin_directories_from_config(self.connect_config)[0]
+            self.connect_config['plugin_path']
         )
+
         self.layout().addWidget(self._plugin_list_widget)
 
         self._info_widget = QtWidgets.QFrame()
@@ -130,7 +130,7 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
             )
         )
         for index, plugin_directory in enumerate(
-            get_plugin_directories_from_config(self.connect_config)
+            self.connect_config['plugin_path']
         ):
             self._info_widget.layout().addWidget(
                 QtWidgets.QLabel(

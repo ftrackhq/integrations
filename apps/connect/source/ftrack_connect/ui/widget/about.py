@@ -17,7 +17,6 @@ from ftrack_connect.qt import (
 from ftrack_connect.utils.log import get_log_directory
 
 from ftrack_connect.utils.directory import open_directory
-from ftrack_connect.utils.plugin import get_plugin_directories_from_config
 
 
 class AboutDialog(QtWidgets.QDialog):

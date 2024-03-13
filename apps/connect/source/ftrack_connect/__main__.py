@@ -18,7 +18,6 @@ from utils.config import (
 from utils.plugin import (
     get_default_plugin_directory,
     create_target_plugin_directory,
-    get_plugin_directories_from_config,
 )
 from utils.log import get_default_log_directory
 
@@ -92,6 +91,9 @@ def main_connect(arguments=None):
         'ftrack_connect', level=loggingLevels[namespace.verbosity]
     )
 
+    # TODO: Discuss if those keys should might be FTRACK_CONNECT_PLUGIN_PATH and
+    #  FTRACK_CONNECT_LAUNCH_PATH, FTRACK_CONNECT_LOG_PATH even thogh they are
+    #  not environment variables anymore.
     default_values = {
         'plugin_path': [get_default_plugin_directory()],
         'launch_path': '{$plugin_path}/*/launch',
@@ -104,9 +106,7 @@ def main_connect(arguments=None):
     connect_config = verify_connect_config(connect_config, default_values)
 
     # Make sure plugin directory is created
-    create_target_plugin_directory(
-        get_plugin_directories_from_config(connect_config)[0]
-    )
+    create_target_plugin_directory(connect_config['plugin_path'][0])
 
     single_instance = None
     if not namespace.allow_multiple:

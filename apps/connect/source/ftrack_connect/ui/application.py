@@ -33,7 +33,6 @@ from ftrack_connect.utils.plugin import (
     get_default_plugin_directory,
     get_plugins_from_path,
     get_plugin_data,
-    get_plugin_directories_from_config,
 )
 from ftrack_connect.utils.login import (
     read_json_login,
@@ -754,9 +753,7 @@ class Application(QtWidgets.QMainWindow):
 
         result = []
         i = 0
-        for plugin_base_directory in get_plugin_directories_from_config(
-            self.connect_config
-        ):
+        for plugin_base_directory in self.connect_config['plugin_path']:
             current_dir_plugins = []
             for plugin in self._gather_plugins(
                 plugin_base_directory, source_index=i
@@ -812,9 +809,7 @@ class Application(QtWidgets.QMainWindow):
 
         result = []
         i = 0
-        for plugin_base_directory in get_plugin_directories_from_config(
-            self.connect_config
-        ):
+        for plugin_base_directory in self.connect_config['plugin_path']:
             result.extend(
                 self._gather_plugins(plugin_base_directory, source_index=i)
             )
@@ -1164,7 +1159,7 @@ class Application(QtWidgets.QMainWindow):
 
         try:
             create_target_plugin_directory(
-                get_plugin_directories_from_config(self.connect_config)[0]
+                self.connect_config['plugin_path'][0]
             )
         except OSError:
             messageBox = QtWidgets.QMessageBox(parent=self)

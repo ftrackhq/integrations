@@ -27,7 +27,8 @@ def get_default_plugin_directory():
 
 
 def get_plugin_directories_from_config(config_file):
-    return config_file['plugin_path'].split(os.pathsep)
+    # TODO: this one is deprecated as connect_config has deprecated this environment variable.
+    return config_file['FTRACK_CONNECT_PLUGIN_PATH'].split(os.pathsep)
 
 
 def get_plugins_from_path(plugin_directory):
