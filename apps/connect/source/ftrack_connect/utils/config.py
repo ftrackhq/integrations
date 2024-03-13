@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_default_config_directory():
-    return platformdirs.user_data_dir('ftrack-connect-plugins', 'ftrack')
+    return platformdirs.user_data_dir('ftrack-connect', 'ftrack')
 
 
 def get_connect_config_file_path():

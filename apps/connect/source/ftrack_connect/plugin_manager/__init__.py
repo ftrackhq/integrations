@@ -116,7 +116,7 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
 
         # plugin list
         self._plugin_list_widget = DndPluginList(
-            self.connect_config['plugin_path']
+            self.connect_config['plugin_path'][0]
         )
 
         self.layout().addWidget(self._plugin_list_widget)

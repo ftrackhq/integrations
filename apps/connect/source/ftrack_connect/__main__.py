@@ -10,16 +10,16 @@ import os
 import pkg_resources
 import importlib
 
-from utils.config import (
+from ftrack_connect.utils.config import (
     get_connect_config,
     write_connect_config_file_path,
     verify_connect_config,
 )
-from utils.plugin import (
+from ftrack_connect.utils.plugin import (
     get_default_plugin_directory,
     create_target_plugin_directory,
 )
-from utils.log import get_default_log_directory
+from ftrack_connect.utils.log import get_default_log_directory
 
 
 def main_connect(arguments=None):

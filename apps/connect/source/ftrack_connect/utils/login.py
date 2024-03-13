@@ -30,7 +30,7 @@ def read_json_login():
 
         with open(login_file, 'r') as file:
             try:
-                config = json.load(file)
+                login = json.load(file)
             except Exception:
                 logger.exception(
                     u'Exception reading json config in {0}.'.format(login_file)

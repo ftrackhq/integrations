@@ -1,5 +1,12 @@
 # ftrack Connect release Notes
 
+## Upcoming
+
+* [new] Support resolving referenced keys withing the same connect_config.yaml file using {$name_of_the_key}
+* [new] Custom launch_path setting on connect_config.yaml
+* [deprecated] FTRACK_CONNECT_PLUGIN_PATH is deprecated in favor of plugin_path in the connect_config.yaml
+* [new] Implemented connect_config.yaml file driven by FTRACK_CONNECT_CONFIG_PATH
+
 ## v3.0.0
 2024-02-16
 
