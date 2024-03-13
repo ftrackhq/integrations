@@ -92,12 +92,15 @@ def main_connect(arguments=None):
     )
 
     # TODO: Discuss if those keys should might be FTRACK_CONNECT_PLUGIN_PATH and
-    #  FTRACK_CONNECT_LAUNCH_PATH, FTRACK_CONNECT_LOG_PATH even thogh they are
+    #  FTRACK_CONNECT_LAUNCH_PATH even though they are
     #  not environment variables anymore.
     default_values = {
+        'type': 'connect_config',
+        'name': 'default_connect_config',
         'plugin_path': [get_default_plugin_directory()],
-        'launch_path': '{$plugin_path}/*/launch',
-        'log_path': get_default_log_directory(),
+        'plugin_name': '*',
+        # TODO: double check if {$name of the variable } is something more or less standard or we shouldn't put the $
+        'launch_path': '{$plugin_path}/{$plugin_name}/launch',
     }
     connect_config = get_connect_config()
     if not connect_config:

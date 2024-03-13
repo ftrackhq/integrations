@@ -9,6 +9,7 @@ import requests.exceptions
 import uuid
 import logging
 import weakref
+import glob
 from operator import itemgetter
 import time
 import qtawesome as qta
@@ -1180,10 +1181,15 @@ class Application(QtWidgets.QMainWindow):
 
         self.logger.debug('Discovering applications launcher configs.')
 
-        for connect_plugin_path in [plugin['path'] for plugin in self.plugins]:
-            launcher_config_path = os.path.join(connect_plugin_path, 'launch')
-            if os.path.isdir(launcher_config_path):
-                launcher_config_paths.append(launcher_config_path)
+        if isinstance(self.connect_config['launch_path'], list):
+            for launch_path in self.connect_config['launch_path']:
+                found_dirs = glob.glob(
+                    launch_path
+                )  # We can use recursive=True if we want to look in the entire folder
+                if found_dirs:
+                    for path in found_dirs:
+                        if os.path.isdir(path):
+                            launcher_config_paths.append(path)
 
         # Create store containing launchable applications.
         self._application_launcher = DiscoverApplications(
