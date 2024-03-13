@@ -54,6 +54,11 @@ engine:
           - collector
         plugin: nuke_node_collector
         ui: nuke_node_selector
+    - type: plugin
+        tags:
+          - validator
+        plugin: nuke_node_exists_validator
+        ui: validator_label
       - type: plugin
         tags:
           - exporter
