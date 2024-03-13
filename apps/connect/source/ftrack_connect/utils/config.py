@@ -2,6 +2,7 @@
 # :copyright: Copyright (c) 2024 ftrack
 
 import os
+import glob
 import logging
 
 import platformdirs
@@ -19,29 +20,42 @@ def get_default_config_directory():
     return platformdirs.user_data_dir('ftrack-connect', 'ftrack')
 
 
-def get_connect_config_file_path():
+def get_connect_config_path():
     '''Return Path of the ftrack_connect.yaml file'''
     config_path = os.getenv(
         'FTRACK_CONNECT_CONFIG_PATH', get_default_config_directory()
     )
-    config_file = os.path.join(
-        config_path,
-        'ftrack_connect.yaml',
-    )
-    return config_file
+    return config_path
 
 
 def get_connect_config():
     '''Return the content of the ftrack_connect.yaml file'''
-    config_file = get_connect_config_file_path()
-    yaml_content = read_yaml_file(config_file)
+    config_path = get_connect_config_path()
+    yaml_files = glob.glob(os.path.join(config_path, '*.yaml'))
 
-    return substitute_placeholders(yaml_content, yaml_content)
+    found_config = None
+    for yaml_file in yaml_files:
+        yaml_content = read_yaml_file(yaml_file)
+        if yaml_content.get('type') != 'connect_config':
+            logger.warning(
+                "Ignoring file {yaml_file} as is not tagged as connect_config type"
+            )
+            continue
+        try:
+            found_config = substitute_placeholders(yaml_content, yaml_content)
+        except Exception as e:
+            raise Exception(
+                f"Error found on parsing connect config file {yaml_file}. Error: {e}"
+            )
+        break
+
+    return found_config
 
 
 def write_connect_config_file_path(content):
     '''Write the content to the ftrack_connect.yaml file'''
-    config_file = get_connect_config_file_path()
+    config_path = get_connect_config_path()
+    config_file = os.path.join(config_path, 'ftrack_connect.yaml')
 
     return write_yaml_file(config_file, content)
 

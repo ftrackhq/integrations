@@ -96,8 +96,8 @@ def main_connect(arguments=None):
     #  not environment variables anymore.
     default_values = {
         'type': 'connect_config',
-        'name': 'default_connect_config',
-        'plugin_path': [get_default_plugin_directory()],
+        'name': 'default-connect-config',
+        'plugin_path': [get_default_plugin_directory(), 'test/path'],
         'plugin_name': '*',
         # TODO: double check if {$name of the variable } is something more or less standard or we shouldn't put the $
         'launch_path': '{$plugin_path}/{$plugin_name}/launch',

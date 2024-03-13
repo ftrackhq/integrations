@@ -55,7 +55,7 @@ from ftrack_connect.application_launcher.discover_applications import (
 
 from ftrack_connect.utils.config import (
     get_connect_config,
-    get_connect_config_file_path,
+    get_connect_config_path,
 )
 from ftrack_connect.utils.plugin import create_target_plugin_directory
 
@@ -183,7 +183,7 @@ class Application(QtWidgets.QMainWindow):
         if not self.connect_config:
             raise FileNotFoundError(
                 f"Connect config file (ftrack_connect.yaml) not found in the "
-                f"following directory: {get_connect_config_file_path()}.\n"
+                f"following directory: {get_connect_config_path()}.\n"
                 f"Please provide one before continue."
             )
 

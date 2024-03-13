@@ -44,22 +44,32 @@ def resolve_placeholders(value, data):
     :param data: The dictionary containing the values to replace placeholders.
     :return: The value with all placeholders resolved.
     """
-    pattern = re.compile(r'\{\$(.*?)\}')
-    while True:
-        match = pattern.search(value)
-        if not match:
-            break
-        placeholder = match.group(1)
-        replacement = data.get(placeholder, '')
-        if isinstance(replacement, list):
-            new_values = []
-            for obj in replacement:
-                new_value = value.replace(match.group(), obj)
-                new_values.append(new_value)
-            return new_values
-        else:
-            value = value.replace(match.group(), replacement)
-    return value
+    if isinstance(value, str):
+        pattern = re.compile(r'\{\$(.*?)\}')
+        while True:
+            match = pattern.search(value)
+            if not match:
+                break
+            placeholder = match.group(1)
+            replacement = data.get(placeholder, '')
+            if isinstance(replacement, list):
+                # Process list replacements by generating new strings for each list item
+                return [
+                    resolve_placeholders(
+                        value.replace(match.group(), r, 1), data
+                    )
+                    for r in replacement
+                ]
+            else:
+                # Simple string replacement
+                value = value.replace(match.group(), str(replacement), 1)
+        return value
+    elif isinstance(value, list):
+        # If the value is a list, apply placeholder resolution to each element
+        return [resolve_placeholders(item, data) for item in value]
+    else:
+        # Non-string, non-list values are returned as-is
+        return value
 
 
 def substitute_placeholders(data, original_data):

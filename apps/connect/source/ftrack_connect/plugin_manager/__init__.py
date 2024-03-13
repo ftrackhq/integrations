@@ -10,7 +10,7 @@ from ftrack_connect.qt import QtWidgets, QtCore, QtGui
 from ftrack_connect.utils.thread import qt_main_thread
 from ftrack_connect.utils.config import (
     get_connect_config,
-    get_connect_config_file_path,
+    get_connect_config_path,
 )
 
 from ftrack_connect.ui.widget.overlay import BlockingOverlay, BusyOverlay
@@ -86,7 +86,7 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
         if not self.connect_config:
             raise FileNotFoundError(
                 f"Connect config file (ftrack_connect.yaml) not found in the "
-                f"following directory: {get_connect_config_file_path()}.\n"
+                f"following directory: {get_connect_config_path()}.\n"
                 f"Please provide one before continue."
             )
 
