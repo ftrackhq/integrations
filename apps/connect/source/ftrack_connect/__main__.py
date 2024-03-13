@@ -10,7 +10,11 @@ import os
 import pkg_resources
 import importlib
 
-from utils.config import get_connect_config, write_connect_config_file_path
+from utils.config import (
+    get_connect_config,
+    write_connect_config_file_path,
+    verify_connect_config,
+)
 from utils.plugin import get_default_plugin_directory, create_plugin_directory
 from utils.log import get_default_log_directory
 
@@ -84,25 +88,19 @@ def main_connect(arguments=None):
         'ftrack_connect', level=loggingLevels[namespace.verbosity]
     )
 
+    default_values = {
+        'FTRACK_CONNECT_PLUGIN_PATH': get_default_plugin_directory(),
+        'FTRACK_CONNECT_LAUNCH_PATH': '{$FTRACK_CONNECT_PLUGIN_PATH}/*/launch',
+        'FTRACK_CONNECT_LOG_PATH': get_default_log_directory(),
+    }
     connect_config = get_connect_config()
     if not connect_config:
-        # TODO: add a validator in the connect config to make sure at least this 3 keys are defined.
-        default_config = {
-            'FTRACK_CONNECT_PLUGIN_PATH': get_default_plugin_directory(),
-            'FTRACK_CONNECT_LAUNCH_PATH': os.path.join(
-                get_default_plugin_directory(), '{plugin_folder}', 'launch'
-            ),
-            'FTRACK_CONNECT_LOG_PATH': get_default_log_directory(),
-        }
-        write_connect_config_file_path(default_config)
+        write_connect_config_file_path(default_values)
         connect_config = get_connect_config()
+    connect_config = verify_connect_config(connect_config, default_values)
 
     # Make sure plugin directory is created
-    create_plugin_directory(
-        connect_config.get(
-            'FTRACK_CONNECT_PLUGIN_PATH', get_default_plugin_directory()
-        )
-    )
+    create_plugin_directory(connect_config['FTRACK_CONNECT_PLUGIN_PATH'])
 
     single_instance = None
     if not namespace.allow_multiple:

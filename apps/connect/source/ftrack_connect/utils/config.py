@@ -39,3 +39,17 @@ def write_connect_config_file_path(content):
     config_file = get_connect_config_file_path()
 
     return write_yaml_file(config_file, content)
+
+
+def verify_connect_config(connect_config, default_values):
+    '''
+    Make sure the given *connect_config* has all keys defined on the
+    *default_values*, if not, set the default values on it.
+    '''
+    for k, v in default_values.items():
+        if k not in connect_config.keys():
+            logger.warning(
+                f"Missing default {k} key on Connect_config file, setting it up with the default value: {v}"
+            )
+            connect_config[k] = v
+    return connect_config
