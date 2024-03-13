@@ -10,6 +10,7 @@ official CI/CD build implementation in place.
 
 Changelog:
 
+0.4.15 [24.03.13] Fix platform dependent bug.
 0.4.14 [24.02.23] Incorporate RV pkg build.
 0.4.13 [24.02.12] Build qt-style when building CEP plugin.
 0.4.12 [24.02.05] Build qt-style if from_source flag to build script
@@ -42,7 +43,7 @@ from distutils.spawn import find_executable
 import fileinput
 import tempfile
 
-__version__ = '0.4.14'
+__version__ = '0.4.15'
 
 ZXPSIGN_CMD = 'ZXPSignCmd'
 
@@ -100,9 +101,6 @@ def build_package(pkg_path, args, command=None):
                             append_dependencies(lib_toml_path)
                         if line.startswith('ftrack-framework-core'):
                             USES_FRAMEWORK = True
-                    if line.find('pyside') > -1:
-                        PLATFORM_DEPENDENT = True
-                        logging.info('Platform dependent build.')
 
     if os.path.exists(POETRY_CONFIG_PATH):
         PROJECT_NAME = None
@@ -116,6 +114,13 @@ def build_package(pkg_path, args, command=None):
                         PROJECT_NAME = line.split('=')[1].strip().strip('"')
                     elif line.startswith('version = '):
                         VERSION = line.split('=')[1].strip().strip('"')
+                elif section == 'tool.poetry.dependencies':
+                    if line.find('pyside') > -1:
+                        PLATFORM_DEPENDENT = True
+                        logging.info(
+                            'Platform dependent build - OS suffix will be added to artifact.'
+                        )
+
         append_dependencies(POETRY_CONFIG_PATH)
 
         if USES_FRAMEWORK:
