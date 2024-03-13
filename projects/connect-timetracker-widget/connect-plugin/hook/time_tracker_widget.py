@@ -14,7 +14,7 @@ import ftrack_connect.ui.widget.overlay
 import ftrack_connect.ui.widget.item_list
 import ftrack_connect.ui.widget.label
 import ftrack_connect.ui.widget.line_edit
-from ftrack_connect.utils.plugin import get_connect_plugin_version
+from ftrack_utils.version import get_connect_plugin_version
 
 cwd = os.path.dirname(__file__)
 connect_plugin_path = os.path.abspath(os.path.join(cwd, '..'))

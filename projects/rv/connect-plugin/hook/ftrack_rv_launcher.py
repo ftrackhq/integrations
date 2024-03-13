@@ -8,7 +8,7 @@ import re
 import datetime
 
 import ftrack_api
-from ftrack_connect.utils.plugin import get_connect_plugin_version
+from ftrack_utils.version import get_connect_plugin_version
 
 from ftrack_connect.application_launcher import (
     append_path,

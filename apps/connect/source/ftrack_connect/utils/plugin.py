@@ -43,25 +43,6 @@ def get_plugins_from_path(plugin_directory):
     return plugins
 
 
-def get_connect_plugin_version(connect_plugin_path):
-    '''Return Connect plugin version string for *connect_plugin_path*'''
-    result = None
-    path_version_file = os.path.join(connect_plugin_path, '__version__.py')
-    if not os.path.isfile(path_version_file):
-        raise FileNotFoundError
-    with open(path_version_file) as f:
-        for line in f.readlines():
-            if line.startswith('__version__'):
-                result = line.split('=')[1].strip().strip("'")
-                break
-    if not result:
-        raise Exception(
-            "Can't extract version number from {}. "
-            "\n Make sure file is valid.".format(path_version_file)
-        )
-    return result
-
-
 def get_plugin_data(plugin_path):
     '''Return data from the provided *plugin_path*.'''
     plugin_re = re.compile('(?P<name>(([A-Za-z-3-4]+)))-(?P<version>(\w.+))')

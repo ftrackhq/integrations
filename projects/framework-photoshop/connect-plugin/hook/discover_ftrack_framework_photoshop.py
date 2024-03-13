@@ -9,7 +9,7 @@ import functools
 import uuid
 import subprocess
 
-from ftrack_connect.utils.plugin import get_connect_plugin_version
+from ftrack_utils.version import get_connect_plugin_version
 
 # The name of the integration, should match name in launcher.
 NAME = 'framework-photoshop'
