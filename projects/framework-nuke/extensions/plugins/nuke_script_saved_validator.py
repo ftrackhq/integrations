@@ -24,7 +24,7 @@ class NukeScriptSavedValidatorPlugin(BasePlugin):
         *store*.
         '''
         try:
-            save_path = get_temp_path(filename_extension='.nk')
+            save_path = get_temp_path(filename_extension='nk')
 
             nuke.scriptSaveAs(save_path, overwrite=1)
         except Exception as error:

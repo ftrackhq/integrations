@@ -69,7 +69,7 @@ class NukeNodegraphImageExporterPlugin(BasePlugin):
             )
 
         try:
-            image_path = get_temp_path(filename_extension='.png')
+            image_path = get_temp_path(filename_extension='png')
 
             self.screen_capture_widget(view, image_path)
         except Exception as e:
