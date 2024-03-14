@@ -1,19 +1,15 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
-import copy
 
 from Qt import QtWidgets, QtCore
 
-from ftrack_framework_core.widget.dialog import FrameworkDialog
+from ftrack_framework_qt.dialogs.base_dialog import BaseDialog
 
-from ftrack_qt.widgets.dialogs import StyledDialog
 from ftrack_qt.widgets.headers import SessionHeader
 from ftrack_qt.widgets.selectors import ContextSelector
 
-from ftrack_qt.utils.layout import recursive_clear_layout
 
-
-class BaseContextDialog(FrameworkDialog, StyledDialog):
+class BaseContextDialog(BaseDialog):
     '''Default Framework Publisher dialog'''
 
     name = 'base_context_dialog'
@@ -39,23 +35,6 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
         '''
         return self._context_selector.is_browsing
 
-    @property
-    def header(self):
-        return self._header
-
-    @property
-    def tool_widget(self):
-        return self._tool_widget
-
-    @property
-    def run_button(self):
-        return self._run_button
-
-    @property
-    def tool_config_names(self):
-        '''Return tool config names if passed in the dialog options.'''
-        return self.dialog_options.get('tool_config_names')
-
     def __init__(
         self,
         event_manager,
@@ -67,51 +46,24 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
         parent=None,
     ):
         '''
-        Initialize Mixin class publisher dialog. It will load the qt dialog and
-        mix it with the framework dialog.
-        *event_manager*: instance of
-        :class:`~ftrack_framework_core.event.EventManager`
-        *client_id*: Id of the client that initializes the current dialog
-        *connect_methods_callback*: Client callback method for the dialog to be
-        able to execute client methods.
-        *connect_setter_property_callback*: Client callback property setter for
-        the dialog to be able to read client properties.
-        *connect_getter_property_callback*: Client callback property getter for
-        the dialog to be able to write client properties.
-        *dialog_options*: Dictionary of arguments passed on to configure the
-        current dialog.
+        Overrides BaseDialog class and implements context selector logic
         '''
-        # As a mixing class we have to initialize the parents separately
-        StyledDialog.__init__(
-            self,
-            background_style=None,
-            docked=dialog_options.get("docked", False),
-            parent=parent,
-        )
-        FrameworkDialog.__init__(
-            self,
+
+        self._context_selector = None
+
+        super(BaseContextDialog, self).__init__(
             event_manager,
             client_id,
             connect_methods_callback,
             connect_setter_property_callback,
             connect_getter_property_callback,
             dialog_options,
-            parent,
+            parent=parent,
         )
-        self._header = None
-        self._context_selector = None
-        self._tool_widget = None
-        self._run_button = None
-
-        self.pre_build()
-        self.build()
-        self.post_build()
-
-    def pre_build(self):
-        main_layout = QtWidgets.QVBoxLayout()
-        self.setLayout(main_layout)
 
     def build(self):
+        '''Re implement the build method to contain context selector'''
+
         # Create the header
         self._header = SessionHeader(self.event_manager.session)
 
@@ -131,15 +83,12 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
         self.layout().addWidget(self._run_button)
 
     def post_build(self):
-        '''Set up all the signals'''
-        self._on_client_context_changed_callback()
-
+        '''Override the post_build method to create context selector signals'''
+        super(BaseContextDialog, self).post_build()
         # Connect context selector signals
         self._context_selector.context_changed.connect(
             self._on_context_selected_callback
         )
-        # Connect run_tool_config button
-        self._run_button.clicked.connect(self._on_run_button_clicked)
 
     def _on_context_selected_callback(self, context_id):
         '''Emit signal with the new context_id'''
@@ -149,71 +98,7 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
 
     def _on_client_context_changed_callback(self, event=None):
         '''Client context has been changed'''
+        self.selected_context_id = self.context_id
         super(BaseContextDialog, self)._on_client_context_changed_callback(
             event
         )
-        self.selected_context_id = self.context_id
-        # Clean the UI every time a new context is set as the current tool
-        # config might not be available anymore
-        self.clean_ui()
-        self.pre_build_ui()
-        self.build_ui()
-        self.post_build_ui()
-
-    def _on_run_button_clicked(self):
-        '''
-        Run button from the UI has been clicked.
-        Tell client to run the current tool config
-        '''
-
-        self.run_tool_config(self.tool_config['reference'])
-
-    # FrameworkDialog overrides
-    def show_ui(self):
-        '''Override Show method of the base framework dialog'''
-        StyledDialog.show(self)
-        self.raise_()
-        self.activateWindow()
-        self.setWindowState(
-            self.windowState() & ~QtCore.Qt.WindowMinimized
-            | QtCore.Qt.WindowActive
-        )
-
-    def connect_focus_signal(self):
-        '''Connect signal when the current dialog gets focus'''
-        pass
-
-    def sync_context(self):
-        '''
-        Client context has been changed and doesn't match the ui context when
-        focus is back to the current UI
-        '''
-        pass
-
-    def _on_tool_config_changed_callback(self):
-        '''The selected tool config has been changed'''
-        pass
-
-    def sync_host_connection(self):
-        pass
-
-    def clean_ui(self):
-        removed_widgets = []
-        recursive_clear_layout(self._tool_widget.layout(), removed_widgets)
-        for widget in removed_widgets:
-            if not hasattr(widget, 'name'):
-                continue
-            self.unregister_widget(widget.name)
-
-    def pre_build_ui(self):
-        raise NotImplementedError
-
-    def build_ui(self):
-        raise NotImplementedError
-
-    def post_build_ui(self):
-        raise NotImplementedError
-
-    def closeEvent(self, event):
-        self.ui_closed()
-        super(BaseContextDialog, self).closeEvent(event)
