@@ -1,12 +1,13 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
-import shiboken2
 
 try:
     from PySide6 import QtWidgets, QtCore
+    import shiboken6 as shiboken
 except ImportError:
     from PySide2 import QtWidgets, QtCore, QtGui
+    import shiboken2 as shiboken
 
 from ftrack_utils.framework.config.tool import get_plugins
 
@@ -42,7 +43,7 @@ def get_framework_main_dialog(widget):
 def set_property(widget, name, value):
     '''Update property *name* to *value* for *widget*, and polish afterwards.'''
     widget.setProperty(name, value)
-    if widget.style() is not None and shiboken2.isValid(
+    if widget.style() is not None and shiboken.isValid(
         widget.style()
     ):  # Only update style if applied and valid
         widget.style().unpolish(widget)

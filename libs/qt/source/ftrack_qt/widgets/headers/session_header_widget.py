@@ -1,7 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
-from Qt import QtCore, QtWidgets, QtGui
+try:
+    from PySide6 import QtWidgets, QtCore, QtGui
+except ImportError:
+    from PySide2 import QtWidgets, QtCore, QtGui
 
 from ftrack_qt.widgets.logos import FtrackLogo as Logo
 from ftrack_qt.widgets.user import FtrackUser as User

@@ -1,7 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
-from Qt import QtWidgets
+try:
+    from PySide6 import QtWidgets
+except ImportError:
+    from PySide2 import QtWidgets
 
 from ftrack_framework_qt.widgets import BaseWidget
 from ftrack_qt.widgets.selectors import OpenAssetSelector

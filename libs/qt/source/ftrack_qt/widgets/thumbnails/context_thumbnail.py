@@ -4,7 +4,10 @@
 
 import urllib.request, urllib.parse, urllib.error
 
-from Qt import QtCore, QtGui, QtWidgets
+try:
+    from PySide6 import QtCore, QtWidgets, QtGui
+except ImportError:
+    from PySide2 import QtCore, QtWidgets, QtGui
 
 from ftrack_qt.widgets.thumbnails.session_base_thumbnail import (
     SessionThumbnailBase,

@@ -555,7 +555,7 @@ def build_package(pkg_path, args, command=None):
         Qt.
 
         '''
-        replace = r'from Qt import QtCore'
+        replace = r'''try: from PySide6 import QtCore; except ImportError: from PySide2 import QtCore;'''
         for line in fileinput.input(
             resource_target_path, inplace=True, mode='r'
         ):

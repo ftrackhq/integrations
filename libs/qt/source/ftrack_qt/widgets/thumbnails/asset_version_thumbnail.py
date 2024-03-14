@@ -1,7 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
-from Qt import QtCore, QtGui, QtWidgets
+try:
+    from PySide6 import QtCore, QtWidgets, QtGui
+except ImportError:
+    from PySide2 import QtCore, QtWidgets, QtGui
 
 from ftrack_qt.widgets.thumbnails.base_thumbnail import ThumbnailBase
 

@@ -5,8 +5,12 @@ import os
 import logging
 import urllib.request, urllib.parse, urllib.error
 
-from Qt import QtCore, QtGui, QtWidgets
-import shiboken2
+try:
+    from PySide6 import QtCore, QtWidgets, QtGui
+    import shiboken6 as shiboken
+except ImportError:
+    from PySide2 import QtCore, QtWidgets, QtGui
+    import shiboken2 as shiboken
 
 from ftrack_utils.threading import BaseThread
 
@@ -77,14 +81,14 @@ class ThumbnailBase(QtWidgets.QLabel):
         while ThumbnailBase.MAX_CONNECTIONS <= ThumbnailBase._connection_count:
             time.sleep(0.01)
             # Thumbnail widget still active?
-            if not shiboken2.isValid(self):
+            if not shiboken.isValid(self):
                 return
         ThumbnailBase._connection_count += 1
         try:
             return self._download(reference)
         except urllib.error.URLError:
             # Not found
-            if not shiboken2.isValid(self):
+            if not shiboken.isValid(self):
                 # Thumbnail widget has been destroyed
                 return
             self.thumbnailNotFound.emit()
@@ -93,14 +97,14 @@ class ThumbnailBase(QtWidgets.QLabel):
 
     def _downloaded_async(self, html):
         '''(Run in background thread) Image has been downloaded, propagate to QT thread'''
-        if not shiboken2.isValid(self):
+        if not shiboken.isValid(self):
             # Thumbnail widget has been destroyed
             return
         self.thumbnailFetched.emit(html)
 
     def _downloaded(self, result):
         '''Handler worker finished event.'''
-        if not shiboken2.isValid(self):
+        if not shiboken.isValid(self):
             # Thumbnail widget has been destroyed
             return
         IMAGE_CACHE[self.__loadingReference] = result

@@ -32,11 +32,11 @@ embedded_plugins = [
 ]
 
 bundle_name = 'ftrack Connect'
-import PySide2
-import shiboken2
+import PySide6
+import shiboken6 as shiboken
 
 pyside_path = os.path.join(PySide2.__path__[0])
-shiboken_path = os.path.join(shiboken2.__path__[0])
+shiboken_path = os.path.join(shiboken.__path__[0])
 
 # Setup code
 

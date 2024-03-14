@@ -1,7 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
-from Qt import QtWidgets
+try:
+    from PySide6 import QtWidgets
+except ImportError:
+    from PySide2 import QtWidgets
 
 import ftrack_constants as constants
 from ftrack_qt.utils.widget import set_property

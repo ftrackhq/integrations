@@ -2,7 +2,10 @@
 # :copyright: Copyright (c) 2024 ftrack
 import logging
 
-from Qt import QtCore, QtWidgets, QtGui, QtSvg
+try:
+    from PySide6 import QtWidgets, QtCore, QtGui, QtSvg
+except ImportError:
+    from PySide2 import QtWidgets, QtCore, QtGui, QtSvg
 
 
 class MaterialIcon(QtGui.QIcon):

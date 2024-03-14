@@ -1,12 +1,13 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 import logging
-import shiboken2
 
 try:
     from PySide6 import QtWidgets, QtCore
+    import shiboken6 as shiboken
 except ImportError:
     from PySide2 import QtWidgets, QtCore
+    import shiboken2 as shiboken
 
 from ftrack_qt.widgets.info import EntityInfo
 
@@ -212,7 +213,7 @@ class ContextSelector(QtWidgets.QFrame):
 
     def _on_entity_found_async(self, entity):
         '''(Run in background thread) Entity found callback'''
-        if not shiboken2.isValid(self):
+        if not shiboken.isValid(self):
             # Widget has been closed while entity fetched
             self._browsing_context = False
             return
