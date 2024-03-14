@@ -1,5 +1,9 @@
 # ftrack Connect installer release Notes
 
+## Upcoming
+
+* [changed] Removed docker files.
+
 ## v24.3.0
 2024-03-08
 
