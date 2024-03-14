@@ -2,6 +2,8 @@
 
 ## Upcoming
 
+* [changed] Widget file names align within the same folder.
+* [changed] widgets/frame folder renamed to asset.
 * [changed] Moved OpenAssetSelector logic to AssetSelectorBase.
 * [fixed] Fixed bug in asset_selector, if no assets on startup - properly emit asset name changed signal.
 * [fixed] Disabled auto scrolling on asset list. Always select the first item on activation.
