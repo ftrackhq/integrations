@@ -71,7 +71,6 @@ def get_ftrack_menu(menu_name='ftrack', submenu_name=None):
 client_instance = None
 
 
-# TODO: activate this on implementing run in main thread for nuke like in maya
 @run_in_main_thread
 def on_run_dialog_callback(dialog_name, tool_config_names, docked):
     client_instance.run_dialog(
