@@ -16,7 +16,7 @@ class NukeSaveToTempPlugin(BasePlugin):
 
     def run(self, store):
         '''Save to temp and store the result in the given *store*'''
-        temp_path = get_temp_path(filename_extension='.nk')
+        temp_path = get_temp_path(filename_extension='nk')
 
         self.logger.debug(f'Saving Nuke script to temp: {temp_path}')
         try:
