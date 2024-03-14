@@ -1,5 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
+from functools import wraps
+import threading
 
 from PySide2 import QtWidgets
 
@@ -55,3 +57,18 @@ def activate_nodegraph_viewer(widget):
     idx = stacked_widget.indexOf(widget)
     if stacked_widget.currentIndex() != idx:
         stacked_widget.setCurrentIndex(idx)
+
+
+def run_in_main_thread(f):
+    '''Make sure a function runs in the main Maya thread.'''
+
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if threading.currentThread().name != 'MainThread':
+            return nuke.executeInMainThreadWithResult(
+                f, args=args, kwargs=kwargs
+            )
+        else:
+            return f(*args, **kwargs)
+
+    return decorated
