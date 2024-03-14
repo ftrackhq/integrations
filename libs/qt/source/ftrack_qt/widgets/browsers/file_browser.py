@@ -3,7 +3,10 @@
 
 from pathlib import Path
 
-from Qt import QtWidgets, QtCore
+try:
+    from PySide6 import QtWidgets, QtCore
+except ImportError:
+    from PySide2 import QtWidgets, QtCore
 
 from ftrack_qt.widgets.dialogs import FileDialog
 

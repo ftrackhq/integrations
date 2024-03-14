@@ -3,7 +3,10 @@
 
 import shiboken2
 
-from Qt import QtWidgets, QtCore, QtGui
+try:
+    from PySide6 import QtWidgets, QtCore
+except ImportError:
+    from PySide2 import QtWidgets, QtCore, QtGui
 
 from ftrack_utils.framework.config.tool import get_plugins
 
