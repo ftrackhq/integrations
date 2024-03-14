@@ -1,4 +1,4 @@
-type: launcher
+type: launch_config
 name: framework-nukex
 priority: 100
 context:
