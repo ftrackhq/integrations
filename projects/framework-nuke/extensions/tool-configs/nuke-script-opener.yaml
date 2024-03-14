@@ -25,7 +25,7 @@ engine:
           asset_type_name: script
       - type: plugin
         tags:
-          - importer
+          - opener
         plugin: nuke_script_opener
       - type: plugin
         plugin: nuke_save_to_temp_finalizer
