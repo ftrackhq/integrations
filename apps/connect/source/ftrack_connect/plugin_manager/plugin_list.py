@@ -240,6 +240,8 @@ class DndPluginList(QtWidgets.QFrame):
         return None
 
     def remove_plugin_from_list(self, plugin_name):
+        '''Remove the plugin *plugin_name* from plugin list (not disk),
+        if succeeded/found True will be returned, False otherwise.'''
         num_items = self._plugin_model.rowCount()
         for i in range(num_items):
             item = self._plugin_model.item(i)
