@@ -134,8 +134,10 @@ def bootstrap_integration(framework_extensions_path):
         'dialogs': [item['name'] for item in registry_instance.dialogs]
         if registry_instance.dialogs
         else [],
-        'launchers': [item['name'] for item in registry_instance.launchers]
-        if registry_instance.launchers
+        'launch_configs': [
+            item['name'] for item in registry_instance.launch_configs
+        ]
+        if registry_instance.launch_configs
         else [],
         'dcc_configs': [item['name'] for item in registry_instance.dcc_configs]
         if registry_instance.dcc_configs
