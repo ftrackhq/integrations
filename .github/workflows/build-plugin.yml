@@ -68,7 +68,7 @@ jobs:
       - name: Check Release Notes for [--testpypi | --from_source] arguments
         id: check_testpypi
         run: |
-          RELEASE_NOTES=${{ github.event.release.body }}
+          RELEASE_NOTES=$(gh release view ${{ github.ref }} --json body -q .body)
           echo "BUILD_ARGUMENT=" >> $GITHUB_ENV
           if [[ "$RELEASE_NOTES" == *"[--testpypi]"* ]]; then
             echo "FROM_TEST_PYPI=true" >> $GITHUB_ENV
@@ -82,6 +82,8 @@ jobs:
           else
             echo "FROM_SOURCE=false" >> $GITHUB_ENV
           fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: debug
         shell: bash
         run: |
