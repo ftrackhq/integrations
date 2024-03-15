@@ -1,6 +1,7 @@
 # ftrack QT library release Notes
 
-## Upcoming
+## v2.1.0rc1
+2024-03-15
 
 * [changed] Widget file names align within the same folder.
 * [changed] widgets/frame folder renamed to asset.

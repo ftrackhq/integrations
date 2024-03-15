@@ -1,6 +1,7 @@
 # ftrack Utils library release Notes
 
-## Upcoming
+## v2.0.2rc1
+2024-03-15
 
 * [fix] fix track_usage decorator bug. Arguments are correctly queried.
 
