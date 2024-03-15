@@ -183,24 +183,6 @@ Execute the following build command and follow the instructions:
     $ python setup.py bdist_mac --codesign_frameworks --codesign --create_dmg --notarize
 
 
-
-## Docker
-
-As part of this repository, 3 Dockerfiles are available to sendbox the
-build of ftrack-connect-installer.
-
--   C7.Dockerfile \[centos 7\]
--   C8.Dockerfile \[centos 8\]
--   Win10.Dockerfile \[windows 10\]
-
-For further information, please use the README file contained in the
-**docker** folder.
-
-Note
-
-In order to build in docker windows, you need to have a windows 10 Pro
-activated and configured.
-
 #### Known Issues
 
 -   None
