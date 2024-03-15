@@ -5,7 +5,10 @@ import logging
 import functools
 import platform
 
-from ftrack_connect.qt import QtCore, QtWidgets
+try:
+    from PySide6 import QtWidgets, QtCore
+except ImportError:
+    from PySide2 import QtWidgets, QtCore
 
 import ftrack_api.event.base
 from ftrack_utils.decorators import asynchronous

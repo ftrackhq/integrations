@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 
-from ftrack_connect.qt import QtWidgets, QtCompat
+from ftrack_connect.qt import QtWidgets
 
 
 class List(QtWidgets.QTableWidget):
@@ -19,9 +19,9 @@ class List(QtWidgets.QTableWidget):
         self.setVerticalScrollMode(QtWidgets.QAbstractItemView.ScrollPerPixel)
         self.verticalHeader().hide()
 
-        QtCompat.setSectionResizeMode(
-            self.verticalHeader(), QtWidgets.QHeaderView.ResizeToContents
-        )
+        # QtCompat.setSectionResizeMode(
+        #    self.verticalHeader(), QtWidgets.QHeaderView.ResizeToContents
+        # )
 
         self.horizontalHeader().setStretchLastSection(True)
         self.horizontalHeader().hide()

@@ -102,8 +102,11 @@ def main_connect(arguments=None):
     # If under X11, make Xlib calls thread-safe.
     # http://stackoverflow.com/questions/31952711/threading-pyqt-crashes-with-unknown-request-in-queue-while-dequeuing
     if os.name == 'posix':
-        QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_X11InitThreads)
-
+        try:
+            QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_X11InitThreads)
+        except Exception as e:
+            logger = logging.getLogger('ftrack_connect')
+            logger.warning(e)
     # Ensure support for highdpi
     QtCore.QCoreApplication.setAttribute(
         QtCore.Qt.AA_EnableHighDpiScaling, True
