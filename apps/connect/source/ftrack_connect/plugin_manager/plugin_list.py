@@ -239,6 +239,17 @@ class DndPluginList(QtWidgets.QFrame):
                 return item
         return None
 
+    def remove_plugin_from_list(self, plugin_name):
+        num_items = self._plugin_model.rowCount()
+        for i in range(num_items):
+            item = self._plugin_model.item(i)
+            item_name = item.data(ROLES.PLUGIN_NAME)
+            if item_name == plugin_name:
+                # Remove item
+                self._plugin_model.takeRow(i)
+                return True
+        return False
+
     def populate_installed_plugins(self, plugins):
         '''Populate model with installed plugins.'''
         self._installed_plugin_count = 0
@@ -364,7 +375,10 @@ class DndPluginList(QtWidgets.QFrame):
         paths = self._process_mime_data(event.mimeData())
 
         for path in paths:
-            self._add_plugin(get_plugin_data(path), STATUSES.NEW)
+            # Remove existing one
+            plugin_data = get_plugin_data(path)
+            self.remove_plugin_from_list(plugin_data['name'])
+            self._add_plugin(plugin_data, STATUSES.NEW)
 
         event.accept()
         self._set_drop_zone_state()
