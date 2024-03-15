@@ -1,6 +1,7 @@
 # ftrack Framework Core library release Notes
 
-## Upcoming
+## v2.1.0rc1
+2024-03-15
 
 * [fix] launchers config yaml files type value renamed from launchers to launch_config to align to the rest of config files.
 * [fix] Fix error on sending mix panel event when run_dialog passing the non serializable docked_func
