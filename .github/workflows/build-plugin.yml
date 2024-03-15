@@ -82,6 +82,8 @@ jobs:
           else
             echo "FROM_SOURCE=false" >> $GITHUB_ENV
           fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: debug
         shell: bash
         run: |
