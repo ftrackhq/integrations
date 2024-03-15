@@ -134,4 +134,5 @@ class AssetList(QtWidgets.QListWidget):
 
     def mousePressEvent(self, event):
         '''Override mouse press to emit signal.'''
+        super(AssetList, self).mousePressEvent(event)
         self.active = True

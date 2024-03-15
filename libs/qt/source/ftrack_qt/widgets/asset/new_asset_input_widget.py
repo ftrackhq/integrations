@@ -98,6 +98,7 @@ class NewAssetInput(QtWidgets.QFrame):
 
     def mousePressEvent(self, event):
         '''Override mouse press to emit signal.'''
+        super(NewAssetInput, self).mousePressEvent(event)
         self.active = True
         self.text_changed.emit(self._name.text())
 
