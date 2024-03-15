@@ -239,7 +239,7 @@ class DndPluginList(QtWidgets.QFrame):
                 return item
         return None
 
-    def remove_plugin_from_list(self, plugin_name):
+    def _remove_plugin(self, plugin_name):
         '''Remove the plugin *plugin_name* from plugin list (not disk),
         if succeeded/found True will be returned, False otherwise.'''
         num_items = self._plugin_model.rowCount()
@@ -379,7 +379,7 @@ class DndPluginList(QtWidgets.QFrame):
         for path in paths:
             # Remove existing one
             plugin_data = get_plugin_data(path)
-            self.remove_plugin_from_list(plugin_data['name'])
+            self._remove_plugin(plugin_data['name'])
             self._add_plugin(plugin_data, STATUSES.NEW)
 
         event.accept()
