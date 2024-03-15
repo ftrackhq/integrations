@@ -1,13 +1,11 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2023 ftrack
-
+# :copyright: Copyright (c) 2024 ftrack
 import sys
 import platformdirs
 import argparse
 import logging
 import signal
 import os
-import pkg_resources
 import importlib
 
 
@@ -17,7 +15,10 @@ def main_connect(arguments=None):
     bindings = ['PySide2']
     os.environ.setdefault('QT_PREFERRED_BINDING', os.pathsep.join(bindings))
 
-    from ftrack_connect.qt import QtWidgets, QtCore
+    try:
+        from PySide6 import QtWidgets, QtCore
+    except ImportError:
+        from PySide2 import QtWidgets, QtCore
 
     from ftrack_connect import load_icons
     import ftrack_connect.config

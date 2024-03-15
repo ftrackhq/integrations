@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2023 ftrack
+# :copyright: Copyright (c) 2024 ftrack
 
 import logging
 import os
@@ -34,7 +34,7 @@ class OpenComponentDirectoryAction(object):
                     {
                         'label': 'Open directory',
                         'actionIdentifier': self.identifier,
-                        'host': self.node
+                        'host': self.node,
                     }
                 ]
             }
@@ -112,10 +112,7 @@ class OpenComponentDirectoryAction(object):
         self.session.event_hub.subscribe(
             u'topic=ftrack.action.discover and '
             u'source.user.username="{0}" and '
-            u'data.host={1}'.format(
-                self.session.api_user, 
-                self.node
-            ),
+            u'data.host={1}'.format(self.session.api_user, self.node),
             self.discover,
         )
 
@@ -124,9 +121,7 @@ class OpenComponentDirectoryAction(object):
             u'data.actionIdentifier={0} and '
             u'source.user.username="{1}" and '
             u'data.host={2}'.format(
-                self.identifier, 
-                self.session.api_user, 
-                self.node
+                self.identifier, self.session.api_user, self.node
             ),
             self.launch,
         )

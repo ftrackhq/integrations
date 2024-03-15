@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2023 ftrack
+# :copyright: Copyright (c) 2024 ftrack
 import os
 import json
 import sys
@@ -7,12 +7,12 @@ import textwrap
 import platform
 import ftrack_api
 
-from ftrack_connect.qt import (
-    QtCore,
-    QtWidgets,
-    QtGui,
-    __version__ as QtVersion,
-)
+try:
+    from PySide6 import QtWidgets, QtCore, QtGui
+    from PySide6 import __version__ as __pyside_version__
+except ImportError:
+    from PySide2 import QtWidgets, QtCore, QtGui
+    from PySide2 import __version__ as __pyside_version__
 
 from ftrack_connect.config import get_log_directory
 
@@ -199,7 +199,7 @@ class AboutDialog(QtWidgets.QDialog):
             server=server,
             user=user,
             api_versions=ftrack_api.__version__,
-            pyside_version=QtVersion,
+            pyside_version=__pyside_version__,
             qt_version=QtCore.qVersion(),
             python_version=sys.version,
             host=platform.node(),

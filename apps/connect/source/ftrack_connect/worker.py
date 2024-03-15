@@ -1,9 +1,12 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2023 ftrack
+# :copyright: Copyright (c) 2024 ftrack
 
 import sys
 
-from ftrack_connect.qt import QtCore
+try:
+    from PySide6 import QtCore
+except ImportError:
+    from PySide2 import QtCore
 
 
 class Worker(QtCore.QThread):

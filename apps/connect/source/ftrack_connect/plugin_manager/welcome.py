@@ -1,9 +1,12 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2023 ftrack
+# :copyright: Copyright (c) 2024 ftrack
 import platformdirs
 import qtawesome as qta
 
-from ftrack_connect.qt import QtCore, QtWidgets, QtGui
+try:
+    from PySide6 import QtWidgets, QtCore, QtGui
+except ImportError:
+    from PySide2 import QtWidgets, QtCore, QtGui
 
 from ftrack_utils.decorators import asynchronous
 

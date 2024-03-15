@@ -1,9 +1,12 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2023 ftrack
+# :copyright: Copyright (c) 2024 ftrack
 
 import functools
 
-from ftrack_connect.qt import QtWidgets
+try:
+    from PySide6 import QtWidgets
+except ImportError:
+    from PySide2 import QtWidgets
 
 import ftrack_connect.ui.widget.component
 import ftrack_connect.ui.widget.item_list

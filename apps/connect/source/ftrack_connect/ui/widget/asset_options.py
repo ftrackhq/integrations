@@ -1,9 +1,12 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2023 ftrack
+# :copyright: Copyright (c) 2024 ftrack
 
 import logging
 
-from ftrack_connect.qt import QtWidgets
+try:
+    from PySide6 import QtWidgets
+except ImportError:
+    from PySide2 import QtWidgets
 
 from ftrack_connect.error import NotUniqueError
 from ftrack_connect.ui.widget import asset_name_edit as _asset_name_edit
@@ -63,7 +66,10 @@ class AssetOptions(QtWidgets.QWidget):
             session=self.session, parent=parent
         )
         self.assetNameLineEdit = _asset_name_edit.AssetNameEdit(
-            self.session, self.existingAssetSelector, self.assetTypeSelector, parent=parent
+            self.session,
+            self.existingAssetSelector,
+            self.assetTypeSelector,
+            parent=parent,
         )
 
         self.assetTypeSelector.currentIndexChanged.connect(

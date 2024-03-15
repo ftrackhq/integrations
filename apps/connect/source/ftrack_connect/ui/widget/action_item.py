@@ -1,11 +1,17 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2023 ftrack
+# :copyright: Copyright (c) 2024 ftrack
 import os
 import logging
 
 import qtawesome as qta
 
-from ftrack_connect.qt import QtCore, QtWidgets, QtGui
+try:
+    from PySide6 import QtWidgets, QtCore, QtGui
+    from PySide6.QtGui import QAction
+except ImportError:
+    from PySide2 import QtWidgets, QtCore, QtGui
+    from PySide2.QtWidgets import QAction
+
 
 import ftrack_api.event.base
 from ftrack_utils.decorators import asynchronous
@@ -129,7 +135,7 @@ class ActionItem(QtWidgets.QFrame):
             self.logger.debug('Launching menu to select action variant')
             menu = QtWidgets.QMenu(self)
             for index, variant in enumerate(self._variants):
-                action = QtWidgets.QAction(variant, self)
+                action = QAction(variant, self)
                 action.setData(index)
                 menu.addAction(action)
 

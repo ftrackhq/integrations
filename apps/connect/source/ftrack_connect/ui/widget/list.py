@@ -1,7 +1,14 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2023 ftrack
+# :copyright: Copyright (c) 2024 ftrack
 
-from ftrack_connect.qt import QtWidgets
+try:
+    from PySide6 import QtWidgets
+
+    is_pyside6 = True
+except ImportError:
+    from PySide2 import QtWidgets
+
+    is_pyside6 = False
 
 
 class List(QtWidgets.QTableWidget):
@@ -14,9 +21,22 @@ class List(QtWidgets.QTableWidget):
         self._widgetColumn = 0
 
         self.setColumnCount(1)
-        self.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
-        self.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
-        self.setVerticalScrollMode(QtWidgets.QAbstractItemView.ScrollPerPixel)
+        if is_pyside6:
+            self.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+            self.setSelectionMode(
+                QtWidgets.QAbstractItemView.ExtendedSelection
+            )
+            self.setVerticalScrollMode(
+                QtWidgets.QAbstractItemView.ScrollPerPixel
+            )
+        else:
+            self.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+            self.setSelectionMode(
+                QtWidgets.QAbstractItemView.ExtendedSelection
+            )
+            self.setVerticalScrollMode(
+                QtWidgets.QAbstractItemView.ScrollPerPixel
+            )
         self.verticalHeader().hide()
 
         # QtCompat.setSectionResizeMode(

@@ -1,10 +1,9 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2023 ftrack
-
+# :copyright: Copyright (c) 2024 ftrack
 import os
 import logging
-import qtawesome as qta
 import re
+import qtawesome as qta
 
 logger = logging.getLogger(__name__)
 

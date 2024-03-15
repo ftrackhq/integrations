@@ -1,7 +1,10 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2023 ftrack
+# :copyright: Copyright (c) 2024 ftrack
 
-from ftrack_connect.qt import QtWidgets
+try:
+    from PySide6 import QtWidgets
+except ImportError:
+    from PySide2 import QtWidgets
 
 
 class ItemSelector(QtWidgets.QComboBox):

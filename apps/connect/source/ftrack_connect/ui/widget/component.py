@@ -1,11 +1,13 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2023 ftrack
-
+# :copyright: Copyright (c) 2024 ftrack
 import os
 import uuid
-
-from ftrack_connect.qt import QtWidgets, QtCore, QtGui
 import qtawesome as qta
+
+try:
+    from PySide6 import QtWidgets, QtCore, QtGui
+except ImportError:
+    from PySide2 import QtWidgets, QtCore, QtGui
 
 import ftrack_connect.ui.widget.line_edit
 import ftrack_connect.ui.widget.label

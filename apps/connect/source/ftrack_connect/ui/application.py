@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2023 ftrack
+# :copyright: Copyright (c) 2024 ftrack
 import copy
 import os
 import platform
@@ -23,7 +23,12 @@ from ftrack_utils.usage import (
     UsageTracker,
 )
 
-from ftrack_connect.qt import QtCore, QtWidgets, QtGui
+try:
+    from PySide6 import QtWidgets, QtCore, QtGui
+    from PySide6.QtGui import QAction
+except ImportError:
+    from PySide2 import QtWidgets, QtCore, QtGui
+    from PySide2.QtWidgets import QAction
 
 from ftrack_connect import load_icons
 import ftrack_connect
@@ -822,30 +827,24 @@ class Application(QtWidgets.QMainWindow):
         '''Return a menu for system tray.'''
         menu = QtWidgets.QMenu(self)
 
-        logoutAction = QtWidgets.QAction(
-            'Log Out && Quit', self, triggered=self.logout
-        )
+        logoutAction = QAction('Log Out && Quit', self, triggered=self.logout)
 
-        quitAction = QtWidgets.QAction(
+        quitAction = QAction(
             'Quit', self, triggered=QtWidgets.QApplication.quit
         )
 
-        focusAction = QtWidgets.QAction('Open', self, triggered=self.focus)
+        focusAction = QAction('Open', self, triggered=self.focus)
 
-        openPluginDirectoryAction = QtWidgets.QAction(
+        openPluginDirectoryAction = QAction(
             'Open plugin directory',
             self,
             triggered=self._open_default_plugin_directory,
         )
 
-        aboutAction = QtWidgets.QAction(
-            'About', self, triggered=self._show_about
-        )
+        aboutAction = QAction('About', self, triggered=self._show_about)
 
-        alwaysOnTopAction = QtWidgets.QAction('Always on top', self)
-        restartAction = QtWidgets.QAction(
-            'Restart', self, triggered=self.restart
-        )
+        alwaysOnTopAction = QAction('Always on top', self)
+        restartAction = QAction('Restart', self, triggered=self.restart)
         alwaysOnTopAction.setCheckable(True)
         alwaysOnTopAction.triggered[bool].connect(self._set_always_on_top)
 

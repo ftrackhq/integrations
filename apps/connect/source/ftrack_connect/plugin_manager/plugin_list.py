@@ -1,17 +1,17 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2024 ftrack
-import re
 import os
-import platformdirs
-from packaging.version import parse as parse_version
 from urllib.request import urlopen
 import json
 import shutil
 import logging
 import qtawesome as qta
+from packaging.version import parse as parse_version
 
-
-from ftrack_connect.qt import QtWidgets, QtCore, QtGui
+try:
+    from PySide6 import QtWidgets, QtCore, QtGui
+except ImportError:
+    from PySide2 import QtWidgets, QtCore, QtGui
 
 from ftrack_connect.util import (
     qt_main_thread,

@@ -1,16 +1,16 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2023 ftrack
-
+# :copyright: Copyright (c) 2024 ftrack
 import logging
 import os
-
-from ftrack_connect.qt import QtCore
-from ftrack_connect.qt import QtWidgets
-import qtawesome as qta
-
 import clique
+import qtawesome as qta
 import riffle.browser
 from riffle.icon_factory import IconFactory, IconType
+
+try:
+    from PySide6 import QtWidgets, QtCore
+except ImportError:
+    from PySide2 import QtWidgets, QtCore
 
 
 class CustomIconFactory(IconFactory):
