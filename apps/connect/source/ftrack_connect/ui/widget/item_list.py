@@ -31,7 +31,7 @@ class ItemList(QtWidgets.QFrame):
 
         self.setLayout(QtWidgets.QVBoxLayout())
         self.setFrameStyle(
-            QtWidgets.QFrame.StyledPanel | QtWidgets.QFrame.NoFrame
+            QtWidgets.QFrame.Shape.StyledPanel | QtWidgets.QFrame.Shape.NoFrame
         )
 
         # List

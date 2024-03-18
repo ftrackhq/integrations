@@ -7,13 +7,9 @@ import qtawesome as qta
 
 try:
     from PySide6 import QtWidgets, QtCore, QtGui
-
-    is_pyside6 = True
 except ImportError:
     from PySide2 import QtWidgets, QtCore, QtGui
     from PySide2 import __version__ as __pyside_version__
-
-    is_pyside6 = False
 
 import ftrack_connect.ui.model.entity_tree
 import ftrack_connect.ui.widget.overlay
@@ -81,16 +77,12 @@ class EntityBrowser(QtWidgets.QDialog):
         self.contentSplitter.addWidget(self.bookmarksList)
 
         self.view = QtWidgets.QTableView()
-        if is_pyside6:
-            self.view.setSelectionBehavior(
-                QtWidgets.QAbstractItemView.SelectionBehavior.SelectRows
-            )
-            self.view.setSelectionMode(
-                QtWidgets.QAbstractItemView.SelectionMode.SingleSelection
-            )
-        else:
-            self.view.setSelectionBehavior(self.view.SelectRows)
-            self.view.setSelectionMode(self.view.SingleSelection)
+        self.view.setSelectionBehavior(
+            QtWidgets.QAbstractItemView.SelectionBehavior.SelectRows
+        )
+        self.view.setSelectionMode(
+            QtWidgets.QAbstractItemView.SelectionMode.SingleSelection
+        )
         self.view.verticalHeader().hide()
 
         self.contentSplitter.addWidget(self.view)
@@ -129,7 +121,7 @@ class EntityBrowser(QtWidgets.QDialog):
     def _postConstruction(self):
         '''Perform post-construction operations.'''
         self.setWindowTitle('ftrack browser')
-        self.view.sortByColumn(0, QtCore.Qt.AscendingOrder)
+        self.view.sortByColumn(0, QtCore.Qt.SortOrder.AscendingOrder)
 
         # TODO: Remove once bookmarks widget implemented.
         self.bookmarksList.hide()

@@ -12,7 +12,6 @@ except ImportError:
     from PySide2 import QtWidgets, QtCore, QtGui
     from PySide2.QtWidgets import QAction
 
-
 import ftrack_api.event.base
 from ftrack_utils.decorators import asynchronous
 from ftrack_connect.ui.widget.thumbnail import ActionIcon
@@ -63,7 +62,7 @@ class ActionItem(QtWidgets.QFrame):
         self.setMouseTracking(True)
         self.setFixedSize(QtCore.QSize(75, 105))
         layout = QtWidgets.QVBoxLayout()
-        layout.setAlignment(QtCore.Qt.AlignCenter)
+        layout.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         layout.setSpacing(0)
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
@@ -97,13 +96,14 @@ class ActionItem(QtWidgets.QFrame):
 
         self.action_icon = qta.icon('ftrack.actions')
         self._iconLabel = ActionIcon(self, default_icon=self.action_icon)
-        self._iconLabel.setAlignment(QtCore.Qt.AlignCenter)
+        self._iconLabel.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self._iconLabel.setFixedSize(QtCore.QSize(75, 45))
         layout.addWidget(self._iconLabel)
 
         self._textLabel = QtWidgets.QLabel(self)
         self._textLabel.setAlignment(
-            QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop
+            QtCore.Qt.AlignmentFlag.AlignHCenter
+            | QtCore.Qt.AlignmentFlag.AlignTop
         )
         self._textLabel.setContentsMargins(0, 5, 0, 0)
         self._textLabel.setWordWrap(True)

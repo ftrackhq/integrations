@@ -7,12 +7,8 @@ from functools import partial
 
 try:
     from PySide6 import QtWidgets, QtCore
-
-    is_pyside6 = True
 except ImportError:
     from PySide2 import QtWidgets, QtCore, QtGui
-
-    is_pyside6 = False
 
 import ftrack_constants.qt as qt_constants
 
@@ -57,15 +53,10 @@ class ModalDialog(StyledDialog):
         self.post_build()
 
         self.setModal(True)
-        if is_pyside6:
-            self.setWindowFlags(
-                QtCore.Qt.WindowType.SplashScreen
-                | QtCore.Qt.WindowType.WindowStaysOnTopHint
-            )
-        else:
-            self.setWindowFlags(
-                QtCore.Qt.SplashScreen | QtCore.Qt.WindowStaysOnTopHint
-            )
+        self.setWindowFlags(
+            QtCore.Qt.WindowType.SplashScreen
+            | QtCore.Qt.WindowType.WindowStaysOnTopHint
+        )
 
     def pre_build(self):
         self.setLayout(QtWidgets.QVBoxLayout())

@@ -22,7 +22,9 @@ def applyTheme(widget, theme='light', baseTheme=None):
 
     # Load stylesheet from resource file and apply.
     fileObject = QtCore.QFile(':/ftrack/style/{0}'.format(theme))
-    fileObject.open(QtCore.QFile.ReadOnly | QtCore.QFile.Text)
+    fileObject.open(
+        QtCore.QFile.OpenModeFlag.ReadOnly | QtCore.QFile.OpenModeFlag.Text
+    )
     stream = QtCore.QTextStream(fileObject)
     styleSheetContent = stream.readAll()
 

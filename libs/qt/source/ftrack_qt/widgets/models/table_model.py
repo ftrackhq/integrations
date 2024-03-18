@@ -3,32 +3,14 @@
 
 try:
     from PySide6 import QtWidgets, QtCore
-    from PySide6.QtCore.Qt.ItemDataRole import (
-        UserRole,
-        DisplayRole,
-        TextAlignmentRole,
-        DisplayRole,
-        EditRole,
-    )
-
-    is_pyside6 = True
 except ImportError:
     from PySide2 import QtWidgets, QtCore, QtGui
-    from PySide2.QtCore.Qt import (
-        UserRole,
-        DisplayRole,
-        TextAlignmentRole,
-        DisplayRole,
-        EditRole,
-    )
-
-    is_pyside6 = False
 
 
 class TableModel(QtCore.QAbstractTableModel):
     '''Table model for generic data'''
 
-    DATA_ROLE = UserRole + 1
+    DATA_ROLE = QtCore.Qt.ItemDataRole.UserRole + 1
 
     @property
     def data_items(self):
@@ -81,7 +63,7 @@ class TableModel(QtCore.QAbstractTableModel):
         '''Return the column count for the internal data.'''
         return len(self._headers)
 
-    def data(self, index, role=DisplayRole):
+    def data(self, index, role=QtCore.Qt.ItemDataRole.DisplayRole):
         '''Return the data provided in the given *index* and with *role*'''
 
         row = index.row()
@@ -94,15 +76,11 @@ class TableModel(QtCore.QAbstractTableModel):
         column_name = self._headers[column]
 
         # style versions
-        if role == TextAlignmentRole and column == 0:
-            return (
-                QtCore.Qt.AlignmentFlag.AlignCenter
-                if is_pyside6
-                else QtCore.Qt.AlignCenter
-            )
+        if role == QtCore.Qt.ItemDataRole.TextAlignmentRole and column == 0:
+            return QtCore.Qt.AlignmentFlag.AlignCenter
 
         # style the rest
-        elif role == DisplayRole:
+        elif role == QtCore.Qt.ItemDataRole.DisplayRole:
             if type(self._column_mapping[column_name]) == list:
                 # Small function to get the value from recursive keys
                 def get_recursive_keys(_item, keys):
@@ -115,7 +93,7 @@ class TableModel(QtCore.QAbstractTableModel):
                 )
             return str(item[self._column_mapping[column_name]])
 
-        elif role == EditRole:
+        elif role == QtCore.Qt.ItemDataRole.EditRole:
             return item
 
         elif role == self.DATA_ROLE:
@@ -126,13 +104,8 @@ class TableModel(QtCore.QAbstractTableModel):
     def headerData(self, col, orientation, role):
         '''Provide header data'''
         if (
-            orientation
-            == (
-                QtCore.Qt.Orientation.Horizontal
-                if is_pyside6
-                else QtCore.Qt.Horizontal
-            )
-            and role == DisplayRole
+            orientation == QtCore.Qt.Orientation.Horizontal
+            and role == QtCore.Qt.ItemDataRole.DisplayRole
         ):
             return self._headers[col].capitalize()
         return None
@@ -141,19 +114,11 @@ class TableModel(QtCore.QAbstractTableModel):
         '''Set :obj:`self._editable_columns` editable'''
         if index.column() in self._editable_columns:
             return (
-                (
-                    QtCore.Qt.ItemFlag.ItemIsEditable
-                    | QtCore.Qt.ItemFlag.ItemIsEnabled
-                )
-                if is_pyside6
-                else (QtCore.Qt.ItemIsEditable | QtCore.Qt.ItemIsEnabled)
+                QtCore.Qt.ItemFlag.ItemIsEditable
+                | QtCore.Qt.ItemFlag.ItemIsEnabled
             )
         else:
             return (
-                (
-                    QtCore.Qt.ItemFlag.ItemIsEnabled
-                    | QtCore.Qt.ItemFlag.ItemIsSelectable
-                )
-                if is_pyside6
-                else (QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable)
+                QtCore.Qt.ItemFlag.ItemIsEnabled
+                | QtCore.Qt.ItemFlag.ItemIsSelectable
             )

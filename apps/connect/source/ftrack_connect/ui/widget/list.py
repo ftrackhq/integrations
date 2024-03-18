@@ -3,12 +3,8 @@
 
 try:
     from PySide6 import QtWidgets
-
-    is_pyside6 = True
 except ImportError:
     from PySide2 import QtWidgets
-
-    is_pyside6 = False
 
 
 class List(QtWidgets.QTableWidget):
@@ -21,24 +17,15 @@ class List(QtWidgets.QTableWidget):
         self._widgetColumn = 0
 
         self.setColumnCount(1)
-        if is_pyside6:
-            self.setSelectionBehavior(
-                QtWidgets.QAbstractItemView.SelectionBehavior.SelectRows
-            )
-            self.setSelectionMode(
-                QtWidgets.QAbstractItemView.SelectionMode.ExtendedSelection
-            )
-            self.setVerticalScrollMode(
-                QtWidgets.QAbstractItemView.ScrollMode.ScrollPerPixel
-            )
-        else:
-            self.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
-            self.setSelectionMode(
-                QtWidgets.QAbstractItemView.ExtendedSelection
-            )
-            self.setVerticalScrollMode(
-                QtWidgets.QAbstractItemView.ScrollPerPixel
-            )
+        self.setSelectionBehavior(
+            QtWidgets.QAbstractItemView.SelectionBehavior.SelectRows
+        )
+        self.setSelectionMode(
+            QtWidgets.QAbstractItemView.SelectionMode.ExtendedSelection
+        )
+        self.setVerticalScrollMode(
+            QtWidgets.QAbstractItemView.ScrollMode.ScrollPerPixel
+        )
         self.verticalHeader().hide()
 
         # QtCompat.setSectionResizeMode(

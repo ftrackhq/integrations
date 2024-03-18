@@ -3,12 +3,8 @@
 
 try:
     from PySide6 import QtWidgets, QtCore
-
-    is_pyside6 = True
 except ImportError:
     from PySide2 import QtWidgets, QtCore, QtGui
-
-    is_pyside6 = False
 
 from ftrack_qt.utils.widget import set_property
 from ftrack_qt.widgets.headers import AccordionHeaderWidget
@@ -134,10 +130,7 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         # Create the main_widget
         main_widget = QtWidgets.QWidget()
         main_widget.setLayout(QtWidgets.QVBoxLayout())
-        if is_pyside6:
-            main_widget.layout().setAlignment(QtCore.Qt.AlignmentFlag.AlignTop)
-        else:
-            main_widget.layout().setAlignment(QtCore.Qt.AlignTop)
+        main_widget.layout().setAlignment(QtCore.Qt.AlignmentFlag.AlignTop)
         main_widget.layout().setContentsMargins(0, 0, 0, 0)
         main_widget.layout().setSpacing(1)
 
@@ -216,11 +209,7 @@ class AccordionBaseWidget(QtWidgets.QFrame):
     def _on_header_clicked(self, event):
         '''Callback on header user click'''
         if not self.selectable:
-            if event.button() != (
-                QtCore.Qt.MouseButton.RightButton
-                if is_pyside6
-                else QtCore.Qt.RightButton
-            ):
+            if event.button() != (QtCore.Qt.MouseButton.RightButton):
                 self.toggle_collapsed()
 
     def _on_header_arrow_clicked(self, event):

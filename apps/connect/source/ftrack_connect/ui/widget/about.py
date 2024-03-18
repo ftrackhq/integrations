@@ -27,21 +27,23 @@ class AboutDialog(QtWidgets.QDialog):
         self.setWindowTitle('About connect')
         layout = QtWidgets.QVBoxLayout()
         layout.setContentsMargins(20, 20, 20, 20)
-        layout.setSizeConstraint(QtWidgets.QLayout.SetFixedSize)
+        layout.setSizeConstraint(QtWidgets.QLayout.SizeConstraint.SetFixedSize)
         self.setLayout(layout)
 
         self.icon = QtWidgets.QLabel()
         pixmap = QtGui.QPixmap(icon)
         self.icon.setPixmap(
-            pixmap.scaledToHeight(50, mode=QtCore.Qt.SmoothTransformation)
+            pixmap.scaledToHeight(
+                50, mode=QtCore.Qt.TransformationMode.SmoothTransformation
+            )
         )
-        self.icon.setAlignment(QtCore.Qt.AlignCenter)
+        self.icon.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(self.icon)
         layout.addSpacing(10)
 
         self.messageLabel = QtWidgets.QLabel()
         self.messageLabel.setWordWrap(True)
-        self.messageLabel.setAlignment(QtCore.Qt.AlignLeft)
+        self.messageLabel.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeft)
         layout.addWidget(self.messageLabel)
 
         layout.addSpacing(25)
@@ -93,7 +95,7 @@ class AboutDialog(QtWidgets.QDialog):
                 os.makedirs(directory)
             except OSError:
                 messageBox = QtWidgets.QMessageBox(parent=self)
-                messageBox.setIcon(QtWidgets.QMessageBox.Warning)
+                messageBox.setIcon(QtWidgets.QMessageBox.Icon.Warning)
                 messageBox.setText(
                     u'Could not open or create logging '
                     u'directory: {0}.'.format(directory)
@@ -120,11 +122,12 @@ class AboutDialog(QtWidgets.QDialog):
             msgBox.setText('{0} already exists.'.format(filepath))
             msgBox.setInformativeText('Do you want to overwrite it?')
             msgBox.setStandardButtons(
-                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No
+                QtWidgets.QMessageBox.StandardButton.Yes
+                | QtWidgets.QMessageBox.StandardButton.No
             )
-            msgBox.setDefaultButton(QtWidgets.QMessageBox.Yes)
+            msgBox.setDefaultButton(QtWidgets.QMessageBox.StandardButton.Yes)
             ret = msgBox.exec_()
-            if ret == QtWidgets.QMessageBox.No:
+            if ret == QtWidgets.QMessageBox.StandardButton.No:
                 return
 
         application_dir = os.path.dirname(os.path.abspath(sys.argv[0]))

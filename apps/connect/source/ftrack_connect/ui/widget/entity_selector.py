@@ -128,7 +128,7 @@ class EntitySelector(QtWidgets.QStackedWidget):
 
     def updateEntityPath(self, index):
         entity = self.assignedContextSelector.itemData(
-            index, QtCore.Qt.UserRole
+            index, QtCore.Qt.ItemDataRole.UserRole
         )
         self.setEntity(entity)
 

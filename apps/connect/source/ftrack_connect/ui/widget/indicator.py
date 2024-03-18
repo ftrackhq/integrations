@@ -48,7 +48,7 @@ class BusyIndicator(QtWidgets.QWidget):
         painter.begin(self)
 
         try:
-            painter.setRenderHint(QtGui.QPainter.Antialiasing)
+            painter.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
             area = QtCore.QRect(
                 0, 0, painter.device().width(), painter.device().height()
             )
@@ -74,7 +74,7 @@ class BusyIndicator(QtWidgets.QWidget):
             penWidth = 8.0
             pen.setWidth(penWidth)
             pen.setColor(self._spinnerColor)
-            pen.setCapStyle(QtCore.Qt.RoundCap)
+            pen.setCapStyle(QtCore.Qt.PenCapStyle.RoundCap)
 
             painter.setPen(pen)
 

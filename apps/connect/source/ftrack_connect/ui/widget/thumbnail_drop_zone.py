@@ -52,7 +52,9 @@ class ThumbnailDropZone(QtWidgets.QFrame):
 
         self.imageLabel = QtWidgets.QLabel()
         self.setDropZoneText()
-        layout.addWidget(self.imageLabel, alignment=QtCore.Qt.AlignLeft)
+        layout.addWidget(
+            self.imageLabel, alignment=QtCore.Qt.AlignmentFlag.AlignLeft
+        )
         cancel_icon = qta.icon('ftrack.cancel')
         self.removeButton = QtWidgets.QPushButton()
         self.removeButton.setIcon(cancel_icon)
@@ -60,7 +62,9 @@ class ThumbnailDropZone(QtWidgets.QFrame):
         self.removeButton.setVisible(False)
         self.removeButton.setFlat(True)
         self.removeButton.clicked.connect(self.removeThumbnail)
-        layout.addWidget(self.removeButton, alignment=QtCore.Qt.AlignRight)
+        layout.addWidget(
+            self.removeButton, alignment=QtCore.Qt.AlignmentFlag.AlignRight
+        )
 
     def _getFilePathFromEvent(self, event):
         '''Get file path from *event*.
@@ -103,7 +107,9 @@ class ThumbnailDropZone(QtWidgets.QFrame):
         '''Set thumbnail to *filePath* and display a preview.'''
         self._filePath = filePath
         pixmap = QtGui.QPixmap(self._filePath).scaled(
-            self._imageWidth, self._imageHeight, QtCore.Qt.KeepAspectRatio
+            self._imageWidth,
+            self._imageHeight,
+            QtCore.Qt.AspectRatioMode.KeepAspectRatio,
         )
         self.imageLabel.setPixmap(pixmap)
         self.removeButton.setVisible(True)
@@ -136,10 +142,10 @@ class ThumbnailDropZone(QtWidgets.QFrame):
         try:
             self._getFilePathFromEvent(event)
             self._setDropZoneState('active')
-            event.setDropAction(QtCore.Qt.CopyAction)
+            event.setDropAction(QtCore.Qt.DropAction.CopyAction)
         except ConnectThumbnailValidationError:
             self._setDropZoneState('invalid')
-            event.setDropAction(QtCore.Qt.IgnoreAction)
+            event.setDropAction(QtCore.Qt.DropAction.IgnoreAction)
         event.accept()
 
     def dragLeaveEvent(self, event):

@@ -3,12 +3,8 @@
 
 try:
     from PySide6 import QtWidgets, QtCore, QtGui
-
-    is_pyside6 = True
 except ImportError:
     from PySide2 import QtWidgets, QtCore, QtGui
-
-    is_pyside6 = False
 
 
 class StatusSelector(QtWidgets.QComboBox):
@@ -45,16 +41,12 @@ class StatusSelector(QtWidgets.QComboBox):
             self.setItemData(
                 index,
                 color,
-                QtCore.Qt.ItemDataRole.ForegroundRole
-                if is_pyside6
-                else QtCore.Qt.ForegroundRole,
+                QtCore.Qt.ItemDataRole.ForegroundRole,
             )
             self.setItemData(
                 index,
                 QtGui.QColor('#131920'),
-                QtCore.Qt.ItemDataRole.BackgroundRole
-                if is_pyside6
-                else QtCore.Qt.BackgroundRole,
+                QtCore.Qt.ItemDataRole.BackgroundRole,
             )
         self.setCurrentIndex(0)
 

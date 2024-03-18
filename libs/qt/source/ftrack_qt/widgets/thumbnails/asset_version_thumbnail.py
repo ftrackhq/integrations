@@ -3,12 +3,8 @@
 
 try:
     from PySide6 import QtCore, QtWidgets, QtGui
-
-    is_pyside6 = True
 except ImportError:
     from PySide2 import QtCore, QtWidgets, QtGui
-
-    is_pyside6 = False
 
 from ftrack_qt.widgets.thumbnails.base_thumbnail import ThumbnailBase
 
@@ -26,12 +22,8 @@ class AssetVersionThumbnail(ThumbnailBase):
         if self._scale:
             scaled_pixmap = pixmap.scaled(
                 self.size(),
-                QtCore.Qt.AspectRatioMode.KeepAspectRatio
-                if is_pyside6
-                else QtCore.Qt.KeepAspectRatio,
-                QtCore.Qt.TransformationMode.SmoothTransformation
-                if is_pyside6
-                else QtCore.Qt.SmoothTransformation,
+                QtCore.Qt.AspectRatioMode.KeepAspectRatio,
+                QtCore.Qt.TransformationMode.SmoothTransformation,
             )
         else:
             scaled_pixmap = pixmap

@@ -8,13 +8,9 @@ import urllib.request, urllib.parse, urllib.error
 try:
     from PySide6 import QtCore, QtWidgets, QtGui
     import shiboken6 as shiboken
-
-    is_pyside6 = True
 except ImportError:
     from PySide2 import QtCore, QtWidgets, QtGui
     import shiboken2 as shiboken
-
-    is_pyside6 = False
 
 from ftrack_utils.threading import BaseThread
 
@@ -53,16 +49,8 @@ class ThumbnailBase(QtWidgets.QLabel):
 
     def pre_build(self):
         self.thumbnailCache = {}
-        self.setFrameStyle(
-            QtWidgets.QFrame.Shape.StyledPanel
-            if is_pyside6
-            else QtWidgets.QFrame.StyledPanel
-        )
-        self.setAlignment(
-            QtCore.Qt.AlignmentFlag.AlignCenter
-            if is_pyside6
-            else QtCore.Qt.AlignCenter
-        )
+        self.setFrameStyle(QtWidgets.QFrame.Shape.StyledPanel)
+        self.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
 
     def post_build(self):
         self.thumbnailFetched.connect(self._downloaded)
@@ -146,9 +134,7 @@ class ThumbnailBase(QtWidgets.QLabel):
         if self._scale:
             scaled_pixmap = pixmap.scaledToWidth(
                 self.width(),
-                mode=QtCore.Qt.TransformationMode.SmoothTransformation
-                if is_pyside6
-                else QtCore.Qt.SmoothTransformation,
+                mode=QtCore.Qt.TransformationMode.SmoothTransformation,
             )
         else:
             scaled_pixmap = pixmap

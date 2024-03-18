@@ -6,8 +6,12 @@ import qtawesome as qta
 
 try:
     from PySide6 import QtWidgets, QtCore, QtGui
+
+    from PySide6.QtGui import QAction
 except ImportError:
     from PySide2 import QtWidgets, QtCore, QtGui
+
+    from PySide2.QWidgets import QAction
 
 import ftrack_connect.ui.widget.line_edit
 import ftrack_connect.ui.widget.label
@@ -32,7 +36,7 @@ class Component(QtWidgets.QWidget):
         self.layout().addWidget(self.componentNameEdit)
 
         remove_icon = qta.icon('mdi6.trash-can')
-        self.removeAction = QtWidgets.QAction(
+        self.removeAction = QAction(
             remove_icon, 'Remove', self.componentNameEdit
         )
         self.removeAction.setObjectName('component-remove-action')

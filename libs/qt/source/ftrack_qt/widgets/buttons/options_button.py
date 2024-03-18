@@ -3,12 +3,8 @@
 
 try:
     from PySide6 import QtWidgets, QtCore
-
-    is_pyside6 = True
 except ImportError:
     from PySide2 import QtWidgets, QtCore
-
-    is_pyside6 = False
 
 from ftrack_qt.widgets.overlay import OverlayWidget
 from ftrack_qt.widgets.lines import LineWidget
@@ -51,12 +47,9 @@ class OptionsButton(QtWidgets.QPushButton):
     def build(self):
         self._main_widget = QtWidgets.QFrame()
         self._main_widget.setLayout(QtWidgets.QVBoxLayout())
-        if is_pyside6:
-            self._main_widget.layout().setAlignment(
-                QtCore.Qt.AlignmentFlag.AlignTop
-            )
-        else:
-            self._main_widget.layout().setAlignment(QtCore.Qt.AlignTop)
+        self._main_widget.layout().setAlignment(
+            QtCore.Qt.AlignmentFlag.AlignTop
+        )
 
         title_label = QtWidgets.QLabel(self._title)
         title_label.setObjectName('h2')
@@ -72,16 +65,12 @@ class OptionsButton(QtWidgets.QPushButton):
         scroll = QtWidgets.QScrollArea()
         scroll.setWidget(self._options_widget)
         scroll.setWidgetResizable(True)
-        if is_pyside6:
-            scroll.setHorizontalScrollBarPolicy(
-                QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff
-            )
-            scroll.setVerticalScrollBarPolicy(
-                QtCore.Qt.ScrollBarPolicy.ScrollBarAsNeeded
-            )
-        else:
-            scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-            scroll.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
+        scroll.setHorizontalScrollBarPolicy(
+            QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+        )
+        scroll.setVerticalScrollBarPolicy(
+            QtCore.Qt.ScrollBarPolicy.ScrollBarAsNeeded
+        )
         self._main_widget.layout().addWidget(scroll)
         self._overlay_container = OverlayWidget(
             self._main_widget, height_percentage=0.9

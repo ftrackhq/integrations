@@ -40,7 +40,7 @@ class FlowLayout(QtWidgets.QLayout):
         return None
 
     def expandingDirections(self):
-        return QtCore.Qt.Orientations(QtCore.Qt.Orientation(0))
+        return QtCore.Qt.Orientation(0)
 
     def hasHeightForWidth(self):
         return True
@@ -69,14 +69,14 @@ class FlowLayout(QtWidgets.QLayout):
         for item in self.itemList:
             wid = item.widget()
             spaceX = self.spacing() + wid.style().layoutSpacing(
-                QtWidgets.QSizePolicy.PushButton,
-                QtWidgets.QSizePolicy.PushButton,
-                QtCore.Qt.Horizontal,
+                QtWidgets.QSizePolicy.ControlType.PushButton,
+                QtWidgets.QSizePolicy.ControlType.PushButton,
+                QtCore.Qt.Orientation.Horizontal,
             )
             spaceY = self.spacing() + wid.style().layoutSpacing(
-                QtWidgets.QSizePolicy.PushButton,
-                QtWidgets.QSizePolicy.PushButton,
-                QtCore.Qt.Vertical,
+                QtWidgets.QSizePolicy.ControlType.PushButton,
+                QtWidgets.QSizePolicy.ControlType.PushButton,
+                QtCore.Qt.Orientation.Vertical,
             )
             nextX = x + item.sizeHint().width() + spaceX
             if nextX - spaceX > rect.right() and lineHeight > 0:

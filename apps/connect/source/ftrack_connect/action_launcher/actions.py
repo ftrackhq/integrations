@@ -130,7 +130,7 @@ class Actions(QtWidgets.QWidget):
 
         self._all_label = QtWidgets.QLabel('Discovering actions..')
         self._all_label.setWordWrap(True)
-        self._all_label.setAlignment(QtCore.Qt.AlignCenter)
+        self._all_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(self._all_label)
         self._all_section = ActionSection(self.session, self)
         self._all_section.beforeActionLaunch.connect(
@@ -191,10 +191,10 @@ class Actions(QtWidgets.QWidget):
 
         if rise_message:
             message_box = QtWidgets.QMessageBox(
-                QtWidgets.QMessageBox.Warning,
+                QtWidgets.QMessageBox.Icon.Warning,
                 'Warning',
                 rise_message,
-                buttons=QtWidgets.QMessageBox.Ok,
+                buttons=QtWidgets.QMessageBox.StandardButton.Ok,
             )
             # Create the checkbox
             checkbox = QtWidgets.QCheckBox("Don't show this message again.")
@@ -202,7 +202,7 @@ class Actions(QtWidgets.QWidget):
 
             response = message_box.exec_()
             # Check if OK was clicked and if the checkbox was checked
-            if response == QtWidgets.QMessageBox.Ok:
+            if response == QtWidgets.QMessageBox.StandardButton.Ok:
                 if checkbox.isChecked():
                     known_rosetta_apps.append(action['actionIdentifier'])
                     launcher_prefs['known_rosetta_apps'] = known_rosetta_apps
@@ -316,10 +316,10 @@ class Actions(QtWidgets.QWidget):
         self._all_section.clear()
         if self._actions:
             self._all_section.add_actions(self._actions)
-            self._all_label.setAlignment(QtCore.Qt.AlignLeft)
+            self._all_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeft)
             self._all_label.setText('All actions')
         else:
-            self._all_label.setAlignment(QtCore.Qt.AlignCenter)
+            self._all_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
             self._all_label.setText(
                 '<h2 style="font-weight: medium"> No matching applications or actions was found</h2>'
                 '<p>Try another selection, add some actions and make sure you have the right integrations set up for the applications you want to launch.</p>'

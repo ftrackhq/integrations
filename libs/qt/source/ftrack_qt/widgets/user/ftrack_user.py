@@ -3,12 +3,8 @@
 # TODO: Clean this code
 try:
     from PySide6 import QtWidgets, QtCore, QtGui
-
-    is_pyside6 = True
 except ImportError:
     from PySide2 import QtWidgets, QtCore, QtGui
-
-    is_pyside6 = False
 
 from ftrack_qt.widgets.thumbnails import UserThumbnail as UserThumbnail
 
@@ -33,11 +29,7 @@ class FtrackUser(QtWidgets.QFrame):
     def pre_build(self):
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
-        self.layout().setAlignment(
-            QtCore.Qt.AlignmentFlag.AlignRight
-            if is_pyside6
-            else QtCore.Qt.AlignRight
-        )
+        self.layout().setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
 
     def build(self):
         username = self.session.api_user

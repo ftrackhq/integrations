@@ -18,12 +18,14 @@ class WidgetList(QtWidgets.QWidget):
     def _add_plugins(self, plugins):
         for plugin_name, plugin_object in plugins.items():
             new_item = QtWidgets.QListWidgetItem(plugin_name)
-            new_item.setData(QtCore.Qt.UserRole, plugin_object)
-            new_item.setFlags(new_item.flags() | QtCore.Qt.ItemIsUserCheckable)
-            new_item.setCheckState(QtCore.Qt.Checked)
+            new_item.setData(QtCore.Qt.ItemDataRole.UserRole, plugin_object)
+            new_item.setFlags(
+                new_item.flags() | QtCore.Qt.ItemFlag.ItemIsUserCheckable
+            )
+            new_item.setCheckState(QtCore.Qt.CheckState.Checked)
             self.tablewidget.addItem(new_item)
 
     def _set_state(self, item):
-        connect_widget = item.data(QtCore.Qt.UserRole)
+        connect_widget = item.data(QtCore.Qt.ItemDataRole.UserRole)
         # hide / show tab containing the plugin.
         connect_widget.parent().parent().setVisible(item.checkState())

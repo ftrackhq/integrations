@@ -212,7 +212,7 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
         for index in range(self._plugin_list_widget.plugin_model.rowCount()):
             if (
                 self._plugin_list_widget.plugin_model.item(index).checkState()
-                == QtCore.Qt.Checked
+                == QtCore.Qt.CheckState.Checked
             ):
                 items.append(self._plugin_list_widget.plugin_model.item(index))
 
@@ -343,42 +343,42 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
         deprecated_plugins = self._get_deprecated_plugin_names()
         if incompatible_plugin_names:
             msgbox = QtWidgets.QMessageBox(
-                QtWidgets.QMessageBox.Warning,
+                QtWidgets.QMessageBox.Icon.Warning,
                 'Warning',
                 'The following conflicting and incompatible plugins are installed and will be ignored by Connect'
                 ':\n\n{}\n\nClean up and archive them?'.format(
                     '\n'.join(incompatible_plugin_names)
                 ),
-                buttons=QtWidgets.QMessageBox.Yes
-                | QtWidgets.QMessageBox.No
-                | QtWidgets.QMessageBox.Cancel,
+                buttons=QtWidgets.QMessageBox.StandardButton.Yes
+                | QtWidgets.QMessageBox.StandardButton.No
+                | QtWidgets.QMessageBox.StandardButton.Cancel,
                 parent=self,
             )
             answer = msgbox.exec_()
-            if answer == QtWidgets.QMessageBox.Yes:
+            if answer == QtWidgets.QMessageBox.StandardButton.Yes:
                 pass
-            elif answer == QtWidgets.QMessageBox.No:
+            elif answer == QtWidgets.QMessageBox.StandardButton.No:
                 incompatible_plugin_names = []  # Keep them
-            elif answer == QtWidgets.QMessageBox.Cancel:
+            elif answer == QtWidgets.QMessageBox.StandardButton.Cancel:
                 return
         if deprecated_plugins:
             msgbox = QtWidgets.QMessageBox(
-                QtWidgets.QMessageBox.Warning,
+                QtWidgets.QMessageBox.Icon.Warning,
                 'Warning',
                 'The following deprecated plugins are installed'
                 ':\n\n{}\n\nClean up and archive them?\n\nNote: they might still function, please '
                 'check release notes for further details.'.format(
                     '\n'.join(deprecated_plugins)
                 ),
-                buttons=QtWidgets.QMessageBox.Yes
-                | QtWidgets.QMessageBox.No
-                | QtWidgets.QMessageBox.Cancel,
+                buttons=QtWidgets.QMessageBox.StandardButton.Yes
+                | QtWidgets.QMessageBox.StandardButton.No
+                | QtWidgets.QMessageBox.StandardButton.Cancel,
                 parent=self,
             )
             answer = msgbox.exec_()
-            if answer == QtWidgets.QMessageBox.Yes:
+            if answer == QtWidgets.QMessageBox.StandardButton.Yes:
                 pass
-            elif answer == QtWidgets.QMessageBox.No:
+            elif answer == QtWidgets.QMessageBox.StandardButton.No:
                 deprecated_plugins = []  # Keep them
             else:
                 return
@@ -395,7 +395,7 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
             num_items = self._plugin_list_widget.plugin_model.rowCount()
             for i in range(num_items):
                 item = self._plugin_list_widget.plugin_model.item(i)
-                if item.checkState() == QtCore.Qt.Checked:
+                if item.checkState() == QtCore.Qt.CheckState.Checked:
                     self.installation_in_progress.emit(item)
                     self._plugin_processor.process(item)
             self.installation_done.emit()

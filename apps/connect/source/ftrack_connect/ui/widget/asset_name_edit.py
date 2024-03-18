@@ -41,9 +41,9 @@ class AssetNameValidator(QtGui.QValidator):
                 break
 
         if not value or not isValid:
-            return QtGui.QValidator.Intermediate
+            return QtGui.QValidator.State.Intermediate
         else:
-            return QtGui.QValidator.Acceptable
+            return QtGui.QValidator.State.Acceptable
 
 
 class AssetNameEdit(QtWidgets.QLineEdit):

@@ -3,12 +3,8 @@
 
 try:
     from PySide6 import QtWidgets, QtCore
-
-    is_pyside6 = True
 except ImportError:
     from PySide2 import QtWidgets, QtCore, QtGui
-
-    is_pyside6 = False
 
 from ftrack_qt.widgets.models import TableModel
 
@@ -44,8 +40,6 @@ class TableView(QtWidgets.QTableView):
 
         self.setSelectionBehavior(
             QtWidgets.QAbstractItemView.SelectionBehavior.SelectRows
-            if is_pyside6
-            else QtWidgets.QAbstractItemView.SelectRows
         )
 
         self.horizontalHeader().setStretchLastSection(True)

@@ -5,12 +5,10 @@ import logging
 
 try:
     from PySide6 import QtWidgets, QtCore
-    from PySide6.QtCore import QRegularExpression
     from PySide6.QtGui import QRegularExpressionValidator
 except ImportError:
     from PySide2 import QtWidgets, QtCore, QtGui
-    from PySide2.QtCore import QRegExp as QRegularExpression
-    from PySide2.QtCore import QRegExpValidator as QRegularExpressionValidator
+    from PySide2.QtGui import QRegExpValidator as QRegularExpressionValidator
 
 
 from ftrack_qt.widgets.asset import (
@@ -109,7 +107,7 @@ class PublishAssetSelector(AssetSelectorBase):
     '''Asset selector tailored for publish, allows user to select and existing
     asset or input an asset name for creating a new asset.'''
 
-    VALID_ASSET_NAME = QRegularExpression('[A-Za-z0-9_]+')
+    VALID_ASSET_NAME = QtCore.QRegularExpression('[A-Za-z0-9_]+')
 
     new_asset = QtCore.Signal(object)
     '''This signal is emitted when a new asset is selected. It sends the

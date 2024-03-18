@@ -3,12 +3,8 @@
 
 try:
     from PySide6 import QtWidgets, QtCore
-
-    is_pyside6 = True
 except ImportError:
     from PySide2 import QtWidgets, QtCore, QtGui
-
-    is_pyside6 = False
 
 
 class ShadedWidget(QtWidgets.QWidget):
@@ -16,16 +12,8 @@ class ShadedWidget(QtWidgets.QWidget):
 
     def __init__(self, parent=None):
         super(ShadedWidget, self).__init__(parent=parent)
-        self.setWindowFlags(
-            QtCore.Qt.WindowType.FramelessWindowHint
-            if is_pyside6
-            else QtCore.Qt.FramelessWindowHint
-        )
-        self.setAttribute(
-            QtCore.Qt.WidgetAttribute.WA_TranslucentBackground
-            if is_pyside6
-            else QtCore.Qt.WA_TranslucentBackground
-        )
+        self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
+        self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
         self._fill_color = QtGui.QColor(19, 25, 32, 169)
 
     def paintEvent(self, event):

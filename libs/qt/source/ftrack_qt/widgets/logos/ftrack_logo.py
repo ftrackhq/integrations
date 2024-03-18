@@ -3,12 +3,8 @@
 
 try:
     from PySide6 import QtWidgets, QtCore, QtGui
-
-    is_pyside6 = True
 except ImportError:
     from PySide2 import QtWidgets, QtCore, QtGui
-
-    is_pyside6 = False
 
 
 class FtrackLogo(QtWidgets.QLabel):
@@ -25,11 +21,7 @@ class FtrackLogo(QtWidgets.QLabel):
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
         self.layout().setSpacing(0)
-        self.layout().setAlignment(
-            QtCore.Qt.AlignmentFlag.AlignTop
-            if is_pyside6
-            else QtCore.Qt.AlignTop
-        )
+        self.layout().setAlignment(QtCore.Qt.AlignmentFlag.AlignTop)
 
     def build(self):
         resource_path = ':ftrack/image/default/connectLogoDark'
@@ -38,12 +30,8 @@ class FtrackLogo(QtWidgets.QLabel):
             self.setPixmap(
                 logoPixmap.scaled(
                     QtCore.QSize(106, 32),
-                    QtCore.Qt.AspectRatioMode.KeepAspectRatio
-                    if is_pyside6
-                    else QtCore.Qt.KeepAspectRatio,
-                    QtCore.Qt.TransformationMode.SmoothTransformation
-                    if is_pyside6
-                    else QtCore.Qt.SmoothTransformation,
+                    QtCore.Qt.AspectRatioMode.KeepAspectRatio,
+                    QtCore.Qt.TransformationMode.SmoothTransformation,
                 )
             )
             self.setPixmap(logoPixmap)

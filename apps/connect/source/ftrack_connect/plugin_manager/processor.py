@@ -5,10 +5,10 @@ import shutil
 import tempfile
 import logging
 import qtawesome as qta
-import urllib
 import traceback
 import zipfile
 from urllib.error import HTTPError
+from urllib.request import urlopen
 
 try:
     from PySide6 import QtWidgets, QtCore, QtGui
@@ -33,7 +33,7 @@ class STATUSES(object):
 class ROLES(object):
     '''Store plugin roles'''
 
-    PLUGIN_STATUS = QtCore.Qt.UserRole + 1
+    PLUGIN_STATUS = QtCore.Qt.ItemDataRole.UserRole + 1
     PLUGIN_NAME = PLUGIN_STATUS + 1
     PLUGIN_VERSION = PLUGIN_NAME + 1
     PLUGIN_SOURCE_PATH = PLUGIN_VERSION + 1
@@ -85,7 +85,7 @@ class PluginProcessor(QtCore.QObject):
 
                 logger.info(f'Downloading {source_path} to {temp_path}')
 
-                with urllib.request.urlopen(source_path) as dl_file:
+                with urlopen(source_path) as dl_file:
                     with open(temp_path, 'wb') as out_file:
                         out_file.write(dl_file.read())
                 return temp_path
