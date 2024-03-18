@@ -34,6 +34,7 @@ Changelog:
 '''
 
 import argparse
+import copy
 import os
 import shutil
 import logging
@@ -42,6 +43,7 @@ import subprocess
 from distutils.spawn import find_executable
 import fileinput
 import tempfile
+import toml
 
 __version__ = '0.4.15'
 
@@ -464,6 +466,11 @@ def build_package(pkg_path, args, command=None):
         logging.info(
             f'Exporting dependencies from: "{os.path.basename(lock_path)}" (extras: {extras})'
         )
+        original_toml = None
+        if args.testpypi:
+            original_toml = set_ftrack_deps_to_test_pypi(POETRY_CONFIG_PATH)
+            commands = ['poetry', 'update']
+            subprocess.check_call(commands)
         # Run Poetry export and read the output
         requirements_path = os.path.join(STAGING_PATH, 'requirements.txt')
         commands = [
@@ -496,6 +503,8 @@ def build_package(pkg_path, args, command=None):
             dependencies_path,
         ]
         if args.testpypi:
+            if original_toml:
+                restore_original_toml_file(POETRY_CONFIG_PATH, original_toml)
             # Try to pick first from pypi if not exist go to test pypi
             commands.extend(
                 [
@@ -547,6 +556,40 @@ def build_package(pkg_path, args, command=None):
         if args.remove_intermediate_folder:
             logging.warning(f'Removing: {STAGING_PATH}')
             shutil.rmtree(STAGING_PATH, ignore_errors=True)
+
+    def set_ftrack_deps_to_test_pypi(pyproject_toml_path):
+        '''Set pypitest source to all ftrack dependencies'''
+        # Load the pyproject.toml file
+        with open(pyproject_toml_path, 'r') as file:
+            pyproject_data = toml.load(file)
+            original_toml = copy.deepcopy(pyproject_data)
+
+        # Check if the tool.poetry.dependencies section exists
+        if (
+            'tool' in pyproject_data
+            and 'poetry' in pyproject_data['tool']
+            and 'dependencies' in pyproject_data['tool']['poetry']
+        ):
+            dependencies = pyproject_data['tool']['poetry']['dependencies']
+
+            # Modify dependencies that start with "ftrack-"
+            for package, details in dependencies.items():
+                if package.startswith('ftrack-'):
+                    # Ensure the details are not a simple string but a dictionary
+                    if isinstance(details, str):
+                        details = {'version': details}
+                    details['source'] = 'testpypi'
+                    dependencies[package] = details
+
+            # Write the modified data back to pyproject.toml
+            with open(pyproject_toml_path, 'w') as file:
+                toml.dump(pyproject_data, file)
+        return original_toml
+
+    def restore_original_toml_file(pyproject_toml_path, original_toml):
+        '''Write given *original_toml* as *pyproject_toml_path*'''
+        with open(pyproject_toml_path, 'w') as file:
+            toml.dump(original_toml, file)
 
     def _replace_imports_(resource_target_path):
         '''Replace imports in resource files to Qt instead of QtCore.
