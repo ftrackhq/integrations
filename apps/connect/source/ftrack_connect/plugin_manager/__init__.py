@@ -87,7 +87,7 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
             raise FileNotFoundError(
                 f"Connect config file (ftrack_connect.yaml) not found in the "
                 f"following directory: {get_connect_config_path()}.\n"
-                f"Please provide one before continue."
+                f"Please provide one before continuing."
             )
 
         self._reset_plugin_list()
