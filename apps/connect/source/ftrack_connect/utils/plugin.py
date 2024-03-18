@@ -283,7 +283,7 @@ def create_target_plugin_directory(directory):
             os.makedirs(directory)
         except Exception as e:
             raise Exception(
-                f"Couldn't create the target plugin directory, : {e}"
+                f"Couldn't create the target plugin directory: {e}"
             )
 
     return directory
