@@ -68,7 +68,7 @@ jobs:
       - name: Check Release Notes for [--testpypi | --from_source] arguments
         id: check_testpypi
         run: |
-          RELEASE_NOTES=$(gh release view ${{ github.ref }} --json body -q .body)
+          RELEASE_NOTES="${{ github.event.release.body }}"
           echo "BUILD_ARGUMENT=" >> $GITHUB_ENV
           if [[ "$RELEASE_NOTES" == *"[--testpypi]"* ]]; then
             echo "FROM_TEST_PYPI=true" >> $GITHUB_ENV
