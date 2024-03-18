@@ -3,8 +3,13 @@
 
 try:
     from PySide6 import QtWidgets, QtCore
+
+    is_pyside6 = True
 except ImportError:
     from PySide2 import QtWidgets, QtCore
+
+    is_pyside6 = False
+
 
 from ftrack_qt.widgets.selectors import ListSelector
 from ftrack_qt.widgets.headers import SessionHeader
@@ -74,7 +79,13 @@ class TabDialog(StyledDialog):
         self._tab_widget = QtWidgets.QTabWidget()
 
         self.layout().addWidget(self._header)
-        self.layout().addWidget(self._context_selector, QtCore.Qt.AlignTop)
+
+        if is_pyside6:
+            self.layout().addWidget(
+                self._context_selector, QtCore.Qt.AlignmentFlag.AlignTop
+            )
+        else:
+            self.layout().addWidget(self._context_selector, QtCore.Qt.AlignTop)
         self.layout().addWidget(self._tab_widget)
 
     def post_build(self):

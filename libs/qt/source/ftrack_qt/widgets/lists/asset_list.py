@@ -5,8 +5,12 @@ import logging
 
 try:
     from PySide6 import QtWidgets, QtCore
+
+    is_pyside6 = True
 except ImportError:
     from PySide2 import QtWidgets, QtCore, QtGui
+
+    is_pyside6 = False
 
 
 class AssetList(QtWidgets.QListWidget):
@@ -67,8 +71,16 @@ class AssetList(QtWidgets.QListWidget):
         self._latest_published_asset_item = None
         self._active = True
 
-        self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.setHorizontalScrollBarPolicy(
+            QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+            if is_pyside6
+            else QtCore.Qt.ScrollBarAlwaysOff
+        )
+        self.setVerticalScrollBarPolicy(
+            QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+            if is_pyside6
+            else QtCore.Qt.ScrollBarAlwaysOff
+        )
         self.verticalScrollBar().setDisabled(True)
         self.setAutoScroll(False)
         self.setSpacing(1)

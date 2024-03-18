@@ -42,12 +42,11 @@ class TableView(QtWidgets.QTableView):
 
         self.verticalHeader().hide()
 
-        if is_pyside6:
-            self.setSelectionBehavior(
-                QtWidgets.QAbstractItemView.SelectionBehavior.SelectRows
-            )
-        else:
-            self.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        self.setSelectionBehavior(
+            QtWidgets.QAbstractItemView.SelectionBehavior.SelectRows
+            if is_pyside6
+            else QtWidgets.QAbstractItemView.SelectRows
+        )
 
         self.horizontalHeader().setStretchLastSection(True)
 

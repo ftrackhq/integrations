@@ -3,9 +3,12 @@
 
 try:
     from PySide6 import QtWidgets, QtCore
+
+    is_pyside6 = True
 except ImportError:
     from PySide2 import QtWidgets, QtCore
 
+    is_pyside6 = False
 from ftrack_framework_core.widget.dialog import FrameworkDialog
 
 from ftrack_qt.widgets.dialogs import StyledDialog
@@ -137,10 +140,16 @@ class BaseDialog(FrameworkDialog, StyledDialog):
         StyledDialog.show(self)
         self.raise_()
         self.activateWindow()
-        self.setWindowState(
-            self.windowState() & ~QtCore.Qt.WindowMinimized
-            | QtCore.Qt.WindowActive
-        )
+        if is_pyside6:
+            self.setWindowState(
+                self.windowState() & ~QtCore.Qt.WindowState.WindowMinimized
+                | QtCore.Qt.WindowState.WindowActive
+            )
+        else:
+            self.setWindowState(
+                self.windowState() & ~QtCore.Qt.WindowMinimized
+                | QtCore.Qt.WindowActive
+            )
 
     def connect_focus_signal(self):
         '''Connect signal when the current dialog gets focus'''

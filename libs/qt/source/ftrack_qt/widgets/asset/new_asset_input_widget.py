@@ -3,8 +3,13 @@
 
 try:
     from PySide6 import QtWidgets, QtCore
+
+    is_pyside6 = True
 except ImportError:
     from PySide2 import QtWidgets, QtCore, QtGui
+
+    is_pyside6 = False
+
 from ftrack_qt.utils.widget import set_property
 
 
@@ -73,9 +78,15 @@ class NewAssetInput(QtWidgets.QFrame):
         self._name = QtWidgets.QLineEdit()
         self._name.setPlaceholderText(self._placeholder_name)
         self._name.setValidator(self._validator)
-        self._name.setSizePolicy(
-            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Minimum
-        )
+        if is_pyside6:
+            self._name.setSizePolicy(
+                QtWidgets.QSizePolicy.Policy.Preferred,
+                QtWidgets.QSizePolicy.Policy.Minimum,
+            )
+        else:
+            self._name.setSizePolicy(
+                QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Minimum
+            )
         self._name.setVisible(False)
         self.layout().addWidget(self._name, 1000)
 
@@ -85,9 +96,15 @@ class NewAssetInput(QtWidgets.QFrame):
         self.layout().addWidget(self._version_label)
 
         self._filler = QtWidgets.QLabel('')
-        self._filler.setSizePolicy(
-            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum
-        )
+        if is_pyside6:
+            self._filler.setSizePolicy(
+                QtWidgets.QSizePolicy.Policy.Expanding,
+                QtWidgets.QSizePolicy.Policy.Minimum,
+            )
+        else:
+            self._filler.setSizePolicy(
+                QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum
+            )
         self.layout().addWidget(self._filler, 100)
 
     def post_build(self):

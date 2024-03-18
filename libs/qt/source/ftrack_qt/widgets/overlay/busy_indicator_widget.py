@@ -4,9 +4,13 @@
 try:
     from PySide6 import QtWidgets, QtCore
     import shiboken6 as shiboken
+
+    is_pyside6 = True
 except ImportError:
     from PySide2 import QtWidgets, QtCore, QtSvg, QtGui
     import shiboken2 as shiboken
+
+    is_pyside6 = False
 
 
 class BusyIndicator(QtWidgets.QWidget):
@@ -78,7 +82,11 @@ class BusyIndicator(QtWidgets.QWidget):
             penWidth = 8.0
             pen.setWidth(penWidth)
             pen.setColor(self._spinnerColor)
-            pen.setCapStyle(QtCore.Qt.RoundCap)
+            pen.setCapStyle(
+                QtCore.Qt.PenCapStyle.RoundCap
+                if is_pyside6
+                else QtCore.Qt.RoundCap
+            )
 
             painter.setPen(pen)
 

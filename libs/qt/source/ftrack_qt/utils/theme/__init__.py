@@ -4,8 +4,12 @@ import sys
 
 try:
     from PySide6 import QtWidgets, QtCore, QtGui
+
+    is_pyside6 = True
 except ImportError:
     from PySide2 import QtWidgets, QtCore, QtGui
+
+    is_pyside6 = False
 
 import ftrack_constants.qt as qt_constants
 
@@ -23,7 +27,13 @@ def apply_theme(widget, theme=None):
     theme_path = ':/ftrack/style/{0}'.format(theme)
     fileObject = QtCore.QFile(theme_path)
     if fileObject.exists():
-        fileObject.open(QtCore.QFile.ReadOnly | QtCore.QFile.Text)
+        if is_pyside6:
+            fileObject.open(
+                QtCore.QFile.OpenModeFlag.ReadOnly
+                | QtCore.QFile.OpenModeFlag.Text
+            )
+        else:
+            fileObject.open(QtCore.QFile.ReadOnly | QtCore.QFile.Text)
         stream = QtCore.QTextStream(fileObject)
         styleSheetContent = stream.readAll()
 

@@ -3,8 +3,12 @@
 
 try:
     from PySide6 import QtWidgets, QtCore, QtGui
+
+    is_pyside6 = True
 except ImportError:
     from PySide2 import QtWidgets, QtCore, QtGui
+
+    is_pyside6 = False
 
 from ftrack_qt.widgets.logos import FtrackLogo as Logo
 from ftrack_qt.widgets.user import FtrackUser as User
@@ -46,7 +50,10 @@ class SessionHeader(QtWidgets.QFrame):
     def pre_build(self):
         self.setLayout(QtWidgets.QVBoxLayout())
         self.layout().setContentsMargins(8, 2, 7, 8)
-        self.layout().setAlignment(QtCore.Qt.AlignTop)
+        if is_pyside6:
+            self.layout().setAlignment(QtCore.Qt.AlignmentFlag.AlignTop)
+        else:
+            self.layout().setAlignment(QtCore.Qt.AlignTop)
 
     def build(self):
         # Logo & User ID
@@ -54,7 +61,12 @@ class SessionHeader(QtWidgets.QFrame):
         self.id_container_layout = QtWidgets.QHBoxLayout()
         self.id_container_layout.setContentsMargins(1, 1, 1, 1)
         self.id_container_layout.setSpacing(5)
-        self.id_container_layout.setAlignment(QtCore.Qt.AlignTop)
+        if is_pyside6:
+            self.id_container_layout.setAlignment(
+                QtCore.Qt.AlignmentFlag.AlignTop
+            )
+        else:
+            self.id_container_layout.setAlignment(QtCore.Qt.AlignTop)
         self.id_container.setLayout(self.id_container_layout)
 
         self.logo = Logo(self)

@@ -3,8 +3,12 @@
 
 try:
     from PySide6 import QtWidgets, QtCore
+
+    is_pyside6 = True
 except ImportError:
     from PySide2 import QtWidgets, QtCore, QtGui
+
+    is_pyside6 = False
 
 from ftrack_qt.utils.widget import set_property
 
@@ -26,7 +30,12 @@ class LineWidget(QtWidgets.QFrame):
             self.setMaximumHeight(1)
             self.setMinimumHeight(1)
             self.setSizePolicy(
-                QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Minimum
+                QtWidgets.QSizePolicy.Policy.Preferred
+                if is_pyside6
+                else QtWidgets.QSizePolicy.Preferred,
+                QtWidgets.QSizePolicy.Policy.Minimum
+                if is_pyside6
+                else QtWidgets.QSizePolicy.Minimum,
             )
         else:
             self.setMaximumWidth(1)
@@ -34,7 +43,12 @@ class LineWidget(QtWidgets.QFrame):
             self.setMaximumHeight(16)
             self.setMinimumHeight(16)
             self.setSizePolicy(
-                QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred
+                QtWidgets.QSizePolicy.Policy.Minimum
+                if is_pyside6
+                else QtWidgets.QSizePolicy.Minimum,
+                QtWidgets.QSizePolicy.Policy.Preferred
+                if is_pyside6
+                else QtWidgets.QSizePolicy.Preferred,
             )
         if style is not None:
             set_property(self, 'style', style)

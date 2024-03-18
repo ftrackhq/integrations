@@ -3,8 +3,12 @@
 
 try:
     from PySide6 import QtWidgets, QtCore
+
+    is_pyside6 = True
 except ImportError:
     from PySide2 import QtWidgets, QtCore
+
+    is_pyside6 = False
 
 from ftrack_qt.widgets.selectors import ListSelector
 from ftrack_qt.widgets.headers import SessionHeader
@@ -116,9 +120,14 @@ class ScrollToolConfigsDialog(StyledDialog):
         self._scroll_area = QtWidgets.QScrollArea()
         self._scroll_area.setStyle(QtWidgets.QStyleFactory.create("plastique"))
         self._scroll_area.setWidgetResizable(True)
-        self._scroll_area.setHorizontalScrollBarPolicy(
-            QtCore.Qt.ScrollBarAlwaysOff
-        )
+        if is_pyside6:
+            self._scroll_area.setHorizontalScrollBarPolicy(
+                QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+            )
+        else:
+            self._scroll_area.setHorizontalScrollBarPolicy(
+                QtCore.Qt.ScrollBarAlwaysOff
+            )
 
         self._tool_config_widget = QtWidgets.QWidget()
         _tool_config_widget_layout = QtWidgets.QVBoxLayout()

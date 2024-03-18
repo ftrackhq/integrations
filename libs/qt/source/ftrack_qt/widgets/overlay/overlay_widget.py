@@ -3,8 +3,12 @@
 
 try:
     from PySide6 import QtWidgets, QtCore, QtGui
+
+    is_pyside6 = True
 except ImportError:
     from PySide2 import QtWidgets, QtCore, QtGui
+
+    is_pyside6 = False
 
 from ftrack_qt.utils.widget import (
     get_main_window_from_widget,
@@ -102,7 +106,12 @@ class OverlayWidget(QtWidgets.QFrame):
         size = self.size()  # get current window size
         painter = QtGui.QPainter()
         painter.begin(self)
-        painter.setRenderHint(QtGui.QPainter.Antialiasing, True)
+        painter.setRenderHint(
+            QtGui.QPainter.RenderHint.Antialiasing
+            if is_pyside6
+            else QtGui.QPainter.Antialiasing,
+            True,
+        )
         painter.setPen(self._pen_color)
         painter.setBrush(self._fill_color)
         painter.drawRect(0, 0, size.width(), size.height())

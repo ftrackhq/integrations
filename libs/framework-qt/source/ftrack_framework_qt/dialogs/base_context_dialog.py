@@ -3,8 +3,12 @@
 
 try:
     from PySide6 import QtWidgets, QtCore
+
+    is_pyside6 = True
 except ImportError:
     from PySide2 import QtWidgets, QtCore
+
+    is_pyside6 = False
 
 from ftrack_framework_qt.dialogs.base_dialog import BaseDialog
 
@@ -81,7 +85,12 @@ class BaseContextDialog(BaseDialog):
         self._run_button = QtWidgets.QPushButton(self.run_button_title)
 
         self.layout().addWidget(self._header)
-        self.layout().addWidget(self._context_selector, QtCore.Qt.AlignTop)
+        self.layout().addWidget(
+            self._context_selector,
+            QtCore.Qt.AlignmentFlag.AlignTop
+            if is_pyside6
+            else QtCore.Qt.AlignTop,
+        )
         self.layout().addWidget(self._tool_widget)
         self.layout().addWidget(self._run_button)
 

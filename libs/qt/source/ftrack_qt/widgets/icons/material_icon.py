@@ -4,8 +4,12 @@ import logging
 
 try:
     from PySide6 import QtWidgets, QtCore, QtGui, QtSvg
+
+    is_pyside6 = True
 except ImportError:
     from PySide2 import QtWidgets, QtCore, QtGui, QtSvg
+
+    is_pyside6 = False
 
 
 class MaterialIcon(QtGui.QIcon):
@@ -33,10 +37,17 @@ class MaterialIcon(QtGui.QIcon):
             variant, self._name
         )
         pixmap = None
-        if not color is None:
+        if color is not None:
             # Read SVG and add fill color
             inFile = QtCore.QFile(resource_path)
-            if inFile.open(QtCore.QFile.ReadOnly | QtCore.QFile.Text):
+            if inFile.open(
+                (
+                    QtCore.QFile.OpenModeFlag.ReadOnly
+                    | QtCore.QFile.OpenModeFlag.Text
+                )
+                if is_pyside6
+                else (QtCore.QFile.ReadOnly | QtCore.QFile.Text)
+            ):
                 text_stream = QtCore.QTextStream(inFile)
                 svg_data = text_stream.readAll()
                 svg_data = svg_data.replace(
@@ -46,7 +57,11 @@ class MaterialIcon(QtGui.QIcon):
                     QtCore.QByteArray(bytearray(svg_data.encode()))
                 )
                 pixmap = QtGui.QPixmap(svg_renderer.defaultSize())
-                pixmap.fill(QtCore.Qt.transparent)
+                pixmap.fill(
+                    QtGui.Qt.GlobalColor.transparent
+                    if is_pyside6
+                    else QtCore.Qt.transparent
+                )
                 painter = QtGui.QPainter(pixmap)
                 svg_renderer.render(painter)
                 painter.end()

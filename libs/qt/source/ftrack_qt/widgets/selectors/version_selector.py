@@ -4,8 +4,12 @@ import logging
 
 try:
     from PySide6 import QtWidgets, QtCore, QtGui
+
+    is_pyside6 = True
 except ImportError:
     from PySide2 import QtWidgets, QtCore, QtGui
+
+    is_pyside6 = False
 
 
 class VersionSelector(QtWidgets.QComboBox):
@@ -47,5 +51,9 @@ class VersionSelector(QtWidgets.QComboBox):
         '''Add a version to the combobox.'''
         self.addItem(str('v{}'.format(version['version'])), version)
         self.setItemData(
-            self.count() - 1, QtGui.QColor('#131920'), QtCore.Qt.BackgroundRole
+            self.count() - 1,
+            QtGui.QColor('#131920'),
+            QtCore.Qt.ItemDataRole.BackgroundRole
+            if is_pyside6
+            else QtCore.Qt.BackgroundRole,
         )
