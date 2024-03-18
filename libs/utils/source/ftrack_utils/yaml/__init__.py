@@ -39,50 +39,76 @@ def write_yaml_file(file_path, content):
 
 def resolve_placeholders(value, data):
     """
-    Recursively resolve placeholders in a string value based on the provided data.
-    :param value: The current string value potentially containing placeholders.
-    :param data: The dictionary containing the values to replace placeholders.
-    :return: The value with all placeholders resolved.
+    Recursively resolve placeholders in a string value or a list based on the provided data.
+    When an environment variable resolves to a list, it's properly expanded.
     """
-    if isinstance(value, str):
-        pattern = re.compile(r'\{\$(.*?)\}')
+    pattern = re.compile(r'\$\{(.*?)\}')
+
+    def resolve_string(s):
+        """Resolve placeholders within a single string."""
         while True:
-            match = pattern.search(value)
+            match = pattern.search(s)
             if not match:
                 break
             placeholder = match.group(1)
-            replacement = data.get(placeholder, '')
+            replacement = data.get(placeholder, os.getenv(placeholder, ''))
+            # Split environment variable string into list if it contains path separator
+            if isinstance(replacement, str) and os.pathsep in replacement:
+                replacement = replacement.split(os.pathsep)
+            # Handle replacement being a list
             if isinstance(replacement, list):
-                # Process list replacements by generating new strings for each list item
+                # Generate new values for each list item
                 return [
-                    resolve_placeholders(
-                        value.replace(match.group(), r, 1), data
-                    )
+                    resolve_string(s.replace(match.group(), r, 1))
                     for r in replacement
                 ]
             else:
-                # Simple string replacement
-                value = value.replace(match.group(), str(replacement), 1)
-        return value
+                s = s.replace(match.group(), str(replacement), 1)
+        return s
+
+    if isinstance(value, str):
+        return resolve_string(value)
+    # TODO: The  elif isinstance(value, list): is not used right now, so we can decide to remove it
     elif isinstance(value, list):
-        # If the value is a list, apply placeholder resolution to each element
-        return [resolve_placeholders(item, data) for item in value]
+        # Resolve each item in the list, handling nested lists from replacements
+        resolved = [resolve_placeholders(item, data) for item in value]
+        # Flatten the list if replacements introduced nested lists and remove duplicates
+        flat_list = []
+        for item in resolved:
+            if isinstance(item, list):
+                for sub_item in item:
+                    if sub_item not in flat_list:
+                        flat_list.append(sub_item)
+            else:
+                if item not in flat_list:
+                    flat_list.append(item)
+        return flat_list
     else:
-        # Non-string, non-list values are returned as-is
         return value
 
 
 def substitute_placeholders(data, original_data):
     """
     Recursively substitute placeholders in the data structure with actual values from the same structure.
-    :param data: The current data part being processed.
-    :param original_data: The complete, original data structure for replacements.
     """
     if isinstance(data, dict):
         for key, value in data.items():
             data[key] = substitute_placeholders(value, original_data)
     elif isinstance(data, list):
-        return [substitute_placeholders(item, original_data) for item in data]
+        resolved = [
+            substitute_placeholders(item, original_data) for item in data
+        ]
+        # Flatten the list if necessary and remove duplicates
+        flat_list = []
+        for item in resolved:
+            if isinstance(item, list):
+                for sub_item in item:
+                    if sub_item not in flat_list:
+                        flat_list.append(sub_item)
+            else:
+                if item not in flat_list:
+                    flat_list.append(item)
+        return flat_list
     elif isinstance(data, str):
         return resolve_placeholders(data, original_data)
     return data
