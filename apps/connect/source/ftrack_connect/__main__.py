@@ -1,11 +1,13 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2024 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
+
 import sys
 import platformdirs
 import argparse
 import logging
 import signal
 import os
+import pkg_resources
 import importlib
 
 
@@ -15,14 +17,7 @@ def main_connect(arguments=None):
     bindings = ['PySide2']
     os.environ.setdefault('QT_PREFERRED_BINDING', os.pathsep.join(bindings))
 
-    try:
-        from PySide6 import QtWidgets, QtCore
-
-        is_pyside2 = False
-    except ImportError:
-        from PySide2 import QtWidgets, QtCore
-
-        is_pyside2 = True
+    from ftrack_connect.qt import QtWidgets, QtCore
 
     from ftrack_connect import load_icons
     import ftrack_connect.config
@@ -106,21 +101,14 @@ def main_connect(arguments=None):
 
     # If under X11, make Xlib calls thread-safe.
     # http://stackoverflow.com/questions/31952711/threading-pyqt-crashes-with-unknown-request-in-queue-while-dequeuing
-    if os.name == 'posix' and is_pyside2:
-        try:
-            QtCore.QCoreApplication.setAttribute(
-                QtCore.QtAA_X11InitThreads, True
-            )
-        except Exception as e:
-            logger = logging.getLogger('ftrack_connect')
-            logger.warning(e)
+    if os.name == 'posix':
+        QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_X11InitThreads)
+
     # Ensure support for highdpi
     QtCore.QCoreApplication.setAttribute(
-        QtCore.Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True
+        QtCore.Qt.AA_EnableHighDpiScaling, True
     )
-    QtCore.QCoreApplication.setAttribute(
-        QtCore.Qt.ApplicationAttribute.AA_UseHighDpiPixmaps, True
-    )
+    QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
 
     # Construct global application.
 

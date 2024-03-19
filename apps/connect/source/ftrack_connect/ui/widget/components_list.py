@@ -1,12 +1,9 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2024 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import functools
 
-try:
-    from PySide6 import QtWidgets
-except ImportError:
-    from PySide2 import QtWidgets
+from ftrack_connect.qt import QtWidgets
 
 import ftrack_connect.ui.widget.component
 import ftrack_connect.ui.widget.item_list
@@ -26,9 +23,7 @@ class ComponentsList(ftrack_connect.ui.widget.item_list.ItemList):
             widgetItem=lambda widget: widget.value(),
             parent=parent,
         )
-        self.list.setSelectionMode(
-            QtWidgets.QAbstractItemView.SelectionMode.NoSelection
-        )
+        self.list.setSelectionMode(QtWidgets.QAbstractItemView.NoSelection)
         self.list.setShowGrid(False)
 
         self.label = QtWidgets.QLabel('Components')

@@ -1,19 +1,16 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2024 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 import platformdirs
 import qtawesome as qta
 
-try:
-    from PySide6 import QtWidgets, QtCore, QtGui
-except ImportError:
-    from PySide2 import QtWidgets, QtCore, QtGui
+from ftrack_connect.qt import QtCore, QtWidgets, QtGui
 
 from ftrack_utils.decorators import asynchronous
 
+import ftrack_connect
 from ftrack_connect.util import (
     get_plugin_json_url_from_environment,
 )
-from ftrack_connect.ui.widget.overlay import BusyOverlay
 
 
 class WelcomeDialog(QtWidgets.QDialog):
@@ -63,8 +60,8 @@ class WelcomeDialog(QtWidgets.QDialog):
         spacer = QtWidgets.QSpacerItem(
             0,
             70,
-            QtWidgets.QSizePolicy.Policy.Minimum,
-            QtWidgets.QSizePolicy.Policy.Expanding,
+            QtWidgets.QSizePolicy.Minimum,
+            QtWidgets.QSizePolicy.Expanding,
         )
         self.layout().addItem(spacer)
 
@@ -75,16 +72,10 @@ class WelcomeDialog(QtWidgets.QDialog):
         icon_label.setPixmap(
             icon.pixmap(icon.actualSize(QtCore.QSize(180, 180)))
         )
-        icon_label.setAlignment(
-            QtCore.Qt.AlignmentFlag.AlignCenter
-            | QtCore.Qt.AlignmentFlag.AlignTop
-        )
+        icon_label.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignTop)
 
         label_title = QtWidgets.QLabel("<H1>Let's get started!</H1>")
-        label_title.setAlignment(
-            QtCore.Qt.AlignmentFlag.AlignCenter
-            | QtCore.Qt.AlignmentFlag.AlignTop
-        )
+        label_title.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignTop)
 
         label_text = QtWidgets.QLabel(
             'To be able to get use of the connect application, '
@@ -102,26 +93,17 @@ class WelcomeDialog(QtWidgets.QDialog):
         self._restart_button.setObjectName('primary')
         self._restart_button.setVisible(False)
 
-        label_text.setAlignment(
-            QtCore.Qt.AlignmentFlag.AlignLeft
-            | QtCore.Qt.AlignmentFlag.AlignTop
-        )
+        label_text.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
         label_text.setWordWrap(True)
 
         self.layout().addWidget(
-            label_title,
-            QtCore.Qt.AlignmentFlag.AlignCenter
-            | QtCore.Qt.AlignmentFlag.AlignTop,
+            label_title, QtCore.Qt.AlignCenter | QtCore.Qt.AlignTop
         )
         self.layout().addWidget(
-            icon_label,
-            QtCore.Qt.AlignmentFlag.AlignCenter
-            | QtCore.Qt.AlignmentFlag.AlignTop,
+            icon_label, QtCore.Qt.AlignCenter | QtCore.Qt.AlignTop
         )
         self.layout().addWidget(
-            label_text,
-            QtCore.Qt.AlignmentFlag.AlignCenter
-            | QtCore.Qt.AlignmentFlag.AlignTop,
+            label_text, QtCore.Qt.AlignCenter | QtCore.Qt.AlignTop
         )
         self.layout().addWidget(self._install_button)
         self.layout().addWidget(self._skip)
@@ -130,8 +112,8 @@ class WelcomeDialog(QtWidgets.QDialog):
         spacer = QtWidgets.QSpacerItem(
             0,
             300,
-            QtWidgets.QSizePolicy.Policy.Minimum,
-            QtWidgets.QSizePolicy.Policy.Expanding,
+            QtWidgets.QSizePolicy.Minimum,
+            QtWidgets.QSizePolicy.Expanding,
         )
         self.layout().addItem(spacer)
 
@@ -142,7 +124,9 @@ class WelcomeDialog(QtWidgets.QDialog):
         self.installing.connect(self._on_plugins_installing)
         self._restart_button.clicked.connect(self._on_restart_callback)
 
-        self._overlay = BusyOverlay(self, message='Installing')
+        self._overlay = ftrack_connect.ui.widget.overlay.BusyOverlay(
+            self, message='Installing'
+        )
         self._overlay.hide()
 
         self.resize(350, 700)

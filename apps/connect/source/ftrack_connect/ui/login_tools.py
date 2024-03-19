@@ -1,14 +1,12 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2024 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
+
+from http.server import BaseHTTPRequestHandler, HTTPServer
 import urllib.parse
 import webbrowser
 import functools
-from http.server import BaseHTTPRequestHandler, HTTPServer
 
-try:
-    from PySide6 import QtCore
-except ImportError:
-    from PySide2 import QtCore
+from ftrack_connect.qt import QtCore
 
 
 class LoginServerHandler(BaseHTTPRequestHandler):
@@ -26,7 +24,6 @@ class LoginServerHandler(BaseHTTPRequestHandler):
 
         api_user = None
         api_key = None
-        login_credentials = None
         if 'api_user' and 'api_key' in query:
             login_credentials = urllib.parse.parse_qs(query)
             api_user = login_credentials['api_user'][0]

@@ -1,13 +1,10 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2024 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
+
 import os
+
+from ftrack_connect.qt import QtWidgets, QtCore, QtGui
 import qtawesome as qta
-
-try:
-    from PySide6 import QtWidgets, QtCore, QtGui
-except ImportError:
-    from PySide2 import QtWidgets, QtCore, QtGui
-
 import ftrack_connect.error
 
 # Thumbnail limits from ftrack server.
@@ -52,9 +49,7 @@ class ThumbnailDropZone(QtWidgets.QFrame):
 
         self.imageLabel = QtWidgets.QLabel()
         self.setDropZoneText()
-        layout.addWidget(
-            self.imageLabel, alignment=QtCore.Qt.AlignmentFlag.AlignLeft
-        )
+        layout.addWidget(self.imageLabel, alignment=QtCore.Qt.AlignLeft)
         cancel_icon = qta.icon('ftrack.cancel')
         self.removeButton = QtWidgets.QPushButton()
         self.removeButton.setIcon(cancel_icon)
@@ -62,9 +57,7 @@ class ThumbnailDropZone(QtWidgets.QFrame):
         self.removeButton.setVisible(False)
         self.removeButton.setFlat(True)
         self.removeButton.clicked.connect(self.removeThumbnail)
-        layout.addWidget(
-            self.removeButton, alignment=QtCore.Qt.AlignmentFlag.AlignRight
-        )
+        layout.addWidget(self.removeButton, alignment=QtCore.Qt.AlignRight)
 
     def _getFilePathFromEvent(self, event):
         '''Get file path from *event*.
@@ -107,9 +100,7 @@ class ThumbnailDropZone(QtWidgets.QFrame):
         '''Set thumbnail to *filePath* and display a preview.'''
         self._filePath = filePath
         pixmap = QtGui.QPixmap(self._filePath).scaled(
-            self._imageWidth,
-            self._imageHeight,
-            QtCore.Qt.AspectRatioMode.KeepAspectRatio,
+            self._imageWidth, self._imageHeight, QtCore.Qt.KeepAspectRatio
         )
         self.imageLabel.setPixmap(pixmap)
         self.removeButton.setVisible(True)
@@ -142,10 +133,10 @@ class ThumbnailDropZone(QtWidgets.QFrame):
         try:
             self._getFilePathFromEvent(event)
             self._setDropZoneState('active')
-            event.setDropAction(QtCore.Qt.DropAction.CopyAction)
+            event.setDropAction(QtCore.Qt.CopyAction)
         except ConnectThumbnailValidationError:
             self._setDropZoneState('invalid')
-            event.setDropAction(QtCore.Qt.DropAction.IgnoreAction)
+            event.setDropAction(QtCore.Qt.IgnoreAction)
         event.accept()
 
     def dragLeaveEvent(self, event):

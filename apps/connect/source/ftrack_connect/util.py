@@ -1,5 +1,6 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2024 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
+
 import os
 import subprocess
 import sys
@@ -7,15 +8,12 @@ import logging
 import re
 import requests
 import glob
+
 import platformdirs
 from packaging.version import parse
 from packaging.specifiers import SpecifierSet
 
-try:
-    from PySide6 import QtCore
-except ImportError:
-    from PySide2 import QtCore
-
+from ftrack_connect.qt import QtCore
 from ftrack_connect import INTEGRATIONS_REPO
 
 from ftrack_connect import (

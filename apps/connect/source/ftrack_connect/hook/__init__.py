@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2024 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 import os
 
 # Hooks use the ftrack event system. Set the FTRACK_EVENT_PLUGIN_PATH

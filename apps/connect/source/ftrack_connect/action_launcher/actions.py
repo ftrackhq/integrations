@@ -1,14 +1,11 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2024 ftrack
+# :copyright: Copyright (c) 2014-2024 ftrack
 import json
 import logging
 import functools
 import platform
 
-try:
-    from PySide6 import QtWidgets, QtCore
-except ImportError:
-    from PySide2 import QtWidgets, QtCore
+from ftrack_connect.qt import QtCore, QtWidgets
 
 import ftrack_api.event.base
 from ftrack_utils.decorators import asynchronous
@@ -130,7 +127,7 @@ class Actions(QtWidgets.QWidget):
 
         self._all_label = QtWidgets.QLabel('Discovering actions..')
         self._all_label.setWordWrap(True)
-        self._all_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self._all_label.setAlignment(QtCore.Qt.AlignCenter)
         layout.addWidget(self._all_label)
         self._all_section = ActionSection(self.session, self)
         self._all_section.beforeActionLaunch.connect(
@@ -191,10 +188,10 @@ class Actions(QtWidgets.QWidget):
 
         if rise_message:
             message_box = QtWidgets.QMessageBox(
-                QtWidgets.QMessageBox.Icon.Warning,
+                QtWidgets.QMessageBox.Warning,
                 'Warning',
                 rise_message,
-                buttons=QtWidgets.QMessageBox.StandardButton.Ok,
+                buttons=QtWidgets.QMessageBox.Ok,
             )
             # Create the checkbox
             checkbox = QtWidgets.QCheckBox("Don't show this message again.")
@@ -202,7 +199,7 @@ class Actions(QtWidgets.QWidget):
 
             response = message_box.exec_()
             # Check if OK was clicked and if the checkbox was checked
-            if response == QtWidgets.QMessageBox.StandardButton.Ok:
+            if response == QtWidgets.QMessageBox.Ok:
                 if checkbox.isChecked():
                     known_rosetta_apps.append(action['actionIdentifier'])
                     launcher_prefs['known_rosetta_apps'] = known_rosetta_apps
@@ -316,10 +313,10 @@ class Actions(QtWidgets.QWidget):
         self._all_section.clear()
         if self._actions:
             self._all_section.add_actions(self._actions)
-            self._all_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeft)
+            self._all_label.setAlignment(QtCore.Qt.AlignLeft)
             self._all_label.setText('All actions')
         else:
-            self._all_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+            self._all_label.setAlignment(QtCore.Qt.AlignCenter)
             self._all_label.setText(
                 '<h2 style="font-weight: medium"> No matching applications or actions was found</h2>'
                 '<p>Try another selection, add some actions and make sure you have the right integrations set up for the applications you want to launch.</p>'

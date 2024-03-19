@@ -1,10 +1,7 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2024 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
-try:
-    from PySide6 import QtWidgets, QtGui
-except ImportError:
-    from PySide2 import QtWidgets, QtGui
+from ftrack_connect.qt import QtWidgets, QtGui
 
 
 class AssetNameValidator(QtGui.QValidator):
@@ -41,9 +38,9 @@ class AssetNameValidator(QtGui.QValidator):
                 break
 
         if not value or not isValid:
-            return QtGui.QValidator.State.Intermediate
+            return QtGui.QValidator.Intermediate
         else:
-            return QtGui.QValidator.State.Acceptable
+            return QtGui.QValidator.Acceptable
 
 
 class AssetNameEdit(QtWidgets.QLineEdit):

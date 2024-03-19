@@ -1,9 +1,6 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2024 ftrack
-try:
-    from PySide6 import QtWidgets, QtCore, QtGui
-except ImportError:
-    from PySide2 import QtWidgets, QtCore, QtGui
+# :copyright: Copyright (c) 2014-2023 ftrack
+from ftrack_connect.qt import QtCore, QtWidgets
 
 
 class FlowLayout(QtWidgets.QLayout):
@@ -40,7 +37,7 @@ class FlowLayout(QtWidgets.QLayout):
         return None
 
     def expandingDirections(self):
-        return QtCore.Qt.Orientation(0)
+        return QtCore.Qt.Orientations(QtCore.Qt.Orientation(0))
 
     def hasHeightForWidth(self):
         return True
@@ -69,14 +66,14 @@ class FlowLayout(QtWidgets.QLayout):
         for item in self.itemList:
             wid = item.widget()
             spaceX = self.spacing() + wid.style().layoutSpacing(
-                QtWidgets.QSizePolicy.ControlType.PushButton,
-                QtWidgets.QSizePolicy.ControlType.PushButton,
-                QtCore.Qt.Orientation.Horizontal,
+                QtWidgets.QSizePolicy.PushButton,
+                QtWidgets.QSizePolicy.PushButton,
+                QtCore.Qt.Horizontal,
             )
             spaceY = self.spacing() + wid.style().layoutSpacing(
-                QtWidgets.QSizePolicy.ControlType.PushButton,
-                QtWidgets.QSizePolicy.ControlType.PushButton,
-                QtCore.Qt.Orientation.Vertical,
+                QtWidgets.QSizePolicy.PushButton,
+                QtWidgets.QSizePolicy.PushButton,
+                QtCore.Qt.Vertical,
             )
             nextX = x + item.sizeHint().width() + spaceX
             if nextX - spaceX > rect.right() and lineHeight > 0:

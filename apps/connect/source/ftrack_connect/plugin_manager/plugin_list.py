@@ -1,17 +1,17 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2024 ftrack
+# :copyright: Copyright (c) 2014-2024 ftrack
+import re
 import os
+import platformdirs
+from packaging.version import parse as parse_version
 from urllib.request import urlopen
 import json
 import shutil
 import logging
 import qtawesome as qta
-from packaging.version import parse as parse_version
 
-try:
-    from PySide6 import QtWidgets, QtCore, QtGui
-except ImportError:
-    from PySide2 import QtWidgets, QtCore, QtGui
+
+from ftrack_connect.qt import QtWidgets, QtCore, QtGui
 
 from ftrack_connect.util import (
     qt_main_thread,
@@ -110,21 +110,21 @@ class DndPluginList(QtWidgets.QFrame):
             if plugin_data['platform'] != platform:
                 # Not our platform, ask user if they want to install anyway
                 msgbox = QtWidgets.QMessageBox(
-                    QtWidgets.QMessageBox.Icon.Warning,
+                    QtWidgets.QMessageBox.Warning,
                     'Warning',
                     'This plugin is not compatible with your platform:'
                     f':\n\n{destination_filename}\n\nProceed install anyway?',
-                    buttons=QtWidgets.QMessageBox.StandardButton.Yes
-                    | QtWidgets.QMessageBox.StandardButton.No
-                    | QtWidgets.QMessageBox.StandardButton.Cancel,
+                    buttons=QtWidgets.QMessageBox.Yes
+                    | QtWidgets.QMessageBox.No
+                    | QtWidgets.QMessageBox.Cancel,
                     parent=self,
                 )
                 answer = msgbox.exec_()
-                if answer == QtWidgets.QMessageBox.StandardButton.Yes:
+                if answer == QtWidgets.QMessageBox.Yes:
                     pass
-                elif answer == QtWidgets.QMessageBox.StandardButton.No:
+                elif answer == QtWidgets.QMessageBox.No:
                     return  # Skip this one, but proceed
-                elif answer == QtWidgets.QMessageBox.StandardButton.Cancel:
+                elif answer == QtWidgets.QMessageBox.Cancel:
                     raise Exception('Plugin installation cancelled by user.')
 
             if destination_filename.endswith(f'-{plugin_data["platform"]}'):
@@ -193,7 +193,7 @@ class DndPluginList(QtWidgets.QFrame):
                 if status is STATUSES.NEW:
                     # enable it by default as is new.
                     plugin_item.setCheckable(True)
-                    plugin_item.setCheckState(QtCore.Qt.CheckState.Checked)
+                    plugin_item.setCheckState(QtCore.Qt.Checked)
 
             self._plugin_model.appendRow(plugin_item)
             self._plugin_model.itemChanged.emit(plugin_item)
@@ -227,7 +227,7 @@ class DndPluginList(QtWidgets.QFrame):
             # enable it by default if we are updating
             stored_item.setCheckable(True)
             stored_item.setEnabled(True)
-            stored_item.setCheckState(QtCore.Qt.CheckState.Checked)
+            stored_item.setCheckState(QtCore.Qt.Checked)
 
     def plugin_is_available(self, plugin_data):
         '''Return item from *plugin_data* if found.'''
@@ -366,7 +366,7 @@ class DndPluginList(QtWidgets.QFrame):
 
     def dragEnterEvent(self, event):
         '''Override dragEnterEvent and accept all events.'''
-        event.setDropAction(QtCore.Qt.DropAction.CopyAction)
+        event.setDropAction(QtCore.Qt.CopyAction)
         event.accept()
         self._set_drop_zone_state('active')
 

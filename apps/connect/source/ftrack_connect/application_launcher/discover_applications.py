@@ -3,6 +3,7 @@ import os
 import platform
 from collections import defaultdict
 import logging
+import yaml
 
 from ftrack_utils.extensions.registry import register_yaml_files
 

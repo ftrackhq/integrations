@@ -1,13 +1,16 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2024 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 import plistlib
 import sys
+import pprint
 import re
+import os
 import ssl
 import tempfile
 import subprocess
 import collections
 import base64
+import getpass
 import json
 import logging
 import platform

@@ -1,11 +1,7 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2024 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
-
-try:
-    from PySide6 import QtCore
-except ImportError:
-    from PySide2 import QtCore
+from ftrack_connect.qt import QtCore
 
 
 class NewApiEventHubThread(QtCore.QThread):

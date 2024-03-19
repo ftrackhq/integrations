@@ -1,14 +1,12 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2024 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
+
 import sys
 import traceback
-import logging
 from io import StringIO
+import logging
 
-try:
-    from PySide6 import QtWidgets, QtCore
-except ImportError:
-    from PySide2 import QtWidgets, QtCore
+from ftrack_connect.qt import QtWidgets, QtCore
 
 
 class UncaughtError(QtWidgets.QMessageBox):

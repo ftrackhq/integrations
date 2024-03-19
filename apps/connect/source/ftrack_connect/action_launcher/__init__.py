@@ -1,10 +1,7 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2024 ftrack
+# :copyright: Copyright (c) 2014-2024 ftrack
 
-try:
-    from PySide6 import QtWidgets
-except ImportError:
-    from PySide2 import QtWidgets
+from ftrack_connect.qt import QtWidgets
 
 from ftrack_connect.ui.application import ConnectWidget
 from ftrack_connect.action_launcher.actions import Actions

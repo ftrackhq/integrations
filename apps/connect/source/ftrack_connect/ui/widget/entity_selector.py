@@ -1,11 +1,10 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2024 ftrack
-import qtawesome as qta
+# :copyright: Copyright (c) 2014-2023 ftrack
 
-try:
-    from PySide6 import QtWidgets, QtCore, QtGui
-except ImportError:
-    from PySide2 import QtWidgets, QtCore, QtGui
+import operator
+
+from ftrack_connect.qt import QtWidgets, QtCore, QtGui
+import qtawesome as qta
 
 from ftrack_connect.ui.widget import entity_path as _entity_path
 from ftrack_connect.ui.widget import entity_browser as _entity_browser
@@ -128,7 +127,7 @@ class EntitySelector(QtWidgets.QStackedWidget):
 
     def updateEntityPath(self, index):
         entity = self.assignedContextSelector.itemData(
-            index, QtCore.Qt.ItemDataRole.UserRole
+            index, QtCore.Qt.UserRole
         )
         self.setEntity(entity)
 

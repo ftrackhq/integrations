@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2024 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 import copy
 import os
 import platform
@@ -23,12 +23,7 @@ from ftrack_utils.usage import (
     UsageTracker,
 )
 
-try:
-    from PySide6 import QtWidgets, QtCore, QtGui
-    from PySide6.QtGui import QAction
-except ImportError:
-    from PySide2 import QtWidgets, QtCore, QtGui
-    from PySide2.QtWidgets import QAction
+from ftrack_connect.qt import QtCore, QtWidgets, QtGui
 
 from ftrack_connect import load_icons
 import ftrack_connect
@@ -827,24 +822,30 @@ class Application(QtWidgets.QMainWindow):
         '''Return a menu for system tray.'''
         menu = QtWidgets.QMenu(self)
 
-        logoutAction = QAction('Log Out && Quit', self, triggered=self.logout)
+        logoutAction = QtWidgets.QAction(
+            'Log Out && Quit', self, triggered=self.logout
+        )
 
-        quitAction = QAction(
+        quitAction = QtWidgets.QAction(
             'Quit', self, triggered=QtWidgets.QApplication.quit
         )
 
-        focusAction = QAction('Open', self, triggered=self.focus)
+        focusAction = QtWidgets.QAction('Open', self, triggered=self.focus)
 
-        openPluginDirectoryAction = QAction(
+        openPluginDirectoryAction = QtWidgets.QAction(
             'Open plugin directory',
             self,
             triggered=self._open_default_plugin_directory,
         )
 
-        aboutAction = QAction('About', self, triggered=self._show_about)
+        aboutAction = QtWidgets.QAction(
+            'About', self, triggered=self._show_about
+        )
 
-        alwaysOnTopAction = QAction('Always on top', self)
-        restartAction = QAction('Restart', self, triggered=self.restart)
+        alwaysOnTopAction = QtWidgets.QAction('Always on top', self)
+        restartAction = QtWidgets.QAction(
+            'Restart', self, triggered=self.restart
+        )
         alwaysOnTopAction.setCheckable(True)
         alwaysOnTopAction.triggered[bool].connect(self._set_always_on_top)
 
@@ -874,7 +875,6 @@ class Application(QtWidgets.QMainWindow):
         load_icons(os.path.join(os.path.dirname(__file__), '..', 'fonts'))
 
         for plugin_class in self._builtin_widget_plugins + responses:
-            self.logger.debug(f'Initializing plugin: {plugin_class}')
             widget_plugin = None
             try:
                 widget_plugin = plugin_class(self.session)

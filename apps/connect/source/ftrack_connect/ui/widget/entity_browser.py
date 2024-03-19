@@ -1,15 +1,12 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2024 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 #             Copyright (c) 2014 Martin Pengelly-Phillips
 # :notice: Derived from Riffle (https://github.com/4degrees/riffle)
-import os
-import qtawesome as qta
 
-try:
-    from PySide6 import QtWidgets, QtCore, QtGui
-except ImportError:
-    from PySide2 import QtWidgets, QtCore, QtGui
-    from PySide2 import __version__ as __pyside_version__
+import os
+
+from ftrack_connect.qt import QtWidgets, QtCore, QtGui, QtCompat
+import qtawesome as qta
 
 import ftrack_connect.ui.model.entity_tree
 import ftrack_connect.ui.widget.overlay
@@ -77,12 +74,8 @@ class EntityBrowser(QtWidgets.QDialog):
         self.contentSplitter.addWidget(self.bookmarksList)
 
         self.view = QtWidgets.QTableView()
-        self.view.setSelectionBehavior(
-            QtWidgets.QAbstractItemView.SelectionBehavior.SelectRows
-        )
-        self.view.setSelectionMode(
-            QtWidgets.QAbstractItemView.SelectionMode.SingleSelection
-        )
+        self.view.setSelectionBehavior(self.view.SelectRows)
+        self.view.setSelectionMode(self.view.SingleSelection)
         self.view.verticalHeader().hide()
 
         self.contentSplitter.addWidget(self.view)
@@ -121,7 +114,7 @@ class EntityBrowser(QtWidgets.QDialog):
     def _postConstruction(self):
         '''Perform post-construction operations.'''
         self.setWindowTitle('ftrack browser')
-        self.view.sortByColumn(0, QtCore.Qt.SortOrder.AscendingOrder)
+        self.view.sortByColumn(0, QtCore.Qt.AscendingOrder)
 
         # TODO: Remove once bookmarks widget implemented.
         self.bookmarksList.hide()
@@ -132,14 +125,14 @@ class EntityBrowser(QtWidgets.QDialog):
         self.model.sourceModel().loadStarted.connect(self._onLoadStarted)
         self.model.sourceModel().loadEnded.connect(self._onLoadEnded)
 
-        # QtCompat.setSectionResizeMode(
-        #     self.view.horizontalHeader(),
-        #     QtWidgets.QHeaderView.ResizeToContents,
-        # )
-        #
-        # QtCompat.setSectionResizeMode(
-        #     self.view.horizontalHeader(), 0, QtWidgets.QHeaderView.Stretch
-        # )
+        QtCompat.setSectionResizeMode(
+            self.view.horizontalHeader(),
+            QtWidgets.QHeaderView.ResizeToContents,
+        )
+
+        QtCompat.setSectionResizeMode(
+            self.view.horizontalHeader(), 0, QtWidgets.QHeaderView.Stretch
+        )
 
         self.acceptButton.clicked.connect(self.accept)
         self.cancelButton.clicked.connect(self.reject)
