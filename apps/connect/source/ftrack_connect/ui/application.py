@@ -874,6 +874,7 @@ class Application(QtWidgets.QMainWindow):
         load_icons(os.path.join(os.path.dirname(__file__), '..', 'fonts'))
 
         for plugin_class in self._builtin_widget_plugins + responses:
+            self.logger.debug(f'Initializing plugin: {plugin_class}')
             widget_plugin = None
             try:
                 widget_plugin = plugin_class(self.session)

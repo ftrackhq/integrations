@@ -10,6 +10,7 @@ official CI/CD build implementation in place.
 
 Changelog:
 
+0.4.16 [24.03.19] PySide6 resource build support.
 0.4.15 [24.03.13] Fix platform dependent bug.
 0.4.14 [24.02.23] Incorporate RV pkg build.
 0.4.13 [24.02.12] Build qt-style when building CEP plugin.
@@ -608,8 +609,11 @@ def build_package(pkg_path, args, command=None):
         else:
             logging.warning('No styles to compile.')
 
+        pyside_version = args.pyside_version
+        if not pyside_version:
+            pyside_version = "2"
+        pyside_rcc_command = f'pyside{pyside_version}-rcc'
         try:
-            pyside_rcc_command = 'pyside2-rcc'
             executable = None
 
             # Check if the command for pyside*-rcc is in executable paths.
@@ -618,7 +622,7 @@ def build_package(pkg_path, args, command=None):
 
             if not executable:
                 logging.warning(
-                    'No executable found for pyside2-rcc, attempting to run as '
+                    f'No executable found for {pyside_rcc_command}, attempting to run as '
                     'a module'
                 )
                 executable = [sys.executable, '-m', 'scss']
@@ -634,8 +638,8 @@ def build_package(pkg_path, args, command=None):
 
         except (subprocess.CalledProcessError, OSError):
             raise RuntimeError(
-                'Error compiling resource.py using pyside-rcc. Possibly '
-                'pyside-rcc could not be found. You might need to manually add '
+                f'Error compiling resource.py using {pyside_rcc_command}. Possibly '
+                f'{pyside_rcc_command} could not be found. You might need to manually add '
                 'it to your PATH. See README for more information.'
             )
 
@@ -964,6 +968,11 @@ if __name__ == '__main__':
         '--style_path',
         help='(QT resource build) Override the default style path (resource/style).',
     )
+    parser.add_argument(
+        '--pyside_version',
+        help='(QT resource build) The version of PySide to use, default is "2"',
+    )
+    # QT/RV shared
     parser.add_argument(
         '--output_path',
         help='(QT resource build/RV pkg build) Override the QT resource output directory.',

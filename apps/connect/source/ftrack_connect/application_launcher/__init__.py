@@ -2,15 +2,12 @@
 # :copyright: Copyright (c) 2024 ftrack
 import plistlib
 import sys
-import pprint
 import re
-import os
 import ssl
 import tempfile
 import subprocess
 import collections
 import base64
-import getpass
 import json
 import logging
 import platform

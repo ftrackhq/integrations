@@ -4,7 +4,7 @@
 import logging
 
 try:
-    from PySide6 import QtWidgets, QtCore
+    from PySide6 import QtWidgets, QtCore, QtGui
     from PySide6.QtGui import QRegularExpressionValidator
 except ImportError:
     from PySide2 import QtWidgets, QtCore, QtGui
