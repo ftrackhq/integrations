@@ -4,6 +4,7 @@
 
 * [changed] Re-structure utils and move general ones to ftrack-utils library.
 * [changed] config.json file renamed to credentials.json
+* [changed] Plugin manager; Drag-n-drop of a plugin ZIP overrides any existing plugins in plugin list.
 
 ## v3.0.0
 2024-02-16

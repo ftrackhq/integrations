@@ -1,4 +1,4 @@
-type: launcher
+type: launch_config
 name: nuke-studio
 context:
   - Project

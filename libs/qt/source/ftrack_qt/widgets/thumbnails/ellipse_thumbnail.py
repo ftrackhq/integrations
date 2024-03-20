@@ -4,7 +4,9 @@
 
 from Qt import QtCore, QtGui, QtWidgets
 
-from ftrack_qt.widgets.thumbnails.session_base import SessionThumbnailBase
+from ftrack_qt.widgets.thumbnails.session_base_thumbnail import (
+    SessionThumbnailBase,
+)
 
 
 class EllipseThumbnailBase(SessionThumbnailBase):

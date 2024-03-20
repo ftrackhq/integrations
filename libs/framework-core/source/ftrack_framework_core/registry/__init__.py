@@ -54,11 +54,11 @@ class Registry(object):
         return self.__registry.get('dialog')
 
     @property
-    def launchers(self):
+    def launch_configs(self):
         '''
         Returns the registered launcher configs`
         '''
-        return self.__registry.get('launcher')
+        return self.__registry.get('launch_config')
 
     @property
     def dcc_configs(self):

@@ -92,6 +92,8 @@ class Publisher(QtWidgets.QWidget):
 
         # Add asset options.
         self.assetOptions = _asset_options.AssetOptions(session=self.session)
+        # Make sure entity is set
+        self.assetOptions.setEntity(self.entitySelector._entity)
         self.entitySelector.entityChanged.connect(self.assetOptions.setEntity)
         self.assetCreated.connect(self.assetOptions.setAsset)
         formLayout.addRow('Asset', self.assetOptions.radioButtonFrame)
