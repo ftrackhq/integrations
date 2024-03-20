@@ -14,9 +14,10 @@ from ftrack_connect.qt import (
     __version__ as QtVersion,
 )
 
-from ftrack_connect.config import get_log_directory
+from ftrack_connect.utils.log import get_log_directory
 
-import ftrack_connect.util
+from ftrack_connect.utils.directory import open_directory
+from ftrack_connect.utils.plugin import PLUGIN_DIRECTORIES
 
 
 class AboutDialog(QtWidgets.QDialog):
@@ -101,7 +102,7 @@ class AboutDialog(QtWidgets.QDialog):
                 messageBox.exec_()
                 return
 
-        ftrack_connect.util.open_directory(directory)
+        open_directory(directory)
 
     def _onCreateApplicationShortcutClicked(self):
         '''Create a desktop entry for Connect.'''
@@ -207,9 +208,7 @@ class AboutDialog(QtWidgets.QDialog):
         )
 
         source_dirs = ""
-        for index, plugin_directory in enumerate(
-            ftrack_connect.util.PLUGIN_DIRECTORIES
-        ):
+        for index, plugin_directory in enumerate(PLUGIN_DIRECTORIES):
             if index == 0:
                 index = 'Target'
             source_dirs += sources_item_template.format(

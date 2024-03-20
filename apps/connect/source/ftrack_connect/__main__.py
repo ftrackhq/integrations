@@ -10,6 +10,11 @@ import os
 import pkg_resources
 import importlib
 
+from ftrack_connect.utils.plugin import (
+    create_target_plugin_directory,
+    PLUGIN_DIRECTORIES,
+)
+
 
 def main_connect(arguments=None):
     '''Launch ftrack connect.'''
@@ -20,7 +25,7 @@ def main_connect(arguments=None):
     from ftrack_connect.qt import QtWidgets, QtCore
 
     from ftrack_connect import load_icons
-    import ftrack_connect.config
+    import ftrack_connect.utils.log
     import ftrack_connect.singleton
 
     # Bootstrap hooks
@@ -76,9 +81,12 @@ def main_connect(arguments=None):
 
     namespace = parser.parse_args(arguments)
 
-    ftrack_connect.config.configure_logging(
+    ftrack_connect.utils.log.configure_logging(
         'ftrack_connect', level=loggingLevels[namespace.verbosity]
     )
+
+    # Make sure plugin directory is created
+    create_target_plugin_directory(PLUGIN_DIRECTORIES[0])
 
     single_instance = None
     if not namespace.allow_multiple:

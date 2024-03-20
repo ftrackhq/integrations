@@ -8,7 +8,7 @@ from ftrack_connect.qt import QtCore, QtWidgets, QtGui
 from ftrack_utils.decorators import asynchronous
 
 import ftrack_connect
-from ftrack_connect.util import (
+from ftrack_connect.utils.plugin import (
     get_plugin_json_url_from_environment,
 )
 

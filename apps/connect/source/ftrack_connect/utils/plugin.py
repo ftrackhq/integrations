@@ -2,10 +2,9 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 
 import os
-import subprocess
-import sys
 import logging
 import re
+import sys
 import requests
 import glob
 
@@ -13,7 +12,6 @@ import platformdirs
 from packaging.version import parse
 from packaging.specifiers import SpecifierSet
 
-from ftrack_connect.qt import QtCore
 from ftrack_connect import INTEGRATIONS_REPO
 
 from ftrack_connect import (
@@ -21,11 +19,7 @@ from ftrack_connect import (
     DEPRECATED_PLUGINS,
 )
 
-from ftrack_utils.json import read_json_file, write_json_file
-
 logger = logging.getLogger(__name__)
-
-# Default plugin directory
 
 
 def get_default_plugin_directory():
@@ -40,62 +34,6 @@ PLUGIN_DIRECTORIES = [
 ]
 
 
-def open_directory(path):
-    '''Open a filesystem directory from *path* in the OS file browser.
-
-    If *path* is a file, the parent directory will be opened. Depending on OS
-    support the file will be pre-selected.
-
-    .. note::
-
-        This function does not support file sequence expressions. The path must
-        be either an existing file or directory that is valid on the current
-        platform.
-
-    '''
-    if os.path.isfile(path):
-        directory = os.path.dirname(path)
-    else:
-        directory = path
-
-    if sys.platform == 'win32':
-        # In order to support directories with spaces, the start command
-        # requires two quoted args, the first is the shell title, and
-        # the second is the directory to open in. Using string formatting
-        # here avoids the auto-escaping that python introduces, which
-        # seems to fail...
-        subprocess.Popen('start "" "{0}"'.format(directory), shell=True)
-
-    elif sys.platform == 'darwin':
-        if os.path.isfile(path):
-            # File exists and can be opened with a selection.
-            subprocess.Popen(['open', '-R', path])
-
-        else:
-            subprocess.Popen(['open', directory])
-
-    else:
-        subprocess.Popen(['xdg-open', directory])
-
-
-# Invoke function in main UI thread.
-# Taken from:
-# http://stackoverflow.com/questions/10991991/pyside-easier-way-of-updating-gui-from-another-thread/12127115#12127115
-
-
-class InvokeEvent(QtCore.QEvent):
-    '''Event.'''
-
-    EVENT_TYPE = QtCore.QEvent.Type(QtCore.QEvent.registerEventType())
-
-    def __init__(self, fn, *args, **kwargs):
-        '''Invoke *fn* in main thread.'''
-        QtCore.QEvent.__init__(self, InvokeEvent.EVENT_TYPE)
-        self.fn = fn
-        self.args = args
-        self.kwargs = kwargs
-
-
 def get_plugins_from_path(plugin_directory):
     '''Return folders from the given *connect_plugin_path* directory'''
     # Filter out files and hidden items.
@@ -106,25 +44,6 @@ def get_plugins_from_path(plugin_directory):
         and os.path.isdir(os.path.join(plugin_directory, f))
     ]
     return plugins
-
-
-def get_connect_plugin_version(connect_plugin_path):
-    '''Return Connect plugin version string for *connect_plugin_path*'''
-    result = None
-    path_version_file = os.path.join(connect_plugin_path, '__version__.py')
-    if not os.path.isfile(path_version_file):
-        raise FileNotFoundError
-    with open(path_version_file) as f:
-        for line in f.readlines():
-            if line.startswith('__version__'):
-                result = line.split('=')[1].strip().strip("'")
-                break
-    if not result:
-        raise Exception(
-            "Can't extract version number from {}. "
-            "\n Make sure file is valid.".format(path_version_file)
-        )
-    return result
 
 
 def get_plugin_data(plugin_path):
@@ -218,58 +137,6 @@ def is_deprecated_plugin(plugin_data):
             )
             return True
     return False
-
-
-def get_platform_identifier():
-    '''Return platform identifier for current platform, used in plugin package
-    filenames'''
-    if sys.platform.startswith('win'):
-        platform = 'windows'
-    elif sys.platform.startswith('darwin'):
-        platform = 'mac'
-    elif sys.platform.startswith('linux'):
-        platform = 'linux'
-    else:
-        platform = sys.platform
-    return platform
-
-
-class Invoker(QtCore.QObject):
-    '''Invoker.'''
-
-    def event(self, event):
-        '''Call function on *event*.'''
-        event.fn(*event.args, **event.kwargs)
-
-        return True
-
-
-_invoker = Invoker(None)
-
-
-def invoke_in_qt_main_thread(fn, *args, **kwargs):
-    '''
-    Invoke function *fn* with arguments, if not running in the main thread.
-
-    TODO: Use ftrack QT util instead
-    '''
-    if QtCore.QThread.currentThread() is _invoker.thread():
-        fn(*args, **kwargs)
-    else:
-        QtCore.QCoreApplication.postEvent(
-            _invoker, InvokeEvent(fn, *args, **kwargs)
-        )
-
-
-def qt_main_thread(func):
-    '''Decorator to ensure the function runs in the QT main thread.
-    TODO: Use ftrack QT util instead
-    '''
-
-    def wrapper(*args, **kwargs):
-        return invoke_in_qt_main_thread(func, *args, **kwargs)
-
-    return wrapper
 
 
 def get_plugin_json_url_from_environment():
@@ -398,24 +265,28 @@ def fetch_github_releases(latest=True, prereleases=False):
     return result
 
 
-def get_connect_prefs_file_path():
-    '''Return Path of the prefs.json file'''
-    prefs_file = os.path.join(
-        platformdirs.user_data_dir('ftrack-connect', 'ftrack'),
-        'prefs.json',
-    )
-    return prefs_file
+def get_platform_identifier():
+    '''Return platform identifier for current platform, used in plugin package
+    filenames'''
+    if sys.platform.startswith('win'):
+        platform = 'windows'
+    elif sys.platform.startswith('darwin'):
+        platform = 'mac'
+    elif sys.platform.startswith('linux'):
+        platform = 'linux'
+    else:
+        platform = sys.platform
+    return platform
 
 
-def get_connect_preferences():
-    '''Return the content of the prefs.json file'''
-    prefs_file = get_connect_prefs_file_path()
+def create_target_plugin_directory(directory):
+    if not os.path.exists(directory):
+        # Create directory if not existing.
+        try:
+            os.makedirs(directory)
+        except Exception as e:
+            raise Exception(
+                f"Couldn't create the target plugin directory: {e}"
+            )
 
-    return read_json_file(prefs_file)
-
-
-def write_connect_prefs_file_path(content):
-    '''Write the content of of the prefs.json file'''
-    prefs_file = get_connect_prefs_file_path()
-
-    return write_json_file(prefs_file, content)
+    return directory
