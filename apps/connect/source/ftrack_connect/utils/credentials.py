@@ -23,7 +23,7 @@ def get_credentials_file_path():
 
 
 def load_credentials():
-    '''Return json config from disk storage.'''
+    '''Return json credentials from disk storage.'''
     credentials_file = get_credentials_file_path()
     credentials = None
 
