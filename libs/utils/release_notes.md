@@ -3,8 +3,7 @@
 ## Upcoming
 
 * [changed] Extensions/environment; Changed the name of FTRACK_EXTENSIONS_PATH environment variable back to FTRACK_FRAMEWORK_EXTENSIONS_PATH.
-* [changed] Extensions/registry; Support merge/override if extensions.
-* [changed] Extensions/registry; Extension type filter support.
+* [changed] Extensions/registry; Extension type filter support to get_extensions_from_directory. 
 
 ## v2.0.2rc1
 2024-03-15
