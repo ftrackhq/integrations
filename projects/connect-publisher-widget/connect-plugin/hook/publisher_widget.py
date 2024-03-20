@@ -6,7 +6,7 @@ import sys
 import logging
 
 import ftrack_api
-from ftrack_connect.util import get_connect_plugin_version
+from ftrack_utils.version import get_connect_plugin_version
 from ftrack_connect.qt import QtWidgets, QtCore, QtGui
 import ftrack_connect.ui.application
 
