@@ -559,37 +559,88 @@ def build_package(pkg_path, args, command=None):
 
     def set_ftrack_deps_to_test_pypi(pyproject_toml_path):
         '''Set pypitest source to all ftrack dependencies'''
-        # Load the pyproject.toml file
+
+        # Load the TOML data to access dependencies
         with open(pyproject_toml_path, 'r') as file:
             pyproject_data = toml.load(file)
-            original_toml = copy.deepcopy(pyproject_data)
 
-        # Check if the tool.poetry.dependencies section exists
-        if (
-            'tool' in pyproject_data
-            and 'poetry' in pyproject_data['tool']
-            and 'dependencies' in pyproject_data['tool']['poetry']
-        ):
+        # Prepare the override dictionary based on dependencies
+        try:
             dependencies = pyproject_data['tool']['poetry']['dependencies']
+        except Exception:
+            logging.warning(
+                f"This file doesn't have [tools.poetry.dependencies] section. {pyproject_toml_path} skipping"
+            )
+            return
+        override = {}
+        for package, details in dependencies.items():
+            if package.startswith('ftrack-'):
+                if isinstance(details, str):
+                    details = {'version': details}
+                details['source'] = 'testpypi'
+                override[package] = details
 
-            # Modify dependencies that start with "ftrack-"
-            for package, details in dependencies.items():
-                if package.startswith('ftrack-'):
-                    # Ensure the details are not a simple string but a dictionary
-                    if isinstance(details, str):
-                        details = {'version': details}
-                    details['source'] = 'testpypi'
-                    dependencies[package] = details
+        # Re-read the file to get its content as a list of lines
+        with open(pyproject_toml_path, 'r') as file:
+            original_file_content = file.readlines()
 
-            # Write the modified data back to pyproject.toml
-            with open(pyproject_toml_path, 'w') as file:
-                toml.dump(pyproject_data, file)
-        return original_toml
+        # Initialize a flag to identify when we're within the target section
+        in_target_section = False
+        new_content = []
+
+        for line in file_content:
+            if line.strip().startswith("[tool.poetry.dependencies]"):
+                in_target_section = True
+                new_content.append(line)
+                continue
+            elif line.strip().startswith("[") and in_target_section:
+                in_target_section = False
+                new_content.append("\n")
+            if in_target_section:
+                lib_found = None
+                for lib, details in override.items():
+                    if line.strip().startswith(lib + " "):
+                        lib_found = lib
+                        break
+                if lib_found:
+                    details_items = override[lib]
+                    details_str_parts = []
+                    for key, value in details_items.items():
+                        if isinstance(value, str):
+                            value_str = (
+                                f'"{value}"'  # String values are quoted
+                            )
+                        elif isinstance(value, bool):
+                            value_str = str(
+                                value
+                            ).lower()  # Boolean values are converted to lowercase
+                        elif isinstance(value, dict):
+                            # For dict, convert to TOML string and remove leading key part
+                            dumped = toml.dumps({key: value}).strip()
+                            value_str = dumped[
+                                dumped.index('{') :
+                            ]  # Extract the dict part
+                        else:
+                            value_str = str(value)
+                        details_str_parts.append(f'{key} = {value_str}')
+                    detail_str = (
+                        f'{lib} = {{ ' + ', '.join(details_str_parts) + ' }'
+                    )
+                    new_content.append(detail_str + "\n")
+                    continue
+            else:
+                new_content.append(line)
+
+        # Write the modified content back to the TOML file
+        with open(pyproject_toml_path, 'w') as file:
+            file.writelines(new_content)
+
+        return original_file_content
 
     def restore_original_toml_file(pyproject_toml_path, original_toml):
         '''Write given *original_toml* as *pyproject_toml_path*'''
         with open(pyproject_toml_path, 'w') as file:
-            toml.dump(original_toml, file)
+            file.writelines(original_toml)
 
     def _replace_imports_(resource_target_path):
         '''Replace imports in resource files to Qt instead of QtCore.
