@@ -41,10 +41,10 @@
 | libs/utils/source/ftrack\_utils/server/track\_usage.py                        |        8 |        1 |     88% |        22 |
 | libs/utils/source/ftrack\_utils/usage/\_\_init\_\_.py                         |        1 |        0 |    100% |           |
 | libs/utils/source/ftrack\_utils/usage/track\_usage.py                         |       24 |        1 |     96% |        28 |
-| libs/utils/source/ftrack\_utils/version/\_\_init\_\_.py                       |       18 |       10 |     44% |13-20, 24-31 |
+| libs/utils/source/ftrack\_utils/version/\_\_init\_\_.py                       |       31 |       22 |     29% |13-20, 24-31, 38-52 |
 | tests/framework/unit/\_\_init\_\_.py                                          |        0 |        0 |    100% |           |
 | tests/framework/unit/test\_engine.py                                          |       49 |        0 |    100% |           |
-|                                                                     **TOTAL** |  **750** |  **217** | **71%** |           |
+|                                                                     **TOTAL** |  **763** |  **229** | **70%** |           |
 
 
 ## Setup coverage badge
