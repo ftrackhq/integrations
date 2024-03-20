@@ -1,5 +1,9 @@
 # ftrack Utils library release Notes
 
+## Upcoming
+
+* [changed] Extensions/environment; Changed the name of FTRACK_CONNECT_EXTENSIONS_PATH environment variable back to FTRACK_FRAMEWORK_EXTENSIONS_PATH.
+
 ## v2.0.2rc1
 2024-03-15
 

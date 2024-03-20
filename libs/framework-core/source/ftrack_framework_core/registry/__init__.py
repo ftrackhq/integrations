@@ -94,7 +94,7 @@ class Registry(object):
         self.__registry = defaultdict(list)
 
     # Register
-    def scan_extensions(self, paths, extension_types=False):
+    def scan_extensions(self, paths, extension_types=None):
         '''
         Scan framework extension modules from the given *paths*. If *extension_types*
         is given, only consider the given extension types.
@@ -103,6 +103,9 @@ class Registry(object):
         discovered_extensions = []
         for path in paths:
             # Merge/override
+            logging.debug(
+                f'Scanning {path} for {f"{extension_types} " if extension_types else ""}extensions'
+            )
             for extension in registry.get_extensions_from_directory(
                 path, extension_types=extension_types
             ):
@@ -120,25 +123,23 @@ class Registry(object):
                     discovered_extensions.append(extension)
                 else:
                     # Can we merge?
-                    if extension['extension_type'] in [
-                        'launcher',
-                        'dcc_config',
-                        'tool_config',
-                    ]:
-                        discovered_extensions.remove(existing_extension)
+                    if extension['extension_type'].endswith('_config'):
                         logging.info(
-                            f'Merging extension {existing_extension} on top of {extension}.'
+                            f'Merging extension {existing_extension["name"]}({existing_extension["extension_type"]} @'
+                            f' {existing_extension["path"]}) on top of {extension["name"]}({extension["extension_type"]}'
+                            f' @ {extension["path"]}).'
                         )
                         # Have the latter extension be overridden by the former
                         extension['extension'].update(
                             existing_extension['extension']
                         )
                         # Use the latter extension
+                        discovered_extensions.remove(existing_extension)
                         discovered_extensions.append(extension)
                     else:
                         logger.warning(
-                            'Extension is overridden: {}, ignoring.'.format(
-                                extension
+                            'Ignoring extension {}, is overridden by {}.'.format(
+                                extension, existing_extension
                             )
                         )
                         # Need load the original module again as it got overridden

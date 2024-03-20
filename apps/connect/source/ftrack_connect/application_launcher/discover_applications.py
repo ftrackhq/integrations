@@ -41,7 +41,9 @@ class DiscoverApplications(object):
     def _parse_configurations(self, config_paths):
         '''Use the extensions library to load and merge launch configurations'''
         loaded_filtered_files = []
-        extensions_path = get_connect_extensions_path_from_environment()
+        connect_extensions_path = (
+            get_connect_extensions_path_from_environment()
+        )
         for config_path in config_paths:
             if not os.path.exists(config_path) or not os.path.isdir(
                 config_path
@@ -51,15 +53,15 @@ class DiscoverApplications(object):
                 )
                 continue
 
-            extensions_path.append(config_path)
+            connect_extensions_path.append(config_path)
 
         # Load and merge all launch configs from the extensions path
         registry_instance = registry.Registry()
         registry_instance.scan_extensions(
-            paths=extensions_path, extension_types=['launcher']
+            paths=connect_extensions_path, extension_types=['launch_config']
         )
 
-        for launcher_extension in registry_instance.launchers:
+        for launcher_extension in registry_instance.launch_configs or []:
             loaded_filtered_files.append(
                 (launcher_extension['extension'], launcher_extension['path'])
             )
