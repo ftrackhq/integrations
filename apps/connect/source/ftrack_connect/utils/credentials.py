@@ -48,7 +48,7 @@ def load_credentials():
         )
         if os.path.exists(deprecated_config_file):
             logger.warning(
-                f'Coping credentials from deprecated config.json file to '
+                f'Copying credentials from deprecated config.json file to '
                 f'credentials.json. Locations: {deprecated_config_file} '
                 f'{credentials_file}.'
             )
