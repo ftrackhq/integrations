@@ -7,7 +7,8 @@ import os
 
 from ftrack_connect.qt import QtWidgets, QtCore, QtGui
 
-from ftrack_connect.util import qt_main_thread, PLUGIN_DIRECTORIES
+from ftrack_connect.utils.thread import qt_main_thread
+from ftrack_connect.utils.plugin import PLUGIN_DIRECTORIES
 
 from ftrack_connect.ui.widget.overlay import BlockingOverlay, BusyOverlay
 import ftrack_connect.ui.application
