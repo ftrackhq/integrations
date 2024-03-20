@@ -8,8 +8,32 @@ from ftrack_qt.utils.widget import set_property
 class NewAssetInput(QtWidgets.QFrame):
     '''Widget holding new asset input during publish'''
 
+    active_changed = QtCore.Signal(object)
+    '''Signal emitted when the input is activated or deactivated, with active as argument.'''
+
     text_changed = QtCore.Signal(object)
     '''Signal emitted when the text is changed, with text as argument.'''
+
+    @property
+    def active(self):
+        '''Return whether the input is active.'''
+        return self._active
+
+    @active.setter
+    def active(self, value):
+        '''Set the input as active or inactive.'''
+        if self._active == value:
+            return
+        self._active = value
+        self._button.setEnabled(not value)
+        self._name.setVisible(value)
+        self._version_label.setVisible(value)
+        self._filler.setVisible(not value)
+        self._button.setEnabled(not value)
+        if value:
+            self._name.setFocus()
+            self.text_changed.emit(self._name.text())
+        self.active_changed.emit(value)
 
     def __init__(self, validator, placeholder_name):
         '''Initialize the NewAssetInput widget.'''
@@ -17,6 +41,7 @@ class NewAssetInput(QtWidgets.QFrame):
 
         self._validator = validator
         self._placeholder_name = placeholder_name
+        self._active = False
 
         self._button = None
         self._name = None
@@ -48,11 +73,19 @@ class NewAssetInput(QtWidgets.QFrame):
         self._name.setSizePolicy(
             QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Minimum
         )
+        self._name.setVisible(False)
         self.layout().addWidget(self._name, 1000)
 
         self._version_label = QtWidgets.QLabel('- Version 1')
         self._version_label.setObjectName('color-primary')
+        self._version_label.setVisible(False)
         self.layout().addWidget(self._version_label)
+
+        self._filler = QtWidgets.QLabel('')
+        self._filler.setSizePolicy(
+            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum
+        )
+        self.layout().addWidget(self._filler, 100)
 
     def post_build(self):
         '''Connect signals and callbacks after building.'''
@@ -62,10 +95,13 @@ class NewAssetInput(QtWidgets.QFrame):
 
     def mousePressEvent(self, event):
         '''Override mouse press to emit signal.'''
+        super(NewAssetInput, self).mousePressEvent(event)
+        self.active = True
         self.text_changed.emit(self._name.text())
 
     def input_clicked(self, event):
         '''Callback on user button or name click.'''
+        self.active = True
         self.text_changed.emit(self._name.text())
 
     def on_text_changed(self):

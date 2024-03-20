@@ -24,7 +24,11 @@ from ftrack_framework_core.configure_logging import configure_logging
 
 from ftrack_utils.usage import set_usage_tracker, UsageTracker
 
-from ftrack_framework_nuke.utils import dock_nuke_right, find_nodegraph_viewer
+from ftrack_framework_nuke.utils import (
+    dock_nuke_right,
+    find_nodegraph_viewer,
+    run_in_main_thread,
+)
 
 # Evaluate version and log package version
 try:
@@ -64,7 +68,27 @@ def get_ftrack_menu(menu_name='ftrack', submenu_name=None):
         return ftrack_menu
 
 
+client_instance = None
+
+
+@run_in_main_thread
+def on_run_dialog_callback(dialog_name, tool_config_names, docked):
+    client_instance.run_dialog(
+        dialog_name,
+        dialog_options={
+            'tool_config_names': tool_config_names,
+            'docked': docked,
+        },
+        dock_func=partial(dock_nuke_right),
+    )
+    # Prevent bug in Nuke were curve editor is activated on docking a panel
+    if docked:
+        find_nodegraph_viewer(activate=True)
+
+
 def bootstrap_integration(framework_extensions_path):
+    global client_instance
+
     logger.debug(
         'Nuke integration initialising, extensions path:'
         f' {framework_extensions_path}'
@@ -100,8 +124,10 @@ def bootstrap_integration(framework_extensions_path):
         'dialogs': [item['name'] for item in registry_instance.dialogs]
         if registry_instance.dialogs
         else [],
-        'launchers': [item['name'] for item in registry_instance.launchers]
-        if registry_instance.launchers
+        'launch_configs': [
+            item['name'] for item in registry_instance.launch_configs
+        ]
+        if registry_instance.launch_configs
         else [],
         'dcc_configs': [item['name'] for item in registry_instance.dcc_configs]
         if registry_instance.dcc_configs
@@ -133,19 +159,6 @@ def bootstrap_integration(framework_extensions_path):
 
     logger.debug(f'Read DCC config: {dcc_config}')
 
-    # Create tool launch menu
-
-    def on_run_dialog_callback(dialog_name, label, tool_config_names):
-        # TODO: consider docked tool property to have opener launch as modal dialog
-        client_instance.run_dialog(
-            dialog_name,
-            dialog_options={'tool_config_names': tool_config_names},
-            dock_func=partial(dock_nuke_right, label),
-        )
-        # Prevent bug in Nuke were curve editor is activated on docking a panel
-        # TODO: only run if docked
-        find_nodegraph_viewer(activate=True)
-
     globals()['onRunDialogCallback'] = on_run_dialog_callback
 
     ftrack_menu = get_ftrack_menu(submenu_name=None)
@@ -155,13 +168,14 @@ def bootstrap_integration(framework_extensions_path):
         dialog_name = tool['dialog_name']
         tool_config_names = tool.get('options', {}).get('tool_configs')
         label = tool.get('label')
+        docked = tool.get('options', {}).get('docked')
 
         if name == 'separator':
             ftrack_menu.addSeparator()
         else:
             ftrack_menu.addCommand(
                 label,
-                f'{__name__}.onRunDialogCallback("{dialog_name}","{label}",{str(tool_config_names)})',
+                f'{__name__}.onRunDialogCallback("{dialog_name}",{str(tool_config_names)}, {docked})',
             )
 
     # TODO: setup animation timeline - frame rate, start and end frame

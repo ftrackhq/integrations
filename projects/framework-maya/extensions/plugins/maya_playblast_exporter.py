@@ -2,6 +2,7 @@
 # :copyright: Copyright (c) 2024 ftrack
 
 import glob
+import platform
 import maya.cmds as cmds
 
 from ftrack_utils.paths import get_temp_path
@@ -10,13 +11,13 @@ from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
 
-class MayaThumbnailExporterPlugin(BasePlugin):
-    name = 'maya_thumbnail_exporter'
+class MayaPlayblastExporterPlugin(BasePlugin):
+    name = 'maya_playblast_exporter'
 
     def run(self, store):
         '''
-        Create a screenshot from the selected camera given in the *store*.
-        Save it to a temp file and this one will be published as thumbnail.
+        Create a playblast from the selected camera given in the *store*.
+        Save it to a temp file and this one will be published as reviewable.
         '''
         component_name = self.options.get('component')
         camera_name = store['components'][component_name].get('camera_name')
@@ -53,59 +54,51 @@ class MayaThumbnailExporterPlugin(BasePlugin):
 
         cmds.lookThru(camera_name)
 
-        restoreRenderGlobals = False
-        try:
-            # Ensure JPEG is set in renderglobals.
-            # Only used on windows for some reason
-            currentFormatStr = cmds.getAttr(
-                'defaultRenderGlobals.imageFormat', asString=True
-            )
-            if not (
-                'jpg' in currentFormatStr.lower()
-                or 'jpeg' in currentFormatStr.lower()
-            ):
-                currentFormatInt = cmds.getAttr(
-                    'defaultRenderGlobals.imageFormat'
-                )
-                cmds.setAttr('defaultRenderGlobals.imageFormat', 8)
-                restoreRenderGlobals = True
-            self.logger.debug("Render globals has been changed")
-        except Exception as error:
-            raise PluginExecutionError(
-                f"Error trying to set JPEG in renderglobals, error: {error}"
-            )
+        # Set resolution and start/end frame from maya settings
+        res_w = int(cmds.getAttr('defaultResolution.width'))
+        res_h = int(cmds.getAttr('defaultResolution.height'))
 
-        exported_path = get_temp_path(filename_extension='jpg')
+        start_frame = cmds.playbackOptions(q=True, min=True)
+        end_frame = cmds.playbackOptions(q=True, max=True)
+
+        exported_path = get_temp_path()
+
+        playblast_format = 'movie'
+        playblast_compression = None
+        if 'linux' in platform.platform().lower():
+            playblast_format = 'qt'
+            playblast_compression = 'raw'
 
         try:
             # Create the image
             export_result = cmds.playblast(
-                format='image',
-                frame=cmds.currentTime(query=True),
-                compression='jpg',
-                quality=80,
-                showOrnaments=False,
-                forceOverwrite=True,
-                viewer=False,
+                format=playblast_format,
+                compression=playblast_compression,
+                sequenceTime=0,
+                clearCache=1,
+                viewer=0,
+                offScreen=True,
+                showOrnaments=0,
+                frame=range(int(start_frame), int(end_frame + 1)),
                 filename=exported_path,
+                fp=4,
+                percent=100,
+                quality=70,
+                w=res_w,
+                h=res_h,
             )
-            self.logger.debug(f"Thumbnail exported to: {exported_path}.")
+            self.logger.debug(f"Playblast exported to: {exported_path}")
         except Exception as error:
             raise PluginExecutionError(
-                f"Error trying to create the thumbnail, error: {error}"
+                f"Error trying to create the playblast, error: {error}"
             )
-
-        # Restore render globals
-        if restoreRenderGlobals:
-            cmds.setAttr('defaultRenderGlobals.imageFormat', currentFormatInt)
-            self.logger.debug("Render globals has been restored.")
 
         if previous_selected_nodes:
             cmds.select(previous_selected_nodes)
             self.logger.debug("Previous camera has been selected.")
-        export_result = export_result.replace('####', '*')
-        full_path = glob.glob(export_result)[0]
-        self.logger.debug(f"Full path of the exported thumbnail: {full_path}.")
+        self.logger.debug(f"export_result: {export_result}")
+        full_path = glob.glob(export_result + '.*')[0]
+        self.logger.debug(f"Full path of the exported thumbnail: {full_path}")
 
         cmds.lookThru(previous_camera)
 

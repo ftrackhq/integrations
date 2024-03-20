@@ -92,11 +92,14 @@ def get_ftrack_menu(menu_name='ftrack', submenu_name=None):
 # mechanisms directly.
 @run_in_main_thread
 def on_run_dialog_callback(
-    client_instance, dialog_name, tool_config_names, maya_args
+    client_instance, dialog_name, tool_config_names, docked, maya_args
 ):
     client_instance.run_dialog(
         dialog_name,
-        dialog_options={'tool_config_names': tool_config_names},
+        dialog_options={
+            'tool_config_names': tool_config_names,
+            'docked': docked,
+        },
         dock_func=dock_maya_right,
     )
 
@@ -140,8 +143,10 @@ def bootstrap_integration(framework_extensions_path):
         'dialogs': [item['name'] for item in registry_instance.dialogs]
         if registry_instance.dialogs
         else [],
-        'launchers': [item['name'] for item in registry_instance.launchers]
-        if registry_instance.launchers
+        'launch_configs': [
+            item['name'] for item in registry_instance.launch_configs
+        ]
+        if registry_instance.launch_configs
         else [],
         'dcc_configs': [item['name'] for item in registry_instance.dcc_configs]
         if registry_instance.dcc_configs
@@ -187,6 +192,7 @@ def bootstrap_integration(framework_extensions_path):
                     client_instance,
                     tool['dialog_name'],
                     tool['options']['tool_configs'],
+                    tool['options']['docked'],
                 )
             ),
             image=":/{}.png".format(tool['icon']),

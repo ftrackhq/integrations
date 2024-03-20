@@ -128,7 +128,7 @@ Once build the result will be available in
 build/exe.linux-x86_64-**\<PYTHON VERSION\>**
 
 
-Build tar.gz release and Md5 with:
+Or to Build the tar.gz release and Md5 use:
 
 ```bash
     $ python setup.py build_exe --create_deployment
@@ -163,40 +163,25 @@ Build with:
 
 ### To build and codesign
 
+Make sure you have the certificate installed in your keychain.
+
 Set your certificate id to **CODESIGN_IDENTITY**:
 
-    $ export CODESIGN_IDENTITY="<your_certificate_id_here>"
+    $ export MACOS_CERTIFICATE_NAME="<your_certificate_id_here>" # Developer ID Application: your company (1111111)
 
-Set your Apple username to **APPLE_USER_NAME**:
+To notarize you will also need to setup the following variables:
+**PROD_MACOS_NOTARIZATION_APPLE_ID** # should contain your apple ID
+**PROD_MACOS_NOTARIZATION_TEAM_ID** # should contain your team ID
+**PROD_MACOS_NOTARIZATION_PWD** # should contain the app-specific password you can generate one in here: https://appleid.apple.com/account/manage>
 
-    $ export APPLE_USER_NAME="<your_apple_user>"
-
-Set your APP-specific password generated on
-<https://appleid.apple.com/account/manage> to the keychain under the
-name ftrack_connect_sign_pass.
+    $ export PROD_MACOS_NOTARIZATION_APPLE_ID="<your_apple_id>"
+    $ export PROD_MACOS_NOTARIZATION_TEAM_ID="<your_team_id>"
+    $ export PROD_MACOS_NOTARIZATION_PWD="<your_app-specific_password>"
 
 Execute the following build command and follow the instructions:
 
     $ python setup.py bdist_mac --codesign_frameworks --codesign --create_dmg --notarize
 
-
-
-## Docker
-
-As part of this repository, 3 Dockerfiles are available to sendbox the
-build of ftrack-connect-installer.
-
--   C7.Dockerfile \[centos 7\]
--   C8.Dockerfile \[centos 8\]
--   Win10.Dockerfile \[windows 10\]
-
-For further information, please use the README file contained in the
-**docker** folder.
-
-Note
-
-In order to build in docker windows, you need to have a windows 10 Pro
-activated and configured.
 
 #### Known Issues
 

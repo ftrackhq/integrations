@@ -60,7 +60,7 @@ class NukeNodegraphImageExporterPlugin(BasePlugin):
         '''
         component_name = self.options.get('component')
         try:
-            view = find_nodegraph_viewer(activate=True)
+            view = find_nodegraph_viewer()
 
         except Exception as e:
             self.logger.exception(e)
@@ -69,13 +69,7 @@ class NukeNodegraphImageExporterPlugin(BasePlugin):
             )
 
         try:
-            activate_nodegraph_viewer(view)
-        except Exception as e:
-            self.logger.exception(e)
-            self.logger.warning(f'Could not active node graph viewer: {e}')
-
-        try:
-            image_path = get_temp_path(filename_extension='.png')
+            image_path = get_temp_path(filename_extension='png')
 
             self.screen_capture_widget(view, image_path)
         except Exception as e:

@@ -28,6 +28,7 @@ class AssetVersionSelectorWidget(BaseWidget):
         '''Initialize PublishContextWidget with *parent*, *session*, *data*,
         *name*, *description*, *options* and *context*
         '''
+        self._title_label = None
         self._label = None
         self._asset_version_selector = None
 
@@ -50,12 +51,15 @@ class AssetVersionSelectorWidget(BaseWidget):
 
     def build_ui(self):
         '''Build the user interface for the widget.'''
+        self._title_label = QtWidgets.QLabel('Assets')
+
         self._label = QtWidgets.QLabel()
         self._label.setObjectName('gray')
         self._label.setWordWrap(True)
 
         self._asset_version_selector = OpenAssetSelector()
 
+        self.layout().addWidget(self._title_label)
         self.layout().addWidget(self._label)
         self.layout().addWidget(self._asset_version_selector)
 
@@ -98,14 +102,11 @@ class AssetVersionSelectorWidget(BaseWidget):
         '''Handle the addition of assets to the selector.'''
         if len(assets or []) > 0:
             self._label.setText(
-                'We found {} asset{} published on this task. '
-                'Choose asset'.format(
-                    len(assets),
-                    's' if len(assets) > 1 else '',
-                )
+                f'We found {len(assets)} asset{"s" if len(assets) > 1 else ""} '
+                'published related to this task and its parent. Choose asset'
             )
         else:
-            self._label.setText('<html><i>No assets found!<i></html>')
+            self._label.setText('')
 
     def _on_version_changed_callback(self, version):
         '''Handle the change of selected version.'''

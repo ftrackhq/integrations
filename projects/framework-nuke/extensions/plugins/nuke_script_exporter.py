@@ -34,7 +34,7 @@ class NukeScriptExporterPlugin(BasePlugin):
                 self.logger.debug(
                     'Exporting selection to a temp file for publish'
                 )
-                exported_path = get_temp_path(filename_extension='.nk')
+                exported_path = get_temp_path(filename_extension='nk')
 
                 self.logger.debug(
                     f'Exporting selected nodes to: {exported_path}'

@@ -136,7 +136,7 @@ function handleIntegrationContextDataCallback(event) {
         if (event.data.panel_launchers !== undefined) {
             panel_launchers = event.data.panel_launchers;
 
-            let launcher_table = document.getElementById("launchers");
+            let launcher_table = document.getElementById("launch_configs");
             launcher_table.innerHTML = "";
             let idx = 0;
             while (idx < panel_launchers.length) {

@@ -7,10 +7,10 @@ from ftrack_framework_qt.widgets import BaseWidget
 from ftrack_qt.utils.decorators import invoke_in_qt_main_thread
 
 
-class MayaCameraSelectorWidget(BaseWidget):
-    '''Drop-down list to select the desired camera.'''
+class NukeNodeSelectorWidget(BaseWidget):
+    '''Drop-down list to select the desired writenode.'''
 
-    name = 'maya_camera_selector'
+    name = 'nuke_node_selector'
     ui_type = 'qt'
 
     def __init__(
@@ -24,9 +24,9 @@ class MayaCameraSelectorWidget(BaseWidget):
         on_run_ui_hook,
         parent=None,
     ):
-        self._camera_cb = None
+        self._writenode_cb = None
 
-        super(MayaCameraSelectorWidget, self).__init__(
+        super(NukeNodeSelectorWidget, self).__init__(
             event_manager,
             client_id,
             context_id,
@@ -49,34 +49,36 @@ class MayaCameraSelectorWidget(BaseWidget):
     def build_ui(self):
         '''build function widgets.'''
         # Create export type combo box
-        self._camera_cb = QtWidgets.QComboBox()
-        self.layout().addWidget(self._camera_cb)
+        self._writenode_cb = QtWidgets.QComboBox()
+        self.layout().addWidget(self._writenode_cb)
 
     def post_build_ui(self):
         '''hook events'''
-        self._camera_cb.currentTextChanged.connect(self._on_camera_changed)
+        self._writenode_cb.currentTextChanged.connect(
+            self._on_writenode_changed
+        )
 
     def populate(self):
         '''Fetch info from plugin to populate the widget'''
-        self.query_cameras()
+        self.query_writenodes()
 
-    def query_cameras(self):
-        '''Query All cameras from scene.'''
+    def query_writenodes(self):
+        '''Query All write nodes from script.'''
         payload = {}
         self.run_ui_hook(payload)
 
     @invoke_in_qt_main_thread
     def ui_hook_callback(self, ui_hook_result):
         '''Handle the result of the UI hook.'''
-        super(MayaCameraSelectorWidget, self).ui_hook_callback(ui_hook_result)
-        self._camera_cb.addItems(ui_hook_result)
-        default_camera_name = self.plugin_config['options'].get(
-            'camera_name', 'persp'
+        super(NukeNodeSelectorWidget, self).ui_hook_callback(ui_hook_result)
+        self._writenode_cb.addItems(ui_hook_result)
+        default_node_name = self.plugin_config['options'].get(
+            'node_name', 'Write1'
         )
-        self._camera_cb.setCurrentText(default_camera_name)
+        self._writenode_cb.setCurrentText(default_node_name)
 
-    def _on_camera_changed(self, camera_name):
-        '''Updates the camera_name option with the provided *camera_name'''
-        if not camera_name:
+    def _on_writenode_changed(self, node_name):
+        '''Updates the node_name option with the provided *node_name'''
+        if not node_name:
             return
-        self.set_plugin_option('camera_name', camera_name)
+        self.set_plugin_option('node_name', node_name)

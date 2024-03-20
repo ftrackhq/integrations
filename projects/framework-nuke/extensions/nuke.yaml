@@ -8,6 +8,7 @@ tools:
     options:
       tool_configs:
         - nuke-script-publisher
+      docked: true
   - name: open
     label: "Open"
     dialog_name: framework_standard_opener_dialog
@@ -15,3 +16,4 @@ tools:
     options:
       tool_configs:
         - nuke-script-opener
+      docked: false

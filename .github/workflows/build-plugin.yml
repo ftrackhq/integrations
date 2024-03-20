@@ -2,7 +2,7 @@
 #  - Build and publishes libraries to PyPi or
 #  - Building Connect plugin artifacts and upload them to the release
 
-name: CI-RELEASE
+name: CI-PLUGIN-RELEASE
 
 on:
   release:
@@ -11,9 +11,39 @@ on:
 
 jobs:
 
+  # This job checks the tag pattern and decides whether to proceed or halt the workflow
+  check-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check tag pattern
+        run: |
+          TAG_NAME=$(echo ${{ github.ref }} | sed 's|refs/tags/||')
+          echo "TAG_NAME=${TAG_NAME}"
+          
+          # Define an array of supported tag prefixes
+          SUPPORTED_TAG_PREFIXES=("connect-publisher-widget/" "connect-timetracker-widget/" "nuke-studio/" "rv/" "framework-photoshop/")
+  
+          # Initialize match flag as false
+          MATCH_FOUND=false
+  
+          # Iterate over SUPPORTED_TAG_PREFIXES to check if TAG_NAME matches any prefix
+          for PREFIX in "${SUPPORTED_TAG_PREFIXES[@]}"; do
+            if [[ "${TAG_NAME}" == ${PREFIX}* ]]; then
+              MATCH_FOUND=true
+              break
+            fi
+          done
+  
+          # If no match is found, exit with an error
+          if [[ "${MATCH_FOUND}" == false ]]; then
+            echo "The tag '${TAG_NAME}' does not match any supported TAG name."
+            exit 1
+          fi
+
   # Set the environment variables for the rest of release workflow
   set-variables:
     runs-on: ubuntu-latest
+    needs: check-tag
     outputs:
       folder: ${{ env.FOLDER }}
       package: ${{ env.PACKAGE }}
@@ -27,21 +57,7 @@ jobs:
           echo "PACKAGE=$(echo ${{ github.ref }} | cut -d/ -f 3-3)" >> $GITHUB_ENV
           echo "VERSION=$(echo ${{ github.ref }} | cut -d/ -f 4-4)" >> $GITHUB_ENV
           echo "TAG=$(echo ${{ github.ref }} | cut -d/ -f 3-4)" >> $GITHUB_ENV
-      - name: set apps folder
-        if: ${{ env.PACKAGE == 'connect' }}
-        shell: bash
-        run: |
-          echo "FOLDER=apps/${{ env.PACKAGE }}" >> $GITHUB_ENV
-      - name: set installers folder
-        if: ${{ env.PACKAGE == 'connect-installer' }}
-        run: echo Not supported by this CI && exit 1
-      - name: set lib folder
-        if: ${{ env.PACKAGE == 'constants' || env.PACKAGE == 'framework-core' || env.PACKAGE == 'framework-qt' || env.PACKAGE == 'qt' || env.PACKAGE == 'qt-style' || env.PACKAGE == 'utils' }}
-        shell: bash
-        run: |
-          echo "FOLDER=libs/${{ env.PACKAGE }}" >> $GITHUB_ENV
       - name: set projects folder
-        if: ${{ env.PACKAGE == 'connect-publisher-widget' || env.PACKAGE == 'connect-timetracker-widget' || env.PACKAGE == 'framework-photoshop' || env.PACKAGE == 'nuke-studio' || env.PACKAGE == 'rv' }}
         shell: bash
         run: |
           echo "FOLDER=projects/${{ env.PACKAGE }}" >> $GITHUB_ENV
@@ -53,7 +69,8 @@ jobs:
           echo 'VERSION: ${{ env.VERSION }}'
           echo 'TAG: ${{ env.TAG }}'
 
-  build-linux:
+
+  build-package:
     name: Build platform independent artifacts, and Linux specific artifacts
     needs: set-variables
     concurrency:
@@ -61,7 +78,6 @@ jobs:
     if: ${{ needs.set-variables.outputs.package != 'framework-photoshop' }}
     runs-on: ubuntu-latest
     outputs:
-      to_pypi: ${{ needs.set-variables.outputs.to_pypi }}
       package: ${{ needs.set-variables.outputs.package }}
     steps:
       - uses: actions/checkout@v3
@@ -72,12 +88,6 @@ jobs:
         shell: bash
         run: |
           pip install poetry==1.5.1
-      - name: build style
-        if: ${{ needs.set-variables.outputs.package == 'qt-style' }}
-        shell: bash
-        run: |
-          pip install -r tools/requirements.txt
-          python tools/build.py build_qt_resources libs/qt-style
       - name: poetry build
         shell: bash
         run: |

@@ -24,13 +24,6 @@ class MayaSceneCollectorPlugin(BasePlugin):
                 f"Provide export_type and extension_format: {error}"
             )
         try:
-            export_type = self.options['export_type']
-            extension_format = self.options['extension_format']
-        except Exception as error:
-            raise PluginExecutionError(
-                f"Provide export_type and extension_format: {error}"
-            )
-        try:
             scene_name = cmds.file(q=True, sceneName=True)
         except Exception as error:
             raise PluginExecutionError(
