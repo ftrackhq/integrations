@@ -35,9 +35,9 @@ from ftrack_connect.utils.plugin import (
     get_plugin_data,
     PLUGIN_DIRECTORIES,
 )
-from ftrack_connect.utils.login import (
-    read_json_config,
-    write_json_config,
+from ftrack_connect.utils.credentials import (
+    load_credentials,
+    store_credentials,
 )
 from ftrack_connect.utils.directory import open_directory
 import ftrack_connect.ui.theme
@@ -48,10 +48,12 @@ from ftrack_connect.ui.widget import login as _login
 from ftrack_connect.ui.widget import about as _about
 from ftrack_connect.ui import login_tools as _login_tools
 from ftrack_connect.ui.widget import configure_scenario as _scenario_widget
-import ftrack_connect.ui.config
+import ftrack_connect.utils.log
 from ftrack_connect.application_launcher.discover_applications import (
     DiscoverApplications,
 )
+
+from ftrack_connect.utils.plugin import create_target_plugin_directory
 
 
 class ConnectWidgetPlugin(object):
@@ -168,8 +170,6 @@ class Application(QtWidgets.QMainWindow):
         self._session = None
         self.__connect_start_time = time.time()
         self._log_level = log_level
-
-        self._create_default_plugin_directory()
 
         self._discovered_plugins = (
             self._discover_plugin_data_from_plugin_directories()
@@ -350,10 +350,10 @@ class Application(QtWidgets.QMainWindow):
     def logout(self):
         '''Clear stored credentials and quit Connect.'''
         self._clear_qsettings()
-        config = read_json_config()
+        config = load_credentials()
 
         config['accounts'] = []
-        write_json_config(config)
+        store_credentials(config)
 
         QtWidgets.QApplication.quit()
 
@@ -367,7 +367,7 @@ class Application(QtWidgets.QMainWindow):
         credentials = None
 
         # Read from json config file.
-        json_config = read_json_config()
+        json_config = load_credentials()
         if json_config:
             try:
                 data = json_config['accounts'][0]
@@ -405,7 +405,7 @@ class Application(QtWidgets.QMainWindow):
         self._clear_qsettings()
 
         # Save the credentials.
-        json_config = read_json_config()
+        json_config = load_credentials()
 
         if not json_config:
             json_config = {}
@@ -423,7 +423,7 @@ class Application(QtWidgets.QMainWindow):
             }
         ]
 
-        write_json_config(json_config)
+        store_credentials(json_config)
 
     def login(self):
         '''Login using stored credentials or ask user for them.'''
@@ -496,7 +496,7 @@ class Application(QtWidgets.QMainWindow):
             raise ftrack_connect.error.ParseError(error)
 
         # Need to reconfigure logging after session is created.
-        ftrack_connect.config.configure_logging(
+        ftrack_connect.utils.log.configure_logging(
             'ftrack_connect', level=self._log_level, notify=False
         )
 
@@ -1139,23 +1139,11 @@ class Application(QtWidgets.QMainWindow):
 
         aboutDialog.exec_()
 
-    def _create_default_plugin_directory(self):
-        directory = get_default_plugin_directory()
-
-        if not os.path.exists(directory):
-            # Create directory if not existing.
-            try:
-                os.makedirs(directory)
-            except Exception:
-                raise
-
-        return directory
-
     def _open_default_plugin_directory(self):
         '''Open default plugin directory in platform default file browser.'''
 
         try:
-            self._create_default_plugin_directory()
+            create_target_plugin_directory(PLUGIN_DIRECTORIES[0])
         except OSError:
             messageBox = QtWidgets.QMessageBox(parent=self)
             messageBox.setIcon(QtWidgets.QMessageBox.Warning)
