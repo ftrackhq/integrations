@@ -5,7 +5,7 @@ import logging
 
 from Qt import QtWidgets, QtCore, QtGui
 
-from ftrack_qt.widgets.frames import (
+from ftrack_qt.widgets.asset import (
     AssetVersionCreation,
     AssetVersionSelection,
     NewAssetInput,

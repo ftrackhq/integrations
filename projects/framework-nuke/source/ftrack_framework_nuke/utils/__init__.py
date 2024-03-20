@@ -1,5 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
+from functools import wraps
+import threading
 
 from PySide2 import QtWidgets
 
@@ -34,7 +36,11 @@ def find_nodegraph_viewer(activate=False):
         widget = stack.pop()
         if widget.windowTitle().lower().startswith('node graph'):
             viewers.append(widget)
-        stack.extend(c for c in widget.children() if c.isWidgetType())
+        stack.extend(
+            c
+            for c in widget.children()
+            if hasattr(c, 'isWidgetType') and c.isWidgetType()
+        )
     if len(viewers) <= 1:
         raise Exception(
             'Could not find node graph viewer to export image from'
@@ -51,3 +57,18 @@ def activate_nodegraph_viewer(widget):
     idx = stacked_widget.indexOf(widget)
     if stacked_widget.currentIndex() != idx:
         stacked_widget.setCurrentIndex(idx)
+
+
+def run_in_main_thread(f):
+    '''Make sure a function runs in the main Maya thread.'''
+
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if threading.currentThread().name != 'MainThread':
+            return nuke.executeInMainThreadWithResult(
+                f, args=args, kwargs=kwargs
+            )
+        else:
+            return f(*args, **kwargs)
+
+    return decorated

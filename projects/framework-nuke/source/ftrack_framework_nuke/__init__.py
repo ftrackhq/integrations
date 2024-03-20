@@ -24,7 +24,11 @@ from ftrack_framework_core.configure_logging import configure_logging
 
 from ftrack_utils.usage import set_usage_tracker, UsageTracker
 
-from ftrack_framework_nuke.utils import dock_nuke_right, find_nodegraph_viewer
+from ftrack_framework_nuke.utils import (
+    dock_nuke_right,
+    find_nodegraph_viewer,
+    run_in_main_thread,
+)
 
 # Evaluate version and log package version
 try:
@@ -67,8 +71,7 @@ def get_ftrack_menu(menu_name='ftrack', submenu_name=None):
 client_instance = None
 
 
-# TODO: activate this on implementing run in main thread for nuke like in maya
-# #@run_in_main_thread
+@run_in_main_thread
 def on_run_dialog_callback(dialog_name, tool_config_names, docked):
     client_instance.run_dialog(
         dialog_name,
@@ -121,8 +124,10 @@ def bootstrap_integration(framework_extensions_path):
         'dialogs': [item['name'] for item in registry_instance.dialogs]
         if registry_instance.dialogs
         else [],
-        'launchers': [item['name'] for item in registry_instance.launchers]
-        if registry_instance.launchers
+        'launch_configs': [
+            item['name'] for item in registry_instance.launch_configs
+        ]
+        if registry_instance.launch_configs
         else [],
         'dcc_configs': [item['name'] for item in registry_instance.dcc_configs]
         if registry_instance.dcc_configs

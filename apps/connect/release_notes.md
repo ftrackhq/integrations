@@ -2,12 +2,13 @@
 
 ## Upcoming
 
-* [changed] Re-structure utils and move general ones to ftrack-utils library.
-* [new] config.json file renamed to credentials.json
 * [new] Support resolving local variables withing the same connect_config.yaml file and environment variables using ${name_of_the_key}
 * [new] Custom launch_path setting on connect_config.yaml
 * [deprecated] FTRACK_CONNECT_PLUGIN_PATH is deprecated in favor of plugin_path in the connect_config.yaml
 * [new] Implemented connect_config.yaml file driven by FTRACK_CONNECT_CONFIG_PATH
+* [changed] Re-structure utils and move general ones to ftrack-utils library.
+* [changed] config.json file renamed to credentials.json
+* [changed] Plugin manager; Drag-n-drop of a plugin ZIP overrides any existing plugins in plugin list.
 
 ## v3.0.0
 2024-02-16

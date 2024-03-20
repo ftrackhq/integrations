@@ -4,7 +4,7 @@
 
 import urllib.request, urllib.parse, urllib.error
 
-from ftrack_qt.widgets.thumbnails.ellipse import EllipseThumbnailBase
+from ftrack_qt.widgets.thumbnails.ellipse_thumbnail import EllipseThumbnailBase
 
 
 class UserThumbnail(EllipseThumbnailBase):

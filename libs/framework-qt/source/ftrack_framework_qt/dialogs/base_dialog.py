@@ -6,6 +6,7 @@ from Qt import QtWidgets, QtCore
 from ftrack_framework_core.widget.dialog import FrameworkDialog
 
 from ftrack_qt.widgets.dialogs import StyledDialog
+from ftrack_qt.widgets.headers import SessionHeader
 
 from ftrack_qt.utils.layout import recursive_clear_layout
 
@@ -15,12 +16,25 @@ class BaseDialog(FrameworkDialog, StyledDialog):
 
     name = 'base_dialog'
     tool_config_type_filter = None
+    run_button_title = 'run'
     ui_type = 'qt'
-    docked = True
+
+    @property
+    def header(self):
+        return self._header
 
     @property
     def tool_widget(self):
         return self._tool_widget
+
+    @property
+    def run_button(self):
+        return self._run_button
+
+    @property
+    def tool_config_names(self):
+        '''Return tool config names if passed in the dialog options.'''
+        return self.dialog_options.get('tool_config_names')
 
     def __init__(
         self,
@@ -51,7 +65,7 @@ class BaseDialog(FrameworkDialog, StyledDialog):
         StyledDialog.__init__(
             self,
             background_style=None,
-            docked=self.docked,
+            docked=dialog_options.get("docked", False),
             parent=parent,
         )
         FrameworkDialog.__init__(
@@ -62,9 +76,11 @@ class BaseDialog(FrameworkDialog, StyledDialog):
             connect_setter_property_callback,
             connect_getter_property_callback,
             dialog_options,
-            parent=parent,
+            parent,
         )
+        self._header = None
         self._tool_widget = None
+        self._run_button = None
 
         self.pre_build()
         self.build()
@@ -75,15 +91,24 @@ class BaseDialog(FrameworkDialog, StyledDialog):
         self.setLayout(main_layout)
 
     def build(self):
+        # Create the header
+        self._header = SessionHeader(self.event_manager.session)
+
         self._tool_widget = QtWidgets.QWidget()
         _tool_widget_layout = QtWidgets.QVBoxLayout()
         self._tool_widget.setLayout(_tool_widget_layout)
 
+        self._run_button = QtWidgets.QPushButton(self.run_button_title)
+
+        self.layout().addWidget(self._header)
         self.layout().addWidget(self._tool_widget)
+        self.layout().addWidget(self._run_button)
 
     def post_build(self):
         '''Set up all the signals'''
         self._on_client_context_changed_callback()
+        # Connect run_tool_config button
+        self._run_button.clicked.connect(self._on_run_button_clicked)
 
     def _on_client_context_changed_callback(self, event=None):
         '''Client context has been changed'''
@@ -94,6 +119,14 @@ class BaseDialog(FrameworkDialog, StyledDialog):
         self.pre_build_ui()
         self.build_ui()
         self.post_build_ui()
+
+    def _on_run_button_clicked(self):
+        '''
+        Run button from the UI has been clicked.
+        Tell client to run the current tool config
+        '''
+
+        self.run_tool_config(self.tool_config['reference'])
 
     # FrameworkDialog overrides
     def show_ui(self):
@@ -139,9 +172,6 @@ class BaseDialog(FrameworkDialog, StyledDialog):
         raise NotImplementedError
 
     def post_build_ui(self):
-        raise NotImplementedError
-
-    def _on_run_button_clicked(self):
         raise NotImplementedError
 
     def closeEvent(self, event):
