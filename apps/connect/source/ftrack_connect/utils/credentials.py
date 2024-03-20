@@ -6,6 +6,7 @@ import os.path
 import platformdirs
 import json
 import logging
+import shutil
 
 
 logger = logging.getLogger('ftrack_connect.utils.credentials')
@@ -38,6 +39,21 @@ def load_credentials():
                         credentials_file
                     )
                 )
+
+    if not credentials:
+        # Check if the old config.json file is in place and if so, duplicate it and rename it to pick credentials from there.
+        deprecated_config_file = os.path.join(
+            platformdirs.user_data_dir('ftrack-connect', 'ftrack'),
+            'config.json',
+        )
+        if os.path.exists(deprecated_config_file):
+            logger.warning(
+                f'Coping credentials from deprecated config.json file to '
+                f'credentials.json. Locations: {deprecated_config_file} '
+                f'{credentials_file}.'
+            )
+            shutil.copy(deprecated_config_file, credentials_file)
+            credentials = load_credentials()
 
     return credentials
 
