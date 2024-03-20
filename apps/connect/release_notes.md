@@ -2,7 +2,7 @@
 
 ## Upcoming
 
-* [changed] Changed the name of FTRACK_EXTENSIONS_PATH environment variable to FTRACK_CONNECT_EXTENSIONS_PATH.
+* [changed] Introduced FTRACK_CONNECT_EXTENSIONS_PATH, read by Connect to resolve launch configurations.
 * [new] Proper support for launch config extensions, merging configs based on the order they appear in FTRACK_CONNECT_EXTENSIONS_PATH.
 * [new] Now uses framework-core (ftrack_framework_core) library as a dependency.
 * [changed] Re-structure utils and move general ones to ftrack-utils library.

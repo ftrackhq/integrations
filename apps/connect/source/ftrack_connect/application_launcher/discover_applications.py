@@ -5,8 +5,8 @@ from collections import defaultdict
 import logging
 import yaml
 
-from ftrack_utils.extensions.environment import (
-    get_extensions_path_from_environment,
+from ftrack_connect.utils.environment import (
+    get_connect_extensions_path_from_environment,
 )
 from ftrack_framework_core import registry
 
@@ -41,7 +41,7 @@ class DiscoverApplications(object):
     def _parse_configurations(self, config_paths):
         '''Use the extensions library to load and merge launch configurations'''
         loaded_filtered_files = []
-        extensions_path = get_extensions_path_from_environment()
+        extensions_path = get_connect_extensions_path_from_environment()
         for config_path in config_paths:
             if not os.path.exists(config_path) or not os.path.isdir(
                 config_path
