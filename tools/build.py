@@ -76,6 +76,7 @@ def build_package(pkg_path, args, command=None):
     PLATFORM_DEPENDENT = False
 
     POETRY_CONFIG_PATH = os.path.join(ROOT_PATH, 'pyproject.toml')
+    POETRY_LOCKFILE_PATH = os.path.join(ROOT_PATH, 'poetry.lock')
     DCC_NAME = None
     VERSION = None
 
@@ -467,8 +468,11 @@ def build_package(pkg_path, args, command=None):
             f'Exporting dependencies from: "{os.path.basename(lock_path)}" (extras: {extras})'
         )
         original_toml = None
+        original_lock = None
         if args.testpypi:
             original_toml = set_ftrack_deps_to_test_pypi(POETRY_CONFIG_PATH)
+            with open(POETRY_LOCKFILE_PATH, 'r') as file:
+                original_lock = file.readlines()
             commands = ['poetry', 'update']
             subprocess.check_call(commands)
         # Run Poetry export and read the output
@@ -504,7 +508,9 @@ def build_package(pkg_path, args, command=None):
         ]
         if args.testpypi:
             if original_toml:
-                restore_original_toml_file(POETRY_CONFIG_PATH, original_toml)
+                restore_original_file(POETRY_CONFIG_PATH, original_toml)
+                restore_original_file(POETRY_LOCKFILE_PATH, original_lock)
+
             # Try to pick first from pypi if not exist go to test pypi
             commands.extend(
                 [
@@ -588,48 +594,40 @@ def build_package(pkg_path, args, command=None):
         in_target_section = False
         new_content = []
 
-        for line in file_content:
+        def details_to_string(details_items):
+            details_str_parts = []
+            for key, value in details_items.items():
+                if isinstance(value, str):
+                    value_str = f'"{value}"'  # String values are quoted
+                elif isinstance(value, bool):
+                    value_str = str(
+                        value
+                    ).lower()  # Boolean values are converted to lowercase
+                elif isinstance(value, dict):
+                    value_str = '{ %s }' % details_to_string(value)
+                else:
+                    value_str = str(value)
+                details_str_parts.append(f'{key} = {value_str}')
+            return ', '.join(details_str_parts)
+
+        for line in original_file_content:
+            new_line = line
             if line.strip().startswith("[tool.poetry.dependencies]"):
                 in_target_section = True
-                new_content.append(line)
-                continue
             elif line.strip().startswith("[") and in_target_section:
                 in_target_section = False
-                new_content.append("\n")
-            if in_target_section:
+            elif in_target_section:
                 lib_found = None
                 for lib, details in override.items():
                     if line.strip().startswith(lib + " "):
                         lib_found = lib
                         break
                 if lib_found:
-                    details_items = override[lib]
-                    details_str_parts = []
-                    for key, value in details_items.items():
-                        if isinstance(value, str):
-                            value_str = (
-                                f'"{value}"'  # String values are quoted
-                            )
-                        elif isinstance(value, bool):
-                            value_str = str(
-                                value
-                            ).lower()  # Boolean values are converted to lowercase
-                        elif isinstance(value, dict):
-                            # For dict, convert to TOML string and remove leading key part
-                            dumped = toml.dumps({key: value}).strip()
-                            value_str = dumped[
-                                dumped.index('{') :
-                            ]  # Extract the dict part
-                        else:
-                            value_str = str(value)
-                        details_str_parts.append(f'{key} = {value_str}')
-                    detail_str = (
-                        f'{lib} = {{ ' + ', '.join(details_str_parts) + ' }'
+                    new_line = '%s = { %s }\n' % (
+                        lib_found,
+                        details_to_string(override[lib_found]),
                     )
-                    new_content.append(detail_str + "\n")
-                    continue
-            else:
-                new_content.append(line)
+            new_content.append(new_line)
 
         # Write the modified content back to the TOML file
         with open(pyproject_toml_path, 'w') as file:
@@ -637,10 +635,10 @@ def build_package(pkg_path, args, command=None):
 
         return original_file_content
 
-    def restore_original_toml_file(pyproject_toml_path, original_toml):
+    def restore_original_file(path, original_content):
         '''Write given *original_toml* as *pyproject_toml_path*'''
-        with open(pyproject_toml_path, 'w') as file:
-            file.writelines(original_toml)
+        with open(path, 'w') as file:
+            file.writelines(original_content)
 
     def _replace_imports_(resource_target_path):
         '''Replace imports in resource files to Qt instead of QtCore.
