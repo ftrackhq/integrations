@@ -722,6 +722,8 @@ class Application(QtWidgets.QMainWindow):
                 self.logger.debug(f'Checking candidate {candidate}.')
                 candidate_path = os.path.join(plugin_directory, candidate)
                 plugin_data = get_plugin_data(candidate_path)
+                if not plugin_data:
+                    continue
                 if source_index >= 0:
                     plugin_data['source_index'] = source_index
                 result.append(plugin_data)
