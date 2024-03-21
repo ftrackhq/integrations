@@ -344,7 +344,7 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
                 QtWidgets.QMessageBox.Warning,
                 'Warning',
                 'The following conflicting and incompatible plugins are installed and will be ignored by Connect'
-                ':\n\n{}\n\nClean up and archive them?'.format(
+                ':\n\n{}\n\nClean up and archive them?\n\n Note: you might want to keep them if you are still using Connect 2'.format(
                     '\n'.join(incompatible_plugin_names)
                 ),
                 buttons=QtWidgets.QMessageBox.Yes
@@ -365,7 +365,7 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
                 'Warning',
                 'The following deprecated plugins are installed'
                 ':\n\n{}\n\nClean up and archive them?\n\nNote: they might still function, please '
-                'check release notes for further details.'.format(
+                'check release notes for further details. You might want to keep them if you are still using Connect 2'.format(
                     '\n'.join(deprecated_plugins)
                 ),
                 buttons=QtWidgets.QMessageBox.Yes
