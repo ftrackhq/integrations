@@ -104,6 +104,7 @@ def get_extensions_from_directory(scan_dir, extension_types=None):
                 if extension["extension_type"] in extension_types:
                     available_extensions.append(extension)
 
+    # Check python extensions
     if (
         extension_types is None
         or 'engine' in extension_types
@@ -111,50 +112,58 @@ def get_extensions_from_directory(scan_dir, extension_types=None):
         or 'widget' in extension_types
         or 'dialog' in extension_types
     ):
-        for loader, module_name, is_pkg in pkgutil.walk_packages(subfolders):
-            _module = loader.find_module(module_name).load_module(module_name)
-            cls_members = inspect.getmembers(_module, inspect.isclass)
-            success_registry = False
-            for name, obj in cls_members:
-                if obj.__module__ != _module.__name__:
-                    # We just want to check the current module, not the imported or
-                    # inherited classes
-                    continue
-                try:
-                    registry_result = obj.register()
-                    # Validate registry
-                    if {
-                        "name",
-                        "extension_type",
-                        "extension",
-                        "path",
-                    } != registry_result.keys():
-                        raise ValueError(
-                            "The register function did not match expected format:"
-                            " {0}".format(registry_result.keys())
-                        )
-                    if (
-                        extension_types is None
-                        or registry_result["extension_type"] in extension_types
-                    ):
-                        available_extensions.append(registry_result)
-                    else:
-                        # Unload module to not pollute Python environment
-                        loader.find_module(module_name).unload_module(
-                            module_name
-                        )
-                    success_registry = True
-                except Exception as e:
-                    logger.warning(
-                        "Couldn't register extension {} \n error: {}".format(
-                            name, e
-                        )
-                    )
-                    continue
-            if not success_registry:
-                logger.warning(
-                    "No compatible python extension found in module {} "
-                    "from path{}".format(module_name, loader.path)
-                )
+        extension_data = get_modules_extension_data_from_folders(subfolders)
+        for data in extension_data:
+            if (
+                extension_types is None
+                or data["extension_type"] in extension_types
+            ):
+                available_extensions.append(data)
 
     return available_extensions
+
+
+def get_modules_extension_data_from_folders(folders):
+    extension_data = []
+    for loader, module_name, is_pkg in pkgutil.walk_packages(folders):
+        _module = loader.find_module(module_name).load_module(module_name)
+        cls_members = inspect.getmembers(_module, inspect.isclass)
+        success_registry = False
+        for name, obj in cls_members:
+            if obj.__module__ != _module.__name__:
+                # We just want to check the current module, not the imported or
+                # inherited classes
+                continue
+            try:
+                registry_result = obj.register()
+                # Validate registry
+                if {
+                    "name",
+                    "extension_type",
+                    "extension",
+                    "path",
+                } != registry_result.keys():
+                    raise ValueError(
+                        "The register function did not match expected format:"
+                        " {0}".format(registry_result.keys())
+                    )
+
+                extension_data.append(registry_result)
+                success_registry = True
+            except Exception as e:
+                logger.warning(
+                    "Couldn't register extension {} \n error: {}".format(
+                        name, e
+                    )
+                )
+                success_registry = False
+            finally:
+                # Unload the module after register it
+                loader.find_module(module_name).unload_module(module_name)
+
+        if not success_registry:
+            logger.warning(
+                "No compatible python extension found in module {} "
+                "from path{}".format(module_name, loader.path)
+            )
+    return extension_data
