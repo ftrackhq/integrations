@@ -89,22 +89,24 @@ jobs:
           CONNECT_VERSION=$(poetry version -s)
           echo "Connect version: $CONNECT_VERSION"
           echo "connect_version=$CONNECT_VERSION" >> $GITHUB_OUTPUT
-      - name: Upload Connect build to GitHub Release
+      - name: Prepare upload Connect wheel to GitHub Release
         uses: actions/upload-artifact@v2
         with:
           name: ftrack-connect-whl
           path: ${{ needs.set-variables.outputs.folder }}/dist/ftrack_connect-${{ steps.get_version.outputs.connect_version }}-py3-none-any.whl
+      - name: Upload Connect wheel to GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
           echo "Uploading ftrack_connect-${{ needs.connect-build.outputs.connect_version }}-py3-none-any.whl"
           gh release upload ${{ needs.set-variables.outputs.tag }} ${{ needs.set-variables.outputs.folder }}/dist/ftrack_connect-${{ steps.get_version.outputs.connect_version }}-py3-none-any.whl --clobber
-      - name: Upload requirements.txt to GitHub Release
+      - name: Prepare upload requirements.txt build to GitHub Release
         uses: actions/upload-artifact@v2
         with:
           name: requirements
           path: ${{ needs.set-variables.outputs.folder }}/dist/requirements.txt
+      - name: Upload requirements.txt to GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
