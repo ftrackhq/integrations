@@ -584,7 +584,7 @@ def build_package(pkg_path, args, command=None):
                 if isinstance(details, str):
                     details = {'version': details}
                 details['source'] = 'testpypi'
-                details['allow-prereleases '] = 'true'
+                details['allow-prereleases '] = True
                 override[package] = details
 
         # Re-read the file to get its content as a list of lines
