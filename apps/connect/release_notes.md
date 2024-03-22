@@ -1,6 +1,7 @@
 # ftrack Connect release Notes
 
-## Upcoming
+## v3.0.0rc1
+2024-03-22
 
 * [changed] Re-structure utils and move general ones to ftrack-utils library.
 * [changed] config.json file renamed to credentials.json
