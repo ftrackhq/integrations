@@ -34,6 +34,7 @@ Changelog:
 '''
 
 import argparse
+import copy
 import os
 import shutil
 import logging
@@ -42,6 +43,7 @@ import subprocess
 from distutils.spawn import find_executable
 import fileinput
 import tempfile
+import toml
 
 __version__ = '0.4.15'
 
@@ -74,6 +76,7 @@ def build_package(pkg_path, args, command=None):
     PLATFORM_DEPENDENT = False
 
     POETRY_CONFIG_PATH = os.path.join(ROOT_PATH, 'pyproject.toml')
+    POETRY_LOCKFILE_PATH = os.path.join(ROOT_PATH, 'poetry.lock')
     DCC_NAME = None
     VERSION = None
 
@@ -464,6 +467,14 @@ def build_package(pkg_path, args, command=None):
         logging.info(
             f'Exporting dependencies from: "{os.path.basename(lock_path)}" (extras: {extras})'
         )
+        original_toml = None
+        original_lock = None
+        if args.testpypi:
+            original_toml = set_ftrack_deps_to_test_pypi(POETRY_CONFIG_PATH)
+            with open(POETRY_LOCKFILE_PATH, 'r') as file:
+                original_lock = file.readlines()
+            commands = ['poetry', 'update']
+            subprocess.check_call(commands)
         # Run Poetry export and read the output
         requirements_path = os.path.join(STAGING_PATH, 'requirements.txt')
         commands = [
@@ -496,6 +507,10 @@ def build_package(pkg_path, args, command=None):
             dependencies_path,
         ]
         if args.testpypi:
+            if original_toml:
+                restore_original_file(POETRY_CONFIG_PATH, original_toml)
+                restore_original_file(POETRY_LOCKFILE_PATH, original_lock)
+
             # Try to pick first from pypi if not exist go to test pypi
             commands.extend(
                 [
@@ -547,6 +562,84 @@ def build_package(pkg_path, args, command=None):
         if args.remove_intermediate_folder:
             logging.warning(f'Removing: {STAGING_PATH}')
             shutil.rmtree(STAGING_PATH, ignore_errors=True)
+
+    def set_ftrack_deps_to_test_pypi(pyproject_toml_path):
+        '''Set pypitest source to all ftrack dependencies'''
+
+        # Load the TOML data to access dependencies
+        with open(pyproject_toml_path, 'r') as file:
+            pyproject_data = toml.load(file)
+
+        # Prepare the override dictionary based on dependencies
+        try:
+            dependencies = pyproject_data['tool']['poetry']['dependencies']
+        except Exception:
+            logging.warning(
+                f"This file doesn't have [tools.poetry.dependencies] section. {pyproject_toml_path} skipping"
+            )
+            return
+        override = {}
+        for package, details in dependencies.items():
+            if package.startswith('ftrack-'):
+                if isinstance(details, str):
+                    details = {'version': details}
+                details['source'] = 'testpypi'
+                details['allow-prereleases '] = True
+                override[package] = details
+
+        # Re-read the file to get its content as a list of lines
+        with open(pyproject_toml_path, 'r') as file:
+            original_file_content = file.readlines()
+
+        # Initialize a flag to identify when we're within the target section
+        in_target_section = False
+        new_content = []
+
+        def details_to_string(details_items):
+            details_str_parts = []
+            for key, value in details_items.items():
+                if isinstance(value, str):
+                    value_str = f'"{value}"'  # String values are quoted
+                elif isinstance(value, bool):
+                    value_str = str(
+                        value
+                    ).lower()  # Boolean values are converted to lowercase
+                elif isinstance(value, dict):
+                    value_str = '{ %s }' % details_to_string(value)
+                else:
+                    value_str = str(value)
+                details_str_parts.append(f'{key} = {value_str}')
+            return ', '.join(details_str_parts)
+
+        for line in original_file_content:
+            new_line = line
+            if line.strip().startswith("[tool.poetry.dependencies]"):
+                in_target_section = True
+            elif line.strip().startswith("[") and in_target_section:
+                in_target_section = False
+            elif in_target_section:
+                lib_found = None
+                for lib, details in override.items():
+                    if line.strip().startswith(lib + " "):
+                        lib_found = lib
+                        break
+                if lib_found:
+                    new_line = '%s = { %s }\n' % (
+                        lib_found,
+                        details_to_string(override[lib_found]),
+                    )
+            new_content.append(new_line)
+
+        # Write the modified content back to the TOML file
+        with open(pyproject_toml_path, 'w') as file:
+            file.writelines(new_content)
+
+        return original_file_content
+
+    def restore_original_file(path, original_content):
+        '''Write given *original_toml* as *pyproject_toml_path*'''
+        with open(path, 'w') as file:
+            file.writelines(original_content)
 
     def _replace_imports_(resource_target_path):
         '''Replace imports in resource files to Qt instead of QtCore.
