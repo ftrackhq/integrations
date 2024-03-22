@@ -75,11 +75,12 @@ jobs:
         run: |
           pip install -r tools/requirements.txt
           python tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py build_qt_resources apps/connect
-      - name: poetry build
+      - name: poetry build and export dependencies
         shell: bash
         run: |
           cd ${{ needs.set-variables.outputs.folder }}
           poetry build
+          poetry export -f requirements.txt --without-hashes -o dist/requirements.txt
       - name: Get Connect version
         id: get_version # This ID is used to reference the output of the step
         shell: bash
@@ -88,10 +89,6 @@ jobs:
           CONNECT_VERSION=$(poetry version -s)
           echo "Connect version: $CONNECT_VERSION"
           echo "connect_version=$CONNECT_VERSION" >> $GITHUB_OUTPUT
-      - name: Export poetry.lock
-        shell: bash
-        run: |
-          poetry export -f requirements.txt --without-hashes -o requirements.txt
       - name: upload artifacts to release
         uses: actions/upload-artifact@v2
         with:
@@ -104,7 +101,7 @@ jobs:
         run: |
           echo "Uploading ftrack_connect-${{ needs.connect-build.outputs.connect_version }}-py3-none-any.whl"
           gh release upload ${{ needs.set-variables.outputs.tag }} ${{ needs.set-variables.outputs.folder }}/dist/ftrack_connect-${{ steps.get_version.outputs.connect_version }}-py3-none-any.whl --clobber
-          gh release upload ${{ needs.set-variables.outputs.tag }} ${{ needs.set-variables.outputs.folder }}/requirements.txt --clobber
+          gh release upload ${{ needs.set-variables.outputs.tag }} ${{ needs.set-variables.outputs.folder }}/dist/requirements.txt --clobber
           
 
   installer-windows:
