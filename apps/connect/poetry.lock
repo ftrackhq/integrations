@@ -265,19 +265,24 @@ websocket-client = ">=0.40.0,<1"
 
 [[package]]
 name = "ftrack-utils"
-version = "2.0.0"
+version = "2.0.2rc1"
 description = "ftrack utils library"
 optional = true
 python-versions = ">=3.7,<3.12"
 files = [
-    {file = "ftrack_utils-2.0.0-py3-none-any.whl", hash = "sha256:a06b7d0f16f611849cf04eb2e8674154d15b6626aa21ec8a3bb6fa9bc08a2805"},
-    {file = "ftrack_utils-2.0.0.tar.gz", hash = "sha256:357c9c840fb173af99a300ec11041853b93212cbc7e5c72052778578903eb738"},
+    {file = "ftrack_utils-2.0.2rc1-py3-none-any.whl", hash = "sha256:ab435605995d652ae6f80682cbcb394924bf36f89f6a6538aafd37171342e3a6"},
+    {file = "ftrack_utils-2.0.2rc1.tar.gz", hash = "sha256:c5240cb9819f2ad3f327e391760c983989ceb399281eaa0bc07fc805f6c20868"},
 ]
 
 [package.dependencies]
 clique = "1.6.1"
 six = ">=1,<2"
 toml = ">=0.10.2,<0.11.0"
+
+[package.source]
+type = "legacy"
+url = "https://test.pypi.org/simple"
+reference = "testpypi"
 
 [[package]]
 name = "future"
@@ -414,13 +419,13 @@ files = [
 
 [[package]]
 name = "packaging"
-version = "23.2"
+version = "24.0"
 description = "Core utilities for Python packages"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "packaging-23.2-py3-none-any.whl", hash = "sha256:8c491190033a9af7e1d931d0b5dacc2ef47509b34dd0de67ed209b5203fc88c7"},
-    {file = "packaging-23.2.tar.gz", hash = "sha256:048fb0e9405036518eaaf48a55953c750c11e1a1b68e0dd1a9d62ed0c092cfc5"},
+    {file = "packaging-24.0-py3-none-any.whl", hash = "sha256:2ddfb553fdf02fb784c234c7ba6ccc288296ceabec964ad2eae3777778130bc5"},
+    {file = "packaging-24.0.tar.gz", hash = "sha256:eb82c5e3e56209074766e6885bb04b8c38a0c015d0a30036ebe7ece34c9989e9"},
 ]
 
 [[package]]
@@ -542,13 +547,13 @@ py = ">=1.4.29"
 
 [[package]]
 name = "python-dateutil"
-version = "2.8.2"
+version = "2.9.0.post0"
 description = "Extensions to the standard Python datetime module"
 optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
 files = [
-    {file = "python-dateutil-2.8.2.tar.gz", hash = "sha256:0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86"},
-    {file = "python_dateutil-2.8.2-py2.py3-none-any.whl", hash = "sha256:961d03dc3453ebbc59dbdea9e4e11c5651520a876d0f4db161e8674aae935da9"},
+    {file = "python-dateutil-2.9.0.post0.tar.gz", hash = "sha256:37dd54208da7e1cd875388217d5e00ebd4179249f90fb72437e91a35459a0ad3"},
+    {file = "python_dateutil-2.9.0.post0-py2.py3-none-any.whl", hash = "sha256:a8b2bc7bffae282281c8140a97d3aa9c14da0b136dfe83f850eea9a5f7470427"},
 ]
 
 [package.dependencies]
@@ -919,13 +924,13 @@ files = [
 
 [[package]]
 name = "types-pyside2"
-version = "5.15.2.1.6"
+version = "5.15.2.1.7"
 description = "The most accurate stubs for PySide2"
 optional = false
 python-versions = "*"
 files = [
-    {file = "types_pyside2-5.15.2.1.6-py2.py3-none-any.whl", hash = "sha256:5bc2763bc6b595b2c5fc1191ce5147dcc6f44d56efdc2b264b6c082282cc1c57"},
-    {file = "types_pyside2-5.15.2.1.6.tar.gz", hash = "sha256:de4b575e57fdb9e5fd8507537cdd770866fdbe1972eadc3793b2026eaec92875"},
+    {file = "types_pyside2-5.15.2.1.7-py2.py3-none-any.whl", hash = "sha256:a7bec4cb4657179415ca7ec7c70a45f9f9938664e22f385c85fd7cd724b07d4d"},
+    {file = "types_pyside2-5.15.2.1.7.tar.gz", hash = "sha256:1d65072deb97481ad481b3414f94d02fd5da07f5e709c2d439ced14f79b2537c"},
 ]
 
 [[package]]
@@ -975,4 +980,4 @@ ftrack-libs = ["ftrack-utils"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">= 3.7, < 3.9"
-content-hash = "c58ad53929abf5e0dec4ff166ac8841248b94c306034047aef5e8b98937d5ed2"
+content-hash = "21a3b48743787a31df4b5d73ab81fe4fb6bfa372bbce00e9871cbe5873a2bc67"
