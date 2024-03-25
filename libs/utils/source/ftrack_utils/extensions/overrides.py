@@ -12,6 +12,7 @@ def first_level_merge(root_extension_dict, override_dict):
 
 
 def set_overrides(current_extensions, new_extensions):
+    '''If new extension from *new_extensions* found in *current_extensions* do a first level merge'''
     for new_extension in new_extensions:
         existing_extension = None
         for discovered_extension in current_extensions:

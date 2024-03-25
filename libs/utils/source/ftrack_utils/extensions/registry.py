@@ -125,6 +125,7 @@ def get_extensions_from_directory(scan_dir, extension_types=None):
 
 
 def get_modules_extension_data_from_folders(folders):
+    '''Get the extension data dictionary of the framework extension python modules found in the given *folders*'''
     extension_data = []
     for loader, module_name, is_pkg in pkgutil.walk_packages(folders):
         _module = loader.find_module(module_name).load_module(module_name)

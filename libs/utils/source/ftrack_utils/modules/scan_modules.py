@@ -28,6 +28,7 @@ def scan_framework_modules():
 
 
 def load_class_from_module(module_path, class_name):
+    '''Load *class_name* of the *module_path*'''
     # Convert file path to module path (assuming it's in the Python path)
     module_name = os.path.splitext(os.path.basename(module_path))[0]
 
