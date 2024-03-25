@@ -18,13 +18,13 @@ test = ["pytest (>=2.3.5,<5)", "pytest-cov (>=2,<3)", "pytest-runner (>=2.7,<3)"
 
 [[package]]
 name = "ftrack-utils"
-version = "2.0.2rc1"
+version = "2.1.0rc1"
 description = "ftrack utils library"
 optional = true
 python-versions = ">=3.7,<3.12"
 files = [
-    {file = "ftrack_utils-2.0.2rc1-py3-none-any.whl", hash = "sha256:ab435605995d652ae6f80682cbcb394924bf36f89f6a6538aafd37171342e3a6"},
-    {file = "ftrack_utils-2.0.2rc1.tar.gz", hash = "sha256:c5240cb9819f2ad3f327e391760c983989ceb399281eaa0bc07fc805f6c20868"},
+    {file = "ftrack_utils-2.1.0rc1-py3-none-any.whl", hash = "sha256:22d4d7817d7a6e5a2493465410d996404a6980a4b0f50940a76f6982949a62dd"},
+    {file = "ftrack_utils-2.1.0rc1.tar.gz", hash = "sha256:0aebc6e5030414c69e229c4114eaaa70204b4ab468f5edf132fa339617367bdb"},
 ]
 
 [package.dependencies]
