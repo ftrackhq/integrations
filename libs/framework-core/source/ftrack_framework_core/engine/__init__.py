@@ -69,7 +69,9 @@ class BaseEngine(object):
         '''
         registered_plugin = self.plugin_registry.get_one(name=plugin)
 
-        plugin_instance = registered_plugin['extension'](options, self.session)
+        plugin_instance = registered_plugin['extension']['class_object'](
+            options, self.session
+        )
         ui_hook_result = None
         try:
             ui_hook_result = plugin_instance.ui_hook(payload)
@@ -105,7 +107,9 @@ class BaseEngine(object):
         '''
         registered_plugin = self.plugin_registry.get_one(name=plugin)
 
-        plugin_instance = registered_plugin['extension'](options, self.session)
+        plugin_instance = registered_plugin['extension']['class_object'](
+            options, self.session
+        )
         self.logger.debug(
             f"Run {reference} with options {plugin_instance.options}"
         )
@@ -244,7 +248,7 @@ class BaseEngine(object):
         data = {
             'extension_type': 'engine',
             'name': cls.name,
-            'extension': cls,
+            'extension': {'class_name': cls.__name__, 'class_object': cls},
             'path': inspect.getfile(cls),
         }
 

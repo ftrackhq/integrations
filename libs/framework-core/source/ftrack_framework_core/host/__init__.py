@@ -244,7 +244,7 @@ class Host(object):
             engine_registry = self.registry.get_one(
                 name=engine_name, extension_type='engine'
             )
-            engine_instance = engine_registry['extension'](
+            engine_instance = engine_registry['extension']['class_object'](
                 self.registry,
                 session,
                 on_plugin_executed=self.on_plugin_executed_callback,
@@ -312,7 +312,7 @@ class Host(object):
             engine_registry = self.registry.get_one(
                 name=engine_name, extension_type='engine'
             )
-            engine_instance = engine_registry['extension'](
+            engine_instance = engine_registry['extension']['class_object'](
                 self.registry,
                 session,
                 on_plugin_executed=partial(

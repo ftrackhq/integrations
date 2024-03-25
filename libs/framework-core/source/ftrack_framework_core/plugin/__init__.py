@@ -68,7 +68,7 @@ class BasePlugin(ABC):
         data = {
             'extension_type': 'plugin',
             'name': cls.name,
-            'extension': cls.__name__,
+            'extension': {'class_name': cls.__name__, 'class_object': cls},
             'path': inspect.getfile(cls),
         }
         return data

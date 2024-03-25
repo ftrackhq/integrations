@@ -119,8 +119,11 @@ class Registry(object):
             if pre_load_modules:
                 for extension in unique_extensions:
                     if not extension['extension_type'].endswith('_config'):
-                        load_class_from_module(
-                            extension['path'], extension['extension']
+                        extension['extension'][
+                            'class_object'
+                        ] = load_class_from_module(
+                            extension['path'],
+                            extension['extension']['class_name'],
                         )
 
         for extension in discovered_extensions:

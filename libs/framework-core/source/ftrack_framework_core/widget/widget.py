@@ -152,7 +152,7 @@ class FrameworkWidget(BaseUI):
         data = {
             'extension_type': 'widget',
             'name': cls.name,
-            'extension': cls,
+            'extension': {'class_name': cls.__name__, 'class_object': cls},
             'path': inspect.getfile(cls),
         }
 
