@@ -71,13 +71,20 @@ See Monorepo build CI
 4. Install dependencies:
 
 ```bash
-    poetry install --extras ftrack-libs # If you want to manually use ftrack-libraries from sources, don't install extras and manually install them following its own readme file.
+    poetry install --extras ftrack-libs framework-libs # If you want to manually use ftrack-libraries from sources, don't install extras and manually install them following its own readme file.
 ```
-   1. To install ftrack-libs from sources:
+   1. To install framework-libs from sources:
+   ```bash
+       cd ../../libs/framework-core
+       poetry install
+   ```
+
+   2. To install ftrack-libs from sources:
    ```bash
        cd ../../libs/utils
        poetry install
    ```
+
 5. Start connect:
 
 ```bash
@@ -105,7 +112,7 @@ See Monorepo build CI
 4. Install dependencies:
 
 ```bash
-    poetry install --extras ftrack-libs
+    poetry install --extras ftrack-libs framework-libs
 ```
 
 5. Build the QT resources
