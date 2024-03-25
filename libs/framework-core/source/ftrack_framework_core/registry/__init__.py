@@ -8,7 +8,7 @@ import inspect
 import logging
 from collections import defaultdict
 
-from ftrack_utils.extensions import registry
+from ftrack_utils.extensions import registry, overrides
 
 logger = logging.getLogger(__name__)
 
@@ -101,75 +101,17 @@ class Registry(object):
         '''
 
         discovered_extensions = []
-        for path in paths:
-            # Merge/override
+        for path in reversed(paths):
             logging.debug(
                 f'Scanning {path} for {f"{extension_types} " if extension_types else ""}extensions'
             )
-            for extension in registry.get_extensions_from_directory(
+            dir_extensions = registry.get_extensions_from_directory(
                 path, extension_types=extension_types
-            ):
-                existing_extension = None
-                for discovered_extension in discovered_extensions:
-                    if (
-                        discovered_extension['extension_type']
-                        == extension['extension_type']
-                        and discovered_extension['name'] == extension['name']
-                    ):
-                        existing_extension = discovered_extension
-                        break
-                if not existing_extension:
-                    # Add to discovered extensions
-                    discovered_extensions.append(extension)
-                else:
-                    # Can we merge?
-                    if extension['extension_type'].endswith('_config'):
-                        logging.info(
-                            f'Merging extension {existing_extension["name"]}({existing_extension["extension_type"]} @'
-                            f' {existing_extension["path"]}) on top of {extension["name"]}({extension["extension_type"]}'
-                            f' @ {extension["path"]}).'
-                        )
-                        # Have the latter extension be overridden by the former
-                        extension['extension'].update(
-                            existing_extension['extension']
-                        )
-                        # Use the latter extension
-                        discovered_extensions.remove(existing_extension)
-                        discovered_extensions.append(extension)
-                    else:
-                        logger.warning(
-                            'Ignoring extension {}, is overridden by {}.'.format(
-                                extension, existing_extension
-                            )
-                        )
-                        # Need load the original module again as it got overridden
-                        for (
-                            loader,
-                            module_name,
-                            is_pkg,
-                        ) in pkgutil.walk_packages(
-                            [os.path.dirname(existing_extension['path'])]
-                        ):
-                            if (
-                                module_name
-                                == existing_extension['extension'].__module__
-                            ):
-                                logging.debug(
-                                    'Reloading original extension module: {}'.format(
-                                        module_name
-                                    )
-                                )
-                                module = loader.find_module(
-                                    module_name
-                                ).load_module(module_name)
-                                cls_members = inspect.getmembers(
-                                    module, inspect.isclass
-                                )
-                                for name, obj in cls_members:
-                                    if obj.__module__ == module.__name__:
-                                        existing_extension['extension'] = obj
-                                        break
-                                break
+            )
+            # Merge/override
+            unique_extensions = overrides.set_overrides(
+                discovered_extensions, dir_extensions
+            )
 
         for extension in discovered_extensions:
             self.add(**extension)
