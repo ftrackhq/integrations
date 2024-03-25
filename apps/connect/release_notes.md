@@ -3,6 +3,9 @@
 ## v3.0.0rc1
 2024-03-25
 
+* [changed] Introduced FTRACK_CONNECT_EXTENSIONS_PATH, read by Connect to resolve launch configurations.
+* [new] Proper support for launch config extensions, merging configs based on the order they appear in FTRACK_CONNECT_EXTENSIONS_PATH.
+* [new] Now uses framework-core (ftrack_framework_core) library as a dependency.
 * [changed] Re-structure utils and move general ones to ftrack-utils library.
 * [changed] config.json file renamed to credentials.json
 * [changed] Plugin manager; Drag-n-drop of a plugin ZIP overrides any existing plugins in plugin list.

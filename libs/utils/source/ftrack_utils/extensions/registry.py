@@ -76,7 +76,7 @@ def get_files_from_folder(_dir, filetype_pattern):
     return file_list
 
 
-def get_extensions_from_directory(scan_dir):
+def get_extensions_from_directory(scan_dir, extension_types=None):
     '''Return available extensions on the given directory'''
     subfolders = fast_scandir(scan_dir)
     if not subfolders:
@@ -97,9 +97,36 @@ def get_extensions_from_directory(scan_dir):
                 "No compatible yaml extensions found in "
                 "folder {}".format(_dir)
             )
-        available_extensions.extend(registered_files)
+        if extension_types is None:
+            available_extensions.extend(registered_files)
+        else:
+            for extension in registered_files:
+                if extension["extension_type"] in extension_types:
+                    available_extensions.append(extension)
 
-    for loader, module_name, is_pkg in pkgutil.walk_packages(subfolders):
+    # Check python extensions
+    if (
+        extension_types is None
+        or 'engine' in extension_types
+        or 'plugin' in extension_types
+        or 'widget' in extension_types
+        or 'dialog' in extension_types
+    ):
+        extension_data = get_modules_extension_data_from_folders(subfolders)
+        for data in extension_data:
+            if (
+                extension_types is None
+                or data["extension_type"] in extension_types
+            ):
+                available_extensions.append(data)
+
+    return available_extensions
+
+
+def get_modules_extension_data_from_folders(folders):
+    '''Get the extension data dictionary of the framework extension python modules found in the given *folders*'''
+    extension_data = []
+    for loader, module_name, is_pkg in pkgutil.walk_packages(folders):
         _module = loader.find_module(module_name).load_module(module_name)
         cls_members = inspect.getmembers(_module, inspect.isclass)
         success_registry = False
@@ -121,7 +148,8 @@ def get_extensions_from_directory(scan_dir):
                         "The register function did not match expected format:"
                         " {0}".format(registry_result.keys())
                     )
-                available_extensions.append(registry_result)
+
+                extension_data.append(registry_result)
                 success_registry = True
             except Exception as e:
                 logger.warning(
@@ -129,11 +157,11 @@ def get_extensions_from_directory(scan_dir):
                         name, e
                     )
                 )
-                continue
+                success_registry = False
+
         if not success_registry:
             logger.warning(
                 "No compatible python extension found in module {} "
                 "from path{}".format(module_name, loader.path)
             )
-
-    return available_extensions
+    return extension_data

@@ -1,11 +1,14 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
+import os.path
 import uuid
+import pkgutil
+import inspect
 
 import logging
 from collections import defaultdict
 
-from ftrack_utils.extensions import registry
+from ftrack_utils.extensions import registry, overrides
 
 logger = logging.getLogger(__name__)
 
@@ -91,16 +94,25 @@ class Registry(object):
         self.__registry = defaultdict(list)
 
     # Register
-    def scan_extensions(self, paths):
+    def scan_extensions(self, paths, extension_types=None):
         '''
-        Scan framework extension modules from the given *paths*
+        Scan framework extension modules from the given *paths*. If *extension_types*
+        is given, only consider the given extension types.
         '''
 
         discovered_extensions = []
-        for path in paths:
-            discovered_extensions.extend(
-                registry.get_extensions_from_directory(path)
+        for path in reversed(paths):
+            logging.debug(
+                f'Scanning {path} for {f"{extension_types} " if extension_types else ""}extensions'
             )
+            dir_extensions = registry.get_extensions_from_directory(
+                path, extension_types=extension_types
+            )
+            # Merge/override
+            unique_extensions = overrides.set_overrides(
+                discovered_extensions, dir_extensions
+            )
+
         for extension in discovered_extensions:
             self.add(**extension)
 
@@ -188,7 +200,8 @@ class Registry(object):
         and each plugin and group
         '''
         tool_config['reference'] = uuid.uuid4().hex
-        self._recursive_create_reference(tool_config.get('engine'))
+        if 'engine' in tool_config:
+            self._recursive_create_reference(tool_config['engine'])
         return tool_config
 
     def _recursive_create_reference(self, tool_config_engine_portion):
