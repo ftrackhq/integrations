@@ -1,6 +1,7 @@
 # ftrack Framework Core library release Notes
 
-## Upcoming
+## v2.1.0rc2
+2024-03-25
 
 * [new] Registry; extension_types optional argument filter to registry.scan_extensions. 
 * [changed] Registry; registry.scan_extensions now support merging of YAML configs, and ignoring (+restoring) duplicate Python extensions(engin, plugin, widget, dialog)
