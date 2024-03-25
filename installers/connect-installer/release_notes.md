@@ -1,7 +1,7 @@
 # ftrack Connect installer release Notes
 
 ## v24.3.0rc1
-2024-03-22
+2024-03-25
 
 * [changed] Removed docker files.
 * [new] Windows codesign support.
