@@ -164,7 +164,9 @@ def fetch_github_releases(latest=True, prereleases=False):
     version of each plugin is returned. If *prereleases* is True,
     prereleases are included in the result.'''
 
-    logger.debug(f'Fetching releases from: {INTEGRATIONS_REPO}')
+    logger.debug(
+        f'Fetching releases from: {INTEGRATIONS_REPO} (pre-releases: {prereleases})'
+    )
 
     response = requests.get(f"{INTEGRATIONS_REPO}/releases")
     if response.status_code != 200:
@@ -197,7 +199,10 @@ def fetch_github_releases(latest=True, prereleases=False):
             continue
 
         if not prereleases and release.get('prerelease') is True:
-            logger.debug(f'   Skipping prerelease: {tag_name}')
+            logger.debug(f'   Skipping pre-release: {tag_name}')
+            continue
+        elif prereleases and not release.get('prerelease'):
+            logger.debug(f'   Skipping release: {tag_name}')
             continue
         release_data = {
             'id': release['id'],

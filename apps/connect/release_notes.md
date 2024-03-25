@@ -1,5 +1,10 @@
 # ftrack Connect release Notes
 
+## Upcoming
+
+* [new] Toggle pre-releases in Plugin manager
+
+
 ## v3.0.0rc1
 2024-03-25
 
