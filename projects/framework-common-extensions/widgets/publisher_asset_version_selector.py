@@ -171,8 +171,9 @@ class PublisherAssetVersionSelectorWidget(BaseWidget):
                 f'We found {len(assets)} asset{"s" if len(assets) > 1 else ""} '
                 'published related to this task and its parent. Choose asset'
             )
+            self._label.setVisible(True)
         else:
-            self._label.setText('')
+            self._label.setVisible(False)
 
     def _on_selected_item_changed_callback(self, version, asset_id):
         '''Update the plugin options based on the selected item.'''
