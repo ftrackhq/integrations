@@ -106,7 +106,7 @@ class AssetVersionSelectorWidget(BaseWidget):
                 'published related to this task and its parent. Choose asset'
             )
         else:
-            self._label.setText('')
+            self._label.setText('No assets found.')
 
     def _on_version_changed_callback(self, version):
         '''Handle the change of selected version.'''

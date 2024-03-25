@@ -172,7 +172,10 @@ class PublisherAssetVersionSelectorWidget(BaseWidget):
                 'published related to this task and its parent. Choose asset'
             )
         else:
-            self._label.setText('')
+            self._label.setText(
+                'No previous published asset exist, please enter'
+                ' name for new asset:'
+            )
 
     def _on_selected_item_changed_callback(self, version, asset_id):
         '''Update the plugin options based on the selected item.'''
