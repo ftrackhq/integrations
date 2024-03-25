@@ -26,12 +26,9 @@ def get_default_plugin_directory():
     return platformdirs.user_data_dir('ftrack-connect-plugins', 'ftrack')
 
 
-PLUGIN_DIRECTORIES = [
-    os.path.expandvars(p)
-    for p in os.getenv(
-        'FTRACK_CONNECT_PLUGIN_PATH', get_default_plugin_directory()
-    ).split(os.pathsep)
-]
+def get_plugin_directories_from_config(config_file):
+    # TODO: this one is deprecated as connect_config has deprecated this environment variable.
+    return config_file['FTRACK_CONNECT_PLUGIN_PATH'].split(os.pathsep)
 
 
 def get_plugins_from_path(plugin_directory):

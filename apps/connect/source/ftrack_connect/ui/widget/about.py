@@ -17,14 +17,17 @@ from ftrack_connect.qt import (
 from ftrack_connect.utils.log import get_log_directory
 
 from ftrack_connect.utils.directory import open_directory
-from ftrack_connect.utils.plugin import PLUGIN_DIRECTORIES
 
 
 class AboutDialog(QtWidgets.QDialog):
     '''About widget.'''
 
-    def __init__(self, parent, icon=':ftrack/connect/logo/dark2x'):
+    def __init__(
+        self, parent, connect_config, icon=':ftrack/connect/logo/dark2x'
+    ):
         super(AboutDialog, self).__init__(parent)
+        self.connect_config = connect_config
+
         self.setWindowTitle('About connect')
         layout = QtWidgets.QVBoxLayout()
         layout.setContentsMargins(20, 20, 20, 20)
@@ -208,7 +211,9 @@ class AboutDialog(QtWidgets.QDialog):
         )
 
         source_dirs = ""
-        for index, plugin_directory in enumerate(PLUGIN_DIRECTORIES):
+        for index, plugin_directory in enumerate(
+            self.connect_config['plugin_path']
+        ):
             if index == 0:
                 index = 'Target'
             source_dirs += sources_item_template.format(

@@ -10,10 +10,16 @@ import os
 import pkg_resources
 import importlib
 
-from ftrack_connect.utils.plugin import (
-    create_target_plugin_directory,
-    PLUGIN_DIRECTORIES,
+from ftrack_connect.utils.config import (
+    get_connect_config,
+    write_connect_config_file_path,
+    verify_connect_config,
 )
+from ftrack_connect.utils.plugin import (
+    get_default_plugin_directory,
+    create_target_plugin_directory,
+)
+from ftrack_connect.utils.log import get_default_log_directory
 
 
 def main_connect(arguments=None):
@@ -85,8 +91,24 @@ def main_connect(arguments=None):
         'ftrack_connect', level=loggingLevels[namespace.verbosity]
     )
 
+    default_values = {
+        'type': 'connect_config',
+        'name': 'default-connect-config',
+        'plugin_path': [
+            get_default_plugin_directory(),
+            '${FTRACK_CONNECT_PLUGIN_PATH}',
+        ],
+        'plugin_name': '*',
+        'launch_path': '${plugin_path}/${plugin_name}/launch',
+    }
+    connect_config = get_connect_config()
+    if not connect_config:
+        write_connect_config_file_path(default_values)
+        connect_config = get_connect_config()
+    connect_config = verify_connect_config(connect_config, default_values)
+
     # Make sure plugin directory is created
-    create_target_plugin_directory(PLUGIN_DIRECTORIES[0])
+    create_target_plugin_directory(connect_config['plugin_path'][0])
 
     single_instance = None
     if not namespace.allow_multiple:

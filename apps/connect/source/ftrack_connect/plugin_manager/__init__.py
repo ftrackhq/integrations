@@ -8,7 +8,10 @@ import os
 from ftrack_connect.qt import QtWidgets, QtCore, QtGui
 
 from ftrack_connect.utils.thread import qt_main_thread
-from ftrack_connect.utils.plugin import PLUGIN_DIRECTORIES
+from ftrack_connect.utils.config import (
+    get_connect_config,
+    get_connect_config_path,
+)
 
 from ftrack_connect.ui.widget.overlay import BlockingOverlay, BusyOverlay
 import ftrack_connect.ui.application
@@ -57,6 +60,10 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
         '''Return list of installed plugins'''
         return self._installed_plugins
 
+    @property
+    def connect_config(self):
+        return self._connect_config
+
     # default methods
     def __init__(self, session, parent=None):
         '''Instantiate the plugin widget.'''
@@ -74,6 +81,14 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
         self._counter = 0
         self._initialised = False
         self._installed_plugins = None
+
+        self._connect_config = get_connect_config()
+        if not self.connect_config:
+            raise FileNotFoundError(
+                f"Connect config file (ftrack_connect.yaml) not found in the "
+                f"following directory: {get_connect_config_path()}.\n"
+                f"Please provide one before continuing."
+            )
 
         self._reset_plugin_list()
         self._plugin_processor = PluginProcessor()
@@ -100,7 +115,10 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
         self.layout().addWidget(self._label)
 
         # plugin list
-        self._plugin_list_widget = DndPluginList()
+        self._plugin_list_widget = DndPluginList(
+            self.connect_config['plugin_path'][0]
+        )
+
         self.layout().addWidget(self._plugin_list_widget)
 
         self._info_widget = QtWidgets.QFrame()
@@ -111,7 +129,9 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
                 "<html><u>Plugin directory search order:</u></html>"
             )
         )
-        for index, plugin_directory in enumerate(PLUGIN_DIRECTORIES):
+        for index, plugin_directory in enumerate(
+            self.connect_config['plugin_path']
+        ):
             self._info_widget.layout().addWidget(
                 QtWidgets.QLabel(
                     f'<html><small><code>{plugin_directory}{"</code> (target)</small></html>" if index == 0 else ""}'
