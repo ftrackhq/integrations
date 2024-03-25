@@ -2,7 +2,6 @@
 # :copyright: Copyright (c) 2024 ftrack
 import os
 import sys
-import importlib
 
 
 def scan_modules():
@@ -25,16 +24,3 @@ def scan_framework_modules():
         if fn.startswith('ftrack_framework')
         or fn in ['ftrack_utils', 'ftrack_constants']
     ]
-
-
-def load_class_from_module(module_path, class_name):
-    '''Load *class_name* of the *module_path*'''
-    # Convert file path to module path (assuming it's in the Python path)
-    module_name = os.path.splitext(os.path.basename(module_path))[0]
-
-    # Dynamically import the module
-    module = importlib.import_module(module_name)
-
-    # Access the class
-    cls = getattr(module, class_name)
-    return cls

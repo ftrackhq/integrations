@@ -8,7 +8,6 @@ import glob
 import os
 import yaml
 import re
-import sys
 
 from ftrack_utils.directories.scan_dir import fast_scandir
 
@@ -159,10 +158,6 @@ def get_modules_extension_data_from_folders(folders):
                     )
                 )
                 success_registry = False
-            finally:
-                # Unload the module after register it
-                # loader.find_module(module_name).unload_module(module_name)
-                del sys.modules[module_name]
 
         if not success_registry:
             logger.warning(

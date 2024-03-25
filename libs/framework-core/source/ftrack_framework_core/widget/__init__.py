@@ -129,7 +129,7 @@ class BaseUI(object):
         data = {
             'extension_type': 'base_framework_widget',
             'name': cls.name,
-            'extension': {'class_name': cls.__name__, 'class_object': cls},
+            'extension': cls,
             'path': inspect.getfile(cls),
         }
 

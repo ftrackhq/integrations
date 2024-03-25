@@ -346,12 +346,12 @@ class Client(object):
     def run_dialog(
         self,
         dialog_name,
-        class_object=None,
+        dialog_class=None,
         dialog_options=None,
         dock_func=None,
     ):
         '''Function to show a framework dialog by name *dialog_name* from the
-        client, using *class_object* or picking class from registry. Passes on
+        client, using *dialog_class* or picking class from registry. Passes on
         *dialog_options* to the dialog.
         *dock_func* is an optional function to dock the dialog in a way for a specific DCC
         '''
@@ -362,42 +362,36 @@ class Client(object):
         #  context_selector in it, it simulates a run_widget).
         #  Or any other kind of option like docked or not
 
-        if class_object:
-            if not isinstance(class_object, FrameworkDialog):
+        if dialog_class:
+            if not isinstance(dialog_class, FrameworkDialog):
                 error_message = (
                     'The provided class {} is not instance of the base framework '
                     'widget. Please provide a supported widget.'.format(
-                        class_object
+                        dialog_class
                     )
                 )
                 self.logger.error(error_message)
                 raise Exception(error_message)
 
-            if class_object not in [
-                dialog['extension']['class_object']
-                for dialog in self.registry.dialogs
+            if dialog_class not in [
+                dialog['extension'] for dialog in self.registry.dialogs
             ]:
                 self.logger.warning(
-                    'Provided class_object {} not in the discovered framework '
-                    'widgets, registering...'.format(class_object)
+                    'Provided dialog_class {} not in the discovered framework '
+                    'widgets, registering...'.format(dialog_class)
                 )
                 self.registry.add(
                     extension_type='dialog',
                     name=dialog_name,
-                    extension={
-                        'class_name': class_object.__name__,
-                        'class_object': class_object,
-                    },
+                    extension=dialog_class,
                 )
 
-        if dialog_name and not class_object:
+        if dialog_name and not dialog_class:
             for registered_dialog_class in self.registry.dialogs:
                 if dialog_name == registered_dialog_class['name']:
-                    class_object = registered_dialog_class['extension'][
-                        'class_object'
-                    ]
+                    dialog_class = registered_dialog_class['extension']
                     break
-        if not class_object:
+        if not dialog_class:
             error_message = (
                 'Please provide a registered dialog name.\n'
                 'Given name: {} \n'
@@ -408,7 +402,7 @@ class Client(object):
             self.logger.error(error_message)
             raise Exception(error_message)
 
-        dialog_instance = class_object(
+        dialog = dialog_class(
             self.event_manager,
             self.id,
             connect_methods_callback=self._connect_methods_callback,
@@ -417,8 +411,8 @@ class Client(object):
             dialog_options=dialog_options,
         )
         # Append dialog to dialogs
-        self._register_dialog(dialog_instance)
-        self.dialog = dialog_instance
+        self._register_dialog(dialog)
+        self.dialog = dialog
         # If a docking function is provided, use it
         if dialog_options.get('docked') and dock_func:
             dock_func(self.dialog)

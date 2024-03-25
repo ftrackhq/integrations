@@ -322,7 +322,7 @@ class FrameworkDialog(BaseUI):
         widget_class = None
         for widget in self.registry.widgets:
             if widget['name'] == plugin_config['ui']:
-                widget_class = widget['extension']['class_object']
+                widget_class = widget['extension']
                 break
         if not widget_class:
             error_message = (
@@ -496,7 +496,7 @@ class FrameworkDialog(BaseUI):
         data = {
             'extension_type': 'dialog',
             'name': cls.name,
-            'extension': {'class_name': cls.__name__, 'class_object': cls},
+            'extension': cls,
             'path': inspect.getfile(cls),
         }
 

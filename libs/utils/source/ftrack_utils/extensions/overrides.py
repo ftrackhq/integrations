@@ -34,14 +34,8 @@ def set_overrides(current_extensions, new_extensions):
                     f' {existing_extension["path"]}) on top of {new_extension["name"]}({new_extension["extension_type"]}'
                     f' @ {new_extension["path"]}).'
                 )
-                # TODO: need to check if we want to merge the override to the root or the other way around
                 # Have the latter extension be overridden by the former
-                merged_extension = first_level_merge(
+                first_level_merge(
                     existing_extension['extension'], new_extension['extension']
                 )
-
-                # TODO: If the merge is the override to the root, then this lines bleow are not necesary as they will get muttated automatically
-                # Use the latter extension
-                # discovered_extensions.remove(existing_extension)
-                # discovered_extensions.append(extension)
     return current_extensions
