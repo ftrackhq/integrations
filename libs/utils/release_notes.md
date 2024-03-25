@@ -1,8 +1,9 @@
 # ftrack Utils library release Notes
 
-## v2.0.2rc1
-2024-03-15
+## v2.1.0rc1
+2024-03-25
 
+* [new] Get connect plugin version added on Utils
 * [fix] fix track_usage decorator bug. Arguments are correctly queried.
 
 
