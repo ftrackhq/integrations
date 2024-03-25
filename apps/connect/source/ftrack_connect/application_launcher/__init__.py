@@ -369,7 +369,7 @@ class ApplicationStore(object):
                             # Convert to list and expand paths
                             if isinstance(extensions_path, list):
                                 application['environment_variables'][
-                                    'FTRACK_EXTENSIONS_PATH'
+                                    'FTRACK_FRAMEWORK_EXTENSIONS_PATH'
                                 ] = os.pathsep.join(
                                     [
                                         self._conditional_expand_extension_path(
@@ -380,7 +380,7 @@ class ApplicationStore(object):
                                 )
                             else:
                                 application['environment_variables'][
-                                    'FTRACK_EXTENSIONS_PATH'
+                                    'FTRACK_FRAMEWORK_EXTENSIONS_PATH'
                                 ] = self._conditional_expand_extension_path(
                                     extensions_path, connect_plugin_path
                                 )
@@ -391,8 +391,15 @@ class ApplicationStore(object):
                             for name, value in list(
                                 environment_variables.items()
                             ):
-                                if name.upper() == 'FTRACK_EXTENSIONS_PATH':
-                                    # Ignore - already handled
+                                if name.upper() in [
+                                    'FTRACK_CONNECT_EXTENSIONS_PATH',
+                                    'FTRACK_FRAMEWORK_EXTENSIONS_PATH',
+                                ]:
+                                    # Ignore these - should be handled in config
+                                    self.logger.debug(
+                                        f'Ignoring environment variable {name}={value} in launch config -'
+                                        f' should be configured in extensions section!'
+                                    )
                                     continue
                                 if isinstance(value, list):
                                     # Merge on path sep
