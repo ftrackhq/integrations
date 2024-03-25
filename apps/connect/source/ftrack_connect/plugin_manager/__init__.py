@@ -101,7 +101,9 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
         self.layout().addWidget(self._label)
 
         # choose release type
-        self._select_release_type_widget = QtWidgets.QCheckBox('Pre-releases')
+        self._select_release_type_widget = QtWidgets.QCheckBox(
+            'Show pre-releases'
+        )
         self.layout().addWidget(self._select_release_type_widget)
         # plugin list
         self._plugin_list_widget = DndPluginList()
