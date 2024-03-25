@@ -489,7 +489,7 @@ url = "libs/qt-style"
 
 [[package]]
 name = "ftrack-utils"
-version = "2.0.2rc1"
+version = "2.1.0rc1"
 description = "ftrack utils library"
 optional = false
 python-versions = ">= 3.7, < 3.12"
