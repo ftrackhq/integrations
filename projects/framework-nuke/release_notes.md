@@ -1,6 +1,6 @@
 # ftrack Framework Nuke integration release Notes
 
-## Upcoming
-YYYY-mm-dd
+## v24.3.0rc1
+2024-03-25
 
 * [new] Initial release.

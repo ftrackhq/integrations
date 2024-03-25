@@ -1,6 +1,7 @@
 # ftrack Connect release Notes
 
-## Upcoming
+## v3.0.0rc1
+2024-03-25
 
 * [changed] Introduced FTRACK_CONNECT_EXTENSIONS_PATH, read by Connect to resolve launch configurations.
 * [new] Proper support for launch config extensions, merging configs based on the order they appear in FTRACK_CONNECT_EXTENSIONS_PATH.
@@ -8,10 +9,6 @@
 * [changed] Re-structure utils and move general ones to ftrack-utils library.
 * [changed] config.json file renamed to credentials.json
 * [changed] Plugin manager; Drag-n-drop of a plugin ZIP overrides any existing plugins in plugin list.
-
-## v3.0.0
-2024-02-16
-
 * [changed] Consolidated plugin management: FTRACK_CONNECT_PLUGIN_PATH now overrides the local plugin directory instead of merging. Plugins already in plugin path are not added twice.
 * [changed] Plugin manager now considers plugins in FTRACK_CONNECT_PLUGIN_PATH.
 * [changed] Improved about window - More information to include debug information from widget plugins.

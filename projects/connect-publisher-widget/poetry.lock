@@ -18,19 +18,24 @@ test = ["pytest (>=2.3.5,<5)", "pytest-cov (>=2,<3)", "pytest-runner (>=2.7,<3)"
 
 [[package]]
 name = "ftrack-utils"
-version = "2.0.0"
+version = "2.1.0rc1"
 description = "ftrack utils library"
 optional = true
 python-versions = ">=3.7,<3.12"
 files = [
-    {file = "ftrack_utils-2.0.0-py3-none-any.whl", hash = "sha256:a06b7d0f16f611849cf04eb2e8674154d15b6626aa21ec8a3bb6fa9bc08a2805"},
-    {file = "ftrack_utils-2.0.0.tar.gz", hash = "sha256:357c9c840fb173af99a300ec11041853b93212cbc7e5c72052778578903eb738"},
+    {file = "ftrack_utils-2.1.0rc1-py3-none-any.whl", hash = "sha256:22d4d7817d7a6e5a2493465410d996404a6980a4b0f50940a76f6982949a62dd"},
+    {file = "ftrack_utils-2.1.0rc1.tar.gz", hash = "sha256:0aebc6e5030414c69e229c4114eaaa70204b4ab468f5edf132fa339617367bdb"},
 ]
 
 [package.dependencies]
 clique = "1.6.1"
 six = ">=1,<2"
 toml = ">=0.10.2,<0.11.0"
+
+[package.source]
+type = "legacy"
+url = "https://test.pypi.org/simple"
+reference = "testpypi"
 
 [[package]]
 name = "six"
@@ -60,4 +65,4 @@ ftrack-libs = ["ftrack-utils"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">= 3.7, < 3.9"
-content-hash = "39c5e61bb7523bdbfa7e4e8b7e1369b456c0e61d8dcfb7499e02cf130dfa968c"
+content-hash = "e091a818f2eb005494216509958cebf8ce7037e6696ac26a3f945c2c61eff323"

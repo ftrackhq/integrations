@@ -75,11 +75,12 @@ jobs:
         run: |
           pip install -r tools/requirements.txt
           python tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py build_qt_resources apps/connect
-      - name: poetry build
+      - name: poetry build and export dependencies
         shell: bash
         run: |
           cd ${{ needs.set-variables.outputs.folder }}
           poetry build
+          poetry export -f requirements.txt --without-hashes -o dist/requirements.txt
       - name: Get Connect version
         id: get_version # This ID is used to reference the output of the step
         shell: bash
@@ -88,18 +89,30 @@ jobs:
           CONNECT_VERSION=$(poetry version -s)
           echo "Connect version: $CONNECT_VERSION"
           echo "connect_version=$CONNECT_VERSION" >> $GITHUB_OUTPUT
-      - name: upload artifacts to release
+      - name: Prepare upload Connect wheel to GitHub Release
         uses: actions/upload-artifact@v2
         with:
           name: ftrack-connect-whl
           path: ${{ needs.set-variables.outputs.folder }}/dist/ftrack_connect-${{ steps.get_version.outputs.connect_version }}-py3-none-any.whl
-      - name: Upload Connect build to GitHub Release
+      - name: Upload Connect wheel to GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
           echo "Uploading ftrack_connect-${{ needs.connect-build.outputs.connect_version }}-py3-none-any.whl"
           gh release upload ${{ needs.set-variables.outputs.tag }} ${{ needs.set-variables.outputs.folder }}/dist/ftrack_connect-${{ steps.get_version.outputs.connect_version }}-py3-none-any.whl --clobber
+      - name: Prepare upload requirements.txt build to GitHub Release
+        uses: actions/upload-artifact@v2
+        with:
+          name: requirements
+          path: ${{ needs.set-variables.outputs.folder }}/dist/requirements.txt
+      - name: Upload requirements.txt to GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          echo "Uploading requirements.txt"
+          gh release upload ${{ needs.set-variables.outputs.tag }} ${{ needs.set-variables.outputs.folder }}/dist/requirements.txt --clobber
           
 
   installer-windows:
@@ -119,13 +132,17 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: ftrack-connect-whl
+      - name: Download the .txt file artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: requirements
       - name: Use the .whl file
         run: |
-          pip install ftrack_connect-${{ needs.connect-build.outputs.connect_version }}-py3-none-any.whl
+          pip install -r requirements.txt ftrack_connect-${{ needs.connect-build.outputs.connect_version }}-py3-none-any.whl
       - name: install installer requirements
         run: |
           cd installers/connect-installer
-          pip install  -r requirements.txt
+          pip install -r requirements.txt
       - uses: google-github-actions/auth@v2
         if: env.CODESIGN == 'True'
         with:
@@ -187,9 +204,13 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: ftrack-connect-whl
+      - name: Download the .txt file artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: requirements
       - name: Use the .whl file
         run: |
-          pip install ftrack_connect-${{ needs.connect-build.outputs.connect_version }}-py3-none-any.whl
+          pip install -r requirements.txt  ftrack_connect-${{ needs.connect-build.outputs.connect_version }}-py3-none-any.whl
       - name: install installer requirements
         run: |
           cd installers/connect-installer
@@ -303,10 +324,14 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: ftrack-connect-whl
+      - name: Download the .txt file artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: requirements
       - name: Use the .whl file
         run: |
           source ~/.bashrc
-          pyenv exec pip install ftrack_connect-${{ needs.connect-build.outputs.connect_version }}-py3-none-any.whl
+          pyenv exec pip install -r requirements.txt ftrack_connect-${{ needs.connect-build.outputs.connect_version }}-py3-none-any.whl
       - name: install installer requirements
         run: |
           source ~/.bashrc

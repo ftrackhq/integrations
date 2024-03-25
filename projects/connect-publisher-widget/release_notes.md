@@ -1,7 +1,7 @@
 # ftrack Connect Publisher widget release Notes
 
-## Upcoming
-2024-02-16
+## 24.3.0rc1
+2024-03-25
 
 * [fix] Make sure publisher sets the entity on start.
 * [changed] Ported from ftrack-connect-publisher-widget repo and aligned with Connect 3
