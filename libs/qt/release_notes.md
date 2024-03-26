@@ -1,5 +1,10 @@
 # ftrack QT library release Notes
 
+## v2.1.0rc2
+2024-03-26
+
+* [fixed] asset_list widget clear list before setting new assets.
+
 ## v2.1.0rc1
 2024-03-15
 
