@@ -3,7 +3,6 @@ import os
 import platform
 from collections import defaultdict
 import logging
-import yaml
 
 from ftrack_connect.utils.environment import (
     get_connect_extensions_path_from_environment,
