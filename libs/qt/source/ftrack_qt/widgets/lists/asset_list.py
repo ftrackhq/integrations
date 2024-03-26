@@ -74,6 +74,9 @@ class AssetList(QtWidgets.QListWidget):
 
     def set_assets(self, assets):
         '''Set assets for the list'''
+        self.currentItemChanged.disconnect()
+        self._latest_published_asset_item = None
+        self.clear()
         self.assets = assets
 
         for asset_id, asset_dict in self.assets.items():
@@ -110,6 +113,7 @@ class AssetList(QtWidgets.QListWidget):
                 ):
                     self._latest_published_asset_item = list_item
         self.assets_added.emit(assets)
+        self.currentItemChanged.connect(self.on_item_changed_callback)
         # Pre select the latest published asset version.
         self.setCurrentItem(self._latest_published_asset_item)
 
