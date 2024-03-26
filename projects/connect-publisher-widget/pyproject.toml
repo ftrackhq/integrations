@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ftrack-connect-publisher-widget"
-version = "24.3.0rc1"
+version = "24.3.0rc2"
 description='ftrack Connect publisher widget plugin.'
 authors = ["ftrack Integrations Team <integrations@backlight.co>"]
 readme = "README.md"
