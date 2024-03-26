@@ -22,7 +22,7 @@ import re
 
 # The Connect installer version, remember to bump this and update release notes
 # prior to release
-__version__ = '24.3.0rc1'
+__version__ = '24.3.0rc2'
 
 # Embedded plugins.
 
