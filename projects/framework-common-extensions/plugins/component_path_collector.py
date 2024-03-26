@@ -32,12 +32,21 @@ class ComponentPathCollectorPlugin(BasePlugin):
             )
         ).one()
 
-        if context.entity_type == 'Task':
+        if context.entity_type == 'Task' and not payload.get('show_all'):
             asset_versions = self.session.query(
                 'select asset.name, asset_id, id, date, version, '
                 'is_latest_version, thumbnail_url, user.first_name, '
                 'user.last_name, date, components.name from AssetVersion where '
                 'task_id is {} and asset.type.id is {} and components.name is {}'.format(
+                    context_id, asset_type_entity['id'], component_name
+                )
+            ).all()
+        elif context.entity_type == 'Task' and payload.get('show_all'):
+            asset_versions = self.session.query(
+                'select asset.name, asset_id, id, date, version, '
+                'is_latest_version, thumbnail_url, user.first_name, '
+                'user.last_name, date, components.name from AssetVersion where '
+                'asset.parent.children.id is {} and asset.type.id is {} and components.name is {}'.format(
                     context_id, asset_type_entity['id'], component_name
                 )
             ).all()
