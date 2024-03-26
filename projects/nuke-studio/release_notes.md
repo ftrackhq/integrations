@@ -3,7 +3,7 @@
 ## 24.3.0rc2
 2024-03-26
 
-* [changed] Upgrade ftrack-framework-core and ftrack-utils version.
+* [changed] Upgrade ftrack-utils and ftrack-qt version.
 
 ## v24.3.0rc1
 2024-03-25
