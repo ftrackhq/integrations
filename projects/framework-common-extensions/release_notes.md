@@ -2,6 +2,8 @@
 
 ## Upcoming
 
+* [changed] Publisher dialog Only query assets linked to the task.
+* [changed] Opener dialog has checkbox to query assets from AssetBuild
 * [changed] Add windows specific titles on standard opener dialog and standard publisher dialog.
 * [changed] Added labels to publisher asset selector and publisher, aligned margins.
 * [new] Initial release.
