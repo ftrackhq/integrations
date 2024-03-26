@@ -1164,7 +1164,10 @@ class Application(QtWidgets.QMainWindow):
         configuration files.'''
         launcher_config_paths = []
 
-        self.logger.debug('Discovering applications launcher configs.')
+        self.logger.debug(
+            f'Discovering applications launcher configs based on'
+            f' {len(self.plugins)} plugins.'
+        )
 
         for connect_plugin_path in [plugin['path'] for plugin in self.plugins]:
             launcher_config_path = os.path.join(connect_plugin_path, 'launch')
