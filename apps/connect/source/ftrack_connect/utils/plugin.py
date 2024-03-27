@@ -173,7 +173,7 @@ def fetch_github_releases(latest=True, prereleases=False):
         logger.error(f'Failed to fetch releases from {INTEGRATIONS_REPO}')
         return []
 
-    data = []
+    data = {}
 
     # Expect list of releases
     for release in response.json():
@@ -249,23 +249,17 @@ def fetch_github_releases(latest=True, prereleases=False):
         if url:
             logger.debug(f'Supplying release: {tag_name}')
             release_data['url'] = url
-            data.append(release_data)
+            if not latest or package not in data:
+                data[package] = release_data
+            else:
+                current_version = data[package]['tag'].rsplit('/', 1)[1][1:]
+                if parse(current_version) < parse(version):
+                    # This version is higher
+                    data[package] = release_data
 
-    if latest:
-        # Only provide the latest version
-
-        data.sort(key=lambda x: x['tag'], reverse=True)
-
-        result = []
-        for item in data:
-            if (
-                not result
-                or item['tag'].rsplit('/', 1)[0]
-                != result[-1]['tag'].rsplit('/', 1)[0]
-            ):
-                result.append(item)
-    else:
-        result = data
+    result = []
+    for release in list(data.values()):
+        result.append(release)
 
     return result
 
