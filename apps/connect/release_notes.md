@@ -1,5 +1,9 @@
 # ftrack Connect release Notes
 
+## Upcoming
+
+* [fix] Optimized and properly using version parsing when sorting Github releases.
+
 ## v3.0.0rc2
 2024-03-26
 
