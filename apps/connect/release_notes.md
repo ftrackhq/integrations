@@ -1,5 +1,10 @@
 # ftrack Connect release Notes
 
+## v3.0.0rc3
+2024-03-27
+
+* [fix] If a launch config isn't valid, it will now be ignored so Connect doesn't crash.
+
 ## v3.0.0rc2
 2024-03-26
 

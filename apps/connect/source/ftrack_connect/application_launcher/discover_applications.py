@@ -81,9 +81,15 @@ class DiscoverApplications(object):
         result_dict = defaultdict(list)
 
         for configuration, path in configurations:
-            result_dict.setdefault(configuration['identifier'], []).append(
-                (configuration, path)
-            )
+            try:
+                result_dict.setdefault(configuration['identifier'], []).append(
+                    (configuration, path)
+                )
+            except Exception as e:
+                self.logger.warning(
+                    f"The following launcher configuration from path {path} can't be loaded, the configuration is probably incomplete. Ignoring it. \n Error: {e} \n Configuration:{configuration} "
+                )
+                continue
 
         return result_dict
 
