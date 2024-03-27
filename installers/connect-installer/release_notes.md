@@ -1,5 +1,10 @@
 # ftrack Connect installer release Notes
 
+## v24.3.0rc3
+2024-03-27
+
+* [changed] Release connect 3.0.0rc3
+
 ## v24.3.0rc2
 2024-03-26
 
