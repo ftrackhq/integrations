@@ -2,7 +2,7 @@
 
 ## Upcoming
 
-* [fix] Properly sort releases fetched from Github.
+* [fix] Optimized and properly using version parsing when sorting Github releases.
 
 ## v3.0.0rc2
 2024-03-26

@@ -249,24 +249,17 @@ def fetch_github_releases(latest=True, prereleases=False):
         if url:
             logger.debug(f'Supplying release: {tag_name}')
             release_data['url'] = url
-            if latest:
-                # Sort later
-                if package not in data:
-                    data[package] = {}
-                data[package][version] = release_data
-            else:
+            if not latest or package not in data:
                 data[package] = release_data
-
-    import json
+            else:
+                current_version = data[package]['tag'].rsplit('/', 1)[1][1:]
+                if parse(current_version) < parse(version):
+                    # This version is higher
+                    data[package] = release_data
 
     result = []
-    for package in list(data.keys()):
-        if latest:
-            # Only provide the latest version
-            target_version = sorted(list(data[package].keys()))[-1]
-        else:
-            target_version = data[package]
-        result.append(data[package][target_version])
+    for release in list(data.values()):
+        result.append(release)
 
     return result
 
