@@ -86,34 +86,32 @@ class MayaExportOptionsSelectorWidget(BaseWidget):
 
         provided_options = self.plugin_config.get('options')
         self._construction_history_cb.setChecked(
-            provided_options.get('constructionHistory', False)
+            provided_options.get('constructionHistory', True)
             if provided_options
-            else False
+            else True
         )
         self._channels_cb.setChecked(
-            provided_options.get('channels', False)
+            provided_options.get('channels', True)
             if provided_options
-            else False
+            else True
         )
         self._preserve_references_cb.setChecked(
-            provided_options.get('preserveReferences', False)
+            provided_options.get('preserveReferences', True)
             if provided_options
-            else False
+            else True
         )
         self._shader_cb.setChecked(
-            provided_options.get('shader', False)
-            if provided_options
-            else False
+            provided_options.get('shader', True) if provided_options else True
         )
         self._constraints_cb.setChecked(
-            provided_options.get('constraints', False)
+            provided_options.get('constraints', True)
             if provided_options
-            else False
+            else True
         )
         self._expressions_cb.setChecked(
-            provided_options.get('expressions', False)
+            provided_options.get('expressions', True)
             if provided_options
-            else False
+            else True
         )
 
         # Manually call the signals on build
