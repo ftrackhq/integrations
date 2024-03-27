@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ftrack-framework-maya"
-version = "24.3.0rc2"
+version = "24.3.0rc3"
 description='ftrack Maya integration'
 authors = ["ftrack Integrations Team <integrations@backlight.co>"]
 readme = "README.md"
