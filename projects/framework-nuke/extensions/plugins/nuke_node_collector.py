@@ -11,14 +11,18 @@ class NukeNodeCollectorPlugin(BasePlugin):
 
     def ui_hook(self, payload):
         '''
-        Return all available write nodes in Nuke
+        Return all available nodes in the current nuke script.
         '''
-        selected_nodes = nuke.selectedNodes()
-        if len(selected_nodes) == 0:
-            selected_nodes = nuke.allNodes()
         node_names = []
-        for node in selected_nodes:
+        for node in nuke.allNodes():
             node_names.append(node.name())
+        selected_nodes = nuke.selectedNodes()
+        if len(selected_nodes) > 0:
+            selected_node = selected_nodes[0].name()
+            # Remove and add the selected node to the top of the list, so
+            # user still can select among all nodes
+            node_names.remove(selected_node)
+            node_names.insert(0, selected_node)
         return node_names
 
     def run(self, store):
