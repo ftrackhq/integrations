@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ftrack-framework-nuke"
-version = "24.3.0rc2"
+version = "24.3.0rc3"
 description='ftrack Adobe Photoshop integration'
 authors = ["ftrack Integrations Team <integrations@backlight.co>"]
 readme = "README.md"
