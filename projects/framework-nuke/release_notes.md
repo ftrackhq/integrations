@@ -1,6 +1,7 @@
 # ftrack Framework Nuke integration release Notes
 
-## Upcoming
+## 24.3.0rc3
+2024-03-28
 
 * [changed] When selecting the node to render for reviewable, show all nodes with the selected one on top.
 * [new] Writeable node validator, to check if a node is writeable for a reviewable to be created.
