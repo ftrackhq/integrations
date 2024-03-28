@@ -61,6 +61,10 @@ engine:
         ui: validator_label
       - type: plugin
         tags:
+          - validator
+        plugin: nuke_writeable_node_validator
+      - type: plugin
+        tags:
           - exporter
         plugin: nuke_render_exporter
 
