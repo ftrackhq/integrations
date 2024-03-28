@@ -9,7 +9,7 @@ from ftrack_framework_core.exceptions.plugin import PluginValidationError
 
 class NukeWriteableNodeValidatorPlugin(BasePlugin):
     '''
-    Plugin to validate if a nuke node exists.
+    Plugin to validate if the collected Nuke node can be connected to a write node.
     '''
 
     name = 'nuke_writeable_node_validator'
@@ -21,7 +21,7 @@ class NukeWriteableNodeValidatorPlugin(BasePlugin):
 
     def run(self, store):
         '''
-        Check node exists.
+        Check node writeable
         '''
         component_name = self.options.get('component', 'main')
         node_name = store['components'][component_name].get('node_name')
