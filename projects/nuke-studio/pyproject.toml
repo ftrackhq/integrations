@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ftrack-nuke-studio"
-version = "24.3.0rc2"
+version = "24.4.0"
 description='ftrack Connect integration with Nuke Studio'
 authors = ["ftrack Integrations Team <integrations@backlight.co>"]
 readme = "README.md"
@@ -32,9 +32,9 @@ platformdirs = "^4.0.0"
 lucidity = ">= 1.5, < 2"
 opentimelineio = ">= 0.11"
 "Qt.py" = ">= 1.0.0, < 2"
-ftrack-utils = {  version = "^2.0.0", optional = true, source = "testpypi", allow-prereleases = true }
-ftrack-qt = { version = "^2.0.0", optional = true, source = "testpypi", allow-prereleases = true }
-ftrack-qt-style = { version = "^2.0.0", optional = true, source = "testpypi", allow-prereleases = true }
+ftrack-utils = {  version = "^2.0.0", optional = true }
+ftrack-qt = { version = "^2.0.0", optional = true }
+ftrack-qt-style = { version = "^2.0.0", optional = true }
 
 [tool.poetry.extras]
 ftrack-libs = ["ftrack-utils", "ftrack-qt", "ftrack-qt-style"]

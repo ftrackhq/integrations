@@ -1,14 +1,9 @@
 # ftrack Connect Timetracker widget release Notes
 
-## 24.3.0rc2
-2024-03-26
+## v24.4.0
+2024-04-02
 
 * [changed] Upgrade ftrack-utils version.
-
-
-## v24.3.0rc1
-2024-03-25
-
 * [fix] Fixed bug with wrong plugin name reported back with debug information to Connect about dialog.
 * [changed] Ported from ftrack-connect-timetracker-widget repo and aligned with Connect 3
 * [changed] Use poetry as build system.

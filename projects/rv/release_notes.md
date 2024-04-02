@@ -1,7 +1,7 @@
 # ftrack RV integration release Notes
 
-## Upcoming
-YYYY-mm-dd
+## v24.0
+2024-04-02
 
 * [changed] Rocky Linux 9 support.
 * [changed] Moved pkg build to repo build tool.
