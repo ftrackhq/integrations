@@ -1,13 +1,9 @@
 # ftrack QT library release Notes
 
-## v2.1.0rc2
-2024-03-26
+## v2.1.0
+2024-04-02
 
 * [fixed] asset_list widget clear list before setting new assets.
-
-## v2.1.0rc1
-2024-03-15
-
 * [changed] Widget file names align within the same folder.
 * [changed] widgets/frame folder renamed to asset.
 * [changed] Moved OpenAssetSelector logic to AssetSelectorBase.
