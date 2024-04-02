@@ -1,21 +1,11 @@
 # ftrack Connect release Notes
 
-## v3.0.0rc3
-2024-03-27
+## v3.0.0
+2024-04-02
 
 * [fix] If a launch config isn't valid, it will now be ignored so Connect doesn't crash.
 * [fix] Optimized and properly using version parsing when sorting Github releases.
-
-
-## v3.0.0rc2
-2024-03-26
-
 * [new] Toggle pre-releases in Plugin manager
-
-
-## v3.0.0rc1
-2024-03-25
-
 * [changed] Introduced FTRACK_CONNECT_EXTENSIONS_PATH, read by Connect to resolve launch configurations.
 * [new] Proper support for launch config extensions, merging configs based on the order they appear in FTRACK_CONNECT_EXTENSIONS_PATH.
 * [new] Now uses framework-core (ftrack_framework_core) library as a dependency.

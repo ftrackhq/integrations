@@ -244,13 +244,13 @@ future = ">=0.16.0,<1"
 
 [[package]]
 name = "ftrack-framework-core"
-version = "2.1.0rc2"
+version = "2.1.0"
 description = "ftrack Framework Core library"
 optional = false
-python-versions = ">=3.7,<3.12"
+python-versions = "<3.12,>=3.7"
 files = [
-    {file = "ftrack_framework_core-2.1.0rc2-py3-none-any.whl", hash = "sha256:7f6032de25262e3b9574c43060ea89e76b4a5656964f3c4812314ea741ab0e88"},
-    {file = "ftrack_framework_core-2.1.0rc2.tar.gz", hash = "sha256:f1a09800b9a66a1728ec8935f1a98f1ea35adb0c14c631d81d53880dbc198bfc"},
+    {file = "ftrack_framework_core-2.1.0-py3-none-any.whl", hash = "sha256:d1e15e887cb29a64d7487296f89aff006334e03b29d624921d2ac1fcd236ef6f"},
+    {file = "ftrack_framework_core-2.1.0.tar.gz", hash = "sha256:e8568c46ec6284463f680650207482caaaadab3c61faa70fde99d20c00920430"},
 ]
 
 [package.dependencies]
@@ -261,11 +261,6 @@ six = ">=1,<2"
 
 [package.extras]
 ftrack-libs = ["ftrack-constants (>=2.0.0,<3.0.0)", "ftrack-utils (>=2.0.0,<3.0.0)"]
-
-[package.source]
-type = "legacy"
-url = "https://test.pypi.org/simple"
-reference = "testpypi"
 
 [[package]]
 name = "ftrack-python-api"
@@ -290,24 +285,19 @@ websocket-client = ">=0.40.0,<1"
 
 [[package]]
 name = "ftrack-utils"
-version = "2.1.0rc2"
+version = "2.1.0"
 description = "ftrack utils library"
 optional = false
-python-versions = ">=3.7,<3.12"
+python-versions = "<3.12,>=3.7"
 files = [
-    {file = "ftrack_utils-2.1.0rc2-py3-none-any.whl", hash = "sha256:00f435d9be09f1837395148a800007d163bcdf33497366347cbce05198a3565e"},
-    {file = "ftrack_utils-2.1.0rc2.tar.gz", hash = "sha256:dc33f2ee30cb8c854492f586e4c48b37e320d7315a6e5cb8aa2ee4590dffb5e6"},
+    {file = "ftrack_utils-2.1.0-py3-none-any.whl", hash = "sha256:ce91df88af9ee473e629eca9c7598c793a6b234a455e6eaaa9b9fe51ec9c132d"},
+    {file = "ftrack_utils-2.1.0.tar.gz", hash = "sha256:4b1b4b3f5a18541047177571f3293f8886afc50787b6c24eef86c5acf800082a"},
 ]
 
 [package.dependencies]
 clique = "1.6.1"
 six = ">=1,<2"
 toml = ">=0.10.2,<0.11.0"
-
-[package.source]
-type = "legacy"
-url = "https://test.pypi.org/simple"
-reference = "testpypi"
 
 [[package]]
 name = "future"
@@ -671,13 +661,13 @@ types-PySide2 = "*"
 
 [[package]]
 name = "qtawesome"
-version = "1.3.0"
+version = "1.3.1"
 description = "FontAwesome icons in PyQt and PySide applications"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "QtAwesome-1.3.0-py3-none-any.whl", hash = "sha256:f4da336c9a913627eef7f95ca94bcc72c99b918ade859de5b9f8070fdcd660c5"},
-    {file = "QtAwesome-1.3.0.tar.gz", hash = "sha256:104ed030e2c2237606898a621e8b2dc3f0a64c753a54d7bd6fa0015345fb1ad2"},
+    {file = "QtAwesome-1.3.1-py3-none-any.whl", hash = "sha256:6078449035cd5311bc461e99940a426c27cb919fb4211c8cfc64506cb71e2dd7"},
+    {file = "QtAwesome-1.3.1.tar.gz", hash = "sha256:075b2c9ee01cbaf5e3a4bebed0e5529ee8605981355f21dea051b15c1b869e1b"},
 ]
 
 [package.dependencies]
@@ -1002,4 +992,4 @@ six = "*"
 [metadata]
 lock-version = "2.0"
 python-versions = ">= 3.7, < 3.9"
-content-hash = "079fd208e73729cc1931e7e6ee185e0110e5c334dcb7c2dd3faea7050c2fcb01"
+content-hash = "67bc0a03538bb06c61401841cdb2fefa8d381cad0f16414b4bda76b3a3ae518e"
