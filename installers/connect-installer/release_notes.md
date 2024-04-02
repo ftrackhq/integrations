@@ -3,8 +3,7 @@
 ## v24.4.0
 2024-04-02
 
-* [changed] Release connect 3.0.0rc3
-* [changed] Release connect 3.0.0rc2
+* [changed] Release connect 3.0.0
 * [changed] Removed docker files.
 * [new] Windows codesign support.
 * [new] Rocky linux 8 and 9 support added and removed Centos7 support. (Centos8 still working with Rocky8 build)
