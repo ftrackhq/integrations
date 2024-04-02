@@ -1,18 +1,9 @@
 # ftrack Connect installer release Notes
 
-## v24.3.0rc3
-2024-03-27
+## v24.4.0
+2024-04-02
 
-* [changed] Release connect 3.0.0rc3
-
-## v24.3.0rc2
-2024-03-26
-
-* [changed] Release connect 3.0.0rc2
-
-## v24.3.0rc1
-2024-03-25
-
+* [changed] Release connect 3.0.0
 * [changed] Removed docker files.
 * [new] Windows codesign support.
 * [new] Rocky linux 8 and 9 support added and removed Centos7 support. (Centos8 still working with Rocky8 build)

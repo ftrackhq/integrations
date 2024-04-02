@@ -1,13 +1,9 @@
 # ftrack Connect Publisher widget release Notes
 
-## 24.3.0rc2
-2024-03-26
+## v24.4.0
+2024-04-02
 
 * [changed] Upgrade ftrack-utils version.
-
-## 24.3.0rc1
-2024-03-25
-
 * [fix] Make sure publisher sets the entity on start.
 * [changed] Ported from ftrack-connect-publisher-widget repo and aligned with Connect 3
 * [changed] Use poetry as build system.

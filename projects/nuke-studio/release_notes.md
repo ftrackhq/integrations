@@ -1,13 +1,9 @@
 # ftrack Nuke Studio integration release Notes
 
-## 24.3.0rc2
-2024-03-26
+## v24.4.0
+2024-04-02
 
 * [changed] Upgrade ftrack-utils and ftrack-qt version.
-
-## v24.3.0rc1
-2024-03-25
-
 * [changed] Aligned with Connect 3 integrated launcher and improved hook.
 * [changed] Use poetry as build system.
 
