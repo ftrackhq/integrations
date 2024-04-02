@@ -1,10 +1,6 @@
-****************************************
-# THIS REPOSITORY IS NOT YET READY.
-# WE ARE CURRENTLY WORKING ON OPEN SOURCING ALL OUR CODE AND IMPROVING THE [DOCUMENTATION](https://developer.ftrack.com/pr/14/)
-****************************************
-
-
 This monorepo contains the source code for ftrack integrations, divided on apps (ex: Connect), libs (ex: framework libraries) and projects (ex: Integrations).
+
+See full [documentation here](https://developer.ftrack.com).
 
 # Developing
 

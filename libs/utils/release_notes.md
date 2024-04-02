@@ -1,15 +1,10 @@
 # ftrack Utils library release Notes
 
-## v2.1.0rc2
-2024-03-25
+## v2.1.0
+2024-04-02
 
 * [changed] Extensions/environment; Changed the name of FTRACK_EXTENSIONS_PATH environment variable back to FTRACK_FRAMEWORK_EXTENSIONS_PATH.
 * [changed] Extensions/registry; Extension type filter support to get_extensions_from_directory.
-
-
-## v2.1.0rc1
-2024-03-25
-
 * [new] Get connect plugin version added on Utils
 * [fix] fix track_usage decorator bug. Arguments are correctly queried.
 
