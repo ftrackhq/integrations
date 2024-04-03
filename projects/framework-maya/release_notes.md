@@ -1,5 +1,10 @@
 # ftrack Framework Maya integration release Notes
 
+## Upcoming
+
+* [new] PySide6 support.
+* [changed] Removed Qt.py dependency.
+
 ## v24.4.0
 2024-04-02
 

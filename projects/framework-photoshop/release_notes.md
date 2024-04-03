@@ -1,5 +1,10 @@
 # ftrack Framework Photoshop integration release Notes
 
+## Upcoming
+
+* [new] PySide6 support.
+* [changed] Removed Qt.py dependency.
+
 ## v24.4.1
 2024-04-03
 

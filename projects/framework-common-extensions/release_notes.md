@@ -2,6 +2,8 @@
 
 ## Upcoming
 
+* [new] PySide6 support.
+* [changed] Removed Qt.py dependency.
 * [changed] Asset version selectors; show label on empty asset list.
 * [changed] Publisher dialog only query assets linked to the task.
 * [changed] Opener dialog has checkbox to query assets from AssetBuild

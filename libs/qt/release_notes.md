@@ -1,5 +1,11 @@
 # ftrack QT library release Notes
 
+## Upcoming
+
+* [changed] Updated accordion widget to requiring finalize of the header options button.
+* [new] PySide6 support.
+* [changed] Removed Qt.py dependency.
+
 ## v2.1.0
 2024-04-02
 
