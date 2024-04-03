@@ -93,8 +93,7 @@ class OverlayWidget(QtWidgets.QFrame):
 
     def __del__(self):
         if self._event_filter_installed:
-            application = QtCore.QCoreApplication.instance()
-            application.removeEventFilter(self)
+            self._get_main_widget().removeEventFilter(self)
 
     def paintEvent(self, event):
         '''(Override)'''
@@ -167,7 +166,7 @@ class OverlayWidget(QtWidgets.QFrame):
 
         # Match sizing of parent.
         if obj == self.parent():
-            if event.type() == QtCore.QEvent.Resize:
+            if event.type() == QtCore.QEvent.Type.Resize:
                 # Relay event.
                 self.resize(event.size())
         return False
