@@ -34,6 +34,7 @@ class AssetVersionSelectorWidget(BaseWidget):
         self._title_label = None
         self._label = None
         self._asset_version_selector = None
+        self._show_all = None
 
         super(AssetVersionSelectorWidget, self).__init__(
             event_manager,
@@ -60,10 +61,15 @@ class AssetVersionSelectorWidget(BaseWidget):
         self._label.setObjectName('gray')
         self._label.setWordWrap(True)
 
+        # Show assets from AssetBuild
+        self._show_all = QtWidgets.QCheckBox('Show all assets')
+        self._show_all.setChecked(False)
+
         self._asset_version_selector = OpenAssetSelector()
 
         self.layout().addWidget(self._title_label)
         self.layout().addWidget(self._label)
+        self.layout().addWidget(self._show_all)
         self.layout().addWidget(self._asset_version_selector)
 
     def post_build_ui(self):
@@ -77,6 +83,7 @@ class AssetVersionSelectorWidget(BaseWidget):
         self._asset_version_selector.selected_item_changed.connect(
             self._on_selected_item_changed_callback
         )
+        self._show_all.stateChanged.connect(self.populate)
 
     def populate(self):
         '''Fetch info from plugin to populate the widget'''
@@ -90,6 +97,7 @@ class AssetVersionSelectorWidget(BaseWidget):
                 'asset_type_name'
             ),
             'component': self.group_config['options'].get('component'),
+            'show_all': self._show_all.isChecked(),
         }
         self.run_ui_hook(payload)
 
@@ -109,7 +117,7 @@ class AssetVersionSelectorWidget(BaseWidget):
                 'published related to this task and its parent. Choose asset'
             )
         else:
-            self._label.setText('')
+            self._label.setText('No assets found.')
 
     def _on_version_changed_callback(self, version):
         '''Handle the change of selected version.'''

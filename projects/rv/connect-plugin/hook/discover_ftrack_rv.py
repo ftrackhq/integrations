@@ -6,7 +6,7 @@ import os
 import logging
 
 import ftrack_api
-from ftrack_connect.util import get_connect_plugin_version
+from ftrack_utils.version import get_connect_plugin_version
 
 NAME = 'ftrack-rv'
 ''' The name of the integration, should match name in bootstrap and launcher '''

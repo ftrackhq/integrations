@@ -11,7 +11,7 @@ except ImportError:
 
 import ftrack_api
 
-from ftrack_connect.util import get_connect_plugin_version
+from ftrack_utils.version import get_connect_plugin_version
 import ftrack_connect.ui.application
 import ftrack_connect.ui.widget.overlay
 from ftrack_utils.server import send_usage_event

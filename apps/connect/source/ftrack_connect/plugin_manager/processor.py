@@ -12,7 +12,7 @@ import zipfile
 from urllib.error import HTTPError
 
 from ftrack_connect.qt import QtWidgets, QtCore, QtGui
-from ftrack_connect.util import get_platform_identifier
+from ftrack_connect.utils.plugin import get_platform_identifier
 
 logger = logging.getLogger(__name__)
 

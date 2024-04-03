@@ -7,6 +7,10 @@ import platformdirs
 import errno
 
 
+def get_default_log_directory():
+    return platformdirs.user_data_dir('ftrack-connect', 'ftrack', 'log')
+
+
 def get_log_directory():
     '''Get log directory.
 
@@ -14,8 +18,7 @@ def get_log_directory():
 
     Raise if the directory can not be created.
     '''
-    user_data_dir = platformdirs.user_data_dir('ftrack-connect', 'ftrack')
-    log_directory = os.path.join(user_data_dir, 'log')
+    log_directory = get_default_log_directory()
 
     if not os.path.exists(log_directory):
         try:

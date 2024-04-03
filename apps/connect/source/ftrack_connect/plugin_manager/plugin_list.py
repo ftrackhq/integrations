@@ -13,14 +13,14 @@ import qtawesome as qta
 
 from ftrack_connect.qt import QtWidgets, QtCore, QtGui
 
-from ftrack_connect.util import (
-    qt_main_thread,
+from ftrack_connect.utils.plugin import (
     PLUGIN_DIRECTORIES,
-    get_platform_identifier,
     get_plugin_json_url_from_environment,
     fetch_github_releases,
     get_plugin_data,
+    get_platform_identifier,
 )
+from ftrack_connect.utils.thread import qt_main_thread
 
 from ftrack_connect.plugin_manager.processor import (
     STATUSES,
@@ -273,7 +273,7 @@ class DndPluginList(QtWidgets.QFrame):
                 )
                 logger.warning(f'Failed to add plugin {plugin}: ')
 
-    def populate_download_plugins(self):
+    def populate_download_plugins(self, prereleases=False):
         '''Populate model with remotely configured plugins.'''
         # Read plugins from json config url if set by user
         self._downloadable_plugin_count = 0
@@ -288,7 +288,7 @@ class DndPluginList(QtWidgets.QFrame):
                 self._downloadable_plugin_count += 1
         else:
             # Read latest releases from ftrack integrations repository
-            releases = fetch_github_releases()
+            releases = fetch_github_releases(prereleases=prereleases)
 
             for release in releases:
                 self._add_plugin(

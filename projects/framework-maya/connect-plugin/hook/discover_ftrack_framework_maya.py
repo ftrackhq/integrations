@@ -6,7 +6,7 @@ import ftrack_api
 import logging
 import functools
 
-from ftrack_connect.util import get_connect_plugin_version
+from ftrack_utils.version import get_connect_plugin_version
 
 # The name of the integration, should match name in launcher.
 NAME = 'framework-maya'

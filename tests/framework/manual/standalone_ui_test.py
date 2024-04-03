@@ -49,14 +49,14 @@ os.environ[
 # os.environ['FTRACK_CONTEXTID'] = '571a7a04-eabe-44b5-99b7-6cc5ebb74c77' # Henrik
 
 
-FTRACK_FRAMEWORK_EXTENSIONS_PATH = [
+FTRACK_CONNECT_EXTENSIONS_PATH = [
     os.path.join(
         ROOT_INTEGRATIONS_FOLDER, 'projects', 'framework-common-extensions'
-    )
+    ),
 ]
 
 registry_instance = registry.Registry()
-registry_instance.scan_extensions(paths=FTRACK_FRAMEWORK_EXTENSIONS_PATH)
+registry_instance.scan_extensions(paths=FTRACK_CONNECT_EXTENSIONS_PATH)
 
 host_class = host.Host(event_manager, registry=registry_instance)
 

@@ -6,7 +6,7 @@ import os
 
 import platform
 import ftrack_api
-import ftrack_connect.util
+from ftrack_connect.utils.directory import open_directory
 
 
 class OpenComponentDirectoryAction(object):
@@ -90,10 +90,10 @@ class OpenComponentDirectoryAction(object):
 
         if os.path.exists(path):
             # File or directory exists.
-            ftrack_connect.util.open_directory(path)
+            open_directory(path)
         elif os.path.exists(os.path.dirname(path)):
             # Handle cases where file system path is a sequence expression.
-            ftrack_connect.util.open_directory(os.path.dirname(path))
+            open_directory(os.path.dirname(path))
         else:
             # No file, directory or parent directory exists for path.
             self.logger.info(

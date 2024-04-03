@@ -197,7 +197,8 @@ class PhotoshopRPCCEP(object):
                 waited += 10
                 if waited > timeout:
                     raise Exception(
-                        'Timeout waiting remote integration event reply! '
+                        'Timeout waiting for remote integration event reply - '
+                        ' CEP plugin installed and functioning?'
                         f'Waited {waited / 1000}s'
                     )
                 if waited % 1000 == 0:

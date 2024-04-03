@@ -7,7 +7,8 @@ import os
 
 from ftrack_connect.qt import QtWidgets, QtCore, QtGui
 
-from ftrack_connect.util import qt_main_thread, PLUGIN_DIRECTORIES
+from ftrack_connect.utils.thread import qt_main_thread
+from ftrack_connect.utils.plugin import PLUGIN_DIRECTORIES
 
 from ftrack_connect.ui.widget.overlay import BlockingOverlay, BusyOverlay
 import ftrack_connect.ui.application
@@ -61,6 +62,7 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
         '''Instantiate the plugin widget.'''
         super(PluginManager, self).__init__(session, parent=parent)
         self._label = None
+        self._select_release_type_widget = None
         self._search_bar = None
         self._plugin_list_widget = None
         self._button_layout = None
@@ -98,27 +100,14 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
         self._label.setMargin(5)
         self.layout().addWidget(self._label)
 
+        # choose release type
+        self._select_release_type_widget = QtWidgets.QCheckBox(
+            'Show pre-releases'
+        )
+        self.layout().addWidget(self._select_release_type_widget)
         # plugin list
         self._plugin_list_widget = DndPluginList()
         self.layout().addWidget(self._plugin_list_widget)
-
-        self._info_widget = QtWidgets.QFrame()
-        self._info_widget.setLayout(QtWidgets.QVBoxLayout())
-
-        self._info_widget.layout().addWidget(
-            QtWidgets.QLabel(
-                "<html><u>Plugin directory search order:</u></html>"
-            )
-        )
-        for index, plugin_directory in enumerate(PLUGIN_DIRECTORIES):
-            self._info_widget.layout().addWidget(
-                QtWidgets.QLabel(
-                    f'<html><small><code>{plugin_directory}{"</code> (target)</small></html>" if index == 0 else ""}'
-                )
-            )
-        self.layout().addWidget(self._info_widget)
-        # TODO: Display in text area with word wrap. Hide the info widget for now.
-        self._info_widget.setVisible(False)
 
         # apply and reset button.
         self._button_layout = QtWidgets.QHBoxLayout()
@@ -151,6 +140,9 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
 
     def post_build(self):
         # wire connections
+        self._select_release_type_widget.clicked.connect(
+            self._on_select_release_type_callback
+        )
         self._apply_button.clicked.connect(self._on_apply_changes)
         self._reset_button.clicked.connect(self.refresh)
         self._search_bar.textChanged.connect(
@@ -238,7 +230,9 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
         '''Callback on fetching installed plugins from Connect'''
         self._installed_plugins = plugins
         self._plugin_list_widget.populate_installed_plugins(plugins)
-        self._plugin_list_widget.populate_download_plugins()
+        self._plugin_list_widget.populate_download_plugins(
+            self._select_release_type_widget.isChecked()
+        )
         if (
             not self._initialised
             and len(self._plugin_list_widget.installed_plugins) == 0
@@ -287,6 +281,9 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
             self._plugin_processor.process(item)
             on_plugin_installed_callback(i + 1)
         self._reset_plugin_list()
+
+    def _on_select_release_type_callback(self):
+        self._reset_button.click()
 
     def _show_user_message_done(self):
         '''Show final message to the user.'''
@@ -343,7 +340,7 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
                 QtWidgets.QMessageBox.Warning,
                 'Warning',
                 'The following conflicting and incompatible plugins are installed and will be ignored by Connect'
-                ':\n\n{}\n\nClean up and archive them?'.format(
+                ':\n\n{}\n\nClean up and archive them?\n\n Note: you might want to keep them if you are still using Connect 2'.format(
                     '\n'.join(incompatible_plugin_names)
                 ),
                 buttons=QtWidgets.QMessageBox.Yes
@@ -364,7 +361,7 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
                 'Warning',
                 'The following deprecated plugins are installed'
                 ':\n\n{}\n\nClean up and archive them?\n\nNote: they might still function, please '
-                'check release notes for further details.'.format(
+                'check release notes for further details. You might want to keep them if you are still using Connect 2'.format(
                     '\n'.join(deprecated_plugins)
                 ),
                 buttons=QtWidgets.QMessageBox.Yes
