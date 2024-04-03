@@ -25,11 +25,11 @@ def main_connect(arguments=None):
     try:
         from PySide6 import QtWidgets, QtCore
 
-        is_pyside6 = True
+        is_pyside2 = False
     except ImportError:
         from PySide2 import QtWidgets, QtCore
 
-        is_pyside6 = False
+        is_pyside2 = True
 
     from ftrack_connect import load_icons
     import ftrack_connect.utils.log
@@ -117,7 +117,7 @@ def main_connect(arguments=None):
     # If under X11, make Xlib calls thread-safe.
     # http://stackoverflow.com/questions/31952711/threading-pyqt-crashes-with-unknown-request-in-queue-while-dequeuing
 
-    if os.name == 'posix' and not is_pyside6:
+    if os.name == 'posix' and is_pyside2:
         QtCore.QCoreApplication.setAttribute(
             QtCore.Qt.ApplicationAttribute.AA_X11InitThreads
         )
