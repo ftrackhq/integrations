@@ -4,6 +4,7 @@
 
 * [changed] Fixed overlay widget bugs.
 * [new] PySide6 support.
+* [changed] Removed ftrack_connect.qt module.
 * [changed] Removed Qt.py dependency.
 
 
