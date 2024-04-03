@@ -31,14 +31,22 @@ class Overlay(QtWidgets.QFrame):
             QtWidgets.QFrame.Shape.StyledPanel | QtWidgets.QFrame.Shadow.Plain
         )
 
-        # Install global event filter that will deal with matching parent size
-        # and disabling parent interaction when overlay is visible.
-        application = QtCore.QCoreApplication.instance()
-        application.installEventFilter(self)
+        self._event_filter_installed = False
+
+    def __del__(self):
+        if self._event_filter_installed:
+            application = QtCore.QCoreApplication.instance()
+            application.removeEventFilter(self)
 
     def setVisible(self, visible):
         '''Set whether *visible* or not.'''
         if visible:
+            if not self._event_filter_installed:
+                # Install global event filter that will deal with matching parent size
+                # and disabling parent interaction when overlay is visible.
+                application = QtCore.QCoreApplication.instance()
+                application.installEventFilter(self)
+                self._event_filter_installed = True
             # Manually clear focus from any widget that is overlaid. This
             # works in conjunction with :py:meth`eventFilter` to prevent
             # interaction with overlaid widgets.
@@ -54,7 +62,11 @@ class Overlay(QtWidgets.QFrame):
                     if widget.hasFocus():
                         widget.clearFocus()
                         break
-
+        else:
+            if self._event_filter_installed:
+                application = QtCore.QCoreApplication.instance()
+                application.removeEventFilter(self)
+                self._event_filter_installed = False
         super(Overlay, self).setVisible(visible)
 
     def eventFilter(self, obj, event):
