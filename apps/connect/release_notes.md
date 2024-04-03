@@ -1,5 +1,12 @@
 # ftrack Connect release Notes
 
+## Upcoming
+
+* [changed] Fixed overlay widget bugs.
+* [new] PySide6 support.
+* [changed] Removed Qt.py dependency.
+
+
 ## v3.0.0
 2024-04-02
 
