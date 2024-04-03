@@ -3,7 +3,10 @@
 
 import functools
 
-from ftrack_connect.qt import QtWidgets
+try:
+    from PySide6 import QtWidgets
+except ImportError:
+    from PySide2 import QtWidgets
 
 import ftrack_connect.ui.widget.component
 import ftrack_connect.ui.widget.item_list
@@ -23,7 +26,9 @@ class ComponentsList(ftrack_connect.ui.widget.item_list.ItemList):
             widgetItem=lambda widget: widget.value(),
             parent=parent,
         )
-        self.list.setSelectionMode(QtWidgets.QAbstractItemView.NoSelection)
+        self.list.setSelectionMode(
+            QtWidgets.QAbstractItemView.SelectionMode.NoSelection
+        )
         self.list.setShowGrid(False)
 
         self.label = QtWidgets.QLabel('Components')

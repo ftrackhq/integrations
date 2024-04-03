@@ -1,7 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 
-from ftrack_connect.qt import QtWidgets, QtCore
+try:
+    from PySide6 import QtWidgets, QtCore
+except ImportError:
+    from PySide2 import QtWidgets, QtCore
 
 import ftrack_connect.ui.widget.list
 
@@ -28,7 +31,7 @@ class ItemList(QtWidgets.QFrame):
 
         self.setLayout(QtWidgets.QVBoxLayout())
         self.setFrameStyle(
-            QtWidgets.QFrame.StyledPanel | QtWidgets.QFrame.NoFrame
+            QtWidgets.QFrame.Shape.StyledPanel | QtWidgets.QFrame.Shape.NoFrame
         )
 
         # List

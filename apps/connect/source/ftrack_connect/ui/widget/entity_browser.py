@@ -5,7 +5,10 @@
 
 import os
 
-from ftrack_connect.qt import QtWidgets, QtCore, QtGui, QtCompat
+try:
+    from PySide6 import QtWidgets, QtCore, QtGui, QtCompat
+except ImportError:
+    from PySide2 import QtWidgets, QtCore, QtGui, QtCompat
 import qtawesome as qta
 
 import ftrack_connect.ui.model.entity_tree
@@ -74,8 +77,8 @@ class EntityBrowser(QtWidgets.QDialog):
         self.contentSplitter.addWidget(self.bookmarksList)
 
         self.view = QtWidgets.QTableView()
-        self.view.setSelectionBehavior(self.view.SelectRows)
-        self.view.setSelectionMode(self.view.SingleSelection)
+        self.view.setSelectionBehavior(self.view.SelectionBehavior.SelectRows)
+        self.view.setSelectionMode(self.view.SelectionMode.SingleSelection)
         self.view.verticalHeader().hide()
 
         self.contentSplitter.addWidget(self.view)
@@ -114,7 +117,7 @@ class EntityBrowser(QtWidgets.QDialog):
     def _postConstruction(self):
         '''Perform post-construction operations.'''
         self.setWindowTitle('ftrack browser')
-        self.view.sortByColumn(0, QtCore.Qt.AscendingOrder)
+        self.view.sortByColumn(0, QtCore.Qt.SortOrder.AscendingOrder)
 
         # TODO: Remove once bookmarks widget implemented.
         self.bookmarksList.hide()
@@ -127,11 +130,13 @@ class EntityBrowser(QtWidgets.QDialog):
 
         QtCompat.setSectionResizeMode(
             self.view.horizontalHeader(),
-            QtWidgets.QHeaderView.ResizeToContents,
+            QtWidgets.QHeaderView.ResizeMode.ResizeToContents,
         )
 
         QtCompat.setSectionResizeMode(
-            self.view.horizontalHeader(), 0, QtWidgets.QHeaderView.Stretch
+            self.view.horizontalHeader(),
+            0,
+            QtWidgets.QHeaderView.ResizeMode.Stretch,
         )
 
         self.acceptButton.clicked.connect(self.accept)

@@ -1,7 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 
-from ftrack_connect.qt import QtWidgets, QtCompat
+try:
+    from PySide6 import QtWidgets, QtCompat
+except ImportError:
+    from PySide2 import QtWidgets, QtCompat
 
 
 class List(QtWidgets.QTableWidget):
@@ -14,13 +17,20 @@ class List(QtWidgets.QTableWidget):
         self._widgetColumn = 0
 
         self.setColumnCount(1)
-        self.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
-        self.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
-        self.setVerticalScrollMode(QtWidgets.QAbstractItemView.ScrollPerPixel)
+        self.setSelectionBehavior(
+            QtWidgets.QAbstractItemView.SelectionBehavior.SelectRows
+        )
+        self.setSelectionMode(
+            QtWidgets.QAbstractItemView.SelectionMode.ExtendedSelection
+        )
+        self.setVerticalScrollMode(
+            QtWidgets.QAbstractItemView.ScrollMode.ScrollPerPixel
+        )
         self.verticalHeader().hide()
 
         QtCompat.setSectionResizeMode(
-            self.verticalHeader(), QtWidgets.QHeaderView.ResizeToContents
+            self.verticalHeader(),
+            QtWidgets.QHeaderView.ResizeMode.ResizeToContents,
         )
 
         self.horizontalHeader().setStretchLastSection(True)

@@ -6,7 +6,10 @@ import traceback
 from io import StringIO
 import logging
 
-from ftrack_connect.qt import QtWidgets, QtCore
+try:
+    from PySide6 import QtWidgets, QtCore
+except ImportError:
+    from PySide2 import QtWidgets, QtCore
 
 
 class UncaughtError(QtWidgets.QMessageBox):
@@ -17,7 +20,7 @@ class UncaughtError(QtWidgets.QMessageBox):
     def __init__(self, *args, **kwargs):
         '''Initialise and setup widget.'''
         super(UncaughtError, self).__init__(*args, **kwargs)
-        self.setIcon(QtWidgets.QMessageBox.Critical)
+        self.setIcon(QtWidgets.QMessageBox.Icon.Critical)
         self.onError.connect(self.exceptHook)
 
         # Listen to all unhandled exceptions.

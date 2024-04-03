@@ -6,7 +6,10 @@ import urllib.parse
 import webbrowser
 import functools
 
-from ftrack_connect.qt import QtCore
+try:
+    from PySide6 import QtCore
+except ImportError:
+    from PySide2 import QtCore
 
 
 class LoginServerHandler(BaseHTTPRequestHandler):
@@ -24,6 +27,7 @@ class LoginServerHandler(BaseHTTPRequestHandler):
 
         api_user = None
         api_key = None
+        login_credentials = None
         if 'api_user' and 'api_key' in query:
             login_credentials = urllib.parse.parse_qs(query)
             api_user = login_credentials['api_user'][0]

@@ -2,7 +2,10 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 import logging
 
-from ftrack_connect.qt import QtGui, QtCore, QtWidgets
+try:
+    from PySide6 import QtWidgets, QtCore, QtGui
+except ImportError:
+    from PySide2 import QtWidgets, QtCore, QtGui
 
 import ftrack_connect.ui.widget.indicator
 
@@ -25,7 +28,7 @@ class Overlay(QtWidgets.QFrame):
         super(Overlay, self).__init__(parent=parent)
         self.setObjectName('overlay')
         self.setFrameStyle(
-            QtWidgets.QFrame.StyledPanel | QtWidgets.QFrame.Plain
+            QtWidgets.QFrame.Shape.StyledPanel | QtWidgets.QFrame.Shadow.Plain
         )
 
         # Install global event filter that will deal with matching parent size
@@ -65,7 +68,7 @@ class Overlay(QtWidgets.QFrame):
         '''
         # Match sizing of parent.
         if obj == self.parent():
-            if event.type() == QtCore.QEvent.Resize:
+            if event.type() == QtCore.QEvent.Type.Resize:
                 # Relay event.
                 self.resize(event.size())
 
@@ -85,7 +88,7 @@ class Overlay(QtWidgets.QFrame):
         if (
             self.isVisible()
             and obj != self
-            and event.type() == QtCore.QEvent.FocusIn
+            and event.type() == QtCore.QEvent.Type.FocusIn
         ):
             parent = self.parent()
             if isinstance(obj, QtWidgets.QWidget) and parent.isAncestorOf(obj):
@@ -101,9 +104,9 @@ class Overlay(QtWidgets.QFrame):
                 reason = event.reason()
 
                 while True:
-                    if reason == QtCore.Qt.TabFocusReason:
+                    if reason == QtCore.Qt.FocusReason.TabFocusReason:
                         candidate = candidate.nextInFocusChain()
-                    elif reason == QtCore.Qt.BacktabFocusReason:
+                    elif reason == QtCore.Qt.FocusReason.BacktabFocusReason:
                         candidate = candidate.previousInFocusChain()
                     else:
                         break
@@ -150,7 +153,9 @@ class BlockingOverlay(Overlay):
 
         if not isinstance(self.icon_data, QtGui.QIcon):
             pixmap = QtGui.QPixmap(self.icon_data).scaled(
-                self.icon_size, self.icon_size, QtCore.Qt.KeepAspectRatio
+                self.icon_size,
+                self.icon_size,
+                QtCore.Qt.AspectRatioMode.KeepAspectRatio,
             )
         else:
             pixmap = self.icon_data.pixmap(
@@ -184,7 +189,9 @@ class BlockingOverlay(Overlay):
         self.content = QtWidgets.QFrame()
         self.content.setObjectName('content')
         layout.addWidget(
-            self.content, alignment=QtCore.Qt.AlignCenter | QtCore.Qt.AlignTop
+            self.content,
+            alignment=QtCore.Qt.AlignmentFlag.AlignCenter
+            | QtCore.Qt.AlignmentFlag.AlignTop,
         )
 
         self.contentLayout = QtWidgets.QVBoxLayout()
@@ -193,16 +200,20 @@ class BlockingOverlay(Overlay):
         self.icon_size = icon_size
         self.icon = QtWidgets.QLabel()
         self.icon_data = icon
-        self.icon.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignTop)
+        self.icon.setAlignment(
+            QtCore.Qt.AlignmentFlag.AlignCenter
+            | QtCore.Qt.AlignmentFlag.AlignTop
+        )
 
         self.contentLayout.insertWidget(
-            1, self.icon, alignment=QtCore.Qt.AlignCenter
+            1, self.icon, alignment=QtCore.Qt.AlignmentFlag.AlignCenter
         )
 
         self.messageLabel = QtWidgets.QLabel()
         self.messageLabel.setWordWrap(True)
         self.messageLabel.setAlignment(
-            QtCore.Qt.AlignCenter | QtCore.Qt.AlignBottom
+            QtCore.Qt.AlignmentFlag.AlignCenter
+            | QtCore.Qt.AlignmentFlag.AlignBottom
         )
 
         self.contentLayout.addSpacing(30)
@@ -232,7 +243,7 @@ class BusyOverlay(BlockingOverlay):
 
         self.icon.hide()
         self.contentLayout.insertWidget(
-            1, self.indicator, alignment=QtCore.Qt.AlignCenter
+            1, self.indicator, alignment=QtCore.Qt.AlignmentFlag.AlignCenter
         )
 
     def setVisible(self, visible):
@@ -258,5 +269,5 @@ class CancelOverlay(BusyOverlay):
         loginButton.clicked.connect(self.hide)
 
         self.contentLayout.addWidget(
-            loginButton, alignment=QtCore.Qt.AlignCenter
+            loginButton, alignment=QtCore.Qt.AlignmentFlag.AlignCenter
         )
