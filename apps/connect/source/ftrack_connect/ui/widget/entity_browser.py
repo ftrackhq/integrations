@@ -6,9 +6,10 @@
 import os
 
 try:
-    from PySide6 import QtWidgets, QtCore, QtGui, QtCompat
+    from PySide6 import QtWidgets, QtCore, QtGui
 except ImportError:
-    from PySide2 import QtWidgets, QtCore, QtGui, QtCompat
+    from PySide2 import QtWidgets, QtCore, QtGui
+
 import qtawesome as qta
 
 import ftrack_connect.ui.model.entity_tree
@@ -128,15 +129,11 @@ class EntityBrowser(QtWidgets.QDialog):
         self.model.sourceModel().loadStarted.connect(self._onLoadStarted)
         self.model.sourceModel().loadEnded.connect(self._onLoadEnded)
 
-        QtCompat.setSectionResizeMode(
-            self.view.horizontalHeader(),
-            QtWidgets.QHeaderView.ResizeMode.ResizeToContents,
+        self.view.horizontalHeader().setSectionResizeMode(
+            QtWidgets.QHeaderView.ResizeMode.ResizeToContents
         )
-
-        QtCompat.setSectionResizeMode(
-            self.view.horizontalHeader(),
-            0,
-            QtWidgets.QHeaderView.ResizeMode.Stretch,
+        self.view.horizontalHeader().setSectionResizeMode(
+            0, QtWidgets.QHeaderView.ResizeMode.Stretch
         )
 
         self.acceptButton.clicked.connect(self.accept)

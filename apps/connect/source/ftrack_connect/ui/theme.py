@@ -2,9 +2,9 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 
 try:
-    from PySide6 import QtWidgets, QtCore
+    from PySide6 import QtWidgets, QtCore, QtGui
 except ImportError:
-    from PySide2 import QtWidgets, QtCore
+    from PySide2 import QtWidgets, QtCore, QtGui
 
 
 def applyFont():

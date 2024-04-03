@@ -2,9 +2,9 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 
 try:
-    from PySide6 import QtWidgets, QtCompat
+    from PySide6 import QtWidgets
 except ImportError:
-    from PySide2 import QtWidgets, QtCompat
+    from PySide2 import QtWidgets
 
 
 class List(QtWidgets.QTableWidget):
@@ -28,9 +28,8 @@ class List(QtWidgets.QTableWidget):
         )
         self.verticalHeader().hide()
 
-        QtCompat.setSectionResizeMode(
-            self.verticalHeader(),
-            QtWidgets.QHeaderView.ResizeMode.ResizeToContents,
+        self.verticalHeader().setSectionResizeMode(
+            QtWidgets.QHeaderView.ResizeMode.ResizeToContents
         )
 
         self.horizontalHeader().setStretchLastSection(True)
