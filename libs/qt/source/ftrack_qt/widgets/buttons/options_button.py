@@ -31,6 +31,7 @@ class OptionsButton(QtWidgets.QPushButton):
         self.__section_registry = {}
 
         self._main_widget = None
+        self._scroll = None
         self._options_widget = None
         self._overlay_container = None
 
@@ -45,37 +46,9 @@ class OptionsButton(QtWidgets.QPushButton):
         self.setFlat(True)
 
     def build(self):
-        self._main_widget = QtWidgets.QFrame()
-        self._main_widget.setLayout(QtWidgets.QVBoxLayout())
-        self._main_widget.layout().setAlignment(
-            QtCore.Qt.AlignmentFlag.AlignTop
-        )
-
-        title_label = QtWidgets.QLabel(self._title)
-        title_label.setObjectName('h2')
-        self._main_widget.layout().addWidget(title_label)
-        self._main_widget.layout().addWidget(QtWidgets.QLabel(''))
-
-        self._options_widget = QtWidgets.QWidget()
+        self._options_widget = QtWidgets.QFrame()
+        self._options_widget.setObjectName('overlay')
         self._options_widget.setLayout(QtWidgets.QVBoxLayout())
-        self._options_widget.layout().addWidget(
-            QtWidgets.QLabel(''), 100
-        )  # spacer
-
-        scroll = QtWidgets.QScrollArea()
-        scroll.setWidget(self._options_widget)
-        scroll.setWidgetResizable(True)
-        scroll.setHorizontalScrollBarPolicy(
-            QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff
-        )
-        scroll.setVerticalScrollBarPolicy(
-            QtCore.Qt.ScrollBarPolicy.ScrollBarAsNeeded
-        )
-        self._main_widget.layout().addWidget(scroll)
-        self._overlay_container = OverlayWidget(
-            self._main_widget, height_percentage=0.9
-        )
-        self._overlay_container.setVisible(False)
 
     def post_build(self):
         self.clicked.connect(self.on_click_callback)
@@ -92,28 +65,49 @@ class OptionsButton(QtWidgets.QPushButton):
 
     def add_widget(self, widget, section_name):
         if section_name not in self.__section_registry:
-            self._options_widget.layout().insertWidget(
-                self._options_widget.layout().count() - 1, LineWidget()
-            )
+            self._options_widget.layout().addWidget(LineWidget())
             section_label = QtWidgets.QLabel("{}:".format(section_name))
             section_label.setObjectName('gray')
-            self._options_widget.layout().insertWidget(
-                self._options_widget.layout().count() - 1,
+            self._options_widget.layout().addWidget(
                 section_label,
             )
             section_widget = QtWidgets.QWidget()
             section_widget_layout = QtWidgets.QVBoxLayout()
             section_widget.setLayout(section_widget_layout)
-            self._options_widget.layout().insertWidget(
-                self._options_widget.layout().count() - 1, section_widget
-            )
+            self._options_widget.layout().addWidget(section_widget)
 
             # TODO: create the section Widget
             self.__section_registry[section_name] = section_widget
 
-        self.__section_registry[section_name].layout().insertWidget(
-            self._options_widget.layout().count() - 1, LineWidget()
+        self.__section_registry[section_name].layout().addWidget(LineWidget())
+        self.__section_registry[section_name].layout().addWidget(widget)
+
+    def finalize_options_widget(self):
+        '''Finalize the options widget after it has been built, create overlay'''
+
+        self._options_widget.layout().addWidget(QtWidgets.QLabel(''), 100)
+
+        self._main_widget = QtWidgets.QFrame()
+        self._main_widget.setLayout(QtWidgets.QVBoxLayout())
+        self._main_widget.layout().setAlignment(
+            QtCore.Qt.AlignmentFlag.AlignTop
         )
-        self.__section_registry[section_name].layout().insertWidget(
-            self._options_widget.layout().count() - 1, widget
+
+        title_label = QtWidgets.QLabel(self._title)
+        title_label.setObjectName('h2')
+        self._main_widget.layout().addWidget(title_label)
+        self._main_widget.layout().addWidget(QtWidgets.QLabel(''))
+
+        self._scroll = QtWidgets.QScrollArea()
+        self._scroll.setWidget(self._options_widget)
+        self._scroll.setWidgetResizable(True)
+        self._scroll.setHorizontalScrollBarPolicy(
+            QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff
         )
+        self._scroll.setVerticalScrollBarPolicy(
+            QtCore.Qt.ScrollBarPolicy.ScrollBarAsNeeded
+        )
+        self._main_widget.layout().addWidget(self._scroll, 100)
+
+        self._overlay_container = OverlayWidget(self._main_widget)
+        self._overlay_container.setVisible(False)

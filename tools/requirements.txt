@@ -1,2 +1,2 @@
 pyScss >= 1.4
-PySide2 == 5.13.2
+PySide2
