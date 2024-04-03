@@ -37,7 +37,8 @@ class OverlayWidget(QtWidgets.QFrame):
         Initialize Overlay
 
         :param widget: The widget to put inside the overlay
-        :param transparent_background: If True, overlay widget should be made semi transparent.
+        :param transparent_background: If True, widget should be made semi transparent together
+        with the surrounding area.
         :param parent: The parent dialog or frame
         '''
         super(OverlayWidget, self).__init__(parent=parent)
