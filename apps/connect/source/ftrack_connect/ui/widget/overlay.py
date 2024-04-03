@@ -217,8 +217,8 @@ class BlockingOverlay(Overlay):
             | QtCore.Qt.AlignmentFlag.AlignTop
         )
 
-        self.contentLayout.insertWidget(
-            1, self.icon, alignment=QtCore.Qt.AlignmentFlag.AlignCenter
+        self.contentLayout.addWidget(
+            self.icon, alignment=QtCore.Qt.AlignmentFlag.AlignCenter
         )
 
         self.messageLabel = QtWidgets.QLabel()
