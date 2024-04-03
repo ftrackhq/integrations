@@ -3,7 +3,7 @@
 
 import os
 import sys
-import qtawesome as qta
+import operator
 
 try:
     from PySide6 import QtWidgets, QtCore, QtGui
