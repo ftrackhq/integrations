@@ -23,7 +23,7 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.dependencies]
-python = ">= 3.7, < 3.9"
+python = ">= 3.7, < 3.11"
 PySide2 = "5.13.2"
 ftrack-python-api = "^2.5.4"
 clique = "1.6.1"
