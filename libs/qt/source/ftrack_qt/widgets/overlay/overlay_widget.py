@@ -170,6 +170,3 @@ class OverlayWidget(QtWidgets.QFrame):
                 # Relay event.
                 self.resize(event.size())
         return False
-
-        # Let event propagate.
-        return super(OverlayWidget, self).eventFilter(obj, event)
