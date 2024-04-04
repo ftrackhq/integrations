@@ -8,14 +8,34 @@ QComboBox {
     color: $text-color;
     text-align: center;
     combobox-popup: 0;
+}
 
-    &:hover {
-        border-color: darken($border-color, 5%);
-    }
+// QComboBox::down-arrow {
+//     image: theme-image('combobox_down_arrow');
+//     //width: 12px;
+//     //height: 12px;
+// }
+//
+// QComboBox::item {
+//     color: green;
+//     background-color: red !important;
+// }
 
-    &:focus {
-        border: 1px solid lighten($border-color, 5%);
-    }
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    border: none; /* Removes border around the drop-down button */
+}
+
+QComboBox::down-arrow {
+    image: url(':ftrack/image/material-design-icons/filled/keyboard_arrow_down');
+    width: 32px; /* Set the width of the arrow image */
+    height: 32px; /* Set the height of the arrow image */
+}
+
+QComboBox QAbstractItemView {
+    selection-background-color: $color-primary; /* Background color of selected item */
+    selection-color: $background; /* Text color of selected item */
 }
 
 
