@@ -748,7 +748,7 @@ class EntityWidget(QtWidgets.QFrame):
             sub_path = QtWidgets.QLabel(
                 '.. / {}'.format(self.entity['parent']['name'])
             )
-            sub_path.setObjectName('gray')
+            sub_path.setProperty('secondary', True)
             lower_widget.layout().addWidget(sub_path)
 
         if not self.is_parent:

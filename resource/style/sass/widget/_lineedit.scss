@@ -2,9 +2,12 @@
 QLineEdit {
     border: 1px solid $border-color;
     padding: $input-padding;
-    background: $input-background;
-    selection-color: $text-color-active;
-    selection-background-color: $gray-lighter;
+    //background: $input-background;
+    //selection-color: $text-color-active;
+    //selection-background-color: $gray-lighter;
     color: $text-color;
 }
 
+QLineEdit:focus {
+    border: 1px solid $color-primary;
+}

@@ -88,7 +88,7 @@ class OptionsButton(QtWidgets.QPushButton):
                 self._options_widget.layout().count() - 1, LineWidget()
             )
             section_label = QtWidgets.QLabel("{}:".format(section_name))
-            section_label.setObjectName('gray')
+            section_label.setProperty('secondary', True)
             self._options_widget.layout().insertWidget(
                 self._options_widget.layout().count() - 1,
                 section_label,

@@ -61,13 +61,14 @@ class NewAssetInput(QtWidgets.QFrame):
     def build(self):
         '''Build the button, name input, and version label.'''
         self._button = QtWidgets.QPushButton('NEW')
-        self._button.setStyleSheet('background: #FFDD86;')
+        self._button.setProperty('filled', True)
         self._button.setFixedSize(56, 30)
         self._button.setMaximumSize(56, 30)
 
         self.layout().addWidget(self._button)
 
         self._name = QtWidgets.QLineEdit()
+        self._name.setAttribute(QtCore.Qt.WA_MacShowFocusRect, False)
         self._name.setPlaceholderText(self._placeholder_name)
         self._name.setValidator(self._validator)
         self._name.setSizePolicy(

@@ -60,6 +60,9 @@ class StandardOpenerDialog(BaseContextDialog):
         self.setWindowTitle('ftrack Opener')
 
     def pre_build_ui(self):
+        # Make sure to remove self._scroll_area in case of reload
+        if self._scroll_area:
+            self._scroll_area.deleteLater()
         # Create scroll area to add all the widgets
         self._scroll_area = QtWidgets.QScrollArea()
         self._scroll_area.setStyle(QtWidgets.QStyleFactory.create("plastique"))
@@ -68,13 +71,21 @@ class StandardOpenerDialog(BaseContextDialog):
             QtCore.Qt.ScrollBarAlwaysOff
         )
 
-        # Create a main widget for the scroll area
-        self._scroll_area_widget = QtWidgets.QWidget()
-        scroll_area_widget_layout = QtWidgets.QVBoxLayout()
-        scroll_area_widget_layout.setContentsMargins(0, 0, 0, 0)
-        self._scroll_area_widget.setLayout(scroll_area_widget_layout)
-        self.tool_widget.layout().addWidget(self._scroll_area, 100)
-        self._scroll_area.setWidget(self._scroll_area_widget)
+        index = self.layout().indexOf(self.tool_widget)
+        run_index = self.layout().indexOf(self.run_button)
+        if index != -1:  # Ensure the widget is found in the layout
+            # Remove the old widget from layout
+            self.layout().takeAt(index)
+            # Insert the new widget at the same position
+            self.layout().insertWidget(index, self._scroll_area)
+        elif run_index != -1:
+            # In case tool_widget is not already parented make sure to add scroll
+            # area above the run button.
+            self.layout().insertWidget((run_index - 1), self._scroll_area)
+        else:  # otherwise set it at the end
+            self.layout().addWidget(self._scroll_area)
+
+        self._scroll_area.setWidget(self.tool_widget)
 
     def build_ui(self):
         # Select the desired tool_config
@@ -120,7 +131,7 @@ class StandardOpenerDialog(BaseContextDialog):
             label_widget.setStyleSheet(
                 "font-style: italic; font-weight: bold;"
             )
-            self._scroll_area_widget.layout().addWidget(label_widget)
+            self.tool_widget.layout().addWidget(label_widget)
             return
 
         # Build context widgets
@@ -131,7 +142,7 @@ class StandardOpenerDialog(BaseContextDialog):
             if not context_plugin.get('ui'):
                 continue
             context_widget = self.init_framework_widget(context_plugin)
-            self._scroll_area_widget.layout().addWidget(context_widget)
+            self.tool_widget.layout().addWidget(context_widget)
 
         # Build component widgets with asset version selector
         component_groups = get_groups(
@@ -145,7 +156,7 @@ class StandardOpenerDialog(BaseContextDialog):
             component_label.setToolTip(
                 f"The component to be open is {component_name}"
             )
-            self._scroll_area_widget.layout().addWidget(component_label)
+            self.tool_widget.layout().addWidget(component_label)
 
             collectors = get_plugins(
                 group_config, filters={'tags': ['collector']}
@@ -157,7 +168,7 @@ class StandardOpenerDialog(BaseContextDialog):
                     plugin_config, group_config
                 )
 
-                self._scroll_area_widget.layout().addWidget(widget)
+                self.tool_widget.layout().addWidget(widget)
 
         spacer = QtWidgets.QSpacerItem(
             1,
@@ -165,7 +176,7 @@ class StandardOpenerDialog(BaseContextDialog):
             QtWidgets.QSizePolicy.Minimum,
             QtWidgets.QSizePolicy.Expanding,
         )
-        self._scroll_area_widget.layout().addItem(spacer)
+        self.tool_widget.layout().addItem(spacer)
 
     def post_build_ui(self):
         pass

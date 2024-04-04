@@ -1,22 +1,13 @@
 /* Scroll bar */
 QScrollBar {
     border: 0;
-    background: $background;
-    background-color: $background;
-    margin: 0;
+    border-radius: 4px;
+    background: transparent;
+    margin: 2px;
+    min-width: 2px;
+    min-height: 2px;
 }
-
-QScrollBar:vertical {
-    width: 12px;
-    background: $background;
-}
-
-QScrollBar:horizontal {
-    height: 12px;
-    background: $background;
-}
-
-QScrollBar::handle:vertical, QScrollBar::handle:horizontal {
+QScrollBar::handle {
     border: 0;
     border-radius: 4px;
     background: $scrollbar-handle;
@@ -25,48 +16,67 @@ QScrollBar::handle:vertical, QScrollBar::handle:horizontal {
     min-height: 2px;
 }
 
-QFrame[docked='true'] QScrollBar {
-    background: $background-docked;
-}
-
-QFrame[docked='true'] QScrollBar:vertical {
-    background: $background-docked;
-}
-
-QFrame[docked='true'] QScrollBar:horizontal {
-    background: $background-docked;
-}
-
-QFrame[docked='true'] QScrollBar::handle {
-    background: $gray-dark;
-}
-
-QFrame[docked='true'] QScrollBar::handle:hover {
-    background: $scrollbar-handle-docked;
-}
-
-QScrollBar::handle:vertical {
-    min-height: 4px;
-}
-
-QScrollBar::left-arrow, QScrollBar::right-arrow,QScrollBar::down-arrow, QScrollBar::up-arrow {
-    width: 0px;
-    height: 0px;
-    border: none;
-}
-
-QScrollBar::add-line {
-    border: 0;
-    height: 0;
-    background: $white;
-    subcontrol-position: bottom;
-    subcontrol-origin: margin;
-}
-
-QScrollBar::sub-line {
-    border: 0;
-    height: 0;
-    background: $white;
-    subcontrol-position: top;
-    subcontrol-origin: margin;
-}
+// QScrollBar:vertical {
+//     width: 12px;
+//     background: $background;
+// }
+//
+// QScrollBar:horizontal {
+//     height: 12px;
+//     background: $background;
+// }
+//
+// QScrollBar::handle:vertical, QScrollBar::handle:horizontal {
+//     border: 0;
+//     border-radius: 4px;
+//     background: $scrollbar-handle;
+//     margin: 2px;
+//     min-width: 2px;
+//     min-height: 2px;
+// }
+//
+// QFrame[docked='true'] QScrollBar {
+//     background: $background-docked;
+// }
+//
+// QFrame[docked='true'] QScrollBar:vertical {
+//     background: $background-docked;
+// }
+//
+// QFrame[docked='true'] QScrollBar:horizontal {
+//     background: $background-docked;
+// }
+//
+// QFrame[docked='true'] QScrollBar::handle {
+//     background: $gray-dark;
+// }
+//
+// QFrame[docked='true'] QScrollBar::handle:hover {
+//     background: $scrollbar-handle-docked;
+// }
+//
+// QScrollBar::handle:vertical {
+//     min-height: 4px;
+// }
+//
+// QScrollBar::left-arrow, QScrollBar::right-arrow,QScrollBar::down-arrow, QScrollBar::up-arrow {
+//     width: 0px;
+//     height: 0px;
+//     border: none;
+// }
+//
+// QScrollBar::add-line {
+//     border: 0;
+//     height: 0;
+//     background: $white;
+//     subcontrol-position: bottom;
+//     subcontrol-origin: margin;
+// }
+//
+// QScrollBar::sub-line {
+//     border: 0;
+//     height: 0;
+//     background: $white;
+//     subcontrol-position: top;
+//     subcontrol-origin: margin;
+// }

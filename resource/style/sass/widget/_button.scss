@@ -1,5 +1,5 @@
 /** Button */
-QPushButton, QMessageBox QPushButton {
+QPushButton {
     border: 1px solid $color-primary;
     border-radius: 3px;
     background-color: transparent;
@@ -30,216 +30,233 @@ QPushButton:checked {
     font-weight: bold;
 }
 
-QPushButton#primary {
-    background-color: $brand-primary;
-    color: white;
+QPushButton[borderless='true'] {
+    border:none;
+    //padding: 0px;
+    //margin: 0px;
 }
-
-QPushButton#primary:hover {
-    background-color: $brand-primary;
-    border-color: $color-primary;
-    color: lighten($brand-primary, 90%);
-}
-
-QPushButton#primary:pressed {
-    background-color: darken($brand-primary, 5%);
-    border-color: darken($color-primary, 5%);
-    color: lighten($brand-primary, 90%);
-}
-
-/** Flat button */
-QPushButton[flat="true"]:pressed {
-    background: none;
-    border: 1px solid $color-primary;
-}
-
-/** Toolbuttons */
-QToolButton {
-    border: 1px solid $color-primary;
-    border-radius: 2px;
-    background-color: $white;
-    color: black;
-}
-
-QToolButton:hover {
-    border-color: darken($color-primary, 5%);
-    background-color:  $gray-lighter;
-    color: white
-}
-
-QToolButton:pressed {
-    border-color: darken($color-primary, 5%);
-    background-color:  $gray-lighter;
-    color: white
-}
-
-QFrame#new-asset-input[status=''] QPushButton {
-    border: 1px; solid transparent;
-}
-
-ProgressStatusButtonWidget#progress-widget-header-button, ProgressStatusButtonWidget#progress-widget-header-button-collapsed {
-    border-radius: 16px;
-    padding: 0px;
-}
-
-ProgressStatusButtonWidget#progress-widget-overlay-banner {
-    border-radius: 4px;
-    padding: 4px;
-}
-
-ProgressStatusButtonWidget[status='unknown_status'], ProgressStatusButtonWidget[status='pause_status'] {
-    border: 1px solid $gray-dark;
-}
- ProgressStatusButtonWidget[status='pause_status'] {
-    border: 1px solid #FFBA5C;
-}
-ProgressStatusButtonWidget[status='warning_status'] {
-    border: 1px solid #FFBA5C;
-}
-ProgressStatusButtonWidget[status='running_status'] {
-    border: 1px solid #87E1EB;
-}
-ProgressStatusButtonWidget[status='success_status'] {
-    border: 1px solid #79DFB6;
-}
-ProgressStatusButtonWidget[status='error_status'], ProgressStatusButtonWidget[status='exception_status'] {
-    border: 1px solid #FF7A73;
-}
-
-ProgressPhaseButtonWidget {
-    border: none !important;
-    padding: 0px;
-}
-
-OptionsButton {
-    padding: 0px;
-    margin: 0px;
-}
-
-OptionsButton:disabled {
-   background: none;
-}
-
-PhaseButton, PhaseButton QLabel {
-    background-color: transparent;
-    border: none;
-}
-
-RunButton {
-    color: $color-primary;
-    font-size: 12px;
-    padding-left: 14px;
-    padding-right: 14px;
-}
-
-OpenAssemblerButton {
-    color: $text-color;
-    font-size: 12px;
-    border: 1px solid $gray-dark;
-}
-
-OpenAssemblerButton:hover {
-    color: lighten($text-color, 5%);
-    border: 1px solid lighten($gray-dark, 5%);
-    background: darken($gray-dark, 50%);
-}
-
-AddRunButton {
-    color: $color-cyan;
-    border: 1px solid $color-cyan;
-    border-radius: 3px;
-    padding-left: 14px;
-    padding-right: 14px;
-}
-
-AddRunButton:hover {
-    color: lighten($color-cyan, 5%);
-    border: 1px solid lighten($color-cyan, 5%);
-    background: darken($color-cyan, 50%);
-}
-
-AddRunButton:disabled {
-    color: darken($color-cyan, 50%);
-    border: 1px solid darken($color-cyan, 50%);
-}
-
-LoadRunButton {
-    color: $color-green;
-    border: 1px solid $color-green;
-    border-radius: 3px;
-    padding-left: 14px;
-    padding-right: 14px;
-}
-
-LoadRunButton:hover {
-    color: lighten($color-green, 5%);
-    border: 1px solid lighten($color-green, 5%);
-    background: darken($color-green, 25%);
-}
-
-LoadRunButton:disabled {
-    color: darken($color-green, 33%);
-    border: 1px solid darken($color-green, 33%);
-}
-
-RemoveButton {
-    color: #FF7A73;
-    border: 1px solid #FF7A73;
-    border-radius: 3px;
-    padding-left: 4px;
-    padding-right: 4px;
-}
-
-RemoveButton:hover {
-    color: lighten(#FF7A73, 5%);
-    border: 1px solid lighten(#FF7A73, 5%);
-    background: darken(#FF7A73, 25%);
-}
-
-RemoveButton:disabled {
-    color: rgba(255,122,115, 0.25);
-    border: 1px solid rgba(255,122,115, 0.25);
-}
-
-ApproveButton {
-    color: $color-primary;
-    border: none;
-    background: transparent;
-    font-size: 1.1em;
-}
-
-ApproveButton:disabled {
-    background: transparent;
-}
-
-ApproveButton:hover {
-    background: transparent;
-}
-
-DenyButton {
-    color: $gray;
-    border: none;
-    background: transparent;
-    font-size: 1.1em;
-}
-
-DenyButton:hover {
-    background: transparent;
-}
-
-NewAssetInput QPushButton {
+QPushButton[filled='true'] {
     border: none;
     font-weight: bold;
-    color: $background-docked;
+    color: $background;
     background: $color-primary;
 }
-
-SearchButton[collapsed='false'] QPushButton {
-    border:none;
-    background: transparent;
+QPushButton[filled='true']:pressed {
+    background-color: darken( $color-primary-dark, 5%);
 }
 
-SearchButton[collapsed='true'] QPushButton {
-    border: 1px solid #2A2A2A;
-    border-radius: 16px;
-}
+
+//
+// QPushButton#primary {
+//     background-color: $brand-primary;
+//     color: white;
+// }
+//
+// QPushButton#primary:hover {
+//     background-color: $brand-primary;
+//     border-color: $color-primary;
+//     color: lighten($brand-primary, 90%);
+// }
+//
+// QPushButton#primary:pressed {
+//     background-color: darken($brand-primary, 5%);
+//     border-color: darken($color-primary, 5%);
+//     color: lighten($brand-primary, 90%);
+// }
+//
+// /** Flat button */
+// QPushButton[flat="true"]:pressed {
+//     background: none;
+//     border: 1px solid $color-primary;
+// }
+//
+// /** Toolbuttons */
+// QToolButton {
+//     border: 1px solid $color-primary;
+//     border-radius: 2px;
+//     background-color: $white;
+//     color: black;
+// }
+//
+// QToolButton:hover {
+//     border-color: darken($color-primary, 5%);
+//     background-color:  $gray-lighter;
+//     color: white
+// }
+//
+// QToolButton:pressed {
+//     border-color: darken($color-primary, 5%);
+//     background-color:  $gray-lighter;
+//     color: white
+// }
+//
+// QFrame#new-asset-input[status=''] QPushButton {
+//     border: 1px; solid transparent;
+// }
+//
+// ProgressStatusButtonWidget#progress-widget-header-button, ProgressStatusButtonWidget#progress-widget-header-button-collapsed {
+//     border-radius: 16px;
+//     padding: 0px;
+// }
+//
+// ProgressStatusButtonWidget#progress-widget-overlay-banner {
+//     border-radius: 4px;
+//     padding: 4px;
+// }
+//
+// ProgressStatusButtonWidget[status='unknown_status'], ProgressStatusButtonWidget[status='pause_status'] {
+//     border: 1px solid $gray-dark;
+// }
+//  ProgressStatusButtonWidget[status='pause_status'] {
+//     border: 1px solid #FFBA5C;
+// }
+// ProgressStatusButtonWidget[status='warning_status'] {
+//     border: 1px solid #FFBA5C;
+// }
+// ProgressStatusButtonWidget[status='running_status'] {
+//     border: 1px solid #87E1EB;
+// }
+// ProgressStatusButtonWidget[status='success_status'] {
+//     border: 1px solid #79DFB6;
+// }
+// ProgressStatusButtonWidget[status='error_status'], ProgressStatusButtonWidget[status='exception_status'] {
+//     border: 1px solid #FF7A73;
+// }
+//
+// ProgressPhaseButtonWidget {
+//     border: none !important;
+//     padding: 0px;
+// }
+//
+// OptionsButton {
+//     padding: 0px;
+//     margin: 0px;
+// }
+//
+// OptionsButton:disabled {
+//    background: none;
+// }
+//
+// PhaseButton, PhaseButton QLabel {
+//     background-color: transparent;
+//     border: none;
+// }
+//
+// RunButton {
+//     color: $color-primary;
+//     font-size: 12px;
+//     padding-left: 14px;
+//     padding-right: 14px;
+// }
+//
+// OpenAssemblerButton {
+//     color: $text-color;
+//     font-size: 12px;
+//     border: 1px solid $gray-dark;
+// }
+//
+// OpenAssemblerButton:hover {
+//     color: lighten($text-color, 5%);
+//     border: 1px solid lighten($gray-dark, 5%);
+//     background: darken($gray-dark, 50%);
+// }
+//
+// AddRunButton {
+//     color: $color-cyan;
+//     border: 1px solid $color-cyan;
+//     border-radius: 3px;
+//     padding-left: 14px;
+//     padding-right: 14px;
+// }
+//
+// AddRunButton:hover {
+//     color: lighten($color-cyan, 5%);
+//     border: 1px solid lighten($color-cyan, 5%);
+//     background: darken($color-cyan, 50%);
+// }
+//
+// AddRunButton:disabled {
+//     color: darken($color-cyan, 50%);
+//     border: 1px solid darken($color-cyan, 50%);
+// }
+//
+// LoadRunButton {
+//     color: $color-green;
+//     border: 1px solid $color-green;
+//     border-radius: 3px;
+//     padding-left: 14px;
+//     padding-right: 14px;
+// }
+//
+// LoadRunButton:hover {
+//     color: lighten($color-green, 5%);
+//     border: 1px solid lighten($color-green, 5%);
+//     background: darken($color-green, 25%);
+// }
+//
+// LoadRunButton:disabled {
+//     color: darken($color-green, 33%);
+//     border: 1px solid darken($color-green, 33%);
+// }
+//
+// RemoveButton {
+//     color: #FF7A73;
+//     border: 1px solid #FF7A73;
+//     border-radius: 3px;
+//     padding-left: 4px;
+//     padding-right: 4px;
+// }
+//
+// RemoveButton:hover {
+//     color: lighten(#FF7A73, 5%);
+//     border: 1px solid lighten(#FF7A73, 5%);
+//     background: darken(#FF7A73, 25%);
+// }
+//
+// RemoveButton:disabled {
+//     color: rgba(255,122,115, 0.25);
+//     border: 1px solid rgba(255,122,115, 0.25);
+// }
+//
+// ApproveButton {
+//     color: $color-primary;
+//     border: none;
+//     background: transparent;
+//     font-size: 1.1em;
+// }
+//
+// ApproveButton:disabled {
+//     background: transparent;
+// }
+//
+// ApproveButton:hover {
+//     background: transparent;
+// }
+//
+// DenyButton {
+//     color: $gray;
+//     border: none;
+//     background: transparent;
+//     font-size: 1.1em;
+// }
+//
+// DenyButton:hover {
+//     background: transparent;
+// }
+//
+// NewAssetInput QPushButton {
+//     border: none;
+//     font-weight: bold;
+//     color: $background-docked;
+//     background: $color-primary;
+// }
+//
+// SearchButton[collapsed='false'] QPushButton {
+//     border:none;
+//     background: transparent;
+// }
+//
+// SearchButton[collapsed='true'] QPushButton {
+//     border: 1px solid #2A2A2A;
+//     border-radius: 16px;
+// }

@@ -66,7 +66,7 @@ class EntityInfo(QtWidgets.QWidget):
         self.layout().addWidget(name_widget)
 
         self._path_field = QtWidgets.QLabel()
-        self._path_field.setObjectName('gray')
+        self._path_field.setProperty('secondary', True)
         self.layout().addWidget(self._path_field)
 
         self.layout().addStretch()

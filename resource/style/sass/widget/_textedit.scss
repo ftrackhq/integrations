@@ -1,27 +1,28 @@
 /* Text edit */
 
-QTextEdit, QLineEdit  {
+QTextEdit {
     border: 1px solid $border-color;
     border-radius: 2px;
     padding: $input-padding;
     background: $input-background;
-    selection-color: $text-color-active;
-    selection-background-color: $gray-lighter;
+    //selection-color: $text-color-active;
+    //selection-background-color: $gray-lighter;
     color: $text-color;
-
-    &:hover {
-        border-color: lighten($border-color, 5%);
-    }
-
-    &:disabled {
-        border-color: darken($border-color, 10%);
-    }
-
-    &:focus {
-        border-color: lighten($border-color, 5%);
-    }
 }
 
-QTextEdit[input="invalid"], QLineEdit[input="invalid"] {
-    border: 1px solid darken(red, 50%);
-}
+//     &:hover {
+//         border-color: lighten($border-color, 5%);
+//     }
+//
+//     &:disabled {
+//         border-color: darken($border-color, 10%);
+//     }
+//
+//     &:focus {
+//         border-color: lighten($border-color, 5%);
+//     }
+// }
+//
+// QTextEdit[input="invalid"], QLineEdit[input="invalid"] {
+//     border: 1px solid darken(red, 50%);
+// }

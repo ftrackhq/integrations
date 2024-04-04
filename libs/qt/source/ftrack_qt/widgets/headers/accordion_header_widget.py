@@ -117,7 +117,7 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
         self._options_button = OptionsButton(
             self.title, MaterialIcon('settings', color='gray')
         )
-        self._options_button.setObjectName('borderless')
+        self._options_button.setProperty('borderless', True)
         content_layout.addWidget(LineWidget(horizontal=True))
         # add status icon
         self._status_icon = StatusMaterialIconWidget('check')

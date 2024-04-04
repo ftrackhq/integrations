@@ -3,46 +3,49 @@
 * {
     font-family: $font-family-base;
     font-size: 11px;
+    background-color: $background;
 }
 
 /* Generic styles */
 
-#h1 {
-    color: $color-white;
-    font-weight: bold;
-    font-size: 20px;
-}
+// #h1 {
+//     color: $color-white;
+//     font-weight: bold;
+//     font-size: 20px;
+// }
+//
+// #h2 {
+//     color: $color-white;
+//     font-weight: bold;
+//     font-size: 14px;
+// }
+//
+// #h3 {
+//     color: $color-white;
+//     font-weight: bold;
+//     font-size: larger;
+// }
 
-#h2 {
-    color: $color-white;
-    font-weight: bold;
-    font-size: 14px;
-}
-
-#h3 {
-    color: $color-white;
-    font-weight: bold;
-    font-size: larger;
-}
-
-#gray {
-    color: $gray;
-}
-
-#gray-dark {
-    color: $gray-dark;
-}
-
-#gray-darker {
-    color: $gray-darker;
-}
-
-#color-primary {
-    color: $color-primary;
-}
-
-#borderless {
-    border: none;
-}
+// TODO: check if we can remove the below settings
+//
+// #gray {
+//     color: $gray;
+// }
+//
+// #gray-dark {
+//     color: $gray-dark;
+// }
+//
+// #gray-darker {
+//     color: $gray-darker;
+// }
+//
+// #color-primary {
+//     color: $color-primary;
+// }
+//
+// #borderless {
+//     border: none;
+// }
 
 

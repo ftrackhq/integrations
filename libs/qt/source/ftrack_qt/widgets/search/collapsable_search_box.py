@@ -81,6 +81,7 @@ class SearchBox(QtWidgets.QFrame):
         if not self._collapsed:
             # A bordered input field filling all space, with input and a clear button
             self._input = QtWidgets.QLineEdit()
+            self._input.setAttribute(QtCore.Qt.WA_MacShowFocusRect, False)
             self._input.setReadOnly(False)
             self._input.textChanged.connect(self._on_input_changed)
             self._input.setPlaceholderText("Type to search")

@@ -4,6 +4,44 @@ QLabel {
     border: none;
 }
 
-NewAssetInput[status='unfocused'] QLabel {
+/* Titles */
+QLabel[h1='true'] {
+    color: $text-color-light;
+    font-weight: bold;
+    font-size: 20px;
+}
+
+QLabel[h2='true'] {
+    color: $text-color-light;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+QLabel[h3='true'] {
+    color: $text-color-light;
+    font-weight: bold;
+    font-size: larger;
+}
+
+/* Overrides */
+QLabel[secondary='true'] {
     color: $gray;
 }
+
+QLabel[inactive='true'] {
+    color: $gray-dark;
+}
+
+QLabel[secondary_inactive='true'] {
+    color: $gray-darker;
+}
+
+QLabel[highlighted='true'] {
+    color: $color-primary;
+}
+// Probably add the highlighted with yellow here
+
+
+// NewAssetInput[status='unfocused'] QLabel {
+//     color: $gray;
+// }
