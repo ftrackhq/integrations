@@ -67,7 +67,8 @@ class ProgressWidget(QtWidgets.QWidget):
         self.set_data(data)
 
     def build(self):
-        self._status_widget = ProgressStatusButtonWidget('header-button')
+        self._status_widget = ProgressStatusButtonWidget()
+        self._status_widget.setProperty('round', True)
         self._set_status_widget_visibility(False)
 
         self._scroll = QtWidgets.QScrollArea()
@@ -105,7 +106,7 @@ class ProgressWidget(QtWidgets.QWidget):
 
         recursive_clear_layout(self._content_widget.layout())
 
-        self._status_banner = ProgressStatusButtonWidget('overlay-banner')
+        self._status_banner = ProgressStatusButtonWidget()
         self._content_widget.layout().addWidget(self._status_banner)
 
         self._categories = []

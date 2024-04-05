@@ -1,0 +1,40 @@
+/** ProgressStatusButtonWidget */
+
+ProgressStatusButtonWidget{
+    border-radius: 4px;
+    padding: 4px;
+}
+
+ProgressStatusButtonWidget[round='true']{
+    border-radius: 16px;
+    padding: 0px;
+}
+ProgressStatusButtonWidget[status='unknown_status'], ProgressStatusButtonWidget[status='pause_status'] {
+    border: 1px solid $gray-dark;
+}
+ ProgressStatusButtonWidget[status='pause_status'] {
+    border: 1px solid #FFBA5C;
+}
+ProgressStatusButtonWidget[status='warning_status'] {
+    border: 1px solid #FFBA5C;
+}
+ProgressStatusButtonWidget[status='running_status'] {
+    border: 1px solid #87E1EB;
+}
+ProgressStatusButtonWidget[status='success_status'] {
+    border: 1px solid #79DFB6;
+}
+ProgressStatusButtonWidget[status='error_status'], ProgressStatusButtonWidget[status='exception_status'] {
+    border: 1px solid #FF7A73;
+}
+// /** ProgressStatusPhaseWidget */
+ProgressPhaseButtonWidget {
+    border: none !important;
+    padding: 0px;
+}
+
+ProgressPhaseButtonWidget:hover {
+    border: 2px solid darken($color-primary, 5%);
+    background-color: $color-primary-dark;
+    color: $text-color-hover;
+}

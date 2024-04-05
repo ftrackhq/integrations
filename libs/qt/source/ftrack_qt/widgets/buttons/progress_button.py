@@ -21,11 +21,10 @@ class ProgressStatusButtonWidget(QtWidgets.QPushButton):
     def status(self, value):
         self._status = value
 
-    def __init__(self, style_mode, parent=None):
+    def __init__(self, parent=None):
         super(ProgressStatusButtonWidget, self).__init__(parent=parent)
 
         self._status = constants.status.UNKNOWN_STATUS
-        self._style_mode = style_mode
 
         self._message_label = None
         self._status_icon = None
@@ -43,8 +42,6 @@ class ProgressStatusButtonWidget(QtWidgets.QPushButton):
         self.setMinimumWidth(200)
 
     def build(self):
-        self.setObjectName(f'progress-widget-{self._style_mode}')
-
         self._message_label = QtWidgets.QLabel()
         self.layout().addWidget(self._message_label)
         self.layout().addStretch()
