@@ -405,10 +405,8 @@ class EntityBrowser(ModalDialog):
         for entity_widget in self.entity_widgets:
             set_property(
                 entity_widget,
-                "background",
-                "selected"
-                if entity_widget.entity['id'] == entity['id']
-                else "",
+                "selected",
+                True if entity_widget.entity['id'] == entity['id'] else False,
             )
         if entity.entity_type != "Task":
             # Dive further down
@@ -703,6 +701,7 @@ class EntityWidget(QtWidgets.QFrame):
         self, entity, is_sub_task, entity_browser, parent=None, is_parent=False
     ):
         super(EntityWidget, self).__init__(parent=parent)
+        self.setProperty('selectable', True)
         self.entity = entity
         self.is_parent = is_parent
         self.is_sub_task = is_sub_task
@@ -735,7 +734,7 @@ class EntityWidget(QtWidgets.QFrame):
         label = QtWidgets.QLabel(
             self.entity['name'] if not self.is_parent else '..'
         )
-        label.setObjectName('h3' if not self.is_parent else 'h2')
+        label.setProperty('h3' if not self.is_parent else 'h2', True)
         central_widget.layout().addWidget(label)
 
         lower_widget = QtWidgets.QWidget()
@@ -806,6 +805,27 @@ class EntityWidget(QtWidgets.QFrame):
             return
         return super(EntityWidget, self).mouseDoubleClickEvent(event)
         self.doubleClicked.emit()
+
+    def set_selected_property(self, event):
+        for entity_widget in self.entity_widgets:
+            set_property(
+                entity_widget,
+                "selected",
+                True if entity_widget.entity['id'] == entity['id'] else False,
+            )
+        if entity.entity_type != "Task":
+            # Dive further down
+            thread = BaseThread(
+                name='entity_clicked_thread',
+                target=self._on_set_intermediate_entity,
+                target_args=[entity],
+            )
+            thread.start()
+        else:
+            self.update()
+            if double_click:
+                if self.mode == EntityBrowser.MODE_TASK:
+                    self._on_apply()
 
 
 class AddContextButton(CircularButton):

@@ -114,12 +114,13 @@ class StandardPublisherDialog(BaseContextDialog):
                             except Exception as error:
                                 tool_config_message = error
                                 break
-                            self._progress_widget = ProgressWidget(
-                                'publish', build_progress_data(tool_config)
-                            )
-                            self.header.set_widget(
-                                self._progress_widget.status_widget
-                            )
+                            if not self._progress_widget:
+                                self._progress_widget = ProgressWidget(
+                                    'publish', build_progress_data(tool_config)
+                                )
+                                self.header.set_widget(
+                                    self._progress_widget.status_widget
+                                )
                         break
                 if not self.tool_config and not tool_config_message:
                     tool_config_message = (
@@ -234,6 +235,7 @@ class StandardPublisherDialog(BaseContextDialog):
             self.pre_build_ui()
             self.build_ui()
             self.post_build_ui()
+            # TODO: there is an error here showing the overlay widget because is not repainting all the widegts that has been parented to the self.layout() in the pre_build_ui build_ui or post_build_ui methods.
 
     @invoke_in_qt_main_thread
     def plugin_run_callback(self, log_item):

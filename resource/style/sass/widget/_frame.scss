@@ -1,3 +1,10 @@
+QFrame[selectable='true']:hover {
+    background-color: $background-selected;
+}
+QFrame[selected='true'] {
+    background-color: $background-selected;
+}
+
 // QFrame[background='transparent'], QDialog[background='transparent'] {
 //     background: transparent;
 // }

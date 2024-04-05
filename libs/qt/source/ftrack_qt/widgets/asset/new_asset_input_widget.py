@@ -78,7 +78,6 @@ class NewAssetInput(QtWidgets.QFrame):
         self.layout().addWidget(self._name, 1000)
 
         self._version_label = QtWidgets.QLabel('- Version 1')
-        self._version_label.setObjectName('color-primary')
         self._version_label.setVisible(False)
         self.layout().addWidget(self._version_label)
 

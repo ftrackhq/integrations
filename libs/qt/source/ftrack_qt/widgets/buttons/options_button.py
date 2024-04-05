@@ -47,7 +47,7 @@ class OptionsButton(QtWidgets.QPushButton):
         self._main_widget.layout().setAlignment(QtCore.Qt.AlignTop)
 
         title_label = QtWidgets.QLabel(self._title)
-        title_label.setObjectName('h2')
+        title_label.setProperty('h2', True)
         self._main_widget.layout().addWidget(title_label)
         self._main_widget.layout().addWidget(QtWidgets.QLabel(''))
 

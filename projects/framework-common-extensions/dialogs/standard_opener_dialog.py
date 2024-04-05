@@ -60,32 +60,7 @@ class StandardOpenerDialog(BaseContextDialog):
         self.setWindowTitle('ftrack Opener')
 
     def pre_build_ui(self):
-        # Make sure to remove self._scroll_area in case of reload
-        if self._scroll_area:
-            self._scroll_area.deleteLater()
-        # Create scroll area to add all the widgets
-        self._scroll_area = QtWidgets.QScrollArea()
-        self._scroll_area.setStyle(QtWidgets.QStyleFactory.create("plastique"))
-        self._scroll_area.setWidgetResizable(True)
-        self._scroll_area.setHorizontalScrollBarPolicy(
-            QtCore.Qt.ScrollBarAlwaysOff
-        )
-
-        index = self.layout().indexOf(self.tool_widget)
-        run_index = self.layout().indexOf(self.run_button)
-        if index != -1:  # Ensure the widget is found in the layout
-            # Remove the old widget from layout
-            self.layout().takeAt(index)
-            # Insert the new widget at the same position
-            self.layout().insertWidget(index, self._scroll_area)
-        elif run_index != -1:
-            # In case tool_widget is not already parented make sure to add scroll
-            # area above the run button.
-            self.layout().insertWidget((run_index - 1), self._scroll_area)
-        else:  # otherwise set it at the end
-            self.layout().addWidget(self._scroll_area)
-
-        self._scroll_area.setWidget(self.tool_widget)
+        pass
 
     def build_ui(self):
         # Select the desired tool_config
