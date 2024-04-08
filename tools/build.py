@@ -567,17 +567,19 @@ def build_package(pkg_path, args, command=None):
             'update connect-installer/__version__py'
         )
         logging.info('*' * 100)
-
-        # Clear out previous builds
-        if os.path.exists(BUILD_PATH):
-            logging.warning(f'Removing: {BUILD_PATH}')
-            shutil.rmtree(BUILD_PATH)
-        if os.path.exists(DIST_PATH):
-            logging.warning(f'Removing: {DIST_PATH}')
-            shutil.rmtree(DIST_PATH)
-
         CONNECT_INSTALLER_PATH = os.path.join(ROOT_PATH, 'connect-installer')
         BUNDLE_NAME = 'ftrack Connect'
+
+        platform_folder = None
+        if sys.platform.startswith('win'):
+            icon = 'logo.ico'
+            platform_folder = 'windows'
+        elif sys.platform.startswith('darwin'):
+            icon = 'logo.icns'
+            platform_folder = 'mac'
+        else:
+            icon = 'logo.svg'
+            platform_folder = 'linux'
 
         # Use the installer version instead
         version_path = os.path.join(CONNECT_INSTALLER_PATH, '__version__.py')
@@ -585,53 +587,108 @@ def build_package(pkg_path, args, command=None):
             VERSION = re.match(
                 r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
             ).group(1)
-        temp_version_path = tempfile.gettempdir() + '/_version.py'
-        shutil.copy(version_path, temp_version_path)
 
-        if sys.platform.startswith('win'):
-            icon = 'logo.ico'
-        elif sys.platform.startswith('darwin'):
-            icon = 'logo.icns'
-        else:
-            icon = 'logo.svg'
-        pyinstaller_commands = [
-            'pyinstaller',
-            '--windowed',
-            '--name',
-            BUNDLE_NAME,
-            '--collect-all',
-            'ftrack_connect',
-            '--icon',
-            icon,
-            '--add-data',
-            temp_version_path + ':ftrack_connect',
-            '--add-data',
-            os.path.join(
-                CONNECT_INSTALLER_PATH,
-                'resource',
-                'hook',
-                'ftrack_connect_installer_version_information.py',
+        if not args.postprocess:
+            # Clear out previous builds
+            if os.path.exists(BUILD_PATH):
+                logging.warning(f'Removing: {BUILD_PATH}')
+                shutil.rmtree(BUILD_PATH)
+            if os.path.exists(DIST_PATH):
+                logging.warning(f'Removing: {DIST_PATH}')
+                shutil.rmtree(DIST_PATH)
+
+            temp_version_path = tempfile.gettempdir() + '/_version.py'
+            shutil.copy(version_path, temp_version_path)
+
+            pyinstaller_commands = [
+                'pyinstaller',
+                '--windowed',
+                '--name',
+                BUNDLE_NAME,
+                '--collect-all',
+                'ftrack_connect',
+                '--icon',
+                icon,
+                '--add-data',
+                temp_version_path + ':ftrack_connect',
+                '--add-data',
+                os.path.join(
+                    CONNECT_INSTALLER_PATH,
+                    'resource',
+                    'hook',
+                    'ftrack_connect_installer_version_information.py',
+                )
+                + ':ftrack_connect/hook/ftrack_connect_installer_version_information.py',
+            ]
+            # if sys.platform.startswith('darwin'):
+            #    pyinstaller_commands.extend([
+            #        '--osx-bundle-identifier',
+            #        'co.backlight.ftrack.connect',
+            #        '--codesign-identity',
+            #        ''
+            #    ])
+            pyinstaller_commands.append(
+                os.path.join(SOURCE_PATH, '__main__.py')
             )
-            + ':ftrack_connect/hook/ftrack_connect_installer_version_information.py',
-        ]
-        # if sys.platform.startswith('darwin'):
-        #    pyinstaller_commands.extend([
-        #        '--osx-bundle-identifier',
-        #        'co.backlight.ftrack.connect',
-        #        '--codesign-identity',
-        #        ''
-        #    ])
-        pyinstaller_commands.append(os.path.join(SOURCE_PATH, '__main__.py'))
-        result = subprocess.check_output(pyinstaller_commands)
-        assert result, 'pyinstaller failed to build Connect!'
-
-        BUNDLE_PATH = os.path.join(DIST_PATH, f'{BUNDLE_NAME}.app')
-        assert os.path.isdir(BUNDLE_PATH), 'No bundle output where found!'
+            exitcode = subprocess.check_output(pyinstaller_commands)
+            assert (
+                exitcode == 0
+            ), f'pyinstaller failed to build Connect! Exitcode: {exitcode}'
 
         # Post process
-        if sys.platform.startswith('darwin'):
+
+        PLATFORM_RESOURCE_PATH = os.path.join(
+            CONNECT_INSTALLER_PATH, platform_folder
+        )
+
+        if sys.platform.startswith('win'):
+
+            def codesign_win(path):
+                '''Codesign artifact *path* using jsign tool in Windows'''
+                return_code = os.system(
+                    f'{PLATFORM_RESOURCE_PATH}\\codesign\\codesign.bat "{path}"'
+                )
+                logging.info(f'Exitcode from code sign: {return_code}')
+
+            def create_win_msi():
+                msi_path_orig = os.path.join(
+                    DIST_PATH, '{0}-{1}-win64.msi'.format(BUNDLE_NAME, VERSION)
+                )
+                if not os.path.isfile(msi_path_orig):
+                    raise Exception(
+                        f'MSI file not output were expected: {msi_path_orig}'
+                    )
+                # Rename - remove whitespace as this is not supported on Github releases
+                msi_path = os.path.join(
+                    DIST_PATH,
+                    '{0}-{1}-win64.msi'.format(
+                        BUNDLE_NAME.replace(' ', '_').lower(), __version__
+                    ),
+                )
+                logging.info(
+                    f'Renaming artifact: {msi_path_orig} > {msi_path}'
+                )
+                os.rename(msi_path_orig, msi_path)
+
+                return msi_path
+
+            if args.codesign:
+                # Codesign executable
+
+                if args.create_msi:
+                    # Create and code sign the .MSI
+                    msi_path = create_win_msi()
+                    codesign_win(msi_path)
+
+            elif args.create_msi:
+                create_win_msi()
+
+        elif sys.platform.startswith('darwin'):
+            bundle_path = os.path.join(DIST_PATH, f'{BUNDLE_NAME}.app')
+            assert os.path.isdir(bundle_path), 'No bundle output where found!'
+
             # Update Info.plist file with version
-            plist_path = os.path.join(BUNDLE_PATH, 'Contents', 'Info.plist')
+            plist_path = os.path.join(bundle_path, 'Contents', 'Info.plist')
             try:
                 with open(plist_path, "rb") as file:
                     pl = plistlib.load(file)
@@ -650,6 +707,176 @@ def build_package(pkg_path, args, command=None):
                         e
                     )
                 )
+
+            def create_mac_dmg():
+                '''Create DMG on MacOS with checksum. Returns the resulting path.'''
+                dmg_name = '{0}-{1}-macOS.dmg'.format(
+                    BUNDLE_NAME.replace(' ', '_').lower(), VERSION
+                )
+                dmg_path = os.path.join(DIST_PATH, dmg_name)
+                if not os.path.exists(DIST_PATH):
+                    os.makedirs(DIST_PATH)
+                elif os.path.exists(dmg_path):
+                    logging.warning(f'Removing existing image: {dmg_path}')
+                    os.unlink(dmg_path)
+                logging.info('Creating image...')
+                dmg_command = (
+                    f'appdmg {PLATFORM_RESOURCE_PATH}/appdmg.json "{dmg_path}"'
+                )
+                dmg_result = os.system(dmg_command)
+                if dmg_result != 0:
+                    raise Exception("dmg creation not working please check.")
+                logging.info(
+                    f' {dmg_path} created, calculating md5 checksum...'
+                )
+
+                # Create md5 sum
+                checksum_path = f'{dmg_path}.md5'
+                if os.path.exists(checksum_path):
+                    os.unlink(checksum_path)
+                return_code = os.system(
+                    f'md5 "{dmg_path}" > "{checksum_path}"'
+                )
+                assert return_code == 0, f'MD5 failed: {return_code}'
+                logging.info(f'Checksum created: {checksum_path}')
+                return dmg_path
+
+            if args.codesign:
+                # Function to codesign the MacOs Build.
+                #
+                # :note: Important to have an APP-specific password generated on
+                # https://appleid.apple.com/account/manage
+                # and have it linked on the keychain under ftrack_connect_sign_pass
+                #
+                # For more information, see https://sites.google.com/ftrack.com/handbook/solutions/integrations/deployment?authuser=0
+
+                logging.info(
+                    " Starting codesign process, this will take some time, "
+                    "please don't stop the process."
+                )
+                entitlements_path = os.path.join(
+                    PLATFORM_RESOURCE_PATH, 'codesign', 'entitlements.plist'
+                )
+                codesign_command = (
+                    'codesign --verbose --force --options runtime --timestamp --deep --strict '
+                    '--entitlements "{}" --sign "$MACOS_CERTIFICATE_NAME" '
+                    '"{}"'.format(entitlements_path, bundle_path)
+                )
+                codesign_result = os.system(codesign_command)
+                if codesign_result != 0:
+                    raise (
+                        Exception(
+                            "Codesign not working please make sure you have the "
+                            "MACOS_CERTIFICATE_NAME, environment variables and "
+                            "ftrack_connect_sign_pass on the keychain."
+                        )
+                    )
+                else:
+                    logging.info(' Application signed')
+                if args.create_dmg:
+                    dmg_path = create_mac_dmg()
+
+                    if args.notarize is True:
+                        store_credentials_command = (
+                            'xcrun notarytool store-credentials "notarytool-profile" '
+                            '--apple-id "$PROD_MACOS_NOTARIZATION_APPLE_ID" '
+                            '--team-id "$PROD_MACOS_NOTARIZATION_TEAM_ID" '
+                            '--password "$PROD_MACOS_NOTARIZATION_PWD"'
+                        )
+                        os.system(store_credentials_command)
+                        logging.info(
+                            ' Setting up xcode, please enter your sudo password'
+                        )
+                        setup_xcode_cmd = (
+                            'sudo xcode-select -s /Applications/Xcode.app'
+                        )
+                        setup_result = os.system(setup_xcode_cmd)
+                        if setup_result != 0:
+                            raise Exception(
+                                "Setting up xcode not working please check."
+                            )
+                        else:
+                            logging.info(' xcode setup completed')
+                        logging.info(' Starting notarize process')
+                        notarize_command = (
+                            'xcrun notarytool submit --verbose --keychain-profile '
+                            '"notarytool-profile" --wait {}'
+                        ).format(dmg_path)
+
+                        notarize_result = subprocess.check_output(
+                            notarize_command, shell=True, text=True
+                        )
+
+                        # Log the full output
+                        logging.info(f"notarize_result: {notarize_result}")
+
+                        # Use regular expressions to search for the submission ID and final status
+                        id_match = re.search(r'id: (\S+)', notarize_result)
+                        status_matches = re.findall(
+                            r'status: (\S+)', notarize_result
+                        )
+
+                        submission_id = None
+                        final_status = None
+
+                        if id_match:
+                            # Extract the submission ID
+                            submission_id = id_match.group(1)
+                            logging.info(f"Submission ID: {submission_id}")
+                        else:
+                            logging.error(
+                                "Submission ID not found in the output."
+                            )
+
+                        if status_matches:
+                            # Extract the final status
+                            final_status = (
+                                status_matches[-1] if status_matches else None
+                            )
+                            logging.info(f"Final Status: {final_status}")
+                        else:
+                            logging.error(
+                                "Final status not found in the output."
+                            )
+
+                        if final_status == 'Accepted':
+                            staple_app_cmd = (
+                                'xcrun stapler staple "{}"'.format(bundle_path)
+                            )
+                            staple_dmg_cmd = (
+                                'xcrun stapler staple "{}"'.format(dmg_path)
+                            )
+                            os.system(staple_app_cmd)
+                            os.system(staple_dmg_cmd)
+
+                        else:
+                            # Show notarize info
+                            notarize_info = 'xcrun notarytool info --keychain-profile "notarytool-profile" {}'.format(
+                                submission_id
+                            )
+                            query_result = subprocess.check_output(
+                                notarize_info, shell=True, text=True
+                            )
+                            logging.info(
+                                "Notarize info: {}".format(query_result)
+                            )
+
+                            # Fetch notary Log
+                            notarize_log = 'xcrun notarytool log --keychain-profile "notarytool-profile" {}'.format(
+                                submission_id
+                            )
+                            log_result = subprocess.check_output(
+                                notarize_log, shell=True, text=True
+                            )
+                            logging.info("Notarize log: {}".format(log_result))
+
+                            raise Exception(
+                                "Notarization failed, please check the log: \n{}".format(
+                                    log_result
+                                )
+                            )
+            elif args.create_dmg:
+                create_mac_dmg()
 
     def _replace_imports_(resource_target_path):
         '''Replace imports in resource files to Qt instead of QtCore.
@@ -1070,7 +1297,45 @@ if __name__ == '__main__':
         action='store_true',
     )
 
-    # QT resource options
+    # Connect build options
+    # Connect build options
+    parser.add_argument(
+        '--create_msi',
+        help='(Connect@Windows) Create the .msi installer for Windows',
+        action='store_true',
+    )
+
+    parser.add_argument(
+        '--create_dmg',
+        help='(Connect@Mac) Create the .dmg installer for MacOS',
+        action='store_true',
+    )
+
+    parser.add_argument(
+        '--create_deployment',
+        help='(Connect@Linux) Create the .tgz deployment for Linux',
+        action='store_true',
+    )
+
+    parser.add_argument(
+        '--codesign',
+        help='Codesign Connect .exe and msi install on Windows, .app bundle on Mac',
+        action='store_true',
+    )
+
+    parser.add_argument(
+        '--notarize',
+        help='(Connect Mac codesign) Notarize the dmg after codesign',
+        action='store_true',
+    )
+
+    parser.add_argument(
+        '--postprocess',
+        help='Assume installer already has been built, only run post processing',
+        action='store_true',
+    )
+
+    # QT resource build options
     parser.add_argument(
         '--style_path',
         help='(QT resource build) Override the default style path (resource/style).',

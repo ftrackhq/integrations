@@ -125,23 +125,20 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.7'
+          python-version: '3.10'
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Download the .whl file artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: ftrack-connect-whl
-      - name: Download the .txt file artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: requirements
-      - name: Use the .whl file
+      - name: install poetry
+        shell: bash
         run: |
-          pip install -r requirements.txt ftrack_connect-${{ needs.connect-build.outputs.connect_version }}-py3-none-any.whl
+          pip install poetry==1.5.1
+      - name: Install Connect
+        run: |
+          cd apps/connect
+          poetry install
       - name: install installer requirements
         run: |
-          cd installers/connect-installer
+          cd apps/connect/connect-installer
           pip install -r requirements.txt
       - uses: google-github-actions/auth@v2
         if: env.CODESIGN == 'True'
@@ -156,24 +153,23 @@ jobs:
       - name: make installer codesign
         if: env.CODESIGN == 'True'
         run: |
-          cd installers/connect-installer
           # TODO: a knowing error StatusLogger Log4j2 will rise at the end of the bat execution, but it's a knowing bug coming from jsign and doesn't interfere with the good code sign of the msi.
-          python setup.py bdist_msi --codesign
+          python tools/build.py build_connect --codesign --create_msi apps/connect
       - name: make installer
         if: env.CODESIGN == 'False'
         run: |
           cd installers/connect-installer
-          python setup.py bdist_msi
+          python tools/build.py build_connect --create_msi apps/connect
       - name: Upload MSI installer to GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
-          echo "Listing contents of installers/connect-installer/dist:"
-          ls -l installers/connect-installer/dist
-          echo "Listing contents of installers/connect-installer/build:"
-          ls -l installers/connect-installer/build
-          cd installers/connect-installer/dist
+          echo "Listing contents of apps/connect/dist:"
+          ls -l apps/connect/dist
+          echo "Listing contents of apps/connect/build:"
+          ls -l apps/connect/build
+          cd apps/connect/dist
           version="${{ needs.set-variables.outputs.package_version }}"
           clean_package_version="${version#v}"  # Remove leading 'v' from version
           echo "Uploading ftrack_connect-${clean_package_version}-win64.msi"
@@ -190,7 +186,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.7'
+          python-version: '3.10'
       - name: Install npm dependencies
         run: npm install -g appdmg
       - name: Set CPPFLAGS LDFLAGS
@@ -200,21 +196,18 @@ jobs:
           export LDFLAGS=-L/usr/local/opt/openssl/lib
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Download the .whl file artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: ftrack-connect-whl
-      - name: Download the .txt file artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: requirements
-      - name: Use the .whl file
+      - name: install poetry
+        shell: bash
         run: |
-          pip install -r requirements.txt  ftrack_connect-${{ needs.connect-build.outputs.connect_version }}-py3-none-any.whl
+          pip install poetry==1.5.1
+      - name: Install Connect
+        run: |
+          cd apps/connect
+          poetry install
       - name: install installer requirements
         run: |
-          cd installers/connect-installer
-          pip install  -r requirements.txt
+          cd apps/connect/connect-installer
+          pip install -r requirements.txt
 
       - name: Codesign app bundle
         if: env.CODESIGN == 'True'
@@ -252,24 +245,22 @@ jobs:
           xcrun notarytool store-credentials "notarytool-profile" --apple-id "$PROD_MACOS_NOTARIZATION_APPLE_ID" --team-id "$PROD_MACOS_NOTARIZATION_TEAM_ID" --password "$PROD_MACOS_NOTARIZATION_PWD"
 
           # Build codesign and notarize
-          cd installers/connect-installer
-          python setup.py bdist_mac --codesign_frameworks --codesign --create_dmg --notarize
+          python python tools/build.py build_connect --codesign --notarize --create_dmg apps/connect
 
       - name: make installer
         if: env.CODESIGN == 'False'
         run: |
-          cd installers/connect-installer
-          python setup.py bdist_mac --create_dmg
+          python tools/build.py build_connect --create_dmg apps/connect
       - name: Upload Connect DMG to GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
-          echo "Listing contents of installers/connect-installer/dist:"
-          ls -l installers/connect-installer/dist
-          echo "Listing contents of installers/connect-installer/build:"
-          ls -l installers/connect-installer/build
-          cd installers/connect-installer/dist
+          echo "Listing contents of apps/connect/dist:"
+          ls -l apps/connect/dist
+          echo "Listing contents of apps/connect/build:"
+          ls -l apps/connect/build
+          cd apps/connect/dist
           version="${{ needs.set-variables.outputs.package_version }}"
           clean_package_version="${version#v}"  # Remove leading 'v' from version
           echo "Uploading ftrack_connect-${clean_package_version}.dmg"
@@ -303,11 +294,11 @@ jobs:
           dnf install -y gh
           # Configure Git to allow the current directory
           git config --global --add safe.directory /__w/integrations/integrations
-      - name: Install Python 3.7 using pyenv
+      - name: Install Python 3.10 using pyenv
         run: |
           source ~/.bashrc
-          pyenv install 3.7.16
-          pyenv global 3.7.16
+          pyenv install 3.10.10
+          pyenv global 3.10.10
       - name: Verify Python version
         run: |
           source ~/.bashrc
@@ -320,39 +311,34 @@ jobs:
           pyenv exec pip install patchelf
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Download the .whl file artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: ftrack-connect-whl
-      - name: Download the .txt file artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: requirements
-      - name: Use the .whl file
+      - name: install poetry
+        shell: bash
         run: |
-          source ~/.bashrc
-          pyenv exec pip install -r requirements.txt ftrack_connect-${{ needs.connect-build.outputs.connect_version }}-py3-none-any.whl
+          pip install poetry==1.5.1
+      - name: Install Connect
+        run: |
+          cd apps/connect
+          poetry install
       - name: install installer requirements
         run: |
           source ~/.bashrc
-          cd installers/connect-installer
-          pyenv exec pip install  -r requirements.txt
+          cd apps/connect/connect-installer
+          pyenv exec pip install -r requirements.txt
       - name: make installer build tar.gz
         run: |
           source ~/.bashrc
-          cd installers/connect-installer
-          pyenv exec python setup.py build_exe --create_deployment
+          pyenv exec python tools/build.py build_connect --create_deployment apps/connect
       - name: Upload Connect tar.gz and md5 to GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
           source ~/.bashrc
-          echo "Listing contents of installers/connect-installer/dist:"
-          ls -l installers/connect-installer/dist
-          echo "Listing contents of installers/connect-installer/build:"
-          ls -l installers/connect-installer/build
-          cd installers/connect-installer/dist
+          echo "Listing contents of apps/connect/dist:"
+          ls -l apps/connect/dist
+          echo "Listing contents of apps/connect/build:"
+          ls -l apps/connect/build
+          cd apps/connect/dist
           version="${{ needs.set-variables.outputs.package_version }}"
           clean_package_version="${version#v}"  # Remove leading 'v' from version
           echo "Uploading ftrack_connect-${clean_package_version}-R${{ matrix.rocky-version }}.tar.gz"
