@@ -173,7 +173,7 @@ def main(arguments=None):
             # (Unofficial feature) Run framework standalone process using Connect Python interpreter
             framework_standalone_module = sys.argv[index + 1]
             break
-        elif arg.endswith('.py'):
+        elif index == 1 and arg.endswith('.py'):
             # Run a script
             script = sys.argv[index]
             break
