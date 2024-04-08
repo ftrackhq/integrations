@@ -214,6 +214,7 @@ class Timer(QtWidgets.QFrame):
 
         '''
         super(Timer, self).__init__(parent=parent)
+        self.setObjectName('timer')
 
         self._state = self.STOPPED
         self._timer = None
@@ -235,10 +236,12 @@ class Timer(QtWidgets.QFrame):
         self.labelLayout.addWidget(self.descriptionLabel)
 
         self.timeField = ftrack_connect.ui.widget.line_edit.LineEdit()
+        self.timeField.setObjectName('timeField')
         self.timeField.setAlignment(QtCore.Qt.AlignCenter)
         layout.addWidget(self.timeField)
 
         self.toggleButton = QtWidgets.QPushButton('Start')
+        self.toggleButton.setObjectName('primary')
         self.toggleButton.setProperty('mode', 'start')
 
         layout.addWidget(self.toggleButton)
@@ -552,6 +555,7 @@ class TimeLog(QtWidgets.QWidget):
 
         '''
         super(TimeLog, self).__init__(parent=parent)
+        self.setObjectName('time-log')
         self._data = None
 
         layout = QtWidgets.QHBoxLayout()
@@ -644,6 +648,7 @@ class TimeLogList(ftrack_connect.ui.widget.item_list.ItemList):
             widgetItem=lambda widget: widget.value(),
             parent=parent,
         )
+        self.setObjectName('time-log-list')
         self.list.setShowGrid(False)
 
         # Disable selection on internal list.
