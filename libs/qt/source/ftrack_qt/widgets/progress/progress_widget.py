@@ -76,7 +76,6 @@ class ProgressWidget(QtWidgets.QWidget):
         self._scroll.setWidgetResizable(True)
 
         self._content_widget = QtWidgets.QFrame()
-        self._content_widget.setObjectName('overlay')
         self._content_widget.setLayout(QtWidgets.QVBoxLayout())
         self._content_widget.layout().setContentsMargins(
             self.MARGINS, self.MARGINS, self.MARGINS, self.MARGINS
@@ -139,7 +138,6 @@ class ProgressWidget(QtWidgets.QWidget):
             if category not in self._categories:
                 self._categories.append(category)
                 phase_category = QtWidgets.QLabel(category)
-                phase_category.setObjectName("gray")
                 self._content_widget.layout().addWidget(phase_category)
             self._content_widget.layout().addWidget(phase_button)
 

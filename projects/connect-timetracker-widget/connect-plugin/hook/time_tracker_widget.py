@@ -46,7 +46,6 @@ class TimeTracker(ftrack_connect.ui.application.ConnectWidget):
     def __init__(self, *args, **kwargs):
         '''Instantiate the time tracker.'''
         super(TimeTracker, self).__init__(*args, **kwargs)
-        self.setObjectName('timeTracker')
 
         self._activeEntity = None
         self._timelog = None

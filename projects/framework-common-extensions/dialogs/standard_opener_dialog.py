@@ -127,7 +127,7 @@ class StandardOpenerDialog(BaseContextDialog):
         for group_config in component_groups:
             component_name = group_config.get('options').get('component')
             component_label = QtWidgets.QLabel(f"Component: {component_name}")
-            component_label.setObjectName('h3')
+            component_label.setProperty('h3', True)
             component_label.setToolTip(
                 f"The component to be open is {component_name}"
             )

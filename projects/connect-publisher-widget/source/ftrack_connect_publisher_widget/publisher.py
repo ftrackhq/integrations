@@ -67,7 +67,6 @@ class Publisher(QtWidgets.QWidget):
 
         # Create a components list widget.
         self.componentsList = _components_list.ComponentsList()
-        self.componentsList.setObjectName('publisher-componentlist')
         self.componentsList.itemsChanged.connect(
             self._onComponentListItemsChanged
         )
@@ -122,7 +121,6 @@ class Publisher(QtWidgets.QWidget):
         formLayout.addRow('Description', self.versionDescription)
 
         publishButton = QtWidgets.QPushButton(text='Publish')
-        publishButton.setObjectName('primary')
         publishButton.clicked.connect(self.publish)
 
         layout.addWidget(

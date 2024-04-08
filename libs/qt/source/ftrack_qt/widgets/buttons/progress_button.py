@@ -132,7 +132,7 @@ class ProgressPhaseButtonWidget(QtWidgets.QPushButton):
         v_layout = QtWidgets.QVBoxLayout()
 
         label_widget = QtWidgets.QLabel(self._label)
-        label_widget.setObjectName('h3')
+        label_widget.setProperty('h3', True)
         v_layout.addWidget(label_widget)
 
         # Show tags as chips

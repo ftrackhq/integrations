@@ -58,7 +58,7 @@ class EntityInfo(QtWidgets.QWidget):
         name_widget.layout().setSpacing(0)
 
         self._name_field = QtWidgets.QLabel()
-        self._name_field.setObjectName('h3')
+        self._name_field.setProperty('h3', True)
         name_widget.layout().addWidget(self._name_field)
         if self._additional_widget:
             name_widget.layout().addWidget(self._additional_widget)
