@@ -4,7 +4,7 @@
 try:
     from PySide6 import QtWidgets, QtCore
 except ImportError:
-    from PySide2 import QtWidgets, QtCore, QtGui
+    from PySide2 import QtWidgets, QtCore
 
 # TODO: try to generalize this delegate to be able to pass the looking keys.
 #  So it can be used in multiple places and not only for asset versions.
