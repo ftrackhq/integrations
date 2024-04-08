@@ -10,17 +10,6 @@ QComboBox {
     combobox-popup: 0;
 }
 
-// QComboBox::down-arrow {
-//     image: theme-image('combobox_down_arrow');
-//     //width: 12px;
-//     //height: 12px;
-// }
-//
-// QComboBox::item {
-//     color: green;
-//     background-color: red !important;
-// }
-
 QComboBox::drop-down {
     subcontrol-origin: padding;
     subcontrol-position: top right;
@@ -37,76 +26,4 @@ QComboBox QAbstractItemView {
     selection-background-color: $color-primary; /* Background color of selected item */
     selection-color: $background; /* Text color of selected item */
 }
-
-
-// QComboBox {
-//     border: 1px solid $border-color;
-//     border-radius: 2px;
-//     padding: $input-padding;
-//     padding-left: 10px;
-//     color: $text-color;
-//     text-align: center;
-//     combobox-popup: 0;
-//
-//     &:hover {
-//         border-color: darken($border-color, 5%);
-//     }
-//
-//     &:focus {
-//         border: 1px solid lighten($border-color, 5%);
-//     }
-// }
-//
-// QComboBox::drop-down {
-//     subcontrol-origin: padding;
-//     subcontrol-position: top right;
-//     padding: $input-padding;
-//     border: 0;
-//     text-align: center;
-//     background-color: $background;
-// }
-//
-// QComboBox::down-arrow {
-//     image: theme-image('combobox_down_arrow');
-//     width: 12px;
-//     height: 12px;
-// }
-//
-// /** Note: Styling of dropdown list does not fully apply within DCCs */
-// QComboBox QAbstractItemView {
-//     color: $text-color;
-//     outline: 0;
-//     padding-right: 0px;
-//     min-width: 50px;
-//     background: $background;
-//     selection-background-color: $background-selected-combo;
-//     text-align: center;
-// }
-//
-// QComboBox::item {
-//     color: $text-color;
-//     background: $background;
-//     selection-color: $text-color-active;
-//     selection-background-color: $background-selected-combo;
-// }
-//
-// QFrame[docked='true'] QComboBox QAbstractItemView {
-//     background: $background-docked !important;
-// }
-//
-// QComboBox QAbstractItemView::item:selected {
-//     color: $text-color;
-//     background-color: $background-selected !important;
-// }
-//
-//
-// QComboBox[chip='true'] {
-//     border-radius: 11px;
-// }
-//
-// AssetVersionSelector, VersionComboBox {
-//     border: 1px solid $border-color;
-//     border-radius: 11px;
-//     color: $text-color;
-// }
 

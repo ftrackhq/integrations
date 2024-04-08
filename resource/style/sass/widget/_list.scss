@@ -1,36 +1,5 @@
 // // /** List */
-// QListWidget {
-//     border: 1px solid $border-color;
-//     outline: 0;
-//     background: red;
-// }
-// //
-// QListWidget::item
-// {
-//     background: red;
-//     padding: 2px;
-//     //color: orange;
-// }
-// //
-// QListWidget::item:alternate
-// {
-//     background: green;
-//     padding: 2px;
-//     color: red;
-// }
-// //
-// QListWidget::item QLabel
-// {
-//     background: transparent;
-// }
-
 QListWidget::item:selected
 {
    background: $color-primary-dark;
 }
-//
-// AssetList {
-//     border: none;
-//     outline: 0;
-//     background: transparent;
-// }

@@ -9,6 +9,12 @@ ProgressStatusButtonWidget[round='true']{
     border-radius: 16px;
     padding: 0px;
 }
+
+ProgressStatusButtonWidget[round='true']:hover {
+    border: 1px solid $color-primary;
+    background-color: transparent;
+}
+
 ProgressStatusButtonWidget[status='unknown_status'], ProgressStatusButtonWidget[status='pause_status'] {
     border: 1px solid $gray-dark;
 }
