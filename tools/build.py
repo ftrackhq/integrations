@@ -924,7 +924,7 @@ except ImportError:
 
         resource_target_path = args.output_path if args else None
         if resource_target_path is None:
-            if pkg_path == 'apps/connect':
+            if pkg_path.replace('\\', '/') == 'apps/connect':
                 resource_target_path = os.path.join(
                     SOURCE_PATH, 'ui', 'resource.py'
                 )
