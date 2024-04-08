@@ -630,7 +630,7 @@ def build_package(pkg_path, args, command=None):
             pyinstaller_commands.append(
                 os.path.join(SOURCE_PATH, '__main__.py')
             )
-            exitcode = subprocess.check_output(pyinstaller_commands)
+            exitcode = subprocess.check_call(pyinstaller_commands)
             assert (
                 exitcode == 0
             ), f'pyinstaller failed to build Connect! Exitcode: {exitcode}'
