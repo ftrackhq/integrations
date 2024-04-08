@@ -1,5 +1,11 @@
 # ftrack QT library release Notes
 
+
+## upcoming
+
+* [changed] Manage widgets style overridces by properties by default instead of a mix of objectName and properties.
+* [new] set_properties utility for widgets added, Using a dictionary user can set multiple properties of a specific widget.
+
 ## v2.1.0
 2024-04-02
 

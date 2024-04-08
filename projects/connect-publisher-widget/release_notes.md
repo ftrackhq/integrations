@@ -1,5 +1,9 @@
 # ftrack Connect Publisher widget release Notes
 
+## upcoming
+
+* [changed] Remove setObjectName when not necessary on qtWidgets. Using properties to set the style instead.
+
 ## v24.4.0
 2024-04-02
 
