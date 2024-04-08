@@ -924,12 +924,7 @@ except ImportError:
 
         resource_target_path = args.output_path if args else None
         if resource_target_path is None:
-            if pkg_path.replace('\\', '/') == 'apps/connect':
-                resource_target_path = os.path.join(
-                    SOURCE_PATH, 'ui', 'resource.py'
-                )
-            else:
-                resource_target_path = os.path.join(SOURCE_PATH, 'resource.py')
+            resource_target_path = os.path.join(SOURCE_PATH, 'resource.py')
 
         # Any styles to compile?
         if os.path.exists(sass_path):
