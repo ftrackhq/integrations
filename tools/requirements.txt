@@ -1,3 +1,2 @@
 pyScss >= 1.4
-PySide2
 plistlib
