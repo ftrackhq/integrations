@@ -167,12 +167,16 @@ def main(arguments=None):
     '''Main app entry point.'''
     # Pre-parse arguments to check if we should run a framework standalone process
     framework_standalone_module = None
+    script = None
     for index, arg in enumerate(sys.argv):
         if arg == '--run-framework-standalone':
-            # (Unoffical feature) Run framework standalone process using Connect Python interpreter
+            # (Unofficial feature) Run framework standalone process using Connect Python interpreter
             framework_standalone_module = sys.argv[index + 1]
             break
-
+        elif arg.endswith('.py'):
+            # Run a script
+            script = sys.argv[index]
+            break
     if framework_standalone_module:
         # Run the framework standalone module using Connect
 
@@ -191,6 +195,10 @@ def main(arguments=None):
         importlib.reload(ftrack_utils)
 
         importlib.import_module(framework_standalone_module, package=None)
+    elif script:
+        # Ported from Connect 2 installer main
+        exec(open(script).read())
+        raise SystemExit()
     else:
         return main_connect(arguments)
 

@@ -10,6 +10,7 @@ official CI/CD build implementation in place.
 
 Changelog:
 
+0.4.17 [24.04.05] Connect installer build & codesign support.
 0.4.16 [24.03.19] PySide6 resource build support.
 0.4.15 [24.03.13] Fix platform dependent bug.
 0.4.14 [24.02.23] Incorporate RV pkg build.
@@ -43,8 +44,10 @@ import subprocess
 from distutils.spawn import find_executable
 import fileinput
 import tempfile
+import re
+import plistlib
 
-__version__ = '0.4.15'
+__version__ = '0.4.17'
 
 ZXPSIGN_CMD = 'ZXPSignCmd'
 
@@ -67,7 +70,8 @@ def build_package(pkg_path, args, command=None):
     ROOT_PATH = os.path.realpath(os.getcwd())
     MONOREPO_PATH = os.path.realpath(os.path.join(ROOT_PATH, '..', '..'))
     CONNECT_PLUGIN_PATH = os.path.join(ROOT_PATH, 'connect-plugin')
-    BUILD_PATH = os.path.join(ROOT_PATH, 'dist')
+    BUILD_PATH = os.path.join(ROOT_PATH, 'build')
+    DIST_PATH = os.path.join(ROOT_PATH, 'dist')
     EXTENSION_PATH = os.path.join(ROOT_PATH, 'extensions')
     CEP_PATH = os.path.join(ROOT_PATH, 'resource', 'cep')
     USES_FRAMEWORK = False
@@ -154,11 +158,11 @@ def build_package(pkg_path, args, command=None):
     def clean(args):
         '''Remove build folder'''
 
-        if not os.path.exists(BUILD_PATH):
-            logging.warning(f'No build found: "{BUILD_PATH}"!')
+        if not os.path.exists(DIST_PATH):
+            logging.warning(f'No build found: "{DIST_PATH}"!')
 
-        logging.info('Cleaning up {}'.format(BUILD_PATH))
-        shutil.rmtree(BUILD_PATH, ignore_errors=True)
+        logging.info('Cleaning up {}'.format(DIST_PATH))
+        shutil.rmtree(DIST_PATH, ignore_errors=True)
 
     def parse_and_copy(source_path, target_path):
         '''Copies the single file pointed out by *source_path* to *target_path* and
@@ -181,8 +185,8 @@ def build_package(pkg_path, args, command=None):
         Collects all the library and hook dependencies for an integration or component.
         '''
 
-        if not os.path.exists(BUILD_PATH):
-            os.makedirs(BUILD_PATH)
+        if not os.path.exists(DIST_PATH):
+            os.makedirs(DIST_PATH)
 
         logging.info('*' * 100)
         logging.info(
@@ -196,7 +200,7 @@ def build_package(pkg_path, args, command=None):
         for filename in os.listdir(ROOT_PATH):
             if not filename == 'poetry.lock':
                 continue
-            lock_path = os.path.join(BUILD_PATH, filename)
+            lock_path = os.path.join(DIST_PATH, filename)
             break
 
         if not lock_path:
@@ -212,7 +216,7 @@ def build_package(pkg_path, args, command=None):
         )
 
         STAGING_PATH = os.path.join(
-            BUILD_PATH,
+            DIST_PATH,
             '{}-{}'.format(PROJECT_NAME, CONNECT_PLUGIN_VERSION),
         )
 
@@ -224,13 +228,13 @@ def build_package(pkg_path, args, command=None):
 
         # Find wheel and read the version
         wheel_path = None
-        for filename in os.listdir(BUILD_PATH):
+        for filename in os.listdir(DIST_PATH):
             # Expect: ftrack_connect_pipeline_qt-1.3.0a1-py3-none-any.whl
             if not filename.endswith('.whl') or VERSION not in filename.split(
                 '-'
             ):
                 continue
-            wheel_path = os.path.join(BUILD_PATH, filename)
+            wheel_path = os.path.join(DIST_PATH, filename)
             break
 
         if not wheel_path:
@@ -372,7 +376,7 @@ def build_package(pkg_path, args, command=None):
                             dependencies_path,
                         ]
                     )
-                    subprocess.check_call()
+                    subprocess.check_call(commands)
 
                 # Copy the extension
                 logging.info('Copying {}'.format(dependency_path))
@@ -526,7 +530,7 @@ def build_package(pkg_path, args, command=None):
                     )
 
         logging.info('Creating archive')
-        archive_path = os.path.join(BUILD_PATH, os.path.basename(STAGING_PATH))
+        archive_path = os.path.join(DIST_PATH, os.path.basename(STAGING_PATH))
         if PLATFORM_DEPENDENT:
             if sys.platform.startswith('win'):
                 archive_path = '{}-windows'.format(archive_path)
@@ -548,6 +552,104 @@ def build_package(pkg_path, args, command=None):
         if args.remove_intermediate_folder:
             logging.warning(f'Removing: {STAGING_PATH}')
             shutil.rmtree(STAGING_PATH, ignore_errors=True)
+
+    def build_connect(args):
+        '''
+        Build the Connect installer executable for the current platform
+        '''
+
+        if not os.path.exists(DIST_PATH):
+            os.makedirs(DIST_PATH)
+
+        logging.info('*' * 100)
+        logging.info(
+            'Remember to update release notest & release before building: '
+            'update connect-installer/__version__py'
+        )
+        logging.info('*' * 100)
+
+        # Clear out previous builds
+        if os.path.exists(BUILD_PATH):
+            logging.warning(f'Removing: {BUILD_PATH}')
+            shutil.rmtree(BUILD_PATH)
+        if os.path.exists(DIST_PATH):
+            logging.warning(f'Removing: {DIST_PATH}')
+            shutil.rmtree(DIST_PATH)
+
+        CONNECT_INSTALLER_PATH = os.path.join(ROOT_PATH, 'connect-installer')
+        BUNDLE_NAME = 'ftrack Connect'
+
+        # Use the installer version instead
+        version_path = os.path.join(CONNECT_INSTALLER_PATH, '__version__.py')
+        with open(version_path) as _version_file:
+            VERSION = re.match(
+                r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
+            ).group(1)
+        temp_version_path = tempfile.gettempdir() + '/_version.py'
+        shutil.copy(version_path, temp_version_path)
+
+        if sys.platform.startswith('win'):
+            icon = 'logo.ico'
+        elif sys.platform.startswith('darwin'):
+            icon = 'logo.icns'
+        else:
+            icon = 'logo.svg'
+        pyinstaller_commands = [
+            'pyinstaller',
+            '--windowed',
+            '--name',
+            BUNDLE_NAME,
+            '--collect-all',
+            'ftrack_connect',
+            '--icon',
+            icon,
+            '--add-data',
+            temp_version_path + ':ftrack_connect',
+            '--add-data',
+            os.path.join(
+                CONNECT_INSTALLER_PATH,
+                'resource',
+                'hook',
+                'ftrack_connect_installer_version_information.py',
+            )
+            + ':ftrack_connect/hook/ftrack_connect_installer_version_information.py',
+        ]
+        # if sys.platform.startswith('darwin'):
+        #    pyinstaller_commands.extend([
+        #        '--osx-bundle-identifier',
+        #        'co.backlight.ftrack.connect',
+        #        '--codesign-identity',
+        #        ''
+        #    ])
+        pyinstaller_commands.append(os.path.join(SOURCE_PATH, '__main__.py'))
+        result = subprocess.check_output(pyinstaller_commands)
+        assert result, 'pyinstaller failed to build Connect!'
+
+        BUNDLE_PATH = os.path.join(DIST_PATH, f'{BUNDLE_NAME}.app')
+        assert os.path.isdir(BUNDLE_PATH), 'No bundle output where found!'
+
+        # Post process
+        if sys.platform.startswith('darwin'):
+            # Update Info.plist file with version
+            plist_path = os.path.join(BUNDLE_PATH, 'Contents', 'Info.plist')
+            try:
+                with open(plist_path, "rb") as file:
+                    pl = plistlib.load(file)
+                if 'CFBundleGetInfoString' in pl.keys():
+                    pl["CFBundleShortVersionString"] = str(
+                        'ftrack Connect {}, copyright: Copyright (c) 2024 ftrack'.format(
+                            VERSION
+                        )
+                    )
+                pl["CFBundleShortVersionString"] = VERSION
+                with open(plist_path, "wb") as file:
+                    plistlib.dump(pl, file)
+            except Exception as e:
+                logging.warning(
+                    'Could not change the version at Info.plist file. \n Error: {}'.format(
+                        e
+                    )
+                )
 
     def _replace_imports_(resource_target_path):
         '''Replace imports in resource files to Qt instead of QtCore.
@@ -653,10 +755,10 @@ except ImportError:
     def build_sphinx(args):
         '''Wrapper for building docs for preview'''
 
-        if not os.path.exists(BUILD_PATH):
-            os.makedirs(BUILD_PATH)
+        if not os.path.exists(DIST_PATH):
+            os.makedirs(DIST_PATH)
 
-        DOC_PATH = os.path.join(BUILD_PATH, 'doc')
+        DOC_PATH = os.path.join(DIST_PATH, 'doc')
 
         cmd = 'sphinx-build doc {}'.format(DOC_PATH)
         logging.info('Running: {}'.format(cmd))
@@ -689,16 +791,16 @@ except ImportError:
                 'Certificate missing: {}!'.format(CERTIFICATE_PATH)
             )
 
-        STAGING_PATH = os.path.join(BUILD_PATH, 'staging')
+        STAGING_PATH = os.path.join(DIST_PATH, 'staging')
 
         # Clean previous build
-        if os.path.exists(BUILD_PATH):
-            for filename in os.listdir(BUILD_PATH):
+        if os.path.exists(DIST_PATH):
+            for filename in os.listdir(DIST_PATH):
                 if filename.endswith('.zxp'):
                     logging.warning(
                         'Removed previous build: {}'.format(filename)
                     )
-                    os.remove(os.path.join(BUILD_PATH, filename))
+                    os.remove(os.path.join(DIST_PATH, filename))
 
         # Clean staging path
         shutil.rmtree(STAGING_PATH, ignore_errors=True)
@@ -813,7 +915,7 @@ except ImportError:
         parse_and_copy(MANIFEST_PATH, manifest_staging_path)
 
         extension_output_path = os.path.join(
-            BUILD_PATH,
+            DIST_PATH,
             'ftrack-framework-adobe-{}.zxp'.format(VERSION),
         )
 
@@ -921,22 +1023,22 @@ except ImportError:
         clean(args)
     elif command == 'build_connect_plugin':
         build_connect_plugin(args)
+    elif command == 'build_connect':
+        build_connect(args)
     elif command == 'build_qt_resources':
         build_qt_resources(args)
-    elif command == 'build_sphinx':
-        build_sphinx(args)
     elif command == 'build_cep':
         build_cep(args)
     elif command == 'build_rvpkg':
         build_rvpkg(args)
+    elif command == 'build_sphinx':
+        build_sphinx(args)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
-    logging.info(
-        'ftrack Integration deployment script v{}'.format(__version__)
-    )
+    logging.info('ftrack Integrations build script v{}'.format(__version__))
 
     # Connect plugin options
     parser.add_argument(
@@ -995,15 +1097,19 @@ if __name__ == '__main__':
         help=(
             'clean; Clean(remove) build folder \n'
             'build_connect_plugin; Build Connect plugin archive\n'
-            'build_resources; Build QT resources\n'
+            'build_qt_resources; Build QT resources\n'
+            'build_cep; Build Adobe CEP(.zxp) plugin\n'
+            'build_connect; Build Connect installer\n'
+            'build_rvpkg; Build RV pkg\n'
         ),
         choices=[
             'clean',
             'build_connect_plugin',
+            'build_connect',
             'build_qt_resources',
-            'build_sphinx',
             'build_cep',
             'build_rvpkg',
+            'build_sphinx',
         ],
     )
 

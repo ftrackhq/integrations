@@ -1,0 +1,9 @@
+{
+    "title": "ftrack Connect",
+    "background": "dmg_image.png",
+    "icon-size": 70,
+    "contents":[
+        { "x": 390, "y": 180, "type": "link", "path": "/Applications"},
+        { "x": 130, "y": 180, "type": "file", "path": "../build/ftrack Connect.app"}
+    ]
+}
