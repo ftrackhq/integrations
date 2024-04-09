@@ -17,6 +17,15 @@ QComboBox::drop-down {
     color: $text-color;
 }
 
+QComboBox QAbstractItemView::item {
+    color: $text-color;
+}
+
+QComboBox QAbstractItemView::item:selected {
+    color: $text-color;
+    background-color: $background-selected !important;
+}
+
 QComboBox::down-arrow {
     image: theme-image('combobox_down_arrow');
     width: 16px; /* Set the width of the arrow image */
@@ -26,5 +35,6 @@ QComboBox::down-arrow {
 QComboBox QAbstractItemView {
     selection-background-color: $color-primary; /* Background color of selected item */
     selection-color: $background; /* Text color of selected item */
+    color: $text-color;
 }
 
