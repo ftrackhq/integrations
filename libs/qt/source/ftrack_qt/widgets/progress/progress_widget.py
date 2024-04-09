@@ -59,7 +59,6 @@ class ProgressWidget(QtWidgets.QWidget):
         self._scroll = None
         self._categories = []
         self._phase_widgets = {}
-        self._main_window = None
         self._action = action
 
         self.logger = logging.getLogger(__name__)
@@ -86,9 +85,7 @@ class ProgressWidget(QtWidgets.QWidget):
 
         self._scroll.setWidget(self._content_widget)
 
-        self._overlay_container = OverlayWidget(
-            self._scroll, height_percentage=0.8
-        )
+        self._overlay_container = OverlayWidget(self._scroll)
         self._overlay_container.setVisible(False)
 
     def post_build(self):
@@ -151,11 +148,10 @@ class ProgressWidget(QtWidgets.QWidget):
         '''Update the visibility of the progress widget'''
         self.status_widget.setVisible(visibility)
 
-    def show_overlay(self, main_window=None):
+    def show_overlay(self, parent=None):
         '''Show the progress widget overlay on top of *main_window*'''
-        if main_window:
-            self._main_window = main_window
-            self._overlay_container.setParent(self._main_window)
+        if parent:
+            self._overlay_container.setParent(parent)
         self._overlay_container.setVisible(True)
         self.status_widget.setVisible(True)
 
