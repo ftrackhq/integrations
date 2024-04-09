@@ -665,16 +665,6 @@ class NavigationEntityButton(QtWidgets.QFrame):
                 MaterialIcon('close', color='#94979a'), ""
             )
             self.remove_button.setFixedSize(8, 8)
-            self.remove_button.setStyleSheet(
-                '''
-            QPushButton {
-                border: none; background: transparent;
-            }
-            QPushButton:hover {
-                background: gray;
-            }
-'''
-            )
             self.layout().addWidget(self.remove_button)
 
     def post_build(self):
