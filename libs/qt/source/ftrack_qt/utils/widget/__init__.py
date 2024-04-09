@@ -24,18 +24,7 @@ def check_framework_dialog_bases(cls):
 
 def get_main_window_from_widget(widget):
     '''Return the main window from the given widget.'''
-
-    def get_dialog_or_window(widget):
-        '''Recursively iterate through the parent widgets to find a QDialog or QMainWindow'''
-        if not widget:
-            return None
-        if isinstance(widget, QtWidgets.QDialog) or isinstance(
-            widget, QtWidgets.QMainWindow
-        ):
-            return widget
-        return get_dialog_or_window(widget.parentWidget())
-
-    return get_dialog_or_window(widget) or widget.window()
+    return widget.window()
 
 
 def get_framework_main_dialog(widget):

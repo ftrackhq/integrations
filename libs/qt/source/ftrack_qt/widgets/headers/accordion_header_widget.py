@@ -145,9 +145,6 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
     def add_option_widget(self, widget, section_name):
         self._options_button.add_widget(widget, section_name)
 
-    def finalize_options_widget(self):
-        self._options_button.finalize_options_widget()
-
     def _on_checkbox_status_changed(self):
         self._checked = self._checkbox.isChecked()
         self._title_label.setEnabled(self._checked)
