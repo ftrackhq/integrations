@@ -89,20 +89,8 @@ class BaseDialog(FrameworkDialog, StyledDialog):
         self.post_build()
 
     def pre_build(self):
-        self.stacked_layout = QtWidgets.QStackedLayout()
-
-        # Create two different layouts with widgets
-        self.main_layout = QtWidgets.QVBoxLayout()
-        self.progress_layout = QtWidgets.QVBoxLayout()
-
-        # Add layouts to the stacked layout
-        self.stacked_layout.addLayout(self.main_layout)
-        self.stacked_layout.addLayout(self.progress_layout)
-
-        base_layout = QtWidgets.QVBoxLayout()
-        base_layout.addLayout(self.stacked_layout)
-
-        self.setLayout(base_layout)
+        main_layout = QtWidgets.QVBoxLayout()
+        self.setLayout(main_layout)
 
     def build(self):
         # Create the header
@@ -114,9 +102,9 @@ class BaseDialog(FrameworkDialog, StyledDialog):
 
         self._run_button = QtWidgets.QPushButton(self.run_button_title)
 
-        self.main_layout.addWidget(self._header)
-        self.main_layout.addWidget(self._tool_widget)
-        self.main_layout.addWidget(self._run_button)
+        self.layout().addWidget(self._header)
+        self.layout().addWidget(self._tool_widget)
+        self.layout().addWidget(self._run_button)
 
     def post_build(self):
         '''Set up all the signals'''
@@ -191,22 +179,3 @@ class BaseDialog(FrameworkDialog, StyledDialog):
     def closeEvent(self, event):
         self.ui_closed()
         super(BaseDialog, self).closeEvent(event)
-
-    def _toggle_overlay_layout(self, show):
-        current_index = self.stacked_layout.currentIndex()
-        # Switch to the other layout
-        new_index = 1 if current_index == 0 else 0
-        self.stacked_layout.setCurrentIndex(new_index)
-        # print(show)
-        # if show:
-        #     print("setting layout")
-        #     self.setLayout(self.overlay_layout)
-        # else:
-        #     self.setLayout(self._main_layout)
-
-    def show_overlay(self):
-        print("show")
-        self._toggle_overlay_layout(True)
-
-    def hide_overlay(self):
-        self._toggle_overlay_layout(False)
