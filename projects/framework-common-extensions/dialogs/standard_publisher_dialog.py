@@ -81,6 +81,10 @@ class StandardPublisherDialog(BaseContextDialog):
         self.tool_widget.layout().addWidget(self._scroll_area, 100)
         self._scroll_area.setWidget(self._scroll_area_widget)
 
+        push = QtWidgets.QPushButton("show overlay")
+        self.tool_widget.layout().addWidget(push)
+        push.clicked.connect(self.show_overlay)
+
     def build_ui(self):
         # Select the desired tool_config
 
@@ -173,8 +177,6 @@ class StandardPublisherDialog(BaseContextDialog):
             self.add_exporter_widgets(
                 exporters, group_accordion_widget, _group
             )
-
-            group_accordion_widget.finalize_options_widget()
 
             self._scroll_area_widget.layout().addWidget(group_accordion_widget)
 

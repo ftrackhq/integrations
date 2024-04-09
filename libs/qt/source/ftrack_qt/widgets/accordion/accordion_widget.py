@@ -173,9 +173,6 @@ class AccordionBaseWidget(QtWidgets.QFrame):
     def add_option_widget(self, widget, section_name):
         self._header_widget.add_option_widget(widget, section_name)
 
-    def finalize_options_widget(self):
-        self._header_widget.finalize_options_widget()
-
     def add_widget(self, widget):
         '''Add widget to content'''
         self._content_widget.layout().addWidget(widget)
