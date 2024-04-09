@@ -4,3 +4,7 @@ QFrame[selectable='true']:hover {
 QFrame[selected='true'] {
     background-color: $background-selected;
 }
+QFrame[border='true'] {
+    border-bottom: 1px dashed $border-color;
+    border-right: 1px dashed $border-color;
+}

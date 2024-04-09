@@ -73,7 +73,7 @@ class SearchBox(QtWidgets.QFrame):
             self._input = None
             self._search_button = CircularButton('search')
         else:
-            self._search_button = CircularButton('search', diameter=30)
+            self._search_button = CircularButton('search', diameter=26)
 
         if self._collapsable:
             self.layout().addWidget(self._search_button)

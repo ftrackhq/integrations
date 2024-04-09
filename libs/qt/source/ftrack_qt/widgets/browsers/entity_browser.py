@@ -702,6 +702,7 @@ class EntityWidget(QtWidgets.QFrame):
     ):
         super(EntityWidget, self).__init__(parent=parent)
         self.setProperty('selectable', True)
+        self.setProperty('border', True)
         self.entity = entity
         self.is_parent = is_parent
         self.is_sub_task = is_sub_task
