@@ -14,12 +14,13 @@ QComboBox::drop-down {
     subcontrol-origin: padding;
     subcontrol-position: top right;
     border: none; /* Removes border around the drop-down button */
+    color: $text-color;
 }
 
 QComboBox::down-arrow {
-    image: url(':ftrack/image/material-design-icons/filled/keyboard_arrow_down');
-    width: 32px; /* Set the width of the arrow image */
-    height: 32px; /* Set the height of the arrow image */
+    image: theme-image('combobox_down_arrow');
+    width: 16px; /* Set the width of the arrow image */
+    height: 16px; /* Set the height of the arrow image */
 }
 
 QComboBox QAbstractItemView {
