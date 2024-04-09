@@ -807,27 +807,6 @@ class EntityWidget(QtWidgets.QFrame):
         return super(EntityWidget, self).mouseDoubleClickEvent(event)
         self.doubleClicked.emit()
 
-    def set_selected_property(self, event):
-        for entity_widget in self.entity_widgets:
-            set_property(
-                entity_widget,
-                "selected",
-                True if entity_widget.entity['id'] == entity['id'] else False,
-            )
-        if entity.entity_type != "Task":
-            # Dive further down
-            thread = BaseThread(
-                name='entity_clicked_thread',
-                target=self._on_set_intermediate_entity,
-                target_args=[entity],
-            )
-            thread.start()
-        else:
-            self.update()
-            if double_click:
-                if self.mode == EntityBrowser.MODE_TASK:
-                    self._on_apply()
-
 
 class AddContextButton(CircularButton):
     def __init__(self, parent=None):
