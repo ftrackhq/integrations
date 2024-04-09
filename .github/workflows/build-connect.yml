@@ -150,16 +150,19 @@ jobs:
         with:
           java-version: '21'
           distribution: 'oracle'
+      - name: Install Inno Setup, needed to create the installer
+        run: |
+          choco install innosetup
       - name: make installer codesign
         if: env.CODESIGN == 'True'
         run: |
-          # TODO: a knowing error StatusLogger Log4j2 will rise at the end of the bat execution, but it's a knowing bug coming from jsign and doesn't interfere with the good code sign of the msi.
-          python tools/build.py build_connect --codesign --create_msi apps/connect
+          # TODO: a knowing error StatusLogger Log4j2 will rise at the end of the bat execution, but it's a knowing bug coming from jsign and doesn't interfere with the good code sign of the installer exe.
+          python tools/build.py build_connect --codesign --create_installer apps/connect
       - name: make installer
         if: env.CODESIGN == 'False'
         run: |
           cd installers/connect-installer
-          python tools/build.py build_connect --create_msi apps/connect
+          python tools/build.py build_connect --create_installer apps/connect
       - name: Upload MSI installer to GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -172,8 +175,8 @@ jobs:
           cd apps/connect/dist
           version="${{ needs.set-variables.outputs.package_version }}"
           clean_package_version="${version#v}"  # Remove leading 'v' from version
-          echo "Uploading ftrack_connect-${clean_package_version}-win64.msi"
-          gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack_connect-${clean_package_version}-win64.msi" --clobber
+          echo "Uploading ftrack_connect-${clean_package_version}-win64.exe"
+          gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack_connect-${clean_package_version}-win64.exe" --clobber
 
 
   installer-macos:

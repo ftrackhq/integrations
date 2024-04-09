@@ -572,13 +572,13 @@ def build_package(pkg_path, args, command=None):
 
         platform_folder = None
         if sys.platform.startswith('win'):
-            icon = 'logo.ico'
+            icon_filename = 'logo.ico'
             platform_folder = 'windows'
         elif sys.platform.startswith('darwin'):
-            icon = 'logo.icns'
+            icon_filename = 'logo.icns'
             platform_folder = 'mac'
         else:
-            icon = 'logo.svg'
+            icon_filename = 'logo.svg'
             platform_folder = 'linux'
 
         # Use the installer version instead
@@ -602,13 +602,15 @@ def build_package(pkg_path, args, command=None):
 
             pyinstaller_commands = [
                 'pyinstaller',
+                '--specpath',
+                BUILD_PATH,
                 '--windowed',
                 '--name',
                 BUNDLE_NAME,
                 '--collect-all',
                 'ftrack_connect',
                 '--icon',
-                icon,
+                os.path.join(ROOT_PATH, icon_filename),
                 '--add-data',
                 temp_version_path + ':ftrack_connect',
                 '--add-data',
@@ -648,40 +650,65 @@ def build_package(pkg_path, args, command=None):
                 return_code = os.system(
                     f'{PLATFORM_RESOURCE_PATH}\\codesign\\codesign.bat "{path}"'
                 )
-                logging.info(f'Exitcode from code sign: {return_code}')
-
-            def create_win_msi():
-                msi_path_orig = os.path.join(
-                    DIST_PATH, '{0}-{1}-win64.msi'.format(BUNDLE_NAME, VERSION)
-                )
-                if not os.path.isfile(msi_path_orig):
-                    raise Exception(
-                        f'MSI file not output were expected: {msi_path_orig}'
-                    )
-                # Rename - remove whitespace as this is not supported on Github releases
-                msi_path = os.path.join(
-                    DIST_PATH,
-                    '{0}-{1}-win64.msi'.format(
-                        BUNDLE_NAME.replace(' ', '_').lower(), __version__
-                    ),
-                )
                 logging.info(
-                    f'Renaming artifact: {msi_path_orig} > {msi_path}'
+                    f'Exitcode from code signing "{path}": {return_code}'
                 )
-                os.rename(msi_path_orig, msi_path)
 
-                return msi_path
+            def create_win_installer():
+                '''Create installer executable on Windows. Returns the resulting path.'''
+
+                INNOSETUP_PATH = (
+                    "C:\\Program Files (x86)\\Inno Setup 6\\ISCC.exe"
+                )
+                if not os.path.exists(INNOSETUP_PATH):
+                    raise Exception(
+                        f'Inno Setup not found at: {INNOSETUP_PATH}'
+                    )
+
+                # Load template and inject version
+                with open(
+                    os.path.join(PLATFORM_RESOURCE_PATH, 'ftrack Connect.iss'),
+                    "r",
+                ) as f_template:
+                    template = f_template.read()
+                    temp_iss_path = os.path.join(
+                        BUILD_PATH, "installer", 'ftrack Connect.iss'
+                    )
+                    if not os.path.exists(os.path.dirname(temp_iss_path)):
+                        os.makedirs(os.path.dirname(temp_iss_path))
+                    with open(temp_iss_path, "w") as f_out:
+                        f_out.write(template.replace('${VERSION}', VERSION))
+
+                # Run innosetup, check exitcode
+                innosetup_commands = [INNOSETUP_PATH, temp_iss_path]
+
+                return_code = subprocess.check_call(innosetup_commands)
+
+                assert (
+                    return_code == 0
+                ), f'Inno Setup failed to build installer! Exitcode: {return_code}'
+
+                installer_path = os.path.join(
+                    DIST_PATH, f"ftrack_connect_{VERSION}-win64.exe"
+                )
+                if not os.path.exists(installer_path):
+                    raise Exception(
+                        f'Expected installer not found at: {installer_path}'
+                    )
+
+                return installer_path
 
             if args.codesign:
                 # Codesign executable
+                codesign_win(os.path.join(DIST_PATH, f"{BUNDLE_NAME}.exe"))
 
-                if args.create_msi:
-                    # Create and code sign the .MSI
-                    msi_path = create_win_msi()
-                    codesign_win(msi_path)
+                if args.create_installer:
+                    # Create and code sign the installer .EXE
+                    installer_path = create_win_installer()
+                    codesign_win(installer_path)
 
-            elif args.create_msi:
-                create_win_msi()
+            elif args.create_installer:
+                create_win_installer()
 
         elif sys.platform.startswith('darwin'):
             bundle_path = os.path.join(DIST_PATH, f'{BUNDLE_NAME}.app')
@@ -1300,8 +1327,8 @@ if __name__ == '__main__':
     # Connect build options
     # Connect build options
     parser.add_argument(
-        '--create_msi',
-        help='(Connect@Windows) Create the .msi installer for Windows',
+        '--create_installer',
+        help='(Connect@Windows) Create the .exe installer for Windows. Requires Innosetup.',
         action='store_true',
     )
 
