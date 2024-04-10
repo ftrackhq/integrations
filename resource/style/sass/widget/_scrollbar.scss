@@ -16,3 +16,16 @@ QScrollBar::handle {
     min-width: 2px;
     min-height: 2px;
 }
+
+QScrollBar::add-line, QScrollBar::sub-line {
+    height: 0px;
+    width: 0px;
+    border: none;
+    background: none;
+}
+
+QScrollBar::up-arrow, QScrollBar::down-arrow {
+    width: 0px;
+    height: 0px;
+    background: none;
+}
