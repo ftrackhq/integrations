@@ -46,6 +46,7 @@ import fileinput
 import tempfile
 import re
 import plistlib
+import traceback
 
 __version__ = '0.4.17'
 
@@ -905,6 +906,64 @@ def build_package(pkg_path, args, command=None):
             elif args.create_dmg:
                 create_mac_dmg()
 
+        elif sys.platform.startswith('linux'):
+            if args.create_archive:
+                try:
+                    os.chdir(DIST_PATH)
+                    # Detect platform
+                    path_os_desc = '/etc/os-release'
+                    assert os.path.exists(
+                        path_os_desc
+                    ), 'Not a supported Linux OS!'
+                    with open(path_os_desc, 'r') as f:
+                        os_desc = f.read()
+                    if os_desc.lower().find('centos-7') > -1:
+                        linux_distro = 'C7'
+                    elif os_desc.lower().find('centos-8') > -1:
+                        linux_distro = 'C8'
+                    elif os_desc.lower().find('rocky-linux-8') > -1:
+                        linux_distro = 'R8'
+                    elif os_desc.lower().find('rocky-linux-9') > -1:
+                        linux_distro = 'R9'
+                    else:
+                        raise Exception('Not a supported Linux distro!')
+                    target_path = os.path.join(
+                        DIST_PATH,
+                        f'ftrack_connect-{__version__}-{linux_distro}.tar.gz',
+                    )
+                    if not os.path.exists(os.path.dirname(target_path)):
+                        os.makedirs(os.path.dirname(target_path))
+                    elif os.path.exists(target_path):
+                        os.unlink(target_path)
+                    logging.info('Compressing...')
+                    archive_commands = [
+                        "tar",
+                        "-zcvf",
+                        target_path,
+                        BUNDLE_NAME,
+                        "--transform",
+                        f"s/{BUNDLE_NAME}/ftrack-connect/",
+                    ]
+                    return_code = subprocess.check_call(archive_commands)
+                    assert (
+                        return_code == 0
+                    ), f'TAR compress failed: {return_code}'
+                    # Create md5 sum
+                    checksum_path = f'{target_path}.md5'
+                    if os.path.exists(checksum_path):
+                        os.unlink(checksum_path)
+                    logging.info(
+                        f'Created: {target_path}, calculating md5 checksum...'
+                    )
+                    return_code = os.system(
+                        f'md5sum {target_path} > {checksum_path}'
+                    )
+                    assert return_code == 0, f'md5 failed: {return_code}'
+                    logging.info(f'Checksum created: {checksum_path}')
+                finally:
+                    # Go back to root path
+                    os.chdir(ROOT_PATH)
+
     def _replace_imports_(resource_target_path):
         '''Replace imports in resource files to Qt instead of QtCore.
 
@@ -1339,7 +1398,7 @@ if __name__ == '__main__':
     )
 
     parser.add_argument(
-        '--create_deployment',
+        '--create_archive',
         help='(Connect@Linux) Create the .tgz deployment for Linux',
         action='store_true',
     )
