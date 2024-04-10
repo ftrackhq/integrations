@@ -2,6 +2,7 @@
 
 ## Upcoming
 
+* [changed] Removed Connect installer package, replaced with pyinstaller implementation with build script.
 * [changed] Fixed overlay widget bugs.
 * [new] PySide6 support.
 * [changed] Removed ftrack_connect.qt module.
