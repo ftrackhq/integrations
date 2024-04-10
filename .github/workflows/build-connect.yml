@@ -164,7 +164,7 @@ jobs:
         if: env.CODESIGN == 'False'
         run: |
           python tools/build.py build_connect --create_installer apps/connect
-      - name: Upload MSI installer to GitHub Release
+      - name: Upload EXE installer to GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
