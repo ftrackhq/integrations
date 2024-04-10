@@ -2,10 +2,10 @@
 # :copyright: Copyright (c) 2024 ftrack
 
 try:
-    from PySide6 import QtWidgets, QtCore
+    from PySide6 import QtWidgets, QtCore, QtGui
     import shiboken6 as shiboken
 except ImportError:
-    from PySide2 import QtWidgets, QtCore, QtSvg, QtGui
+    from PySide2 import QtWidgets, QtCore, QtGui
     import shiboken2 as shiboken
 
 

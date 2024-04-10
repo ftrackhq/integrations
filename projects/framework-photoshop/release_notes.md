@@ -2,8 +2,7 @@
 
 ## Upcoming
 
-* [new] PySide6 support.
-* [changed] Removed Qt.py dependency.
+* [changed] Replace Qt.py imports to PySide2 and PySide6 on widgets.
 
 ## v24.4.1
 2024-04-03
