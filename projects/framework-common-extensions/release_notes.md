@@ -3,6 +3,7 @@
 ## Upcoming
 
 * [new] PySide6 support.
+* [new] PySide2 support.
 * [changed] Removed Qt.py dependency.
 * [changed] Asset version selectors; show label on empty asset list.
 * [changed] Publisher dialog only query assets linked to the task.

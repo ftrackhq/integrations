@@ -115,6 +115,7 @@ class ProgressPhaseButtonWidget(QtWidgets.QPushButton):
         self._log_text_edit = None
         self._close_button = None
         self._time_widget = None
+        self.log_overlay_container = None
 
         self.pre_build()
         self.build()
@@ -183,6 +184,7 @@ class ProgressPhaseButtonWidget(QtWidgets.QPushButton):
         self._log_message_widget.layout().addWidget(self._close_button)
         self.log_overlay_container = OverlayWidget(
             self._log_message_widget,
+            transparent_background=False,
         )
         self.log_overlay_container.setVisible(False)
 
@@ -217,6 +219,7 @@ class ProgressPhaseButtonWidget(QtWidgets.QPushButton):
         else:
             self._log_text_edit.setText("No errors found")
         self.log_overlay_container.setVisible(True)
+        self.log_overlay_container.resize(self.parent().size())
 
     def hide_log(self):
         self.log_overlay_container.setVisible(False)

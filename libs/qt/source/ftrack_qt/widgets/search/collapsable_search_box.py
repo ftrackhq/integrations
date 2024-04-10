@@ -2,9 +2,9 @@
 # :copyright: Copyright (c) 2024 ftrack
 
 try:
-    from PySide6 import QtWidgets, QtCore, QtGui
+    from PySide6 import QtWidgets, QtCore
 except ImportError:
-    from PySide2 import QtWidgets, QtCore, QtGui
+    from PySide2 import QtWidgets, QtCore
 
 from ftrack_qt.utils.widget import set_property
 from ftrack_qt.widgets.buttons import CircularButton

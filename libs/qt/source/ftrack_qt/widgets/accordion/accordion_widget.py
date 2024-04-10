@@ -4,7 +4,7 @@
 try:
     from PySide6 import QtWidgets, QtCore
 except ImportError:
-    from PySide2 import QtWidgets, QtCore, QtGui
+    from PySide2 import QtWidgets, QtCore
 
 from ftrack_qt.utils.widget import set_property
 from ftrack_qt.widgets.headers import AccordionHeaderWidget
@@ -172,9 +172,6 @@ class AccordionBaseWidget(QtWidgets.QFrame):
 
     def add_option_widget(self, widget, section_name):
         self._header_widget.add_option_widget(widget, section_name)
-
-    def finalize_options_widget(self):
-        self._header_widget.finalize_options_widget()
 
     def add_widget(self, widget):
         '''Add widget to content'''

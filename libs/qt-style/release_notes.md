@@ -3,7 +3,7 @@
 ## Upcoming
 
 * [new] PySide6 support, through build script.
-* [changed] Removed Qt.py dependency.
+* [new] PySide2 support, through build script.
 
 ## v2.1.0
 2024-04-02

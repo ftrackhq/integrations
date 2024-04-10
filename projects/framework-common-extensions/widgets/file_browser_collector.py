@@ -5,7 +5,7 @@ import os.path
 try:
     from PySide6 import QtWidgets, QtCore
 except ImportError:
-    from PySide2 import QtWidgets, QtCore, QtGui
+    from PySide2 import QtWidgets, QtCore
 
 from ftrack_framework_qt.widgets import BaseWidget
 

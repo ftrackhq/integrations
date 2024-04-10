@@ -4,9 +4,9 @@
 import logging
 
 try:
-    from PySide6 import QtWidgets, QtCore, QtGui
+    from PySide6 import QtWidgets, QtCore
 except ImportError:
-    from PySide2 import QtWidgets, QtCore, QtGui, QtSvg
+    from PySide2 import QtWidgets, QtCore
 
 import ftrack_constants as constants
 from ftrack_qt.widgets.icons import MaterialIcon
