@@ -81,10 +81,7 @@ class BaseContextDialog(BaseDialog):
         self._run_button = QtWidgets.QPushButton(self.run_button_title)
 
         self.main_layout.addWidget(self._header)
-        self.main_layout.addWidget(
-            self._context_selector,
-            QtCore.Qt.AlignmentFlag.AlignTop,
-        )
+        self.main_layout.addWidget(self._context_selector, QtCore.Qt.AlignTop)
         self.main_layout.addWidget(self._tool_widget)
         self.main_layout.addWidget(self._run_button)
 

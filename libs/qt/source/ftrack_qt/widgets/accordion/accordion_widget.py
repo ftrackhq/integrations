@@ -17,6 +17,8 @@ class AccordionBaseWidget(QtWidgets.QFrame):
     doubleClicked = QtCore.Signal(
         object
     )  # Emitted when accordion is double clicked
+    show_options_overlay = QtCore.Signal(object)
+    hide_options_overlay = QtCore.Signal()
 
     @property
     def title(self):
@@ -167,8 +169,20 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         self._header_widget.arrow_clicked.connect(
             self._on_header_arrow_clicked
         )
+        self._header_widget.show_options_overlay.connect(
+            self._on_show_options_overlay
+        )
+        self._header_widget.hide_options_overlay.connect(
+            self._on_hide_options_overlay
+        )
         self._content_widget.setVisible(not self._collapsed)
         self._content_widget.setEnabled(self.checked)
+
+    def _on_show_options_overlay(self, widget):
+        self.show_options_overlay.emit(widget)
+
+    def _on_hide_options_overlay(self):
+        self.hide_options_overlay.emit()
 
     def add_option_widget(self, widget, section_name):
         self._header_widget.add_option_widget(widget, section_name)
@@ -257,3 +271,8 @@ class AccordionBaseWidget(QtWidgets.QFrame):
                 'background',
                 'selected' if self._selected else 'transparent',
             )
+
+    def teardown(self):
+        '''Teardown the header widget - properly cleanup the options overlay'''
+        self._header_widget.teardown()
+        self._header_widget.deleteLater()
