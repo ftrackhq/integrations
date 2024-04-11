@@ -53,6 +53,7 @@ class OptionsButton(QtWidgets.QPushButton):
         title_label.setObjectName('h2')
         self._main_widget.layout().addWidget(title_label)
         self._main_widget.layout().addWidget(QtWidgets.QLabel(''))
+        self._main_widget.layout().setContentsMargins(0, 0, 0, 0)
 
         self._options_widget = QtWidgets.QWidget()
         self._options_widget.setLayout(QtWidgets.QVBoxLayout())
