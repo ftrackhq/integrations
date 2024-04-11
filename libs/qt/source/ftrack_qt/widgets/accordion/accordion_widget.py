@@ -167,18 +167,18 @@ class AccordionBaseWidget(QtWidgets.QFrame):
             self._on_header_arrow_clicked
         )
         self._header_widget.show_options_overlay.connect(
-            self._on_show_options_overlay
+            self._on_show_options_overlay_callback
         )
         self._header_widget.hide_options_overlay.connect(
-            self._on_hide_options_overlay
+            self._on_hide_options_overlay_callback
         )
         self._content_widget.setVisible(not self._collapsed)
         self._content_widget.setEnabled(self.checked)
 
-    def _on_show_options_overlay(self, widget):
+    def _on_show_options_overlay_callback(self, widget):
         self.show_options_overlay.emit(widget)
 
-    def _on_hide_options_overlay(self):
+    def _on_hide_options_overlay_callback(self):
         self.hide_options_overlay.emit()
 
     def add_option_widget(self, widget, section_name):

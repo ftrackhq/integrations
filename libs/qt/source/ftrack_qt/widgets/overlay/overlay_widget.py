@@ -51,9 +51,9 @@ class OverlayWidget(QtWidgets.QFrame):
         self.setLayout(main_layout)
 
     def post_build(self):
-        self._close_btn.clicked.connect(self.on_close_button)
+        self._close_btn.clicked.connect(self.on_close_button_callback)
 
-    def on_close_button(self):
+    def on_close_button_callback(self):
         '''Emit a signal when close button is clicked'''
         self.close_button_clicked.emit()
 
