@@ -1,5 +1,10 @@
 # ftrack QT library release Notes
 
+## upcoming
+
+* [changed] Overlay widget has been modified;QSignals has been implemented and is meant to work with QStackedWidget. 
+
+
 ## v2.1.0
 2024-04-02
 

@@ -2,6 +2,7 @@
 
 ## Upcoming
 
+* [changed] Standard opener and publisher are using the stack widget to show overlay widget from progress widget and options widget.
 * [changed] Asset version selectors; show label on empty asset list.
 * [changed] Publisher dialog only query assets linked to the task.
 * [changed] Opener dialog has checkbox to query assets from AssetBuild
