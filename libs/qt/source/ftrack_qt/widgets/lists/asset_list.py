@@ -64,12 +64,8 @@ class AssetList(QtWidgets.QListWidget):
         self._latest_published_asset_item = None
         self._active = True
 
-        self.setHorizontalScrollBarPolicy(
-            QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff
-        )
-        self.setVerticalScrollBarPolicy(
-            QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff
-        )
+        self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.verticalScrollBar().setDisabled(True)
         self.setAutoScroll(False)
         self.setSpacing(1)

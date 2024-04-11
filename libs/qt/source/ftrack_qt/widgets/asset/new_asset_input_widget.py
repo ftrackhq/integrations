@@ -71,8 +71,7 @@ class NewAssetInput(QtWidgets.QFrame):
         self._name.setPlaceholderText(self._placeholder_name)
         self._name.setValidator(self._validator)
         self._name.setSizePolicy(
-            QtWidgets.QSizePolicy.Policy.Preferred,
-            QtWidgets.QSizePolicy.Policy.Minimum,
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Minimum
         )
         self._name.setVisible(False)
         self.layout().addWidget(self._name, 1000)
@@ -84,8 +83,7 @@ class NewAssetInput(QtWidgets.QFrame):
 
         self._filler = QtWidgets.QLabel('')
         self._filler.setSizePolicy(
-            QtWidgets.QSizePolicy.Policy.Expanding,
-            QtWidgets.QSizePolicy.Policy.Minimum,
+            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum
         )
         self.layout().addWidget(self._filler, 100)
 

@@ -71,10 +71,7 @@ class TabDialog(StyledDialog):
         self._tab_widget = QtWidgets.QTabWidget()
 
         self.layout().addWidget(self._header)
-
-        self.layout().addWidget(
-            self._context_selector, QtCore.Qt.AlignmentFlag.AlignTop
-        )
+        self.layout().addWidget(self._context_selector, QtCore.Qt.AlignTop)
         self.layout().addWidget(self._tab_widget)
 
     def post_build(self):

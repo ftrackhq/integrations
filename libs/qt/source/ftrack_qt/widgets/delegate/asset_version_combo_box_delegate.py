@@ -31,9 +31,7 @@ class AssetVersionComboBoxDelegate(QtWidgets.QStyledItemDelegate):
 
     def setEditorData(self, editor, index):
         '''Sets the given *data* into the given *editor*'''
-        editor_data = str(
-            index.model().data(index, QtCore.Qt.ItemDataRole.EditRole)
-        )
+        editor_data = str(index.model().data(index, QtCore.Qt.EditRole))
         idx = editor.findText(editor_data)
         editor.setCurrentIndex(idx)
 

@@ -2,8 +2,7 @@
 
 ## upcoming
 
-* [changed] PySide QtCore calls are using full path.
-* [changed] Overlay widget has been modified. QSignals has been implemented and is meant to work with QStackedWidget. 
+* [changed] Overlay widget has been modified;QSignals has been implemented and is meant to work with QStackedWidget. 
 
 
 ## v2.1.0

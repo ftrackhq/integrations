@@ -74,7 +74,7 @@ class BusyIndicator(QtWidgets.QWidget):
             penWidth = 8.0
             pen.setWidth(penWidth)
             pen.setColor(self._spinnerColor)
-            pen.setCapStyle(QtCore.Qt.PenCapStyle.RoundCap)
+            pen.setCapStyle(QtCore.Qt.RoundCap)
 
             painter.setPen(pen)
 

@@ -114,7 +114,7 @@ class ScrollToolConfigsDialog(StyledDialog):
         self._scroll_area.setStyle(QtWidgets.QStyleFactory.create("plastique"))
         self._scroll_area.setWidgetResizable(True)
         self._scroll_area.setHorizontalScrollBarPolicy(
-            QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+            QtCore.Qt.ScrollBarAlwaysOff
         )
 
         self._tool_config_widget = QtWidgets.QWidget()
@@ -124,9 +124,7 @@ class ScrollToolConfigsDialog(StyledDialog):
         self._run_button = QtWidgets.QPushButton(self._run_button_title)
 
         self.layout().addWidget(self._header)
-        self.layout().addWidget(
-            self._context_selector, QtCore.Qt.AlignmentFlag.AlignTop
-        )
+        self.layout().addWidget(self._context_selector, QtCore.Qt.AlignTop)
         self.layout().addWidget(self._tool_config_selector)
         self.layout().addWidget(self._scroll_area, 100)
         self._scroll_area.setWidget(self._tool_config_widget)

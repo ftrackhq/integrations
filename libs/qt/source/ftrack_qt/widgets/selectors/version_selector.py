@@ -44,7 +44,5 @@ class VersionSelector(QtWidgets.QComboBox):
         '''Add a version to the combobox.'''
         self.addItem(str('v{}'.format(version['version'])), version)
         self.setItemData(
-            self.count() - 1,
-            QtGui.QColor('#131920'),
-            QtCore.Qt.ItemDataRole.BackgroundRole,
+            self.count() - 1, QtGui.QColor('#131920'), QtCore.Qt.BackgroundRole
         )

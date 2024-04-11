@@ -206,8 +206,8 @@ class BaseDialog(FrameworkDialog, StyledDialog):
         self.raise_()
         self.activateWindow()
         self.setWindowState(
-            self.windowState() & ~QtCore.Qt.WindowState.WindowMinimized
-            | QtCore.Qt.WindowState.WindowActive
+            self.windowState() & ~QtCore.Qt.WindowMinimized
+            | QtCore.Qt.WindowActive
         )
 
     def connect_focus_signal(self):

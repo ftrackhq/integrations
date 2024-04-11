@@ -129,7 +129,7 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         # Create the main_widget
         main_widget = QtWidgets.QWidget()
         main_widget.setLayout(QtWidgets.QVBoxLayout())
-        main_widget.layout().setAlignment(QtCore.Qt.AlignmentFlag.AlignTop)
+        main_widget.layout().setAlignment(QtCore.Qt.AlignTop)
         main_widget.layout().setContentsMargins(0, 0, 0, 0)
         main_widget.layout().setSpacing(1)
 
@@ -220,7 +220,7 @@ class AccordionBaseWidget(QtWidgets.QFrame):
     def _on_header_clicked(self, event):
         '''Callback on header user click'''
         if not self.selectable:
-            if event.button() != (QtCore.Qt.MouseButton.RightButton):
+            if event.button() != QtCore.Qt.RightButton:
                 self.toggle_collapsed()
 
     def _on_header_arrow_clicked(self, event):

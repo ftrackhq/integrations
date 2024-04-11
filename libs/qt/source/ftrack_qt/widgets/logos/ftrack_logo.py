@@ -18,7 +18,7 @@ class FtrackLogo(QtWidgets.QLabel):
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
         self.layout().setSpacing(0)
-        self.layout().setAlignment(QtCore.Qt.AlignmentFlag.AlignTop)
+        self.layout().setAlignment(QtCore.Qt.AlignTop)
 
     def build(self):
         resource_path = ':ftrack/image/default/connectLogoDark'
@@ -27,8 +27,8 @@ class FtrackLogo(QtWidgets.QLabel):
             self.setPixmap(
                 logoPixmap.scaled(
                     QtCore.QSize(106, 32),
-                    QtCore.Qt.AspectRatioMode.KeepAspectRatio,
-                    QtCore.Qt.TransformationMode.SmoothTransformation,
+                    QtCore.Qt.KeepAspectRatio,
+                    QtCore.Qt.SmoothTransformation,
                 )
             )
             self.setPixmap(logoPixmap)

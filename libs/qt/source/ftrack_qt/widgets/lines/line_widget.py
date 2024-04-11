@@ -23,8 +23,7 @@ class LineWidget(QtWidgets.QFrame):
             self.setMaximumHeight(1)
             self.setMinimumHeight(1)
             self.setSizePolicy(
-                QtWidgets.QSizePolicy.Policy.Preferred,
-                QtWidgets.QSizePolicy.Policy.Minimum,
+                QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Minimum
             )
         else:
             self.setMaximumWidth(1)
@@ -32,8 +31,7 @@ class LineWidget(QtWidgets.QFrame):
             self.setMaximumHeight(16)
             self.setMinimumHeight(16)
             self.setSizePolicy(
-                QtWidgets.QSizePolicy.Policy.Minimum,
-                QtWidgets.QSizePolicy.Policy.Preferred,
+                QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred
             )
         if style is not None:
             set_property(self, 'style', style)

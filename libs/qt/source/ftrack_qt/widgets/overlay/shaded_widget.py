@@ -9,8 +9,8 @@ class ShadedWidget(QtWidgets.QWidget):
 
     def __init__(self, parent=None):
         super(ShadedWidget, self).__init__(parent=parent)
-        self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
-        self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
+        self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+        self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
         self._fill_color = QtGui.QColor(19, 25, 32, 169)
 
     def paintEvent(self, event):

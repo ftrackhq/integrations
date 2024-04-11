@@ -19,8 +19,8 @@ class AssetVersionThumbnail(ThumbnailBase):
         if self._scale:
             scaled_pixmap = pixmap.scaled(
                 self.size(),
-                QtCore.Qt.AspectRatioMode.KeepAspectRatio,
-                QtCore.Qt.TransformationMode.SmoothTransformation,
+                QtCore.Qt.KeepAspectRatio,
+                QtCore.Qt.SmoothTransformation,
             )
         else:
             scaled_pixmap = pixmap

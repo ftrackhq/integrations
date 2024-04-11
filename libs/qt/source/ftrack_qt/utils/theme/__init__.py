@@ -20,9 +20,7 @@ def apply_theme(widget, theme=None):
     theme_path = ':/ftrack/style/{0}'.format(theme)
     fileObject = QtCore.QFile(theme_path)
     if fileObject.exists():
-        fileObject.open(
-            QtCore.QFile.OpenModeFlag.ReadOnly | QtCore.QFile.OpenModeFlag.Text
-        )
+        fileObject.open(QtCore.QFile.ReadOnly | QtCore.QFile.Text)
         stream = QtCore.QTextStream(fileObject)
         styleSheetContent = stream.readAll()
 

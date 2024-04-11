@@ -35,9 +35,7 @@ class TableView(QtWidgets.QTableView):
 
         self.verticalHeader().hide()
 
-        self.setSelectionBehavior(
-            QtWidgets.QAbstractItemView.SelectionBehavior.SelectRows
-        )
+        self.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
 
         self.horizontalHeader().setStretchLastSection(True)
 

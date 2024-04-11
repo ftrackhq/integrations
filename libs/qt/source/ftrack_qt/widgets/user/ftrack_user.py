@@ -26,7 +26,7 @@ class FtrackUser(QtWidgets.QFrame):
     def pre_build(self):
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
-        self.layout().setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
+        self.layout().setAlignment(QtCore.Qt.AlignRight)
 
     def build(self):
         username = self.session.api_user

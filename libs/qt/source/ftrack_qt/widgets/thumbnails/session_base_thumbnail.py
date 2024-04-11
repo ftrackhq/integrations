@@ -42,8 +42,8 @@ class SessionThumbnailBase(QtWidgets.QLabel):
 
     def pre_build(self):
         self.thumbnailCache = {}
-        self.setFrameStyle(QtWidgets.QFrame.Shape.StyledPanel)
-        self.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.setFrameStyle(QtWidgets.QFrame.StyledPanel)
+        self.setAlignment(QtCore.Qt.AlignCenter)
 
         self.placholderThumbnail = (
             self.session.server_url + '/img/thumbnail2.png'
@@ -133,8 +133,7 @@ class SessionThumbnailBase(QtWidgets.QLabel):
         '''Scale and set *pixmap*.'''
         if self._scale:
             scaled_pixmap = pixmap.scaledToWidth(
-                self.width(),
-                mode=QtCore.Qt.TransformationMode.SmoothTransformation,
+                self.width(), mode=QtCore.Qt.SmoothTransformation
             )
         else:
             scaled_pixmap = pixmap

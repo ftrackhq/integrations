@@ -72,10 +72,10 @@ class StyledDialog(QtWidgets.QDialog):
         apply_theme(self, self.theme)
         self.setProperty('background', self.background_style)
         self.setProperty('docked', 'true' if self.docked else 'false')
-        self.setAttribute(QtCore.Qt.WidgetAttribute.WA_DeleteOnClose, True)
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
 
         # Make sure the dialog is always on top
-        self.setWindowFlags(QtCore.Qt.WindowType.WindowStaysOnTopHint)
+        self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
 
         # Have a proper title instead of default 'python'
         self.setWindowTitle('ftrack')

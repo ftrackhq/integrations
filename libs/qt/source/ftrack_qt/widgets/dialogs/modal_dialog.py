@@ -51,8 +51,7 @@ class ModalDialog(StyledDialog):
 
         self.setModal(True)
         self.setWindowFlags(
-            QtCore.Qt.WindowType.SplashScreen
-            | QtCore.Qt.WindowType.WindowStaysOnTopHint
+            QtCore.Qt.SplashScreen | QtCore.Qt.WindowStaysOnTopHint
         )
 
     def pre_build(self):

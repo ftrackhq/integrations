@@ -7,7 +7,7 @@ from Qt import QtWidgets, QtCore, QtGui
 class TableModel(QtCore.QAbstractTableModel):
     '''Table model for generic data'''
 
-    DATA_ROLE = QtCore.Qt.ItemDataRole.UserRole + 1
+    DATA_ROLE = QtCore.Qt.UserRole + 1
 
     @property
     def data_items(self):
@@ -60,7 +60,7 @@ class TableModel(QtCore.QAbstractTableModel):
         '''Return the column count for the internal data.'''
         return len(self._headers)
 
-    def data(self, index, role=QtCore.Qt.ItemDataRole.DisplayRole):
+    def data(self, index, role=QtCore.Qt.DisplayRole):
         '''Return the data provided in the given *index* and with *role*'''
 
         row = index.row()
@@ -73,11 +73,11 @@ class TableModel(QtCore.QAbstractTableModel):
         column_name = self._headers[column]
 
         # style versions
-        if role == QtCore.Qt.ItemDataRole.TextAlignmentRole and column == 0:
-            return QtCore.Qt.AlignmentFlag.AlignCenter
+        if role == QtCore.Qt.TextAlignmentRole and column == 0:
+            return QtCore.Qt.AlignCenter
 
         # style the rest
-        elif role == QtCore.Qt.ItemDataRole.DisplayRole:
+        elif role == QtCore.Qt.DisplayRole:
             if type(self._column_mapping[column_name]) == list:
                 # Small function to get the value from recursive keys
                 def get_recursive_keys(_item, keys):
@@ -90,7 +90,7 @@ class TableModel(QtCore.QAbstractTableModel):
                 )
             return str(item[self._column_mapping[column_name]])
 
-        elif role == QtCore.Qt.ItemDataRole.EditRole:
+        elif role == QtCore.Qt.EditRole:
             return item
 
         elif role == self.DATA_ROLE:
@@ -101,8 +101,8 @@ class TableModel(QtCore.QAbstractTableModel):
     def headerData(self, col, orientation, role):
         '''Provide header data'''
         if (
-            orientation == QtCore.Qt.Orientation.Horizontal
-            and role == QtCore.Qt.ItemDataRole.DisplayRole
+            orientation == QtCore.Qt.Horizontal
+            and role == QtCore.Qt.DisplayRole
         ):
             return self._headers[col].capitalize()
         return None
@@ -110,12 +110,6 @@ class TableModel(QtCore.QAbstractTableModel):
     def flags(self, index):
         '''Set :obj:`self._editable_columns` editable'''
         if index.column() in self._editable_columns:
-            return (
-                QtCore.Qt.ItemFlag.ItemIsEditable
-                | QtCore.Qt.ItemFlag.ItemIsEnabled
-            )
+            return QtCore.Qt.ItemIsEditable | QtCore.Qt.ItemIsEnabled
         else:
-            return (
-                QtCore.Qt.ItemFlag.ItemIsEnabled
-                | QtCore.Qt.ItemFlag.ItemIsSelectable
-            )
+            return QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable

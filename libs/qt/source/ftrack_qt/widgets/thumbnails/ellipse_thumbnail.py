@@ -15,10 +15,7 @@ class EllipseThumbnailBase(SessionThumbnailBase):
     def paintEvent(self, event):
         '''Override paint event to make round thumbnails.'''
         painter = QtGui.QPainter(self)
-        painter.setRenderHints(
-            QtGui.QPainter.RenderHint.Antialiasing,
-            True,
-        )
+        painter.setRenderHints(QtGui.QPainter.Antialiasing, True)
 
         # TODO: when no image this raises an error because of the assigning of
         #  the empty pixmap. Find another way to solve this.

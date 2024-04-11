@@ -43,7 +43,7 @@ class SessionHeader(QtWidgets.QFrame):
     def pre_build(self):
         self.setLayout(QtWidgets.QVBoxLayout())
         self.layout().setContentsMargins(8, 2, 7, 8)
-        self.layout().setAlignment(QtCore.Qt.AlignmentFlag.AlignTop)
+        self.layout().setAlignment(QtCore.Qt.AlignTop)
 
     def build(self):
         # Logo & User ID
@@ -51,7 +51,7 @@ class SessionHeader(QtWidgets.QFrame):
         self.id_container_layout = QtWidgets.QHBoxLayout()
         self.id_container_layout.setContentsMargins(1, 1, 1, 1)
         self.id_container_layout.setSpacing(5)
-        self.id_container_layout.setAlignment(QtCore.Qt.AlignmentFlag.AlignTop)
+        self.id_container_layout.setAlignment(QtCore.Qt.AlignTop)
         self.id_container.setLayout(self.id_container_layout)
 
         self.logo = Logo(self)
