@@ -128,7 +128,7 @@ class ProgressWidget(QtWidgets.QWidget):
         self._progress_area.update_status(new_status, message)
 
     def _on_status_updated(self, new_status, message):
-        '''Method clall when status updated from progress area'''
+        '''Method call when status updated from progress area'''
         self.status_widget.set_status(new_status, message=message)
         self.status_widget.setVisible(True)
 
