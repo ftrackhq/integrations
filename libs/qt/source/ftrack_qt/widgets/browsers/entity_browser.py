@@ -6,12 +6,9 @@
 
 from functools import partial
 
-try:
-    from PySide6 import QtWidgets, QtCore, QtGui
-    import shiboken6 as shiboken
-except ImportError:
-    from PySide2 import QtWidgets, QtCore, QtGui
-    import shiboken2 as shiboken
+from Qt import QtWidgets, QtCore, QtGui
+
+import shiboken2
 
 from ftrack_qt.widgets.thumbnails import ContextThumbnail
 from ftrack_qt.widgets.search import SearchBox
@@ -788,7 +785,7 @@ class EntityWidget(QtWidgets.QFrame):
         self.setMaximumHeight(45 if not self.is_parent else 20)
 
     def mousePressEvent(self, event):
-        if not shiboken.isValid(self) or not shiboken.isValid(
+        if not shiboken2.isValid(self) or not shiboken2.isValid(
             super(EntityWidget, self)
         ):
             # Widget has been destroyed
@@ -802,7 +799,7 @@ class EntityWidget(QtWidgets.QFrame):
         return retval
 
     def mouseDoubleClickEvent(self, event):
-        if not shiboken.isValid(self) or not shiboken.isValid(
+        if not shiboken2.isValid(self) or not shiboken2.isValid(
             super(EntityWidget, self)
         ):
             # Widget has been destroyed

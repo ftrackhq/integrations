@@ -2,10 +2,7 @@
 # :copyright: Copyright (c) 2024 ftrack
 # TODO: Clean this code
 
-try:
-    from PySide6 import QtCore, QtWidgets, QtGui
-except ImportError:
-    from PySide2 import QtCore, QtWidgets, QtGui
+from Qt import QtCore, QtGui, QtWidgets
 
 from ftrack_qt.widgets.thumbnails.session_base_thumbnail import (
     SessionThumbnailBase,

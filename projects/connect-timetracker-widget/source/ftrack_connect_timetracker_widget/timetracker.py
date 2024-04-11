@@ -1,17 +1,12 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2024 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
+
+import operator
 import time
 import logging
-import re
-import math
-import qtawesome as qta
 
-try:
-    from PySide6 import QtWidgets, QtCore
-except ImportError:
-    from PySide2 import QtWidgets, QtCore
+from ftrack_connect.qt import QtWidgets, QtCore, QtGui
 
-import ftrack_connect.error
 import ftrack_connect.ui.application
 import ftrack_connect.ui.widget.overlay
 import ftrack_connect.ui.widget.item_list
@@ -19,6 +14,11 @@ import ftrack_connect.ui.widget.label
 import ftrack_connect.ui.widget.line_edit
 
 logger = logging.getLogger('ftrack_connect.plugin.timetracker')
+
+import re
+import math
+import qtawesome as qta
+import ftrack_connect.error
 
 
 class DurationParser(object):

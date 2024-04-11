@@ -2,10 +2,7 @@
 # :copyright: Copyright (c) 2024 ftrack
 import os
 
-try:
-    from PySide6 import QtWidgets, QtCore
-except ImportError:
-    from PySide2 import QtWidgets, QtCore
+from Qt import QtWidgets, QtCore
 
 
 class EntityInfo(QtWidgets.QWidget):

@@ -1,13 +1,11 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2024 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import logging
 
-
-try:
-    from PySide6 import QtWidgets, QtCore
-except ImportError:
-    from PySide2 import QtWidgets, QtCore
+from ftrack_connect.qt import QtWidgets
+from ftrack_connect.qt import QtCore
+from ftrack_connect.qt import QtGui
 
 from ftrack_api import exception
 from ftrack_api import event

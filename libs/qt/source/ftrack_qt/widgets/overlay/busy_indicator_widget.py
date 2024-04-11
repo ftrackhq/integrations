@@ -1,12 +1,8 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
-try:
-    from PySide6 import QtWidgets, QtCore, QtGui
-    import shiboken6 as shiboken
-except ImportError:
-    from PySide2 import QtWidgets, QtCore, QtGui
-    import shiboken2 as shiboken
+from Qt import QtWidgets, QtCore, QtSvg, QtGui
+import shiboken2
 
 
 class BusyIndicator(QtWidgets.QWidget):
@@ -34,7 +30,7 @@ class BusyIndicator(QtWidgets.QWidget):
 
     def stop(self):
         '''Stop spinning if currently spinning.'''
-        if shiboken.isValid(self) and self._timer is not None:
+        if shiboken2.isValid(self) and self._timer is not None:
             self.killTimer(self._timer)
             self._timer = None
 

@@ -3,10 +3,7 @@
 
 import logging
 
-try:
-    from PySide6 import QtWidgets, QtCore
-except ImportError:
-    from PySide2 import QtWidgets, QtCore
+from Qt import QtWidgets, QtCore
 
 from ftrack_qt.widgets.buttons import CircularButton
 

@@ -2,10 +2,7 @@
 # :copyright: Copyright (c) 2024 ftrack
 import logging
 
-try:
-    from PySide6 import QtWidgets, QtCore, QtGui
-except ImportError:
-    from PySide2 import QtWidgets, QtCore, QtGui
+from Qt import QtWidgets, QtCore, QtGui
 
 
 class VersionSelector(QtWidgets.QComboBox):

@@ -1,10 +1,8 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
-try:
-    from PySide6 import QtWidgets, QtCore
-except ImportError:
-    from PySide2 import QtWidgets, QtCore
+from Qt import QtWidgets, QtCore
+
 from ftrack_framework_core.widget.dialog import FrameworkDialog
 
 from ftrack_qt.widgets.dialogs import StyledDialog

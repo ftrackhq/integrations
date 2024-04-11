@@ -1,17 +1,15 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2024 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
+
 import os
 import sys
 import logging
 
-try:
-    from PySide6 import QtWidgets, QtCore
-except ImportError:
-    from PySide2 import QtWidgets, QtCore
-
 import ftrack_api
-
 from ftrack_utils.version import get_connect_plugin_version
+from ftrack_connect.qt import QtWidgets, QtCore, QtGui
+import ftrack_connect.ui.application
+
 import ftrack_connect.ui.application
 import ftrack_connect.ui.widget.overlay
 from ftrack_utils.server import send_usage_event

@@ -1,10 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
-try:
-    from PySide6 import QtGui
-except ImportError:
-    from PySide2 import QtGui
+from PySide2 import QtGui, QtWidgets
 
 from ftrack_utils.paths import get_temp_path
 from ftrack_framework_core.plugin import BasePlugin

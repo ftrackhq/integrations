@@ -2,10 +2,7 @@
 # :copyright: Copyright (c) 2024 ftrack
 import sys
 
-try:
-    from PySide6 import QtWidgets, QtCore, QtGui
-except ImportError:
-    from PySide2 import QtWidgets, QtCore, QtGui
+from Qt import QtCore, QtWidgets, QtGui
 
 import ftrack_constants.qt as qt_constants
 

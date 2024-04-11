@@ -8,10 +8,7 @@ import traceback
 import platform
 from functools import partial
 
-try:
-    from PySide6 import QtWidgets, QtCore
-except ImportError:
-    from PySide2 import QtWidgets, QtCore
+from Qt import QtWidgets, QtCore
 
 import ftrack_api
 

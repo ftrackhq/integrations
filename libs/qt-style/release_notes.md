@@ -1,10 +1,5 @@
 # ftrack Framework QT Style library release Notes
 
-## Upcoming
-
-* [new] PySide6 support, through build script.
-* [new] PySide2 support, through build script.
-
 ## v2.1.0
 2024-04-02
 

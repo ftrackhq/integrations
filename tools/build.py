@@ -10,7 +10,6 @@ official CI/CD build implementation in place.
 
 Changelog:
 
-0.4.16 [24.03.19] PySide6 resource build support.
 0.4.15 [24.03.13] Fix platform dependent bug.
 0.4.14 [24.02.23] Incorporate RV pkg build.
 0.4.13 [24.02.12] Build qt-style when building CEP plugin.
@@ -556,12 +555,7 @@ def build_package(pkg_path, args, command=None):
         Qt.
 
         '''
-        replace = r'''
-try: 
-    from PySide6 import QtCore
-except ImportError: 
-    from PySide2 import QtCore
-'''
+        replace = r'from Qt import QtCore'
         for line in fileinput.input(
             resource_target_path, inplace=True, mode='r'
         ):
@@ -614,11 +608,8 @@ except ImportError:
         else:
             logging.warning('No styles to compile.')
 
-        pyside_version = args.pyside_version
-        if not pyside_version:
-            pyside_version = "2"
-        pyside_rcc_command = f'pyside{pyside_version}-rcc'
         try:
+            pyside_rcc_command = 'pyside2-rcc'
             executable = None
 
             # Check if the command for pyside*-rcc is in executable paths.
@@ -627,7 +618,7 @@ except ImportError:
 
             if not executable:
                 logging.warning(
-                    f'No executable found for {pyside_rcc_command}, attempting to run as '
+                    'No executable found for pyside2-rcc, attempting to run as '
                     'a module'
                 )
                 executable = [sys.executable, '-m', 'scss']
@@ -643,8 +634,8 @@ except ImportError:
 
         except (subprocess.CalledProcessError, OSError):
             raise RuntimeError(
-                f'Error compiling resource.py using {pyside_rcc_command}. Possibly '
-                f'{pyside_rcc_command} could not be found. You might need to manually add '
+                'Error compiling resource.py using pyside-rcc. Possibly '
+                'pyside-rcc could not be found. You might need to manually add '
                 'it to your PATH. See README for more information.'
             )
 
@@ -973,11 +964,6 @@ if __name__ == '__main__':
         '--style_path',
         help='(QT resource build) Override the default style path (resource/style).',
     )
-    parser.add_argument(
-        '--pyside_version',
-        help='(QT resource build) The version of PySide to use, default is "2"',
-    )
-    # QT/RV shared
     parser.add_argument(
         '--output_path',
         help='(QT resource build/RV pkg build) Override the QT resource output directory.',

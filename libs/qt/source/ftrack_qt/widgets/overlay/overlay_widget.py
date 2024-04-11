@@ -1,10 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
-try:
-    from PySide6 import QtWidgets, QtCore, QtGui
-except ImportError:
-    from PySide2 import QtWidgets, QtCore, QtGui
+from Qt import QtGui, QtCore, QtWidgets
 
 from ftrack_qt.utils.widget import (
     get_main_window_from_widget,

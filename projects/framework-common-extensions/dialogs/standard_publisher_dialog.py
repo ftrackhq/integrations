@@ -1,10 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
-try:
-    from PySide6 import QtWidgets, QtCore
-except ImportError:
-    from PySide2 import QtWidgets, QtCore
+from Qt import QtWidgets, QtCore
 
 import ftrack_constants as constants
 from ftrack_utils.framework.config.tool import get_plugins, get_groups

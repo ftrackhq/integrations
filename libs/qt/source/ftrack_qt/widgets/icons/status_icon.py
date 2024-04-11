@@ -3,10 +3,7 @@
 # TODO: clean this code
 import logging
 
-try:
-    from PySide6 import QtWidgets, QtCore
-except ImportError:
-    from PySide2 import QtWidgets, QtCore
+from Qt import QtCore, QtWidgets, QtGui, QtSvg
 
 import ftrack_constants as constants
 from ftrack_qt.widgets.icons import MaterialIcon

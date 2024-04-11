@@ -1,11 +1,10 @@
 # ftrack QT library release Notes
 
-## Upcoming
+## upcoming
 
-* [changed] Updated accordion widget to requiring finalize of the header options button.
-* [new] PySide6 support.
-* [new] PySide2 support.
-* [changed] Removed Qt.py dependency.
+* [changed] PySide QtCore calls are using full path.
+* [changed] Overlay widget has been modified. QSignals has been implemented and is meant to work with QStackedWidget. 
+
 
 ## v2.1.0
 2024-04-02

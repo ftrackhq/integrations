@@ -1,17 +1,14 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2024 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import os
 import sys
-import qtawesome as qta
-
-try:
-    from PySide6 import QtWidgets, QtCore
-except ImportError:
-    from PySide2 import QtWidgets, QtCore
 
 import ftrack_api
 
+from ftrack_connect.qt import QtWidgets, QtCore, QtGui
+
+import qtawesome as qta
 import ftrack_connect.ui.application
 import ftrack_connect.ui.widget.overlay
 import ftrack_connect.ui.widget.item_list
