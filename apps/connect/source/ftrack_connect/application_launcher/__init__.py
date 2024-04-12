@@ -195,8 +195,9 @@ class ApplicationStore(object):
         variant='',
         description=None,
         integrations=None,
-        standalone_module=None,
         extensions_path=None,
+        standalone_module=None,
+        standalone_interpreter=None,
         environment_variables=None,
         connect_plugin_path=None,
         rosetta=False,
@@ -245,10 +246,13 @@ class ApplicationStore(object):
         *integrations* is the list of integrations that are required for this
         application to run.
 
+        *extensions_path* is a raw dictionary containing extension paths.
+
         *standalone_module* is the name of the standalone module that should be
         launched together with the application.
 
-        *extensions_path* is a raw dictionary containing extension paths.
+        *standalone_interpreter* is the name of the standalone module that should be
+        launched together with the application.
 
         *environment_variables* is a dictionary of environment variables that
         should be set when launching the application.
@@ -364,6 +368,29 @@ class ApplicationStore(object):
                             application[
                                 'standalone_module'
                             ] = standalone_module
+                            if standalone_interpreter:
+                                self.logger.debug(
+                                    f'Using overridden standalone Python interpreter '
+                                    f'from env: {standalone_interpreter}'
+                                )
+                                application[
+                                    'standalone_interpreter'
+                                ] = standalone_interpreter
+                            elif (
+                                not standalone_interpreter
+                                and 'FTRACK_CONNECT_STANDALONE_INTERPRETER'
+                                in os.environ
+                            ):
+                                standalone_interpreter = os.environ[
+                                    'FTRACK_CONNECT_STANDALONE_INTERPRETER'
+                                ]
+                                self.logger.debug(
+                                    f'Using overridden standalone Python interpreter '
+                                    f'from launch config: {standalone_interpreter}'
+                                )
+                                application[
+                                    'standalone_interpreter'
+                                ] = standalone_interpreter
                         application['environment_variables'] = {}
                         if extensions_path:
                             # Convert to list and expand paths
@@ -754,19 +781,29 @@ class ApplicationLauncher(object):
                 )
 
                 command = []
-                executable_filename = sys.argv[0]
-                if not executable_filename.endswith('.py'):
-                    command.append(executable_filename)
+                if 'standalone_interpreter' in application:
+                    # Use this instead of Connect
+                    command.extend(
+                        [
+                            application['standalone_interpreter'],
+                            "-m",
+                            application['standalone_module'],
+                        ]
+                    )
                 else:
-                    # Support invocation through Python interpreter
-                    command.extend([sys.executable, executable_filename])
+                    executable_filename = sys.argv[0]
+                    if not executable_filename.endswith('.py'):
+                        command.append(executable_filename)
+                    else:
+                        # Support invocation through Python interpreter
+                        command.extend([sys.executable, executable_filename])
 
-                command.extend(
-                    [
-                        "--run-framework-standalone",
-                        application['standalone_module'],
-                    ]
-                )
+                    command.extend(
+                        [
+                            "--run-framework-standalone",
+                            application['standalone_module'],
+                        ]
+                    )
 
                 # Append PID to environment for framework to use.
                 environment['FTRACK_APPLICATION_PID'] = str(process.pid)
