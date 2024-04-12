@@ -598,6 +598,9 @@ class ApplicationLauncher(object):
                     'version': None,
                     'env': application.get('environment_variables', {}),
                     'launch_arguments': [],
+                    'standalone_interpreter': application.get(
+                        'standalone_interpreter', {}
+                    ),
                 },
                 platform=self.current_os,
             )
@@ -644,6 +647,29 @@ class ApplicationLauncher(object):
             options = launchData['options']
             application = launchData['application']
             options['env'] = environment
+
+            standalone_interpreter = None
+            if 'standalone_module' in application:
+                # Check if interpreter is overridden
+                for r in results:
+                    if (
+                        'integration' in r
+                        and 'standalone_interpreter' in r['integration']
+                    ):
+                        standalone_interpreter = r['integration'][
+                            'standalone_interpreter'
+                        ]
+                        self.logger.info(
+                            f'Standalone interpreter overridden at launch: {standalone_interpreter}'
+                        )
+                        break
+                if (
+                    not standalone_interpreter
+                    and 'standalone_interpreter' in application
+                ):
+                    standalone_interpreter = application[
+                        'standalone_interpreter'
+                    ]
 
             enable_app_bundle_launch = (
                 True  # Allow .app to be launched directly on Mac
@@ -781,11 +807,11 @@ class ApplicationLauncher(object):
                 )
 
                 command = []
-                if 'standalone_interpreter' in application:
+                if standalone_interpreter:
                     # Use this instead of Connect
                     command.extend(
                         [
-                            application['standalone_interpreter'],
+                            standalone_interpreter,
                             "-m",
                             application['standalone_module'],
                         ]
