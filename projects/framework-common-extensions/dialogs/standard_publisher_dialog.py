@@ -113,6 +113,9 @@ class StandardPublisherDialog(BaseContextDialog):
                             self.header.set_widget(
                                 self._progress_widget.status_widget
                             )
+                            self.overlay_layout.addWidget(
+                                self._progress_widget.overlay_widget
+                            )
                         break
                 if not self.tool_config and not tool_config_message:
                     tool_config_message = (
@@ -150,6 +153,7 @@ class StandardPublisherDialog(BaseContextDialog):
             self.tool_config, filters={'tags': ['component']}
         )
 
+        self._accordion_widgets_registry = []
         for _group in component_groups:
             group_accordion_widget = AccordionBaseWidget(
                 selectable=False,
@@ -175,6 +179,15 @@ class StandardPublisherDialog(BaseContextDialog):
             )
 
             self._scroll_area_widget.layout().addWidget(group_accordion_widget)
+            group_accordion_widget.hide_options_overlay.connect(
+                self.show_main_widget
+            )
+            group_accordion_widget.show_options_overlay.connect(
+                self.show_options_widget
+            )
+            self._accordion_widgets_registry.append(group_accordion_widget)
+
+            group_accordion_widget.finalize_options_widget()
 
         spacer = QtWidgets.QSpacerItem(
             1,
@@ -216,11 +229,25 @@ class StandardPublisherDialog(BaseContextDialog):
             )
 
     def post_build_ui(self):
-        pass
+        self._progress_widget.hide_overlay_signal.connect(
+            self.show_main_widget
+        )
+        self._progress_widget.show_overlay_signal.connect(
+            self.show_overlay_widget
+        )
+
+    def show_options_widget(self, widget):
+        '''Sets the given *widget* as the index 2 of the stacked widget and
+        remove the previous one if it exists'''
+        if self._stacked_widget.widget(2):
+            self._stacked_widget.removeWidget(self._stacked_widget.widget(2))
+        self._stacked_widget.addWidget(widget)
+        self._stacked_widget.setCurrentIndex(2)
 
     def _on_run_button_clicked(self):
-        '''(Override) Refresh context widget(s) upon publish'''
-        self._progress_widget.run(self)
+        '''(Override) Drive the progress widget'''
+        self.show_overlay_widget()
+        self._progress_widget.run()
         super(StandardPublisherDialog, self)._on_run_button_clicked()
         # TODO: This will not work in remote mode (async mode) as plugin events
         #  will arrive after this point of execution.
@@ -247,4 +274,7 @@ class StandardPublisherDialog(BaseContextDialog):
         if self._progress_widget:
             self._progress_widget.teardown()
             self._progress_widget.deleteLater()
+        if self._accordion_widgets_registry:
+            for accordion in self._accordion_widgets_registry:
+                accordion.teardown()
         super(StandardPublisherDialog, self).closeEvent(event)

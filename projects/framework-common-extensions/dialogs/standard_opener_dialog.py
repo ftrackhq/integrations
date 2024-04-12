@@ -109,6 +109,9 @@ class StandardOpenerDialog(BaseContextDialog):
                             self.header.set_widget(
                                 self._progress_widget.status_widget
                             )
+                            self.overlay_layout.addWidget(
+                                self._progress_widget.overlay_widget
+                            )
                         break
                 if not self.tool_config and not tool_config_message:
                     tool_config_message = (
@@ -171,11 +174,17 @@ class StandardOpenerDialog(BaseContextDialog):
         self._scroll_area_widget.layout().addItem(spacer)
 
     def post_build_ui(self):
-        pass
+        self._progress_widget.hide_overlay_signal.connect(
+            self.show_main_widget
+        )
+        self._progress_widget.show_overlay_signal.connect(
+            self.show_overlay_widget
+        )
 
     def _on_run_button_clicked(self):
         '''(Override) Drive the progress widget'''
-        self._progress_widget.run(self)
+        self.show_overlay_widget()
+        self._progress_widget.run()
         super(StandardOpenerDialog, self)._on_run_button_clicked()
 
     @invoke_in_qt_main_thread
