@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <head>
+    <link rel="icon" type="image/x-icon" href="./image/favicon.ico">
+    <link rel="stylesheet" href="./css/style_dark.css">
+  </head>
+
+  <body>
+    
+    <div id="error" style="visibility: hidden; display: none;">
+    </div>
+
+    <div id="connecting">
+      <br>
+      <div style="text-align: center;">
+        <i>loading</i><br>
+        <br>
+        <img src="./image/loader.gif" border="0" />
+      </div>
+    </div>
+
+    <div id="content" style="visibility: hidden; display: none;">
+
+      <!-- Context area -->
+      <table id="context" cellspacing="1" cellpadding="2">
+        <tr height="50px">
+          <td width="65px">
+            <img id="context_thumbnail" src="./image/thumbnail.png" border="0" width="64" />
+          </td>
+          <td width=100%>
+            <span id="context_name">&lt;task name&gt;</span><br>
+            <span id="context_path">&lt;task path&gt;</span>
+          </td>
+          <td width="30px">
+            <button id="context_open" onclick="openContext()"><img src="./image/open_in_new.png" border="0" /></button>
+          </td>
+          <!-- TODO: Bring back when context switch dialog is implemented -->
+          <!--  td width="30px">
+            <button id="context_change" onclick="showChangeContext()"><img src="./image/swap_horiz.png" border="0" /></button>
+          </td -->
+        </tr>
+      </table>
+
+      <table id="launch_configs" cellspacing="2" cellpadding="0">
+        <!-- Content will be injected upon connection event from standalone process-->
+      </table>
+
+    </div>
+
+    <p id="footer">
+      This is the ftrack Framework Photoshop integration.
+      Contact support@ftrack.com for inquiries.
+    </p>
+    <br>
+    <script type="text/javascript" src='./lib/CSInterface.js'></script>
+    <script type="text/javascript" src="./lib/JSX.js"></script>
+    <script type="text/javascript" src="./lib/ftrack.0.7.2.min.js"></script>
+    <script type="text/javascript" src="./lib/event-constants.js"></script>
+    <script type="text/javascript" src="./lib/utils.js"></script>
+    <script type="text/javascript" src="./lib/events-core.js"></script>
+    <script type="text/javascript" src="./bootstrap.js"></script>
+    <!-- Load custom extension JS module (optional) -->
+    <script type="text/javascript" src="./bootstrap-include.js"></script>
+  </body>
+</html>

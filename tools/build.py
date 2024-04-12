@@ -167,11 +167,7 @@ def build_package(pkg_path, args, command=None):
         )
         with open(source_path, 'r') as f_src:
             with open(target_path, 'w') as f_dst:
-                f_dst.write(
-                    f_src.read().replace(
-                        '{{FTRACK_FRAMEWORK_PHOTOSHOP_VERSION}}', VERSION
-                    )
-                )
+                f_dst.write(f_src.read().replace('${VERSION}', VERSION))
 
     def build_connect_plugin(args):
         '''
@@ -681,6 +677,8 @@ def build_package(pkg_path, args, command=None):
             )
 
         STAGING_PATH = os.path.join(BUILD_PATH, 'staging')
+        DCC_NAME = args.dcc
+        assert DCC_NAME, 'Please provide DCC name to build CEP plugin for'
 
         # Clean previous build
         if os.path.exists(BUILD_PATH):
@@ -760,21 +758,21 @@ def build_package(pkg_path, args, command=None):
             os.path.join(
                 MONOREPO_PATH,
                 'projects',
-                'framework-photoshop-js',
+                f'framework-{DCC_NAME}-js',
                 'source',
                 'utils.js',
             ),
             os.path.join(
                 MONOREPO_PATH,
                 'projects',
-                'framework-photoshop-js',
+                f'framework-{DCC_NAME}-js',
                 'source',
                 'event-constants.js',
             ),
             os.path.join(
                 MONOREPO_PATH,
                 'projects',
-                'framework-photoshop-js',
+                f'framework-{DCC_NAME}-js',
                 'source',
                 'events-core.js',
             ),
@@ -788,7 +786,7 @@ def build_package(pkg_path, args, command=None):
                 os.path.join(
                     MONOREPO_PATH,
                     'projects',
-                    'framework-photoshop-js',
+                    f'framework-{DCC_NAME}-js',
                     'source',
                     filename,
                 ),
@@ -804,8 +802,7 @@ def build_package(pkg_path, args, command=None):
         parse_and_copy(MANIFEST_PATH, manifest_staging_path)
 
         extension_output_path = os.path.join(
-            BUILD_PATH,
-            'ftrack-framework-adobe-{}.zxp'.format(VERSION),
+            BUILD_PATH, f'ftrack-framework-{DCC_NAME}-{VERSION}.zxp'
         )
 
         if not args.nosign:
@@ -970,6 +967,11 @@ if __name__ == '__main__':
     )
 
     # CEP options
+    parser.add_argument(
+        '--dcc',
+        help='(CEP plugin build) The DCC to build for, "photoshop" or "premiere".',
+    )
+
     parser.add_argument(
         '--nosign',
         help='(CEP plugin build) Do not sign and create ZXP.',

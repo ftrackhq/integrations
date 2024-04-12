@@ -1,12 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<ExtensionManifest ExtensionBundleId="com.ftrack.framework.photoshop.panel" ExtensionBundleVersion="${VERSION}" Version="7.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<ExtensionManifest ExtensionBundleId="com.ftrack.framework.premiere.panel" ExtensionBundleVersion="${VERSION}" Version="7.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <ExtensionList>
-    <Extension Id="com.ftrack.framework.photoshop.panel" Version="${VERSION}" />
+    <Extension Id="com.ftrack.framework.premiere.panel" Version="${VERSION}" />
   </ExtensionList>
   <ExecutionEnvironment>
     <HostList>
-      <Host Name="PHSP" Version="19" />
-      <Host Name="PHXS" Version="19" />
+        <Host Name="PPRO" Version="9.0"/>
+        <Host Name="PRLD" Version="4.0"/>
     </HostList>
     <LocaleList>
       <Locale Code="All" />
@@ -16,7 +16,7 @@
     </RequiredRuntimeList>
   </ExecutionEnvironment>
   <DispatchInfoList>
-    <Extension Id="com.ftrack.framework.photoshop.panel">
+    <Extension Id="com.ftrack.framework.premiere.panel">
       <DispatchInfo>
         <Resources>
           <MainPath>./index.html</MainPath>
@@ -25,8 +25,7 @@
         <Lifecycle>
 		  <AutoVisible>true</AutoVisible>
           <StartOn>
-            <!-- Photoshop dispatches this event on startup -->
-            <Event>applicationActivate</Event>
+            <!-- Premiere dispatches this event on startup -->
             <Event>com.adobe.csxs.events.ApplicationInitialized</Event>
           </StartOn>
 		</Lifecycle>
