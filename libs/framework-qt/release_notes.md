@@ -1,5 +1,9 @@
 # ftrack Framework QT library release Notes
 
+## upcoming
+
+* [changed] BaseDialog contain stackedWidget inside with a pre-defined overlay widget. Methods to manage stackedWidgets added. 
+
 ## v2.1.0
 2024-04-02
 

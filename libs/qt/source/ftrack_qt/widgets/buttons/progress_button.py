@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
-from Qt import QtWidgets
+from Qt import QtWidgets, QtCore
 
 import ftrack_constants as constants
 from ftrack_qt.utils.widget import set_property
@@ -65,6 +65,9 @@ class ProgressStatusButtonWidget(QtWidgets.QPushButton):
 class ProgressPhaseButtonWidget(QtWidgets.QPushButton):
     '''Showing progress of a progress phase, when pressed the log is shown.'''
 
+    show_overlay_signal = QtCore.Signal(object)
+    hide_overlay_signal = QtCore.Signal()
+
     @property
     def category(self):
         return self._category
@@ -102,14 +105,12 @@ class ProgressPhaseButtonWidget(QtWidgets.QPushButton):
         self._status = constants.status.UNKNOWN_STATUS
         self._log_message = None
 
-        self._log_overlay_container = None
         self._icon_widget = None
         self._status_message_widget = None
         self._log_message_widget = None
         self._log_text_edit = None
-        self._close_button = None
         self._time_widget = None
-        self.log_overlay_container = None
+        self._overlay_widget = None
 
         self.pre_build()
         self.build()
@@ -164,6 +165,8 @@ class ProgressPhaseButtonWidget(QtWidgets.QPushButton):
 
         self.layout().addLayout(v_layout)
 
+        self._overlay_widget = OverlayWidget()
+
         self._log_message_widget = QtWidgets.QFrame()
         self._log_message_widget.setLayout(QtWidgets.QVBoxLayout())
         self._log_message_widget.layout().addSpacing(5)
@@ -174,17 +177,14 @@ class ProgressPhaseButtonWidget(QtWidgets.QPushButton):
         self._log_text_edit = QtWidgets.QTextEdit()
         self._log_text_edit.setReadOnly(True)
         self._log_message_widget.layout().addWidget(self._log_text_edit, 100)
-        self._close_button = QtWidgets.QPushButton('HIDE LOG')
-        self._log_message_widget.layout().addWidget(self._close_button)
-        self.log_overlay_container = OverlayWidget(
-            self._log_message_widget,
-            transparent_background=False,
-        )
-        self.log_overlay_container.setVisible(False)
+
+        self._overlay_widget.set_widget(self._log_message_widget)
 
     def post_build(self):
-        self.clicked.connect(self.show_log)
-        self._close_button.clicked.connect(self.hide_log)
+        self.clicked.connect(self._on_click_callback)
+        self._overlay_widget.close_button_clicked.connect(
+            self._on_overlay_close_callback
+        )
 
     def update_status(
         self, new_status, status_message, log_message, time=None
@@ -206,19 +206,18 @@ class ProgressPhaseButtonWidget(QtWidgets.QPushButton):
         set_property(self, 'status', self.status.lower())
         return self._icon_widget.set_status(self.status)
 
+    def _on_click_callback(self):
+        '''Emits a show_overlay_signal when current widget is clicked'''
+        self.show_overlay_signal.emit(self._overlay_widget)
+        self.show_log()
+
+    def _on_overlay_close_callback(self):
+        '''Emits a hide_overlay_signal when overlay close button is clicked'''
+        self.hide_overlay_signal.emit()
+
     def show_log(self):
-        self.log_overlay_container.setParent(self.parent())
+        '''Sets the log message into the _log_text_edit'''
         if self.log_message:
             self._log_text_edit.setText(self.log_message)
         else:
             self._log_text_edit.setText("No errors found")
-        self.log_overlay_container.setVisible(True)
-        self.log_overlay_container.resize(self.parent().size())
-
-    def hide_log(self):
-        self.log_overlay_container.setVisible(False)
-
-    def teardown(self):
-        '''Teardown the progress button - close the overlay container'''
-        self.hide_log()
-        self.log_overlay_container.deleteLater()
