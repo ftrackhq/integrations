@@ -1,5 +1,10 @@
 # ftrack Framework Photoshop integration release Notes
 
+## v24.4.1
+2024-04-03
+
+* [fix] Prevent re-occurring TASKLIST popup on Windows.
+
 ## v24.4.0
 2024-04-02
 
