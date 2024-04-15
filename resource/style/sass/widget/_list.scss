@@ -1,38 +1,5 @@
-/** List */
-QListWidget {
-    border: 1px solid $border-color;
-    outline: 0;
-    background: transparent;
-}
-
-QListWidget::item
-{
-    background: transparent;
-    padding: 2px;
-    color: $gray;
-}
-
-QListWidget::item:alternate
-{
-    background: $gray-dark;
-    padding: 2px;
-    color: $gray-light;
-}
-
-QListWidget::item QLabel
-{
-    background: transparent;
-}
-
-QListWidget::item:selected,
-QListWidget::item:alternate:selected
+// // /** List */
+QListWidget::item:selected
 {
    background: $color-primary-dark;
-   color: $white;
-}
-
-AssetList {
-    border: none;
-    outline: 0;
-    background: transparent;
 }

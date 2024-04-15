@@ -17,6 +17,9 @@ from ftrack_qt.utils.widget import (
 class OptionsButton(QtWidgets.QPushButton):
     '''Options button on publisher accordion'''
 
+    show_overlay_signal = QtCore.Signal(object)
+    hide_overlay_signal = QtCore.Signal()
+
     def __init__(self, title, icon, parent=None):
         '''
         Initialize options button
@@ -50,9 +53,10 @@ class OptionsButton(QtWidgets.QPushButton):
         self._main_widget.layout().setAlignment(QtCore.Qt.AlignTop)
 
         title_label = QtWidgets.QLabel(self._title)
-        title_label.setObjectName('h2')
+        title_label.setProperty('h2', True)
         self._main_widget.layout().addWidget(title_label)
         self._main_widget.layout().addWidget(QtWidgets.QLabel(''))
+        self._main_widget.layout().setContentsMargins(0, 0, 0, 0)
 
         self._options_widget = QtWidgets.QWidget()
         self._options_widget.setLayout(QtWidgets.QVBoxLayout())
@@ -67,48 +71,60 @@ class OptionsButton(QtWidgets.QPushButton):
         scroll.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
 
         self._main_widget.layout().addWidget(scroll)
-        self._overlay_container = OverlayWidget(
-            self._main_widget, height_percentage=0.9
-        )
-        self._overlay_container.setVisible(False)
+
+        self._overlay_widget = OverlayWidget()
+
+        self._overlay_widget.set_widget(self._main_widget)
 
     def post_build(self):
         self.clicked.connect(self.on_click_callback)
+        self._overlay_widget.close_button_clicked.connect(
+            self._on_overlay_close_callback
+        )
 
     def on_click_callback(self):
         '''Callback on clicking the options button, show the publish options overlay'''
-        # Check first if widget is running on a ftrack framework dialog
-        main_window = get_framework_main_dialog(self)
-        if not main_window:
-            main_window = get_main_window_from_widget(self)
-        if main_window:
-            self._overlay_container.setParent(main_window)
-        self._overlay_container.setVisible(True)
+        self.show_overlay_signal.emit(self._overlay_widget)
+
+    def _on_overlay_close_callback(self):
+        '''Emits a hide_overlay_signal when overlay close button is clicked'''
+        self.hide_overlay_signal.emit()
 
     def add_widget(self, widget, section_name):
         if section_name not in self.__section_registry:
+            # self._options_widget.layout().addWidget(LineWidget())
             self._options_widget.layout().insertWidget(
                 self._options_widget.layout().count() - 1, LineWidget()
             )
             section_label = QtWidgets.QLabel("{}:".format(section_name))
-            section_label.setObjectName('gray')
+            section_label.setProperty('secondary', True)
+            # self._options_widget.layout().addWidget(
+            #    section_label,
+            # )
             self._options_widget.layout().insertWidget(
-                self._options_widget.layout().count() - 1,
-                section_label,
+                self._options_widget.layout().count() - 1, section_label
             )
             section_widget = QtWidgets.QWidget()
             section_widget_layout = QtWidgets.QVBoxLayout()
             section_widget.setLayout(section_widget_layout)
+            # self._options_widget.layout().addWidget(section_widget)
             self._options_widget.layout().insertWidget(
-                self._options_widget.layout().count() - 1, section_widget
+                self._options_widget.layout().count() - 1,
+                section_widget,
             )
-
             # TODO: create the section Widget
             self.__section_registry[section_name] = section_widget
 
-        self.__section_registry[section_name].layout().insertWidget(
-            self._options_widget.layout().count() - 1, LineWidget()
-        )
-        self.__section_registry[section_name].layout().insertWidget(
-            self._options_widget.layout().count() - 1, widget
-        )
+        self.__section_registry[section_name].layout().addWidget(LineWidget())
+        self.__section_registry[section_name].layout().addWidget(widget)
+
+    def finalize_options_widget(self):
+        pass
+        # self._options_widget.layout().addWidget(
+        #    QtWidgets.QLabel(''), 100
+        # )  # spacer
+
+    def teardown(self):
+        '''Delete the overlay widget and main widget'''
+        self._main_widget.deleteLater()
+        self._overlay_widget.deleteLater()

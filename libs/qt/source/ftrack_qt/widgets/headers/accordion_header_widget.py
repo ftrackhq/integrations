@@ -22,6 +22,8 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
     clicked = QtCore.Signal(object)  # User header click
     arrow_clicked = QtCore.Signal(object)  # User header click
     checkbox_status_changed = QtCore.Signal(object)
+    show_options_overlay = QtCore.Signal(object)
+    hide_options_overlay = QtCore.Signal()
 
     @property
     def title(self):
@@ -46,6 +48,10 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
     @property
     def collapsed(self):
         return self._collapsed
+
+    @property
+    def options_button(self):
+        return self._options_button
 
     def __init__(
         self,
@@ -99,7 +105,6 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
 
         # Create title
         self._title_label = QtWidgets.QLabel(self.title or '')
-        self._title_label.setObjectName('borderless')
         if not self.title:
             self._title_label.hide()
 
@@ -112,7 +117,6 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
 
         # Add Status label widget in context Widget
         self._status_label = QtWidgets.QLabel()
-        self._status_label.setObjectName('color-primary')
         content_layout.addWidget(self._status_label)
         content_layout.addStretch()
         content_layout.addWidget(LineWidget(horizontal=True))
@@ -120,11 +124,10 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
         self._options_button = OptionsButton(
             self.title, MaterialIcon('settings', color='gray')
         )
-        self._options_button.setObjectName('borderless')
+        self._options_button.setProperty('borderless', True)
         content_layout.addWidget(LineWidget(horizontal=True))
         # add status icon
         self._status_icon = StatusMaterialIconWidget('check')
-        self._status_icon.setObjectName('borderless')
 
         # Create Arrow
         self._arrow = ArrowMaterialIconWidget(None)
@@ -141,9 +144,24 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
     def post_build(self):
         self._checkbox.stateChanged.connect(self._on_checkbox_status_changed)
         self._arrow.clicked.connect(self._on_arrow_clicked)
+        self._options_button.show_overlay_signal.connect(
+            self.on_show_options_callback
+        )
+        self._options_button.hide_overlay_signal.connect(
+            self.on_hide_options_callback
+        )
+
+    def on_show_options_callback(self, widget):
+        self.show_options_overlay.emit(widget)
+
+    def on_hide_options_callback(self):
+        self.hide_options_overlay.emit()
 
     def add_option_widget(self, widget, section_name):
         self._options_button.add_widget(widget, section_name)
+
+    def finalize_options_widget(self):
+        self._options_button.finalize_options_widget()
 
     def _on_checkbox_status_changed(self):
         self._checked = self._checkbox.isChecked()
@@ -171,3 +189,8 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
     def set_status(self, status, message):
         '''Set status message within header, to be implemented by child'''
         pass
+
+    def teardown(self):
+        '''Teardown the options button - properly cleanup the options overlay'''
+        self._options_button.teardown()
+        self._options_button.deleteLater()
