@@ -120,7 +120,7 @@ See Monorepo build CI
 ```bash
 cd ../..
 pip install -r tools/requirements.txt
-python tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py build_qt_resources apps/connect
+python tools/build.py build_qt_resources --style_path resource --output_path source/ftrack_connect/ui/resource.py --pyside_version 6 apps/connect
 cd integrations/apps/connect
 ```
 
