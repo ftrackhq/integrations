@@ -196,8 +196,6 @@ class StandardPublisherDialog(BaseContextDialog):
             )
             self._accordion_widgets_registry.append(group_accordion_widget)
 
-            group_accordion_widget.finalize_options_widget()
-
         spacer = QtWidgets.QSpacerItem(
             1,
             1,

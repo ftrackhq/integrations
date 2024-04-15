@@ -92,37 +92,31 @@ class OptionsButton(QtWidgets.QPushButton):
 
     def add_widget(self, widget, section_name):
         if section_name not in self.__section_registry:
-            # self._options_widget.layout().addWidget(LineWidget())
             self._options_widget.layout().insertWidget(
                 self._options_widget.layout().count() - 1, LineWidget()
             )
             section_label = QtWidgets.QLabel("{}:".format(section_name))
             section_label.setProperty('secondary', True)
-            # self._options_widget.layout().addWidget(
-            #    section_label,
-            # )
             self._options_widget.layout().insertWidget(
-                self._options_widget.layout().count() - 1, section_label
+                self._options_widget.layout().count() - 1,
+                section_label,
             )
             section_widget = QtWidgets.QWidget()
             section_widget_layout = QtWidgets.QVBoxLayout()
             section_widget.setLayout(section_widget_layout)
-            # self._options_widget.layout().addWidget(section_widget)
             self._options_widget.layout().insertWidget(
-                self._options_widget.layout().count() - 1,
-                section_widget,
+                self._options_widget.layout().count() - 1, section_widget
             )
+
             # TODO: create the section Widget
             self.__section_registry[section_name] = section_widget
 
-        self.__section_registry[section_name].layout().addWidget(LineWidget())
-        self.__section_registry[section_name].layout().addWidget(widget)
-
-    def finalize_options_widget(self):
-        pass
-        # self._options_widget.layout().addWidget(
-        #    QtWidgets.QLabel(''), 100
-        # )  # spacer
+        self.__section_registry[section_name].layout().insertWidget(
+            self._options_widget.layout().count() - 1, LineWidget()
+        )
+        self.__section_registry[section_name].layout().insertWidget(
+            self._options_widget.layout().count() - 1, widget
+        )
 
     def teardown(self):
         '''Delete the overlay widget and main widget'''
