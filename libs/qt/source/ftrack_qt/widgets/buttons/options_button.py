@@ -50,7 +50,7 @@ class OptionsButton(QtWidgets.QPushButton):
         self._main_widget.layout().setAlignment(QtCore.Qt.AlignTop)
 
         title_label = QtWidgets.QLabel(self._title)
-        title_label.setObjectName('h2')
+        title_label.setProperty('h2', True)
         self._main_widget.layout().addWidget(title_label)
         self._main_widget.layout().addWidget(QtWidgets.QLabel(''))
         self._main_widget.layout().setContentsMargins(0, 0, 0, 0)
@@ -93,7 +93,7 @@ class OptionsButton(QtWidgets.QPushButton):
                 self._options_widget.layout().count() - 1, LineWidget()
             )
             section_label = QtWidgets.QLabel("{}:".format(section_name))
-            section_label.setObjectName('gray')
+            section_label.setProperty('secondary', True)
             self._options_widget.layout().insertWidget(
                 self._options_widget.layout().count() - 1,
                 section_label,

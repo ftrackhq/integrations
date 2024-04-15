@@ -21,11 +21,10 @@ class ProgressStatusButtonWidget(QtWidgets.QPushButton):
     def status(self, value):
         self._status = value
 
-    def __init__(self, style_mode, parent=None):
+    def __init__(self, parent=None):
         super(ProgressStatusButtonWidget, self).__init__(parent=parent)
 
         self._status = constants.status.UNKNOWN_STATUS
-        self._style_mode = style_mode
 
         self._message_label = None
         self._status_icon = None
@@ -43,8 +42,6 @@ class ProgressStatusButtonWidget(QtWidgets.QPushButton):
         self.setMinimumWidth(200)
 
     def build(self):
-        self.setObjectName(f'progress-widget-{self._style_mode}')
-
         self._message_label = QtWidgets.QLabel()
         self.layout().addWidget(self._message_label)
         self.layout().addStretch()
@@ -136,7 +133,7 @@ class ProgressPhaseButtonWidget(QtWidgets.QPushButton):
         v_layout = QtWidgets.QVBoxLayout()
 
         label_widget = QtWidgets.QLabel(self._label)
-        label_widget.setObjectName('h3')
+        label_widget.setProperty('h3', True)
         v_layout.addWidget(label_widget)
 
         # Show tags as chips
@@ -145,7 +142,7 @@ class ProgressPhaseButtonWidget(QtWidgets.QPushButton):
 
         for tag in self._tags:
             tag_widget = QtWidgets.QLabel(tag)
-            tag_widget.setObjectName('gray')
+            tag_widget.setProperty('secondary', True)
             tag_widget.setStyleSheet(
                 'background: #333333; padding: 1px; border-radius: 6px;'
             )
@@ -159,11 +156,11 @@ class ProgressPhaseButtonWidget(QtWidgets.QPushButton):
         v_layout = QtWidgets.QVBoxLayout()
 
         self._status_message_widget = QtWidgets.QLabel(self.status)
-        self._status_message_widget.setObjectName('gray')
+        self._status_message_widget.setProperty('secondary', True)
         v_layout.addWidget(self._status_message_widget)
 
         self._time_widget = QtWidgets.QLabel()
-        self._time_widget.setObjectName('gray')
+        self._time_widget.setProperty('secondary', True)
         v_layout.addWidget(self._time_widget)
 
         self.layout().addLayout(v_layout)

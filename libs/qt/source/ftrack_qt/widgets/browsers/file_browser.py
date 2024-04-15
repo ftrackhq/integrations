@@ -34,11 +34,12 @@ class FileBrowser(QtWidgets.QWidget):
     def build(self):
         '''Build widgets'''
         self._path_le = QtWidgets.QLineEdit()
+        self._path_le.setAttribute(QtCore.Qt.WA_MacShowFocusRect, False)
 
         self.layout().addWidget(self._path_le, 20)
 
         self._browse_btn = QtWidgets.QPushButton('BROWSE')
-        self._browse_btn.setObjectName('borderless')
+        self._browse_btn.setProperty('borderless', True)
 
         self.layout().addWidget(self._browse_btn)
 

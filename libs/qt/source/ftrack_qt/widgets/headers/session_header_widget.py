@@ -34,7 +34,6 @@ class SessionHeader(QtWidgets.QFrame):
         self._show_logo = show_logo
         self._title = title
         self._show_user = show_user
-        self.setObjectName('ftrack-header-widget')
 
         self.pre_build()
         self.build()
@@ -57,7 +56,7 @@ class SessionHeader(QtWidgets.QFrame):
         self.logo = Logo(self)
         if len(self._title or ''):
             self._title_label = QtWidgets.QLabel(self._title)
-            self._title_label.setObjectName('h2')
+            self._title_label.setProperty('h2', True)
         self.content_container = QtWidgets.QWidget()
         self.content_container.setLayout(QtWidgets.QHBoxLayout())
         self.content_container.layout().setContentsMargins(0, 0, 0, 0)

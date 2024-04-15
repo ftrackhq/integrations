@@ -76,7 +76,7 @@ class AssetVersionSelection(QtWidgets.QFrame):
         self.layout().addWidget(self._version_combobox)
 
         self._version_info_widget = QtWidgets.QLabel()
-        self._version_info_widget.setObjectName('gray')
+        self._version_info_widget.setProperty('secondary', True)
         self.layout().addWidget(self._version_info_widget, 10)
 
         self._thumbnail_widget.set_server_url(self._server_url)

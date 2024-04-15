@@ -47,6 +47,24 @@ def set_property(widget, name, value):
     widget.update()
 
 
+def set_properties(widget, properties):
+    """
+    Set multiple properties on a Qt widget.
+
+    Args:
+        widget (QWidget): The widget on which to set the properties.
+        properties (dict): A dictionary of property names and values.
+    """
+    for name, value in properties.items():
+        widget.setProperty(name, value)
+        if widget.style() is not None and shiboken2.isValid(
+            widget.style()
+        ):  # Only update style if applied and valid
+            widget.style().unpolish(widget)
+            widget.style().polish(widget)
+        widget.update()
+
+
 def center_widget(widget, width=None, height=None):
     '''Returns a widget that is *widget* centered horizontally and vertically'''
     v_container = QtWidgets.QWidget()
