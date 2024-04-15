@@ -72,7 +72,8 @@ class ProgressWidget(QtWidgets.QWidget):
         self.set_data(data)
 
     def build(self):
-        self._status_widget = ProgressStatusButtonWidget('header-button')
+        self._status_widget = ProgressStatusButtonWidget()
+        self._status_widget.setProperty('round', True)
         self._status_widget.setVisible(False)
 
         self._overlay_widget = OverlayWidget()
@@ -207,7 +208,6 @@ class ProgressArea(QtWidgets.QScrollArea):
         self._stacked_widget = QtWidgets.QStackedWidget()
 
         self._content_widget = QtWidgets.QFrame()
-        self._content_widget.setObjectName('overlay')
         self._content_widget_layout = QtWidgets.QVBoxLayout()
         self._content_widget.setLayout(self._content_widget_layout)
 
@@ -236,7 +236,7 @@ class ProgressArea(QtWidgets.QScrollArea):
 
         recursive_clear_layout(self._content_widget.layout())
 
-        self._status_banner = ProgressStatusButtonWidget('overlay-banner')
+        self._status_banner = ProgressStatusButtonWidget()
         self._content_widget.layout().addWidget(self._status_banner)
 
         self._categories = []
@@ -265,7 +265,6 @@ class ProgressArea(QtWidgets.QScrollArea):
             if category not in self._categories:
                 self._categories.append(category)
                 phase_category = QtWidgets.QLabel(category)
-                phase_category.setObjectName("gray")
                 self._content_widget.layout().addWidget(phase_category)
             self._content_widget.layout().addWidget(phase_button)
 

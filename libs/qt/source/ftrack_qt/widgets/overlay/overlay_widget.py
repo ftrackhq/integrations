@@ -40,8 +40,8 @@ class OverlayWidget(QtWidgets.QFrame):
         h_layout.addStretch()
 
         self._close_btn = QtWidgets.QPushButton('')
-        self._close_btn.setIcon(MaterialIcon('close', color='#D3D4D6'))
-        self._close_btn.setObjectName('borderless')
+        self._close_btn.setIcon(MaterialIcon('close', color='#FFDD86'))
+        self._close_btn.setProperty('borderless', True)
         self._close_btn.setFixedSize(24, 24)
 
         h_layout.addWidget(self._close_btn)

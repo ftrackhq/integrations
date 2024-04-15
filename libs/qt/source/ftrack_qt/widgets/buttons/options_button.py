@@ -53,13 +53,16 @@ class OptionsButton(QtWidgets.QPushButton):
         self._main_widget.layout().setAlignment(QtCore.Qt.AlignTop)
 
         title_label = QtWidgets.QLabel(self._title)
-        title_label.setObjectName('h2')
+        title_label.setProperty('h2', True)
         self._main_widget.layout().addWidget(title_label)
         self._main_widget.layout().addWidget(QtWidgets.QLabel(''))
         self._main_widget.layout().setContentsMargins(0, 0, 0, 0)
 
         self._options_widget = QtWidgets.QWidget()
         self._options_widget.setLayout(QtWidgets.QVBoxLayout())
+        self._options_widget.layout().addWidget(
+            QtWidgets.QLabel(''), 100
+        )  # spacer
 
         scroll = QtWidgets.QScrollArea()
         scroll.setWidget(self._options_widget)
@@ -89,17 +92,26 @@ class OptionsButton(QtWidgets.QPushButton):
 
     def add_widget(self, widget, section_name):
         if section_name not in self.__section_registry:
-            self._options_widget.layout().addWidget(LineWidget())
+            # self._options_widget.layout().addWidget(LineWidget())
+            self._options_widget.layout().insertWidget(
+                self._options_widget.layout().count() - 1, LineWidget()
+            )
             section_label = QtWidgets.QLabel("{}:".format(section_name))
-            section_label.setObjectName('gray')
-            self._options_widget.layout().addWidget(
-                section_label,
+            section_label.setProperty('secondary', True)
+            # self._options_widget.layout().addWidget(
+            #    section_label,
+            # )
+            self._options_widget.layout().insertWidget(
+                self._options_widget.layout().count() - 1, section_label
             )
             section_widget = QtWidgets.QWidget()
             section_widget_layout = QtWidgets.QVBoxLayout()
             section_widget.setLayout(section_widget_layout)
-            self._options_widget.layout().addWidget(section_widget)
-
+            # self._options_widget.layout().addWidget(section_widget)
+            self._options_widget.layout().insertWidget(
+                self._options_widget.layout().count() - 1,
+                section_widget,
+            )
             # TODO: create the section Widget
             self.__section_registry[section_name] = section_widget
 
@@ -107,9 +119,10 @@ class OptionsButton(QtWidgets.QPushButton):
         self.__section_registry[section_name].layout().addWidget(widget)
 
     def finalize_options_widget(self):
-        self._options_widget.layout().addWidget(
-            QtWidgets.QLabel(''), 100
-        )  # spacer
+        pass
+        # self._options_widget.layout().addWidget(
+        #    QtWidgets.QLabel(''), 100
+        # )  # spacer
 
     def teardown(self):
         '''Delete the overlay widget and main widget'''

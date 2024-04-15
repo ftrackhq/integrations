@@ -105,7 +105,6 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
 
         # Create title
         self._title_label = QtWidgets.QLabel(self.title or '')
-        self._title_label.setObjectName('borderless')
         if not self.title:
             self._title_label.hide()
 
@@ -118,7 +117,6 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
 
         # Add Status label widget in context Widget
         self._status_label = QtWidgets.QLabel()
-        self._status_label.setObjectName('color-primary')
         content_layout.addWidget(self._status_label)
         content_layout.addStretch()
         content_layout.addWidget(LineWidget(horizontal=True))
@@ -126,11 +124,10 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
         self._options_button = OptionsButton(
             self.title, MaterialIcon('settings', color='gray')
         )
-        self._options_button.setObjectName('borderless')
+        self._options_button.setProperty('borderless', True)
         content_layout.addWidget(LineWidget(horizontal=True))
         # add status icon
         self._status_icon = StatusMaterialIconWidget('check')
-        self._status_icon.setObjectName('borderless')
 
         # Create Arrow
         self._arrow = ArrowMaterialIconWidget(None)

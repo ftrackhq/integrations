@@ -1,0 +1,31 @@
+NavigationEntityButton {
+    background: $background-selected;
+    border-radius: 12px;
+    border: none;
+    color: $text-color;
+    padding-left: 5px;
+    padding-right: 5px;
+    font-weight: bold;
+}
+NavigationEntityButton QLabel {
+     background: transparent;
+}
+
+NavigationEntityButton QPushButton {
+     border: none;
+     background: transparent;
+}
+
+NavigationEntityButton QPushButton:hover {
+     background: transparent;
+}
+
+NavigationEntityButton[first='true'] {
+    background: transparent;
+    border-radius: 12px;
+    border: 1px solid $border-color;
+}
+
+NavigationEntityButton:hover{
+    background:  darken($background-selected, 50%)
+}

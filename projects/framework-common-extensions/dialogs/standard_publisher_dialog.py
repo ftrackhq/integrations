@@ -64,6 +64,9 @@ class StandardPublisherDialog(BaseContextDialog):
         self.setWindowTitle('ftrack Publisher')
 
     def pre_build_ui(self):
+        # Make sure to remove self._scroll_area in case of reload
+        if self._scroll_area:
+            self._scroll_area.deleteLater()
         # Create scroll area to add all the widgets
         self._scroll_area = QtWidgets.QScrollArea()
         self._scroll_area.setStyle(QtWidgets.QStyleFactory.create("plastique"))
@@ -72,14 +75,21 @@ class StandardPublisherDialog(BaseContextDialog):
             QtCore.Qt.ScrollBarAlwaysOff
         )
 
-        # Create a main widget for the scroll area
-        self._scroll_area_widget = QtWidgets.QWidget()
-        scroll_area_widget_layout = QtWidgets.QVBoxLayout()
-        scroll_area_widget_layout.setContentsMargins(0, 0, 0, 0)
-        self._scroll_area_widget.setLayout(scroll_area_widget_layout)
+        index = self.main_layout.indexOf(self.tool_widget)
+        run_index = self.main_layout.indexOf(self.run_button)
+        if index != -1:  # Ensure the widget is found in the layout
+            # Remove the old widget from layout
+            self.main_layout.takeAt(index)
+            # Insert the new widget at the same position
+            self.main_layout.insertWidget(index, self._scroll_area)
+        elif run_index != -1:
+            # In case tool_widget is not already parented make sure to add scroll
+            # area above the run button.
+            self.main_layout.insertWidget((run_index - 1), self._scroll_area)
+        else:  # otherwise set it at the end
+            self.main_layout.addWidget(self._scroll_area)
 
-        self.tool_widget.layout().addWidget(self._scroll_area, 100)
-        self._scroll_area.setWidget(self._scroll_area_widget)
+        self._scroll_area.setWidget(self.tool_widget)
 
     def build_ui(self):
         # Select the desired tool_config
@@ -107,15 +117,16 @@ class StandardPublisherDialog(BaseContextDialog):
                             except Exception as error:
                                 tool_config_message = error
                                 break
-                            self._progress_widget = ProgressWidget(
-                                'publish', build_progress_data(tool_config)
-                            )
-                            self.header.set_widget(
-                                self._progress_widget.status_widget
-                            )
-                            self.overlay_layout.addWidget(
-                                self._progress_widget.overlay_widget
-                            )
+                            if not self._progress_widget:
+                                self._progress_widget = ProgressWidget(
+                                    'publish', build_progress_data(tool_config)
+                                )
+                                self.header.set_widget(
+                                    self._progress_widget.status_widget
+                                )
+                                self.overlay_layout.addWidget(
+                                    self._progress_widget.overlay_widget
+                                )
                         break
                 if not self.tool_config and not tool_config_message:
                     tool_config_message = (
@@ -130,7 +141,7 @@ class StandardPublisherDialog(BaseContextDialog):
             label_widget.setStyleSheet(
                 "font-style: italic; font-weight: bold;"
             )
-            self._scroll_area_widget.layout().addWidget(label_widget)
+            self.tool_widget.layout().addWidget(label_widget)
             return
 
         # Build context widgets
@@ -141,13 +152,11 @@ class StandardPublisherDialog(BaseContextDialog):
             if not context_plugin.get('ui'):
                 continue
             context_widget = self.init_framework_widget(context_plugin)
-            self._scroll_area_widget.layout().addWidget(context_widget)
+            self.tool_widget.layout().addWidget(context_widget)
 
         # Build component widgets
 
-        self._scroll_area_widget.layout().addWidget(
-            QtWidgets.QLabel('Components')
-        )
+        self.tool_widget.layout().addWidget(QtWidgets.QLabel('Components'))
 
         component_groups = get_groups(
             self.tool_config, filters={'tags': ['component']}
@@ -178,7 +187,7 @@ class StandardPublisherDialog(BaseContextDialog):
                 exporters, group_accordion_widget, _group
             )
 
-            self._scroll_area_widget.layout().addWidget(group_accordion_widget)
+            self.tool_widget.layout().addWidget(group_accordion_widget)
             group_accordion_widget.hide_options_overlay.connect(
                 self.show_main_widget
             )
@@ -195,7 +204,7 @@ class StandardPublisherDialog(BaseContextDialog):
             QtWidgets.QSizePolicy.Minimum,
             QtWidgets.QSizePolicy.Expanding,
         )
-        self._scroll_area_widget.layout().addItem(spacer)
+        self.tool_widget.layout().addItem(spacer)
 
     def add_collector_widgets(
         self, collectors, accordion_widget, group_config=None
@@ -256,6 +265,7 @@ class StandardPublisherDialog(BaseContextDialog):
             self.pre_build_ui()
             self.build_ui()
             self.post_build_ui()
+            # TODO: there is an error here showing the overlay widget because is not repainting all the widegts that has been parented to the self.layout() in the pre_build_ui build_ui or post_build_ui methods.
 
     @invoke_in_qt_main_thread
     def plugin_run_callback(self, log_item):
