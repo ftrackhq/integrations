@@ -25,7 +25,9 @@ def set_overrides(current_extensions, new_extensions):
                 existing_extension = discovered_extension
                 break
             elif not new_extension['extension_type'].endswith('_config'):
-                # Handle corner cases of dialogs plugins and widgets when name is not the same but class name is the same, then we need to override as well.
+                # Handle corner cases of dialogs plugins and widgets when name
+                # is not the same but class name is the same, then we need to
+                # override as well.
                 if (
                     discovered_extension['extension_type']
                     == new_extension['extension_type']
