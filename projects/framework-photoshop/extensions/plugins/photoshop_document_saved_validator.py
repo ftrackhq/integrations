@@ -10,7 +10,7 @@ from ftrack_framework_core.exceptions.plugin import (
     PluginValidationError,
 )
 
-from ftrack_framework_photoshop.rpc_cep import PhotoshopRPCCEP
+from ftrack_framework_photoshop.rpc_cep import JavascriptRPC
 
 
 class PhotoshopDocumentSavedValidatorPlugin(BasePlugin):
@@ -26,7 +26,7 @@ class PhotoshopDocumentSavedValidatorPlugin(BasePlugin):
         '''
 
         # Get existing RPC connection instance
-        photoshop_connection = PhotoshopRPCCEP.instance()
+        photoshop_connection = JavascriptRPC.instance()
 
         self.logger.warning('Photoshop document not saved, asking to save')
         temp_path = get_temp_path(filename_extension=extension_format)

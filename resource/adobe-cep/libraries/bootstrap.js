@@ -1,5 +1,5 @@
 /*
- ftrack Photoshop framework bootstrap
+ ftrack Adobe framework bootstrap
 
  Copyright (c) 2024 ftrack
 */

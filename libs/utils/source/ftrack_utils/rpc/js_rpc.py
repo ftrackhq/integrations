@@ -15,7 +15,7 @@ import ftrack_constants.framework as constants
 from ftrack_utils.framework.remote import get_remote_integration_session_id
 
 
-class PhotoshopRPCCEP(object):
+class JavascriptRPC(object):
     '''Base Photoshop remote connection for CEP based integration.'''
 
     # Connection should be a singleton accessible also during plugin execution
@@ -82,10 +82,10 @@ class PhotoshopRPCCEP(object):
     def __init__(
         self, session, client, panel_launchers, on_run_dialog_callback
     ):
-        super(PhotoshopRPCCEP, self).__init__()
+        super(JavascriptRPC, self).__init__()
 
         # Store reference to self in class variable
-        PhotoshopRPCCEP._instance = self
+        JavascriptRPC._instance = self
 
         self._session = session
         self._client = client
@@ -103,12 +103,12 @@ class PhotoshopRPCCEP(object):
     @staticmethod
     def instance():
         '''Return the singleton instance, checks if it is initialised and connected.'''
-        assert PhotoshopRPCCEP._instance, 'Photoshop RPC not created!'
+        assert JavascriptRPC._instance, 'Photoshop RPC not created!'
         assert (
-            PhotoshopRPCCEP._instance.connected
+            JavascriptRPC._instance.connected
         ), 'Photoshop not connected, please keep panel open while integration is working!'
 
-        return PhotoshopRPCCEP._instance
+        return JavascriptRPC._instance
 
     def _initialise(self):
         '''Initialise the Photoshop connection'''

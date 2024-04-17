@@ -30,7 +30,7 @@ from ftrack_utils.usage import set_usage_tracker, UsageTracker
 
 from ftrack_qt.utils.decorators import invoke_in_qt_main_thread
 
-from .rpc_cep import PhotoshopRPCCEP
+from .rpc_cep import JavascriptRPC
 from .utils import process as process_util
 
 # Evaluate version and log package version
@@ -109,7 +109,7 @@ def bootstrap_integration(framework_extensions_path):
     # Init Photoshop connection
     remote_session = ftrack_api.Session(auto_connect_event_hub=True)
 
-    photoshop_connection = PhotoshopRPCCEP(
+    photoshop_connection = JavascriptRPC(
         remote_session,
         client_instance,
         dcc_config['tools'],
