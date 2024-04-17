@@ -10,6 +10,7 @@ official CI/CD build implementation in place.
 
 Changelog:
 
+0.4.16 [24.04.17] Premiere CEP plugin support. PySide integrations not platform dependent.
 0.4.15 [24.03.13] Fix platform dependent bug.
 0.4.14 [24.02.23] Incorporate RV pkg build.
 0.4.13 [24.02.12] Build qt-style when building CEP plugin.
@@ -116,10 +117,7 @@ def build_package(pkg_path, args, command=None):
                         VERSION = line.split('=')[1].strip().strip('"')
                 elif section == 'tool.poetry.dependencies':
                     if line.find('pyside') > -1:
-                        PLATFORM_DEPENDENT = True
-                        logging.info(
-                            'Platform dependent build - OS suffix will be added to artifact.'
-                        )
+                        pass
 
         append_dependencies(POETRY_CONFIG_PATH)
 
@@ -754,26 +752,20 @@ def build_package(pkg_path, args, command=None):
         )
 
         logging.info("Copying framework js lib files")
+        framework_js_path = os.path.join(
+            MONOREPO_PATH, 'libs', f'framework-js', 'source'
+        )
         for js_file in [
             os.path.join(
-                MONOREPO_PATH,
-                'projects',
-                f'framework-{DCC_NAME}-js',
-                'source',
+                framework_js_path,
                 'utils.js',
             ),
             os.path.join(
-                MONOREPO_PATH,
-                'projects',
-                f'framework-{DCC_NAME}-js',
-                'source',
+                framework_js_path,
                 'event-constants.js',
             ),
             os.path.join(
-                MONOREPO_PATH,
-                'projects',
-                f'framework-{DCC_NAME}-js',
-                'source',
+                framework_js_path,
                 'events-core.js',
             ),
         ]:
