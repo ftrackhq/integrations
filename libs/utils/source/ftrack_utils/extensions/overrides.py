@@ -15,7 +15,8 @@ def set_overrides(current_extensions, new_extensions):
     '''If new extension from *new_extensions* found in *current_extensions* do a first level merge'''
     for new_extension in new_extensions:
         existing_extension = None
-        for discovered_extension in current_extensions:
+        idx = None
+        for idx, discovered_extension in enumerate(current_extensions):
             if (
                 discovered_extension['extension_type']
                 == new_extension['extension_type']
@@ -38,4 +39,8 @@ def set_overrides(current_extensions, new_extensions):
                 first_level_merge(
                     existing_extension['extension'], new_extension['extension']
                 )
+            else:
+                if idx:
+                    # Make sure we replace the previous discovered extensions with the new one.
+                    current_extensions[idx] = new_extension
     return current_extensions
