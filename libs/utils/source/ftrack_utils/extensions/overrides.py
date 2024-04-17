@@ -40,7 +40,6 @@ def set_overrides(current_extensions, new_extensions):
                     existing_extension['extension'], new_extension['extension']
                 )
             else:
-                if idx:
-                    # Make sure we replace the previous discovered extensions with the new one.
-                    current_extensions[idx] = new_extension
+                # Make sure we replace the previous discovered extensions with the new one.
+                current_extensions[idx] = new_extension
     return current_extensions
