@@ -1,7 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
-from Qt import QtWidgets, QtCore, QtGui
+try:
+    from PySide6 import QtWidgets, QtCore
+except ImportError:
+    from PySide2 import QtWidgets, QtCore
 
 from ftrack_qt.widgets.overlay import ShadedWidget
 
@@ -72,10 +75,10 @@ class StyledDialog(QtWidgets.QDialog):
         apply_theme(self, self.theme)
         self.setProperty('background', self.background_style)
         self.setProperty('docked', 'true' if self.docked else 'false')
-        self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
+        self.setAttribute(QtCore.Qt.WidgetAttribute.WA_DeleteOnClose, True)
 
         # Make sure the dialog is always on top
-        self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+        self.setWindowFlags(QtCore.Qt.WindowType.WindowStaysOnTopHint)
 
         # Have a proper title instead of default 'python'
         self.setWindowTitle('ftrack')

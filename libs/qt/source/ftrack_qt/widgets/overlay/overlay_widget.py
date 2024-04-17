@@ -1,12 +1,11 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
-from Qt import QtGui, QtCore, QtWidgets
+try:
+    from PySide6 import QtWidgets, QtCore, QtGui
+except ImportError:
+    from PySide2 import QtWidgets, QtCore, QtGui
 
-from ftrack_qt.utils.widget import (
-    get_main_window_from_widget,
-    get_framework_main_dialog,
-)
 
 from ftrack_qt.widgets.icons import MaterialIcon
 

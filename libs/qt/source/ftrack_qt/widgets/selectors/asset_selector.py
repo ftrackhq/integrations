@@ -3,7 +3,14 @@
 
 import logging
 
-from Qt import QtWidgets, QtCore, QtGui
+try:
+    from PySide6 import QtWidgets, QtCore, QtGui
+    from PySide6.QtCore import QRegularExpression
+    from PySide6.QtGui import QRegularExpressionValidator
+except ImportError:
+    from PySide2 import QtWidgets, QtCore, QtGui
+    from PySide2.QtGui import QRegExpValidator as QRegularExpressionValidator
+    from PySide2.QtCore import QRegExp as QRegularExpression
 
 from ftrack_qt.widgets.asset import (
     AssetVersionCreation,
@@ -101,7 +108,7 @@ class PublishAssetSelector(AssetSelectorBase):
     '''Asset selector tailored for publish, allows user to select and existing
     asset or input an asset name for creating a new asset.'''
 
-    VALID_ASSET_NAME = QtCore.QRegExp('[A-Za-z0-9_]+')
+    VALID_ASSET_NAME = QRegularExpression('[A-Za-z0-9_]+')
 
     new_asset = QtCore.Signal(object)
     '''This signal is emitted when a new asset is selected. It sends the
@@ -116,7 +123,7 @@ class PublishAssetSelector(AssetSelectorBase):
         '''
         self._list_and_input = None
         self._new_asset_input = None
-        self.validator = QtGui.QRegExpValidator(self.VALID_ASSET_NAME)
+        self.validator = QRegularExpressionValidator(self.VALID_ASSET_NAME)
         self.placeholder_name = "Asset Name..."
 
         super(PublishAssetSelector, self).__init__(parent=parent)

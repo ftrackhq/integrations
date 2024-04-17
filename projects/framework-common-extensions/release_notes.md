@@ -2,6 +2,9 @@
 
 ## Upcoming
 
+* [new] PySide6 support.
+* [new] PySide2 support.
+* [changed] Removed Qt.py dependency.
 * [changed] Standard opener and publisher are using the stack widget to show overlay widget from progress widget and options widget.
 * [changed] Remove setObjectName when not necessary on qtWidgets. Using properties to set the style instead.
 * [changed] Asset version selectors; show label on empty asset list.

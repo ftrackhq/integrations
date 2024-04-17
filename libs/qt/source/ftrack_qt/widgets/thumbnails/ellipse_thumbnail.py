@@ -2,7 +2,10 @@
 # :copyright: Copyright (c) 2024 ftrack
 # TODO: Clean this code
 
-from Qt import QtCore, QtGui, QtWidgets
+try:
+    from PySide6 import QtCore, QtWidgets, QtGui
+except ImportError:
+    from PySide2 import QtCore, QtWidgets, QtGui
 
 from ftrack_qt.widgets.thumbnails.session_base_thumbnail import (
     SessionThumbnailBase,
@@ -15,7 +18,10 @@ class EllipseThumbnailBase(SessionThumbnailBase):
     def paintEvent(self, event):
         '''Override paint event to make round thumbnails.'''
         painter = QtGui.QPainter(self)
-        painter.setRenderHints(QtGui.QPainter.Antialiasing, True)
+        painter.setRenderHints(
+            QtGui.QPainter.RenderHint.Antialiasing,
+            True,
+        )
 
         # TODO: when no image this raises an error because of the assigning of
         #  the empty pixmap. Find another way to solve this.

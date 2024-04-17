@@ -1,7 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
-from Qt import QtWidgets, QtCore, QtGui
+try:
+    from PySide6 import QtWidgets, QtCore
+except ImportError:
+    from PySide2 import QtWidgets, QtCore
 
 # TODO: try to generalize this delegate to be able to pass the looking keys.
 #  So it can be used in multiple places and not only for asset versions.
@@ -31,7 +34,9 @@ class AssetVersionComboBoxDelegate(QtWidgets.QStyledItemDelegate):
 
     def setEditorData(self, editor, index):
         '''Sets the given *data* into the given *editor*'''
-        editor_data = str(index.model().data(index, QtCore.Qt.EditRole))
+        editor_data = str(
+            index.model().data(index, QtCore.Qt.ItemDataRole.EditRole)
+        )
         idx = editor.findText(editor_data)
         editor.setCurrentIndex(idx)
 

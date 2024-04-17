@@ -1,7 +1,11 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
-from Qt import QtWidgets, QtCore
+try:
+    from PySide6 import QtWidgets, QtCore
+except ImportError:
+    from PySide2 import QtWidgets, QtCore
+
 
 from ftrack_qt.widgets.selectors import ListSelector
 from ftrack_qt.widgets.headers import SessionHeader
@@ -71,7 +75,10 @@ class TabDialog(StyledDialog):
         self._tab_widget = QtWidgets.QTabWidget()
 
         self.layout().addWidget(self._header)
-        self.layout().addWidget(self._context_selector, QtCore.Qt.AlignTop)
+
+        self.layout().addWidget(
+            self._context_selector, QtCore.Qt.AlignmentFlag.AlignTop
+        )
         self.layout().addWidget(self._tab_widget)
 
     def post_build(self):
