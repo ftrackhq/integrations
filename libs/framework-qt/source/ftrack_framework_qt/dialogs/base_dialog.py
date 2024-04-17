@@ -1,8 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
-from Qt import QtWidgets, QtCore
-
+try:
+    from PySide6 import QtWidgets, QtCore
+except ImportError:
+    from PySide2 import QtWidgets, QtCore
 from ftrack_framework_core.widget.dialog import FrameworkDialog
 
 from ftrack_qt.widgets.dialogs import StyledDialog
@@ -206,8 +208,8 @@ class BaseDialog(FrameworkDialog, StyledDialog):
         self.raise_()
         self.activateWindow()
         self.setWindowState(
-            self.windowState() & ~QtCore.Qt.WindowMinimized
-            | QtCore.Qt.WindowActive
+            self.windowState() & ~QtCore.Qt.WindowState.WindowMinimized
+            | QtCore.Qt.WindowState.WindowActive
         )
 
     def connect_focus_signal(self):

@@ -2,7 +2,10 @@
 # :copyright: Copyright (c) 2024 ftrack
 import logging
 
-from Qt import QtWidgets, QtCore, QtGui
+try:
+    from PySide6 import QtWidgets, QtCore, QtGui
+except ImportError:
+    from PySide2 import QtWidgets, QtCore, QtGui
 
 
 class VersionSelector(QtWidgets.QComboBox):
@@ -44,5 +47,7 @@ class VersionSelector(QtWidgets.QComboBox):
         '''Add a version to the combobox.'''
         self.addItem(str('v{}'.format(version['version'])), version)
         self.setItemData(
-            self.count() - 1, QtGui.QColor('#131920'), QtCore.Qt.BackgroundRole
+            self.count() - 1,
+            QtGui.QColor('#131920'),
+            QtCore.Qt.ItemDataRole.BackgroundRole,
         )

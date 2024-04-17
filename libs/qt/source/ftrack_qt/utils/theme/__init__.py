@@ -2,7 +2,10 @@
 # :copyright: Copyright (c) 2024 ftrack
 import sys
 
-from Qt import QtCore, QtWidgets, QtGui
+try:
+    from PySide6 import QtWidgets, QtCore, QtGui
+except ImportError:
+    from PySide2 import QtWidgets, QtCore, QtGui
 
 import ftrack_constants.qt as qt_constants
 
@@ -20,7 +23,9 @@ def apply_theme(widget, theme=None):
     theme_path = ':/ftrack/style/{0}'.format(theme)
     fileObject = QtCore.QFile(theme_path)
     if fileObject.exists():
-        fileObject.open(QtCore.QFile.ReadOnly | QtCore.QFile.Text)
+        fileObject.open(
+            QtCore.QFile.OpenModeFlag.ReadOnly | QtCore.QFile.OpenModeFlag.Text
+        )
         stream = QtCore.QTextStream(fileObject)
         styleSheetContent = stream.readAll()
 
