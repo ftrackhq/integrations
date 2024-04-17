@@ -24,7 +24,7 @@ QRadioButton::indicator:unchecked:pressed {
     image: theme-image('radiobutton_unchecked_pressed');
 }
 
-QRadioButton::indicator::checked {
+QRadioButton::indicator:checked {
     image: theme-image('radiobutton_checked');
 }
 
@@ -49,7 +49,7 @@ QRadioButton::indicator:disabled:unchecked:pressed {
     image: theme-image('radiobutton_unchecked_pressed_disabled');
 }
 
-QRadioButton::indicator:disabled::checked {
+QRadioButton::indicator:disabled:checked {
     image: theme-image('radiobutton_checked_disabled');
 }
 

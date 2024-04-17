@@ -1,6 +1,13 @@
 # ftrack Framework Nuke integration release Notes
 
 ## Upcoming
-YYYY-mm-dd
 
+* [changed] Replace Qt.py imports to PySide2 and PySide6 on widgets.
+
+## v24.4.0
+2024-04-02
+
+* [changed] When selecting the node to render for reviewable, show all nodes with the selected one on top.
+* [new] Writeable node validator, to check if a node is writeable for a reviewable to be created.
+* [changed] Upgrade ftrack-framework-core, ftrack-utils and ftrack-qt version.
 * [new] Initial release.

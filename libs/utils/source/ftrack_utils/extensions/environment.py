@@ -7,6 +7,6 @@ import os
 def get_extensions_path_from_environment():
     '''Extract list of extension paths from the OS environment.'''
 
-    environment_variable = 'FTRACK_EXTENSIONS_PATH'
+    environment_variable = 'FTRACK_FRAMEWORK_EXTENSIONS_PATH'
     paths = os.environ.get(environment_variable, '')
     return paths.split(os.pathsep) if paths else []

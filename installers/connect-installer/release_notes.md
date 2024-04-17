@@ -1,12 +1,10 @@
 # ftrack Connect installer release Notes
 
-## Upcoming
+## v24.4.0
+2024-04-02
 
+* [changed] Release connect 3.0.0
 * [changed] Removed docker files.
-
-## v24.3.0
-2024-03-08
-
 * [new] Windows codesign support.
 * [new] Rocky linux 8 and 9 support added and removed Centos7 support. (Centos8 still working with Rocky8 build)
 * [changed] MacOS codesign process updated, replaced the deprecated alttool for the new notarytool.

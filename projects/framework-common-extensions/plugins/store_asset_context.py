@@ -55,7 +55,7 @@ class StoreAssetContextPlugin(BasePlugin):
         # We are querying the following assets:
         # Before the "or":
         # Assets where this task has been linked to a version previously.
-        # After the "or":
+        # After the "or": (Deactivated by default)
         # Assets belonging to the task parent (AssetBuild) with or without
         # versions (regardless if it has been linked to this task).
         assets = self.session.query(
@@ -64,10 +64,12 @@ class StoreAssetContextPlugin(BasePlugin):
             f'versions.thumbnail_url, versions.user.first_name, '
             f'versions.user.last_name, versions.status.name from Asset '
             f'where (versions.task_id is {context_id} and '
-            f'type.id is {asset_type_entity["id"]}) or (parent.children.id '
-            f'is {context_id} and type.id is '
-            f'{asset_type_entity["id"]})'
+            f'type.id is {asset_type_entity["id"]})'
         ).all()
+        # Activate this if you want to query all assets from the AssetBuild
+        # f'or (parent.children.id '
+        # f'is {context_id} and type.id is '
+        # f'{asset_type_entity["id"]})'
 
         self.logger.debug(f"Assets found: {assets}.")
 

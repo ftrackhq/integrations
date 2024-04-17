@@ -738,6 +738,8 @@ class Application(QtWidgets.QMainWindow):
                 self.logger.debug(f'Checking candidate {candidate}.')
                 candidate_path = os.path.join(plugin_directory, candidate)
                 plugin_data = get_plugin_data(candidate_path)
+                if not plugin_data:
+                    continue
                 if source_index >= 0:
                     plugin_data['source_index'] = source_index
                 result.append(plugin_data)
@@ -1180,7 +1182,10 @@ class Application(QtWidgets.QMainWindow):
         configuration files.'''
         launcher_config_paths = []
 
-        self.logger.debug('Discovering applications launcher configs.')
+        self.logger.debug(
+            f'Discovering applications launcher configs based on'
+            f' {len(self.plugins)} plugins.'
+        )
 
         if isinstance(self.connect_config['launch_path'], list):
             for launch_path in self.connect_config['launch_path']:

@@ -1,7 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
-from Qt import QtWidgets, QtCore, QtGui
+try:
+    from PySide6 import QtWidgets, QtCore
+except ImportError:
+    from PySide2 import QtWidgets, QtCore
 
 from ftrack_qt.utils.widget import set_property
 from ftrack_qt.widgets.headers import AccordionHeaderWidget
@@ -14,6 +17,8 @@ class AccordionBaseWidget(QtWidgets.QFrame):
     doubleClicked = QtCore.Signal(
         object
     )  # Emitted when accordion is double clicked
+    show_options_overlay = QtCore.Signal(object)
+    hide_options_overlay = QtCore.Signal()
 
     @property
     def title(self):
@@ -127,7 +132,7 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         # Create the main_widget
         main_widget = QtWidgets.QWidget()
         main_widget.setLayout(QtWidgets.QVBoxLayout())
-        main_widget.layout().setAlignment(QtCore.Qt.AlignTop)
+        main_widget.layout().setAlignment(QtCore.Qt.AlignmentFlag.AlignTop)
         main_widget.layout().setContentsMargins(0, 0, 0, 0)
         main_widget.layout().setSpacing(1)
 
@@ -164,8 +169,20 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         self._header_widget.arrow_clicked.connect(
             self._on_header_arrow_clicked
         )
+        self._header_widget.show_options_overlay.connect(
+            self._on_show_options_overlay_callback
+        )
+        self._header_widget.hide_options_overlay.connect(
+            self._on_hide_options_overlay_callback
+        )
         self._content_widget.setVisible(not self._collapsed)
         self._content_widget.setEnabled(self.checked)
+
+    def _on_show_options_overlay_callback(self, widget):
+        self.show_options_overlay.emit(widget)
+
+    def _on_hide_options_overlay_callback(self):
+        self.hide_options_overlay.emit()
 
     def add_option_widget(self, widget, section_name):
         self._header_widget.add_option_widget(widget, section_name)
@@ -206,7 +223,7 @@ class AccordionBaseWidget(QtWidgets.QFrame):
     def _on_header_clicked(self, event):
         '''Callback on header user click'''
         if not self.selectable:
-            if event.button() != QtCore.Qt.RightButton:
+            if event.button() != (QtCore.Qt.MouseButton.RightButton):
                 self.toggle_collapsed()
 
     def _on_header_arrow_clicked(self, event):
@@ -254,3 +271,8 @@ class AccordionBaseWidget(QtWidgets.QFrame):
                 'background',
                 'selected' if self._selected else 'transparent',
             )
+
+    def teardown(self):
+        '''Teardown the header widget - properly cleanup the options overlay'''
+        self._header_widget.teardown()
+        self._header_widget.deleteLater()

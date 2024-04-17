@@ -1,7 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
-from Qt import QtWidgets, QtCore
+try:
+    from PySide6 import QtWidgets, QtCore
+except ImportError:
+    from PySide2 import QtWidgets, QtCore
 
 from ftrack_framework_qt.dialogs import BaseContextDialog
 from ftrack_utils.framework.config.tool import get_plugins, get_groups
@@ -60,21 +63,7 @@ class StandardOpenerDialog(BaseContextDialog):
         self.setWindowTitle('ftrack Opener')
 
     def pre_build_ui(self):
-        # Create scroll area to add all the widgets
-        self._scroll_area = QtWidgets.QScrollArea()
-        self._scroll_area.setStyle(QtWidgets.QStyleFactory.create("plastique"))
-        self._scroll_area.setWidgetResizable(True)
-        self._scroll_area.setHorizontalScrollBarPolicy(
-            QtCore.Qt.ScrollBarAlwaysOff
-        )
-
-        # Create a main widget for the scroll area
-        self._scroll_area_widget = QtWidgets.QWidget()
-        scroll_area_widget_layout = QtWidgets.QVBoxLayout()
-        scroll_area_widget_layout.setContentsMargins(0, 0, 0, 0)
-        self._scroll_area_widget.setLayout(scroll_area_widget_layout)
-        self.tool_widget.layout().addWidget(self._scroll_area, 100)
-        self._scroll_area.setWidget(self._scroll_area_widget)
+        pass
 
     def build_ui(self):
         # Select the desired tool_config
@@ -106,6 +95,9 @@ class StandardOpenerDialog(BaseContextDialog):
                             self.header.set_widget(
                                 self._progress_widget.status_widget
                             )
+                            self.overlay_layout.addWidget(
+                                self._progress_widget.overlay_widget
+                            )
                         break
                 if not self.tool_config and not tool_config_message:
                     tool_config_message = (
@@ -120,7 +112,7 @@ class StandardOpenerDialog(BaseContextDialog):
             label_widget.setStyleSheet(
                 "font-style: italic; font-weight: bold;"
             )
-            self._scroll_area_widget.layout().addWidget(label_widget)
+            self.tool_widget.layout().addWidget(label_widget)
             return
 
         # Build context widgets
@@ -131,7 +123,7 @@ class StandardOpenerDialog(BaseContextDialog):
             if not context_plugin.get('ui'):
                 continue
             context_widget = self.init_framework_widget(context_plugin)
-            self._scroll_area_widget.layout().addWidget(context_widget)
+            self.tool_widget.layout().addWidget(context_widget)
 
         # Build component widgets with asset version selector
         component_groups = get_groups(
@@ -141,11 +133,11 @@ class StandardOpenerDialog(BaseContextDialog):
         for group_config in component_groups:
             component_name = group_config.get('options').get('component')
             component_label = QtWidgets.QLabel(f"Component: {component_name}")
-            component_label.setObjectName('h3')
+            component_label.setProperty('h3', True)
             component_label.setToolTip(
                 f"The component to be open is {component_name}"
             )
-            self._scroll_area_widget.layout().addWidget(component_label)
+            self.tool_widget.layout().addWidget(component_label)
 
             collectors = get_plugins(
                 group_config, filters={'tags': ['collector']}
@@ -157,7 +149,7 @@ class StandardOpenerDialog(BaseContextDialog):
                     plugin_config, group_config
                 )
 
-                self._scroll_area_widget.layout().addWidget(widget)
+                self.tool_widget.layout().addWidget(widget)
 
         spacer = QtWidgets.QSpacerItem(
             1,
@@ -165,14 +157,20 @@ class StandardOpenerDialog(BaseContextDialog):
             QtWidgets.QSizePolicy.Minimum,
             QtWidgets.QSizePolicy.Expanding,
         )
-        self._scroll_area_widget.layout().addItem(spacer)
+        self.tool_widget.layout().addItem(spacer)
 
     def post_build_ui(self):
-        pass
+        self._progress_widget.hide_overlay_signal.connect(
+            self.show_main_widget
+        )
+        self._progress_widget.show_overlay_signal.connect(
+            self.show_overlay_widget
+        )
 
     def _on_run_button_clicked(self):
         '''(Override) Drive the progress widget'''
-        self._progress_widget.run(self)
+        self.show_overlay_widget()
+        self._progress_widget.run()
         super(StandardOpenerDialog, self)._on_run_button_clicked()
 
     @invoke_in_qt_main_thread

@@ -6,8 +6,12 @@ import os
 import logging
 import urllib.request, urllib.parse, urllib.error
 
-from Qt import QtCore, QtGui, QtWidgets
-import shiboken2
+try:
+    from PySide6 import QtCore, QtWidgets, QtGui
+    import shiboken6 as shiboken
+except ImportError:
+    from PySide2 import QtCore, QtWidgets, QtGui
+    import shiboken2 as shiboken
 
 from ftrack_utils.threading import BaseThread
 
@@ -42,8 +46,8 @@ class SessionThumbnailBase(QtWidgets.QLabel):
 
     def pre_build(self):
         self.thumbnailCache = {}
-        self.setFrameStyle(QtWidgets.QFrame.StyledPanel)
-        self.setAlignment(QtCore.Qt.AlignCenter)
+        self.setFrameStyle(QtWidgets.QFrame.Shape.StyledPanel)
+        self.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
 
         self.placholderThumbnail = (
             self.session.server_url + '/img/thumbnail2.png'
@@ -81,14 +85,14 @@ class SessionThumbnailBase(QtWidgets.QLabel):
         ):
             time.sleep(0.01)
             # Thumbnail widget still active?
-            if not shiboken2.isValid(self):
+            if not shiboken.isValid(self):
                 return
         SessionThumbnailBase._connection_count += 1
         try:
             return self._download(reference)
         except urllib.error.URLError:
             # Not found
-            if not shiboken2.isValid(self):
+            if not shiboken.isValid(self):
                 # Thumbnail widget has been destroyed
                 return
             self.thumbnailNotFound.emit()
@@ -97,14 +101,14 @@ class SessionThumbnailBase(QtWidgets.QLabel):
 
     def _downloaded_async(self, html):
         '''(Run in background thread) Image has been downloaded, propagate to QT thread'''
-        if not shiboken2.isValid(self):
+        if not shiboken.isValid(self):
             # Thumbnail widget has been destroyed
             return
         self.thumbnailFetched.emit(html)
 
     def _downloaded(self, result):
         '''Handler worker finished event.'''
-        if not shiboken2.isValid(self):
+        if not shiboken.isValid(self):
             # Thumbnail widget has been destroyed
             return
         IMAGE_CACHE[self.__loadingReference] = result
@@ -133,7 +137,8 @@ class SessionThumbnailBase(QtWidgets.QLabel):
         '''Scale and set *pixmap*.'''
         if self._scale:
             scaled_pixmap = pixmap.scaledToWidth(
-                self.width(), mode=QtCore.Qt.SmoothTransformation
+                self.width(),
+                mode=QtCore.Qt.TransformationMode.SmoothTransformation,
             )
         else:
             scaled_pixmap = pixmap

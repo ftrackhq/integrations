@@ -30,8 +30,13 @@ def probe_photoshop_pid(photoshop_version):
         PS_EXECUTABLE = 'Photoshop.exe'
         logger.info(f'Probing Windows PID (executable: {PS_EXECUTABLE}).')
 
+        startupinfo = subprocess.STARTUPINFO()
+        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+
         for line in (
-            subprocess.check_output(['TASKLIST']).decode('cp850').split('\n')
+            subprocess.check_output(['TASKLIST'], startupinfo=startupinfo)
+            .decode('cp850')
+            .split('\n')
         ):
             if line.find(PS_EXECUTABLE) > -1:
                 # Expect:

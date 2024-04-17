@@ -3,7 +3,10 @@
 
 from functools import partial
 
-from Qt import QtWidgets, QtCore, QtGui
+try:
+    from PySide6 import QtWidgets, QtCore
+except ImportError:
+    from PySide2 import QtWidgets, QtCore
 
 from ftrack_framework_qt.widgets import BaseWidget
 
@@ -58,6 +61,7 @@ class FileExportOptionsWidget(BaseWidget):
             value_widget = None
             if type(value) == str:
                 value_widget = QtWidgets.QLineEdit(value)
+                value_widget.setAttribute(QtCore.Qt.WA_MacShowFocusRect, False)
                 value_widget.textChanged.connect(
                     partial(self._on_option_changed, option)
                 )
@@ -72,6 +76,7 @@ class FileExportOptionsWidget(BaseWidget):
                 pass
             else:
                 value_widget = QtWidgets.QLineEdit(value)
+                value_widget.setAttribute(QtCore.Qt.WA_MacShowFocusRect, False)
 
             h_layout.addWidget(option_widget)
             h_layout.addWidget(value_widget)

@@ -1,6 +1,7 @@
 # Qt Style
 
 This is the ftrack integrations qt-style library.
+All style and resource files for qt used in the ftrack integrations products should be found here.
 
 ### Manual build
 

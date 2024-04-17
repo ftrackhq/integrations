@@ -6,13 +6,19 @@
 * [new] Custom launch_path setting on connect_config.yaml
 * [deprecated] FTRACK_CONNECT_PLUGIN_PATH is deprecated in favor of plugin_path in the connect_config.yaml
 * [new] Implemented connect_config.yaml file driven by FTRACK_CONNECT_CONFIG_PATH
+
+## v3.0.0
+2024-04-02
+
+* [fix] If a launch config isn't valid, it will now be ignored so Connect doesn't crash.
+* [fix] Optimized and properly using version parsing when sorting Github releases.
+* [new] Toggle pre-releases in Plugin manager
+* [changed] Introduced FTRACK_CONNECT_EXTENSIONS_PATH, read by Connect to resolve launch configurations.
+* [new] Proper support for launch config extensions, merging configs based on the order they appear in FTRACK_CONNECT_EXTENSIONS_PATH.
+* [new] Now uses framework-core (ftrack_framework_core) library as a dependency.
 * [changed] Re-structure utils and move general ones to ftrack-utils library.
 * [changed] config.json file renamed to credentials.json
 * [changed] Plugin manager; Drag-n-drop of a plugin ZIP overrides any existing plugins in plugin list.
-
-## v3.0.0
-2024-02-16
-
 * [changed] Consolidated plugin management: FTRACK_CONNECT_PLUGIN_PATH now overrides the local plugin directory instead of merging. Plugins already in plugin path are not added twice.
 * [changed] Plugin manager now considers plugins in FTRACK_CONNECT_PLUGIN_PATH.
 * [changed] Improved about window - More information to include debug information from widget plugins.

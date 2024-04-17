@@ -1,7 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
-from Qt import QtWidgets, QtCore, QtGui
+try:
+    from PySide6 import QtWidgets, QtCore
+except ImportError:
+    from PySide2 import QtWidgets, QtCore
 
 from ftrack_framework_qt.widgets import BaseWidget
 
@@ -16,6 +19,39 @@ class PublisherAssetVersionSelectorWidget(BaseWidget):
 
     name = 'publisher_asset_version_selector'
     ui_type = 'qt'
+
+    TYPE_MAPPING = {
+        'alpha': 'alpha',
+        'demo': 'dmo',
+        'vehicle': 'vehicle',
+        'texturing': 'texture',
+        'realtime': 'realtime',
+        'full release': 'release',
+        'beta': 'beta',
+        'conform': 'conform',
+        'environment': 'env',
+        'matte painting': 'mp',
+        'prop': 'prop',
+        'character': 'char',
+        'editing': 'edit',
+        'production': 'prod',
+        'modeling': 'model',
+        'lookdev': 'lookdev',
+        'previz': 'previz',
+        'tracking': 'track',
+        'rigging': 'rig',
+        'animation': 'anim',
+        'fx': 'fx',
+        'lighting': 'lgt',
+        'rotoscoping': 'roto',
+        'compositing': 'comp',
+        'deliverable': 'delivery',
+        'layout': 'layout',
+        'rendering': 'render',
+        'concept art': 'concept',
+    }
+    # Map between task type and asset name
+    # TODO: To be moved to shared Framework config file extension or Studio
 
     def __init__(
         self,
@@ -65,7 +101,7 @@ class PublisherAssetVersionSelectorWidget(BaseWidget):
         self._title_label = QtWidgets.QLabel('Assets')
 
         self._label = QtWidgets.QLabel()
-        self._label.setObjectName('gray')
+        self._label.setProperty("secondary", True)
         self._label.setWordWrap(True)
 
         asset_layout = QtWidgets.QVBoxLayout()
@@ -75,7 +111,7 @@ class PublisherAssetVersionSelectorWidget(BaseWidget):
         self._asset_version_selector = PublishAssetSelector()
         asset_layout.addWidget(self._asset_version_selector)
         self._asset_version_selector.set_default_new_asset_name(
-            self.plugin_config['options'].get('asset_type_name')
+            self._generate_default_asset_name()
         )
 
         # Build version and comment widget
@@ -91,7 +127,7 @@ class PublisherAssetVersionSelectorWidget(BaseWidget):
         status_layout.setAlignment(QtCore.Qt.AlignTop)
 
         self._asset_status_label = QtWidgets.QLabel("Status")
-        self._asset_status_label.setObjectName('gray')
+        self._asset_status_label.setProperty("secondary", True)
 
         self._status_selector = StatusSelector()
 
@@ -107,7 +143,7 @@ class PublisherAssetVersionSelectorWidget(BaseWidget):
         comments_layout.setContentsMargins(0, 0, 0, 0)
 
         comment_label = QtWidgets.QLabel('Description')
-        comment_label.setObjectName('gray')
+        comment_label.setProperty("secondary", True)
         comment_label.setAlignment(QtCore.Qt.AlignTop)
         self._comments_input = QtWidgets.QTextEdit()
         self._comments_input.setMaximumHeight(40)
@@ -172,7 +208,10 @@ class PublisherAssetVersionSelectorWidget(BaseWidget):
                 'published related to this task and its parent. Choose asset'
             )
         else:
-            self._label.setText('')
+            self._label.setText(
+                'No previous published asset exist, please enter'
+                ' name for new asset:'
+            )
 
     def _on_selected_item_changed_callback(self, version, asset_id):
         '''Update the plugin options based on the selected item.'''
@@ -202,3 +241,21 @@ class PublisherAssetVersionSelectorWidget(BaseWidget):
         '''Update the plugin options based on the current comment.'''
         current_text = self._comments_input.toPlainText()
         self.set_plugin_option('comment', current_text)
+
+    def _generate_default_asset_name(self):
+        '''Generate asset name based on the current task type, fall back
+        on asset type name.'''
+        result = None
+        context = self.session.get('Context', self.context_id)
+        if context and context.entity_type == 'Task':
+            # Fetch task type
+            task_type = self.session.query(
+                f'Type where id={context["type"]["id"]}'
+            ).first()
+            if task_type:
+                result = PublisherAssetVersionSelectorWidget.TYPE_MAPPING.get(
+                    task_type['name'].lower()
+                )
+        if not result:
+            result = self.plugin_config['options'].get('asset_type_name')
+        return result

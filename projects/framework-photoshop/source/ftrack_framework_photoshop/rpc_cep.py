@@ -4,7 +4,10 @@
 import logging
 import os
 
-from Qt import QtWidgets
+try:
+    from PySide6 import QtWidgets
+except ImportError:
+    from PySide2 import QtWidgets
 
 import ftrack_api.event.base
 
@@ -194,7 +197,8 @@ class PhotoshopRPCCEP(object):
                 waited += 10
                 if waited > timeout:
                     raise Exception(
-                        'Timeout waiting remote integration event reply! '
+                        'Timeout waiting for remote integration event reply - '
+                        ' CEP plugin installed and functioning?'
                         f'Waited {waited / 1000}s'
                     )
                 if waited % 1000 == 0:

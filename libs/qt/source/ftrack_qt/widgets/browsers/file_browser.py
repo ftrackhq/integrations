@@ -3,7 +3,10 @@
 
 from pathlib import Path
 
-from Qt import QtWidgets, QtCore
+try:
+    from PySide6 import QtWidgets, QtCore
+except ImportError:
+    from PySide2 import QtWidgets, QtCore
 
 from ftrack_qt.widgets.dialogs import FileDialog
 
@@ -34,11 +37,12 @@ class FileBrowser(QtWidgets.QWidget):
     def build(self):
         '''Build widgets'''
         self._path_le = QtWidgets.QLineEdit()
+        self._path_le.setAttribute(QtCore.Qt.WA_MacShowFocusRect, False)
 
         self.layout().addWidget(self._path_le, 20)
 
         self._browse_btn = QtWidgets.QPushButton('BROWSE')
-        self._browse_btn.setObjectName('borderless')
+        self._browse_btn.setProperty('borderless', True)
 
         self.layout().addWidget(self._browse_btn)
 

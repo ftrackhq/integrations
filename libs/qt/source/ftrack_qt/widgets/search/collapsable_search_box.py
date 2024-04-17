@@ -1,7 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
-from Qt import QtGui, QtCore, QtWidgets
+try:
+    from PySide6 import QtWidgets, QtCore
+except ImportError:
+    from PySide2 import QtWidgets, QtCore
 
 from ftrack_qt.utils.widget import set_property
 from ftrack_qt.widgets.buttons import CircularButton
@@ -73,7 +76,7 @@ class SearchBox(QtWidgets.QFrame):
             self._input = None
             self._search_button = CircularButton('search')
         else:
-            self._search_button = CircularButton('search', diameter=30)
+            self._search_button = CircularButton('search', diameter=26)
 
         if self._collapsable:
             self.layout().addWidget(self._search_button)
@@ -81,6 +84,7 @@ class SearchBox(QtWidgets.QFrame):
         if not self._collapsed:
             # A bordered input field filling all space, with input and a clear button
             self._input = QtWidgets.QLineEdit()
+            self._input.setAttribute(QtCore.Qt.WA_MacShowFocusRect, False)
             self._input.setReadOnly(False)
             self._input.textChanged.connect(self._on_input_changed)
             self._input.setPlaceholderText("Type to search")

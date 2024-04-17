@@ -1,8 +1,12 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
-from Qt import QtWidgets, QtCore, QtSvg, QtGui
-import shiboken2
+try:
+    from PySide6 import QtWidgets, QtCore, QtGui
+    import shiboken6 as shiboken
+except ImportError:
+    from PySide2 import QtWidgets, QtCore, QtGui
+    import shiboken2 as shiboken
 
 
 class BusyIndicator(QtWidgets.QWidget):
@@ -30,7 +34,7 @@ class BusyIndicator(QtWidgets.QWidget):
 
     def stop(self):
         '''Stop spinning if currently spinning.'''
-        if shiboken2.isValid(self) and self._timer is not None:
+        if shiboken.isValid(self) and self._timer is not None:
             self.killTimer(self._timer)
             self._timer = None
 
@@ -74,7 +78,7 @@ class BusyIndicator(QtWidgets.QWidget):
             penWidth = 8.0
             pen.setWidth(penWidth)
             pen.setColor(self._spinnerColor)
-            pen.setCapStyle(QtCore.Qt.RoundCap)
+            pen.setCapStyle(QtCore.Qt.PenCapStyle.RoundCap)
 
             painter.setPen(pen)
 
