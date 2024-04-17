@@ -9,6 +9,7 @@ import requests.exceptions
 import uuid
 import logging
 import weakref
+import glob
 from operator import itemgetter
 import time
 import qtawesome as qta
@@ -33,7 +34,6 @@ from ftrack_connect.utils.plugin import (
     get_default_plugin_directory,
     get_plugins_from_path,
     get_plugin_data,
-    PLUGIN_DIRECTORIES,
 )
 from ftrack_connect.utils.credentials import (
     load_credentials,
@@ -53,6 +53,10 @@ from ftrack_connect.application_launcher.discover_applications import (
     DiscoverApplications,
 )
 
+from ftrack_connect.utils.config import (
+    get_connect_config,
+    get_connect_config_path,
+)
 from ftrack_connect.utils.plugin import create_target_plugin_directory
 
 
@@ -159,6 +163,10 @@ class Application(QtWidgets.QMainWindow):
     def plugins(self):
         return self._plugins
 
+    @property
+    def connect_config(self):
+        return self._connect_config
+
     def __init__(self, theme='system', instance=None, log_level=None):
         '''Initialise the main application window with *theme*, singleton
         *instance* and custom *log_level*.'''
@@ -170,6 +178,14 @@ class Application(QtWidgets.QMainWindow):
         self._session = None
         self.__connect_start_time = time.time()
         self._log_level = log_level
+
+        self._connect_config = get_connect_config()
+        if not self.connect_config:
+            raise FileNotFoundError(
+                f"Connect config file (ftrack_connect.yaml) not found in the "
+                f"following directory: {get_connect_config_path()}.\n"
+                f"Please provide one before continuing."
+            )
 
         self._discovered_plugins = (
             self._discover_plugin_data_from_plugin_directories()
@@ -741,7 +757,7 @@ class Application(QtWidgets.QMainWindow):
 
         result = []
         i = 0
-        for plugin_base_directory in PLUGIN_DIRECTORIES:
+        for plugin_base_directory in self.connect_config['plugin_path']:
             current_dir_plugins = []
             for plugin in self._gather_plugins(
                 plugin_base_directory, source_index=i
@@ -797,7 +813,7 @@ class Application(QtWidgets.QMainWindow):
 
         result = []
         i = 0
-        for plugin_base_directory in PLUGIN_DIRECTORIES:
+        for plugin_base_directory in self.connect_config['plugin_path']:
             result.extend(
                 self._gather_plugins(plugin_base_directory, source_index=i)
             )
@@ -1045,7 +1061,7 @@ class Application(QtWidgets.QMainWindow):
 
         self.focus()
 
-        aboutDialog = _about.AboutDialog(self)
+        aboutDialog = _about.AboutDialog(self, self.connect_config)
 
         environment_data = os.environ.copy()
         environment_data.update(
@@ -1146,7 +1162,9 @@ class Application(QtWidgets.QMainWindow):
         '''Open default plugin directory in platform default file browser.'''
 
         try:
-            create_target_plugin_directory(PLUGIN_DIRECTORIES[0])
+            create_target_plugin_directory(
+                self.connect_config['plugin_path'][0]
+            )
         except OSError:
             messageBox = QtWidgets.QMessageBox(parent=self)
             messageBox.setIcon(QtWidgets.QMessageBox.Warning)
@@ -1169,10 +1187,15 @@ class Application(QtWidgets.QMainWindow):
             f' {len(self.plugins)} plugins.'
         )
 
-        for connect_plugin_path in [plugin['path'] for plugin in self.plugins]:
-            launcher_config_path = os.path.join(connect_plugin_path, 'launch')
-            if os.path.isdir(launcher_config_path):
-                launcher_config_paths.append(launcher_config_path)
+        if isinstance(self.connect_config['launch_path'], list):
+            for launch_path in self.connect_config['launch_path']:
+                found_dirs = glob.glob(
+                    launch_path
+                )  # We can use recursive=True if we want to look in the entire folder
+                if found_dirs:
+                    for path in found_dirs:
+                        if os.path.isdir(path):
+                            launcher_config_paths.append(path)
 
         # Create store containing launchable applications.
         self._application_launcher = DiscoverApplications(
