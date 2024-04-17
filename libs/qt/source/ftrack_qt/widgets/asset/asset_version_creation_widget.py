@@ -4,6 +4,7 @@
 from Qt import QtWidgets, QtCore, QtGui
 
 from ftrack_qt.widgets.thumbnails import AssetVersionThumbnail
+from ftrack_qt.utils.widget import set_properties, set_property
 
 
 class AssetVersionCreation(QtWidgets.QFrame):
@@ -32,20 +33,26 @@ class AssetVersionCreation(QtWidgets.QFrame):
         if value == self._active:
             return
         self._active = value
-        self._asset_name_widget.style().unpolish(self._asset_name_widget)
-        self._create_label.style().unpolish(self._create_label)
-        self._version_label.style().unpolish(self._version_label)
         if value:
-            self._asset_name_widget.setObjectName('')
-            self._create_label.setObjectName('gray')
-            self._version_label.setObjectName('color-primary')
+            set_property(self._asset_name_widget, 'inactive', False)
+            set_properties(
+                self._create_label,
+                {'secondary': True, 'secondary_inactive': False},
+            )
+            set_properties(
+                self._version_label,
+                {'highlighted': True, 'secondary_inactive': False},
+            )
         else:
-            self._asset_name_widget.setObjectName('gray-dark')
-            self._create_label.setObjectName('gray-darker')
-            self._version_label.setObjectName('gray-darker')
-        self._asset_name_widget.style().polish(self._asset_name_widget)
-        self._create_label.style().polish(self._create_label)
-        self._version_label.style().polish(self._version_label)
+            set_property(self._asset_name_widget, 'inactive', True)
+            set_properties(
+                self._create_label,
+                {'secondary': False, 'secondary_inactive': True},
+            )
+            set_properties(
+                self._version_label,
+                {'highlighted': False, 'secondary_inactive': True},
+            )
 
     def __init__(self, asset_name, asset_id, versions, server_url):
         '''Initialize the AssetVersionCreation widget.'''
@@ -87,7 +94,7 @@ class AssetVersionCreation(QtWidgets.QFrame):
         self.layout().addWidget(self._asset_name_widget)
 
         self._create_label = QtWidgets.QLabel('- create')
-        self._create_label.setObjectName('gray')
+        self._create_label.setProperty('secondary', True)
         self.layout().addWidget(self._create_label)
 
         self._version_label = QtWidgets.QLabel(
@@ -95,9 +102,9 @@ class AssetVersionCreation(QtWidgets.QFrame):
                 self.version['next_version'] if self.version else "1"
             )
         )
-        self._version_label.setObjectName('color-primary')
-        self.layout().addWidget(self._version_label)
 
+        self._version_label.setProperty('highlighted', True)
+        self.layout().addWidget(self._version_label)
         self.layout().addStretch()
 
         self.setToolTip(self._asset_name)

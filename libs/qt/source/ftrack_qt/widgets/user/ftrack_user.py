@@ -18,8 +18,6 @@ class FtrackUser(QtWidgets.QFrame):
         super(FtrackUser, self).__init__(parent=parent)
         self.session = session
 
-        self.setObjectName('ftrack-userid-widget')
-
         self.pre_build()
         self.build()
 

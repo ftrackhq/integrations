@@ -405,10 +405,8 @@ class EntityBrowser(ModalDialog):
         for entity_widget in self.entity_widgets:
             set_property(
                 entity_widget,
-                "background",
-                "selected"
-                if entity_widget.entity['id'] == entity['id']
-                else "",
+                "selected",
+                True if entity_widget.entity['id'] == entity['id'] else False,
             )
         if entity.entity_type != "Task":
             # Dive further down
@@ -667,16 +665,6 @@ class NavigationEntityButton(QtWidgets.QFrame):
                 MaterialIcon('close', color='#94979a'), ""
             )
             self.remove_button.setFixedSize(8, 8)
-            self.remove_button.setStyleSheet(
-                '''
-            QPushButton {
-                border: none; background: transparent;
-            }
-            QPushButton:hover {
-                background: gray;
-            }
-'''
-            )
             self.layout().addWidget(self.remove_button)
 
     def post_build(self):
@@ -703,6 +691,8 @@ class EntityWidget(QtWidgets.QFrame):
         self, entity, is_sub_task, entity_browser, parent=None, is_parent=False
     ):
         super(EntityWidget, self).__init__(parent=parent)
+        self.setProperty('selectable', True)
+        self.setProperty('border', True)
         self.entity = entity
         self.is_parent = is_parent
         self.is_sub_task = is_sub_task
@@ -735,7 +725,7 @@ class EntityWidget(QtWidgets.QFrame):
         label = QtWidgets.QLabel(
             self.entity['name'] if not self.is_parent else '..'
         )
-        label.setObjectName('h3' if not self.is_parent else 'h2')
+        label.setProperty('h3' if not self.is_parent else 'h2', True)
         central_widget.layout().addWidget(label)
 
         lower_widget = QtWidgets.QWidget()
@@ -748,7 +738,7 @@ class EntityWidget(QtWidgets.QFrame):
             sub_path = QtWidgets.QLabel(
                 '.. / {}'.format(self.entity['parent']['name'])
             )
-            sub_path.setObjectName('gray')
+            sub_path.setProperty('secondary', True)
             lower_widget.layout().addWidget(sub_path)
 
         if not self.is_parent:

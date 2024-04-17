@@ -63,7 +63,10 @@ class AssetOptions(QtWidgets.QWidget):
             session=self.session, parent=parent
         )
         self.assetNameLineEdit = _asset_name_edit.AssetNameEdit(
-            self.session, self.existingAssetSelector, self.assetTypeSelector, parent=parent
+            self.session,
+            self.existingAssetSelector,
+            self.assetTypeSelector,
+            parent=parent,
         )
 
         self.assetTypeSelector.currentIndexChanged.connect(

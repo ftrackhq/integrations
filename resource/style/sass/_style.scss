@@ -1,24 +1,28 @@
 @import '_variables';
 @import '_helpers';
 
+@import 'module/_app';
+
 @import 'widget/_button';
 @import 'widget/_checkbox';
 @import 'widget/_combobox';
-@import 'widget/_dialog';
 @import 'widget/_frame';
+@import 'widget/_ftrack_context_browser_widget';
+@import 'widget/_ftrack_framework_base_widget';
+@import 'widget/_ftrack_line_widget';
+@import 'widget/_ftrack_progress_widget';
 @import 'widget/_label';
 @import 'widget/_lineedit';
 @import 'widget/_list';
 @import 'widget/_messagebox';
+@import 'widget/_progressbar';
 @import 'widget/_radiobutton';
 @import 'widget/_scrollarea';
 @import 'widget/_scrollbar';
 @import 'widget/_tabbar';
-@import 'widget/_textedit';
 @import 'widget/_table';
+@import 'widget/_textedit';
 @import 'widget/_tooltip';
-
-@import 'module/_app';
 
 @import 'js/_common';
 @import 'js/_context';
