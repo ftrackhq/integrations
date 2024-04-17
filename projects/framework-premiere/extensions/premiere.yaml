@@ -8,10 +8,3 @@ tools:
     options:
       tool_configs:
         - premiere-scene-publisher
-  - name: open
-    label: "Open"
-    dialog_name: framework_standard_opener_dialog
-    icon: open
-    options:
-      tool_configs:
-        - premiere-scene-opener

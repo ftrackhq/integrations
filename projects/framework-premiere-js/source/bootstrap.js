@@ -14,18 +14,18 @@ var context_id = undefined;
 var project_id = undefined;
 
 function jsx_callback(){
-    console.log("ps.jsx loaded");
+    console.log("pp.jsx loaded");
 }
 
-/*try {
-    jsx.evalFile('./ps.jsx', jsx_callback);
+try {
+    jsx.evalFile('./pp.jsx', jsx_callback);
 } catch (e) {
     error("[INTERNAL ERROR] Failed to load JSX resource "+e+" Details: "+e.stack);
-}*/
+}
 
 // Load custom extension JSX if exists
 try {
-    jsx.evalFile('./ps-include.jsx', jsx_callback);
+    jsx.evalFile('./pp-include.jsx', jsx_callback);
 } catch (e) {
     console.log("[WARNING] Failed to load JSX include resource "+e+" Details: "+e.stack);
 }
@@ -200,13 +200,7 @@ function launchTool(tool_name) {
 
 // Whitelisted functions and their mappings, add entrypoints from ps.jsx here
 var RPC_FUNCTION_MAPPING = {
-    hasDocument:"hasDocument",
-    documentSaved:"documentSaved",
-    getDocumentPath:"getDocumentPath",
-    getDocumentData:"getDocumentData",
-    saveDocument:"saveDocument",
-    exportDocument:"exportDocument",
-    openDocument:"openDocument",
+    render:"render",
 };
 
 function handleRemoteIntegrationRPCCallback(event) {

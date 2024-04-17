@@ -20,13 +20,17 @@
       <DispatchInfo>
         <Resources>
           <MainPath>./index.html</MainPath>
-          <CEFCommandLine />
+          <CEFCommandLine>
+              <Parameter>--allow-file-access</Parameter>
+              <Parameter>--allow-file-access-from-files</Parameter>
+              <Parameter>--allow-running-insecure-content</Parameter>
+          </CEFCommandLine>
         </Resources>
         <Lifecycle>
 		  <AutoVisible>true</AutoVisible>
           <StartOn>
             <!-- Premiere dispatches this event on startup -->
-            <Event>com.adobe.csxs.events.ApplicationInitialized</Event>
+            <Event>com.adobe.csxs.events.ApplicationActivate</Event>
           </StartOn>
 		</Lifecycle>
         <UI>

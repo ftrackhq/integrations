@@ -781,7 +781,13 @@ def build_package(pkg_path, args, command=None):
                 js_file,
                 os.path.join(STAGING_PATH, 'lib', os.path.basename(js_file)),
             )
-        for filename in ['bootstrap.js', 'ps.jsx']:
+
+        if DCC_NAME == 'photoshop':
+            extendscript_file = 'ps.jsx'
+        else:
+            extendscript_file = 'pp.jsx'
+
+        for filename in ['bootstrap.js', extendscript_file]:
             parse_and_copy(
                 os.path.join(
                     MONOREPO_PATH,
