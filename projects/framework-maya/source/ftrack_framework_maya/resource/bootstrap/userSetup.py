@@ -5,4 +5,6 @@ import maya.cmds as cmds
 
 cmds.evalDeferred('import ftrack_framework_maya', lp=True)
 
+# TODO: can we call a bootstrap plugin here?
+
 # TODO: setup frame range and start and end frame
