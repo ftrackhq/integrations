@@ -782,7 +782,7 @@ def build_package(pkg_path, args, command=None):
         if DCC_NAME == 'photoshop':
             extendscript_file = 'ps{}.jsx'
         else:
-            extendscript_file = 'pp{}.jsx'
+            raise Exception('Unsupported Adobe DCC: {}'.format(DCC_NAME))
 
         for filename in [
             'bootstrap-dcc.js',
