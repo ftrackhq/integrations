@@ -20,6 +20,8 @@ def terminate_current_process():
 
 
 class MonitorProcess(object):
+    '''Assist monitor a process by its PID'''
+
     @property
     def process_pid(self):
         '''Return process PID.'''

@@ -611,7 +611,7 @@ def build_package(pkg_path, args, command=None):
 
             if not executable:
                 logging.warning(
-                    'No executable found for pyside2-rcc, attempting to run as '
+                    f'No executable found for {pyside_rcc_command}, attempting to run as '
                     'a module'
                 )
                 executable = [sys.executable, '-m', 'scss']
@@ -627,8 +627,8 @@ def build_package(pkg_path, args, command=None):
 
         except (subprocess.CalledProcessError, OSError):
             raise RuntimeError(
-                'Error compiling resource.py using pyside-rcc. Possibly '
-                'pyside-rcc could not be found. You might need to manually add '
+                f'Error compiling resource.py using {pyside_rcc_command}. Possibly '
+                f'{pyside_rcc_command} could not be found. You might need to manually add '
                 'it to your PATH. See README for more information.'
             )
 
