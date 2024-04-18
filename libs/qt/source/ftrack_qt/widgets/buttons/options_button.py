@@ -8,10 +8,6 @@ except ImportError:
 
 from ftrack_qt.widgets.overlay import OverlayWidget
 from ftrack_qt.widgets.lines import LineWidget
-from ftrack_qt.utils.widget import (
-    get_main_window_from_widget,
-    get_framework_main_dialog,
-)
 
 
 class OptionsButton(QtWidgets.QPushButton):
@@ -60,9 +56,6 @@ class OptionsButton(QtWidgets.QPushButton):
 
         self._options_widget = QtWidgets.QWidget()
         self._options_widget.setLayout(QtWidgets.QVBoxLayout())
-        self._options_widget.layout().addWidget(
-            QtWidgets.QLabel(''), 100
-        )  # spacer
 
         scroll = QtWidgets.QScrollArea()
         scroll.setWidget(self._options_widget)
@@ -71,6 +64,14 @@ class OptionsButton(QtWidgets.QPushButton):
         scroll.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
 
         self._main_widget.layout().addWidget(scroll)
+        # Add a vertical spacer at the end of the layout to push all widgets to the top
+        vertical_spacer = QtWidgets.QSpacerItem(
+            20,
+            40,
+            QtWidgets.QSizePolicy.Minimum,
+            QtWidgets.QSizePolicy.Expanding,
+        )
+        self._main_widget.layout().addSpacerItem(vertical_spacer)
 
         self._overlay_widget = OverlayWidget()
 
@@ -92,37 +93,18 @@ class OptionsButton(QtWidgets.QPushButton):
 
     def add_widget(self, widget, section_name):
         if section_name not in self.__section_registry:
-            # self._options_widget.layout().addWidget(LineWidget())
-            self._options_widget.layout().insertWidget(
-                self._options_widget.layout().count() - 1, LineWidget()
-            )
+            self._options_widget.layout().addWidget(LineWidget())
             section_label = QtWidgets.QLabel("{}:".format(section_name))
             section_label.setProperty('secondary', True)
-            # self._options_widget.layout().addWidget(
-            #    section_label,
-            # )
-            self._options_widget.layout().insertWidget(
-                self._options_widget.layout().count() - 1, section_label
-            )
+            self._options_widget.layout().addWidget(section_label)
             section_widget = QtWidgets.QWidget()
             section_widget_layout = QtWidgets.QVBoxLayout()
             section_widget.setLayout(section_widget_layout)
-            # self._options_widget.layout().addWidget(section_widget)
-            self._options_widget.layout().insertWidget(
-                self._options_widget.layout().count() - 1,
-                section_widget,
-            )
-            # TODO: create the section Widget
+            self._options_widget.layout().addWidget(section_widget)
             self.__section_registry[section_name] = section_widget
 
         self.__section_registry[section_name].layout().addWidget(LineWidget())
         self.__section_registry[section_name].layout().addWidget(widget)
-
-    def finalize_options_widget(self):
-        pass
-        # self._options_widget.layout().addWidget(
-        #    QtWidgets.QLabel(''), 100
-        # )  # spacer
 
     def teardown(self):
         '''Delete the overlay widget and main widget'''
