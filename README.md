@@ -33,7 +33,7 @@
 | libs/utils/source/ftrack\_utils/directories/\_\_init\_\_.py                   |        0 |        0 |    100% |           |
 | libs/utils/source/ftrack\_utils/directories/scan\_dir.py                      |        6 |        4 |     33% |     11-18 |
 | libs/utils/source/ftrack\_utils/extensions/\_\_init\_\_.py                    |        0 |        0 |    100% |           |
-| libs/utils/source/ftrack\_utils/extensions/overrides.py                       |       17 |       13 |     24% | 11, 16-41 |
+| libs/utils/source/ftrack\_utils/extensions/overrides.py                       |       23 |       19 |     17% | 11, 16-57 |
 | libs/utils/source/ftrack\_utils/extensions/registry.py                        |       83 |       66 |     20% |22-25, 38-65, 72-76, 81-123, 128-167 |
 | libs/utils/source/ftrack\_utils/modules/\_\_init\_\_.py                       |        0 |        0 |    100% |           |
 | libs/utils/source/ftrack\_utils/modules/scan\_modules.py                      |       13 |        0 |    100% |           |
@@ -45,7 +45,7 @@
 | libs/utils/source/ftrack\_utils/version/\_\_init\_\_.py                       |       31 |       22 |     29% |13-20, 24-31, 38-52 |
 | tests/framework/unit/\_\_init\_\_.py                                          |        0 |        0 |    100% |           |
 | tests/framework/unit/test\_engine.py                                          |       49 |        0 |    100% |           |
-|                                                                     **TOTAL** |  **798** |  **256** | **68%** |           |
+|                                                                     **TOTAL** |  **804** |  **262** | **67%** |           |
 
 
 ## Setup coverage badge
