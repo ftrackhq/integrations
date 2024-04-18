@@ -10,6 +10,7 @@ official CI/CD build implementation in place.
 
 Changelog:
 
+0.4.17 [24.04.18] Build script to support extras.
 0.4.16 [24.03.19] PySide6 resource build support.
 0.4.15 [24.03.13] Fix platform dependent bug.
 0.4.14 [24.02.23] Incorporate RV pkg build.
@@ -44,7 +45,7 @@ from distutils.spawn import find_executable
 import fileinput
 import tempfile
 
-__version__ = '0.4.15'
+__version__ = '0.4.17'
 
 ZXPSIGN_CMD = 'ZXPSignCmd'
 
