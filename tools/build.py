@@ -10,7 +10,7 @@ official CI/CD build implementation in place.
 
 Changelog:
 
-0.4.16 [24.03.19] PySide6 resource build support.
+0.4.16 [24.04.17] Premiere CEP plugin support. PySide integrations not platform dependent.
 0.4.15 [24.03.13] Fix platform dependent bug.
 0.4.14 [24.02.23] Incorporate RV pkg build.
 0.4.13 [24.02.12] Build qt-style when building CEP plugin.
@@ -44,7 +44,7 @@ from distutils.spawn import find_executable
 import fileinput
 import tempfile
 
-__version__ = '0.4.15'
+__version__ = '0.4.16'
 
 ZXPSIGN_CMD = 'ZXPSignCmd'
 
@@ -117,10 +117,7 @@ def build_package(pkg_path, args, command=None):
                         VERSION = line.split('=')[1].strip().strip('"')
                 elif section == 'tool.poetry.dependencies':
                     if line.find('pyside') > -1:
-                        PLATFORM_DEPENDENT = True
-                        logging.info(
-                            'Platform dependent build - OS suffix will be added to artifact.'
-                        )
+                        pass
 
         append_dependencies(POETRY_CONFIG_PATH)
 
@@ -168,11 +165,7 @@ def build_package(pkg_path, args, command=None):
         )
         with open(source_path, 'r') as f_src:
             with open(target_path, 'w') as f_dst:
-                f_dst.write(
-                    f_src.read().replace(
-                        '{{FTRACK_FRAMEWORK_PHOTOSHOP_VERSION}}', VERSION
-                    )
-                )
+                f_dst.write(f_src.read().replace('${VERSION}', VERSION))
 
     def build_connect_plugin(args):
         '''
@@ -556,12 +549,7 @@ def build_package(pkg_path, args, command=None):
         Qt.
 
         '''
-        replace = r'''
-try: 
-    from PySide6 import QtCore
-except ImportError: 
-    from PySide2 import QtCore
-'''
+        replace = r'from Qt import QtCore'
         for line in fileinput.input(
             resource_target_path, inplace=True, mode='r'
         ):
@@ -614,11 +602,8 @@ except ImportError:
         else:
             logging.warning('No styles to compile.')
 
-        pyside_version = args.pyside_version
-        if not pyside_version:
-            pyside_version = "2"
-        pyside_rcc_command = f'pyside{pyside_version}-rcc'
         try:
+            pyside_rcc_command = 'pyside2-rcc'
             executable = None
 
             # Check if the command for pyside*-rcc is in executable paths.
@@ -627,7 +612,7 @@ except ImportError:
 
             if not executable:
                 logging.warning(
-                    f'No executable found for {pyside_rcc_command}, attempting to run as '
+                    'No executable found for pyside2-rcc, attempting to run as '
                     'a module'
                 )
                 executable = [sys.executable, '-m', 'scss']
@@ -643,8 +628,8 @@ except ImportError:
 
         except (subprocess.CalledProcessError, OSError):
             raise RuntimeError(
-                f'Error compiling resource.py using {pyside_rcc_command}. Possibly '
-                f'{pyside_rcc_command} could not be found. You might need to manually add '
+                'Error compiling resource.py using pyside-rcc. Possibly '
+                'pyside-rcc could not be found. You might need to manually add '
                 'it to your PATH. See README for more information.'
             )
 
@@ -690,6 +675,8 @@ except ImportError:
             )
 
         STAGING_PATH = os.path.join(BUILD_PATH, 'staging')
+        DCC_NAME = args.dcc
+        assert DCC_NAME, 'Please provide DCC name to build CEP plugin for'
 
         # Clean previous build
         if os.path.exists(BUILD_PATH):
@@ -765,26 +752,20 @@ except ImportError:
         )
 
         logging.info("Copying framework js lib files")
+        framework_js_path = os.path.join(
+            MONOREPO_PATH, 'libs', f'framework-js', 'source'
+        )
         for js_file in [
             os.path.join(
-                MONOREPO_PATH,
-                'projects',
-                'framework-photoshop-js',
-                'source',
+                framework_js_path,
                 'utils.js',
             ),
             os.path.join(
-                MONOREPO_PATH,
-                'projects',
-                'framework-photoshop-js',
-                'source',
+                framework_js_path,
                 'event-constants.js',
             ),
             os.path.join(
-                MONOREPO_PATH,
-                'projects',
-                'framework-photoshop-js',
-                'source',
+                framework_js_path,
                 'events-core.js',
             ),
         ]:
@@ -792,12 +773,18 @@ except ImportError:
                 js_file,
                 os.path.join(STAGING_PATH, 'lib', os.path.basename(js_file)),
             )
-        for filename in ['bootstrap.js', 'ps.jsx']:
+
+        if DCC_NAME == 'photoshop':
+            extendscript_file = 'ps.jsx'
+        else:
+            extendscript_file = 'pp.jsx'
+
+        for filename in ['bootstrap.js', extendscript_file]:
             parse_and_copy(
                 os.path.join(
                     MONOREPO_PATH,
                     'projects',
-                    'framework-photoshop-js',
+                    f'framework-{DCC_NAME}-js',
                     'source',
                     filename,
                 ),
@@ -813,8 +800,7 @@ except ImportError:
         parse_and_copy(MANIFEST_PATH, manifest_staging_path)
 
         extension_output_path = os.path.join(
-            BUILD_PATH,
-            'ftrack-framework-adobe-{}.zxp'.format(VERSION),
+            BUILD_PATH, f'ftrack-framework-{DCC_NAME}-{VERSION}.zxp'
         )
 
         if not args.nosign:
@@ -974,16 +960,16 @@ if __name__ == '__main__':
         help='(QT resource build) Override the default style path (resource/style).',
     )
     parser.add_argument(
-        '--pyside_version',
-        help='(QT resource build) The version of PySide to use, default is "2"',
-    )
-    # QT/RV shared
-    parser.add_argument(
         '--output_path',
         help='(QT resource build/RV pkg build) Override the QT resource output directory.',
     )
 
     # CEP options
+    parser.add_argument(
+        '--dcc',
+        help='(CEP plugin build) The DCC to build for, "photoshop" or "premiere".',
+    )
+
     parser.add_argument(
         '--nosign',
         help='(CEP plugin build) Do not sign and create ZXP.',

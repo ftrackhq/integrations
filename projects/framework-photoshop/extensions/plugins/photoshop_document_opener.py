@@ -6,7 +6,7 @@ import os
 from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
-from ftrack_framework_photoshop.rpc_cep import JavascriptRPC
+from ftrack_utils.rpc import JavascriptRPC
 
 
 class PhotoshopDocumentOpenerPlugin(BasePlugin):

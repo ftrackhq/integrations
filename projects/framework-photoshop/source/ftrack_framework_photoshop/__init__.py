@@ -6,6 +6,8 @@ import sys
 import os
 import traceback
 import platform
+import subprocess
+import re
 from functools import partial
 
 try:
@@ -16,22 +18,22 @@ except ImportError:
 import ftrack_api
 
 from ftrack_constants import framework as constants
+
 from ftrack_utils.extensions.environment import (
     get_extensions_path_from_environment,
 )
+from ftrack_utils.rpc import JavascriptRPC
+from ftrack_utils.process import MonitorProcess, terminate_current_process
+from ftrack_utils.usage import set_usage_tracker, UsageTracker
+from ftrack_qt.utils.decorators import invoke_in_qt_main_thread
+
+
 from ftrack_framework_core.host import Host
 from ftrack_framework_core.event import EventManager
 from ftrack_framework_core.client import Client
+from ftrack_framework_core.configure_logging import configure_logging
 from ftrack_framework_core import registry
 
-from ftrack_framework_core.configure_logging import configure_logging
-
-from ftrack_utils.usage import set_usage_tracker, UsageTracker
-
-from ftrack_qt.utils.decorators import invoke_in_qt_main_thread
-
-from .rpc_cep import JavascriptRPC
-from .utils import process as process_util
 
 # Evaluate version and log package version
 try:
@@ -53,7 +55,9 @@ configure_logging(
 logger = logging.getLogger(__name__)
 logger.debug('v{}'.format(__version__))
 
-photoshop_connection = None
+photoshop_rpc_connection = object()
+remote_session = object()
+process_monitor = object()
 
 # Create Qt application
 app = QtWidgets.QApplication.instance()
@@ -61,10 +65,6 @@ app = QtWidgets.QApplication.instance()
 if not app:
     app = QtWidgets.QApplication(sys.argv)
     app.setAttribute(QtCore.Qt.AA_PluginApplication)
-
-remote_session = None
-
-process_monitor = None
 
 
 @invoke_in_qt_main_thread
@@ -75,11 +75,60 @@ def on_run_dialog_callback(client_instance, dialog_name, tool_config_names):
     )
 
 
+def rpc_process_events_callback():
+    '''Have Qt process events while waiting for RPC reploy'''
+    app.processEvents()
+
+
+def probe_photoshop_pid(photoshop_version):
+    '''
+    Probe the Photoshop PID based on the version for the process monitor.
+
+    :param photoshop_version: The version of Photoshop to probe, e.g. '2024' and so on
+    :return: The detected PID or None if not found
+    '''
+    if sys.platform == 'darwin':
+        PS_EXECUTABLE = f'Adobe Photoshop {str(photoshop_version)}'
+        logger.info(f'Probing Mac PID (executable: {PS_EXECUTABLE})')
+
+        for line in (
+            subprocess.check_output(['ps', '-ef']).decode('utf-8').split('\n')
+        ):
+            if line.find(f'MacOS/{PS_EXECUTABLE}') > -1:
+                # Expect:
+                #   501 21270     1   0  3:05PM ??         0:36.85 /Applications/Adobe Photoshop 2022/Adobe Photoshop 2022.app/Contents/MacOS/Adobe Photoshop 2022
+                pid = int(re.split(' +', line)[2])
+                logger.info(f'Found pid: {pid}.')
+                return pid
+
+    elif sys.platform == 'win32':
+        PS_EXECUTABLE = 'Photoshop.exe'
+        logger.info(f'Probing Windows PID (executable: {PS_EXECUTABLE}).')
+
+        startupinfo = subprocess.STARTUPINFO()
+        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+
+        for line in (
+            subprocess.check_output(['TASKLIST'], startupinfo=startupinfo)
+            .decode('cp850')
+            .split('\n')
+        ):
+            if line.find(PS_EXECUTABLE) > -1:
+                # Expect:
+                #   Photoshop.exe                15364 Console                    1  2 156 928 K
+                pid = int(re.split(' +', line)[1])
+                logger.info(f'Found pid: {pid}.')
+                return pid
+
+    logger.warning('Photoshop not found running!')
+    return None
+
+
 def bootstrap_integration(framework_extensions_path):
     '''Initialise Photoshop Framework Python standalone part,
     with panels defined in *panel_launchers*'''
 
-    global photoshop_connection, remote_session, process_monitor
+    global photoshop_rpc_connection, remote_session, process_monitor
 
     logger.debug(
         'Photoshop standalone integration initialising, extensions path:'
@@ -109,11 +158,13 @@ def bootstrap_integration(framework_extensions_path):
     # Init Photoshop connection
     remote_session = ftrack_api.Session(auto_connect_event_hub=True)
 
-    photoshop_connection = JavascriptRPC(
+    photoshop_rpc_connection = JavascriptRPC(
+        'photoshop',
         remote_session,
         client_instance,
         dcc_config['tools'],
         partial(on_run_dialog_callback, client_instance),
+        rpc_process_events_callback,
     )
 
     # TODO: clean up this dictionary creation or move it as a query function of
@@ -155,15 +206,15 @@ def bootstrap_integration(framework_extensions_path):
                 app="Photoshop",
                 registry=registry_info_dict,
                 version=__version__,
-                app_version=photoshop_connection.photoshop_version,
+                app_version=photoshop_rpc_connection.dcc_version,
                 os=platform.platform(),
             ),
         )
     )
 
     # Init process monitor
-    process_monitor = process_util.MonitorProcess(
-        photoshop_connection.photoshop_version
+    process_monitor = MonitorProcess(
+        partial(probe_photoshop_pid, photoshop_rpc_connection.dcc_version)
     )
 
     for _ in range(30 * 2):  # Wait 30s for Photoshop to connect
@@ -176,20 +227,20 @@ def bootstrap_integration(framework_extensions_path):
 
     else:
         raise RuntimeError(
-            'Photoshop {photoshop_connection.photoshop_version} '
-            f'({photoshop_connection.remote_integration_session_id}) '
+            'Photoshop {photoshop_rpc_connection.photoshop_version} '
+            f'({photoshop_rpc_connection.remote_integration_session_id}) '
             'process never started. Shutting down.'
         )
 
     logger.warning(
-        f'Photoshop {photoshop_connection.photoshop_version} standalone '
+        f'Photoshop {photoshop_rpc_connection.dcc_version} standalone '
         'integration initialized and ready and awaiting connection from'
         ' Photoshop.'
     )
 
 
 def run_integration():
-    '''Run Photoshop Framework Python standalone part as long as Photoshop is alive.'''
+    '''Run Framework Python standalone as long as Photoshop is alive.'''
 
     global remote_session
 
@@ -202,25 +253,25 @@ def run_integration():
         if active_time % 10000 == 0:
             logger.info(
                 f'Integration alive has been for {active_time / 1000}s, '
-                f'connected: {photoshop_connection.connected}'
+                f'connected: {photoshop_rpc_connection.connected}'
             )
         # Failsafe check if PS is still alive every 5s
         if active_time % (5 * 1000) == 0:
             # Check if Photoshop still is running
             if not process_monitor.check_running():
                 logger.warning('Photoshop process gone, shutting ' 'down!')
-                process_util.terminate_current_process()
+                terminate_current_process()
             else:
                 # Check if Photoshop panel is alive
-                respond_result = photoshop_connection.check_responding()
-                if not respond_result and photoshop_connection.connected:
-                    photoshop_connection.connected = False
+                respond_result = photoshop_rpc_connection.check_responding()
+                if not respond_result and photoshop_rpc_connection.connected:
+                    photoshop_rpc_connection.connected = False
                     logger.info(
                         f'Photoshop is not responding but process ({process_monitor.process_pid}) '
                         f'is still there, panel temporarily closed?'
                     )
-                elif respond_result and not photoshop_connection.connected:
-                    photoshop_connection.connected = True
+                elif respond_result and not photoshop_rpc_connection.connected:
+                    photoshop_rpc_connection.connected = True
                     logger.info('Photoshop is responding again, panel alive.')
 
 

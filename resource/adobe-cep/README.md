@@ -1,3 +1,3 @@
-# Photoshop CEP resources
+# Common adobe CEP resources
 
-Used as base for building the CEP plugin.
+Used as base for building a ftrack Framework integration CEP plugin.

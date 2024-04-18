@@ -10,7 +10,7 @@ from ftrack_framework_core.exceptions.plugin import (
     PluginValidationError,
 )
 
-from ftrack_framework_photoshop.rpc_cep import JavascriptRPC
+from ftrack_utils.rpc import JavascriptRPC
 
 
 class PhotoshopDocumentSavedValidatorPlugin(BasePlugin):
