@@ -1,5 +1,10 @@
 # ftrack Connect release Notes
 
+## Upcoming
+
+* [new] Support for overriding the Photoshop standalone Python interpreter executable path, by adding 'standalone_interpreter' setting to launch config. It can also be overridden by setting FTRACK_CONNECT_STANDALONE_INTERPRETER environment variable, or by modifying the launch event.
+
+
 ## v3.0.0
 2024-04-02
 
