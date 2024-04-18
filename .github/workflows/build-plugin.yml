@@ -139,7 +139,7 @@ jobs:
     needs: set-variables
     concurrency:
       group: ci-${{ github.ref }}
-    if: ${{ needs.set-variables.outputs.package != 'framework-photoshop' }}
+    if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' }}
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3

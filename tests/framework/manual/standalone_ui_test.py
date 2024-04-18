@@ -70,7 +70,7 @@ app = QtWidgets.QApplication.instance()
 if not app:
     app = QtWidgets.QApplication(sys.argv)
 
-WHAT = 'opener'
+WHAT = 'publisher'
 client_class.run_dialog(
     dialog_name=f'framework_standard_{WHAT}_dialog',
     dialog_options={'tool_config_names': [f'standalone-file-{WHAT}']},

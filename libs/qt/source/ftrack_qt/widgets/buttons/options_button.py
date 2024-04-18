@@ -101,6 +101,7 @@ class OptionsButton(QtWidgets.QPushButton):
             section_widget_layout = QtWidgets.QVBoxLayout()
             section_widget.setLayout(section_widget_layout)
             self._options_widget.layout().addWidget(section_widget)
+
             self.__section_registry[section_name] = section_widget
 
         self.__section_registry[section_name].layout().addWidget(LineWidget())
