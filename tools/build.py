@@ -10,7 +10,7 @@ official CI/CD build implementation in place.
 
 Changelog:
 
-0.4.16 [24.04.17] Premiere CEP plugin support. PySide integrations not platform dependent.
+0.4.16 [24.04.17] CEP plugin support. PySide integrations not platform dependent.
 0.4.15 [24.03.13] Fix platform dependent bug.
 0.4.14 [24.02.23] Incorporate RV pkg build.
 0.4.13 [24.02.12] Build qt-style when building CEP plugin.
