@@ -37,7 +37,13 @@ window.FTRACK_RPC_FUNCTION_MAPPING = {
     openDocument:"openDocument",
 };
 
-window.initialiseExtension = function(session) {
+window.ftrackInitialiseExtension = function(session, event_manager, remote_integration_session_id) {
     // Do additional initialisations here
 };
+
+
+window.ftrackIntegrationConnected = function() {
+    // React upon integration connected
+};
+
 

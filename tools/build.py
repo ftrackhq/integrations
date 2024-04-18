@@ -69,7 +69,6 @@ def build_package(pkg_path, args, command=None):
     CONNECT_PLUGIN_PATH = os.path.join(ROOT_PATH, 'connect-plugin')
     BUILD_PATH = os.path.join(ROOT_PATH, 'dist')
     EXTENSION_PATH = os.path.join(ROOT_PATH, 'extensions')
-    CEP_PATH = os.path.join(ROOT_PATH, 'resource', 'cep')
     USES_FRAMEWORK = False
     FTRACK_DEP_LIBS = []
     PLATFORM_DEPENDENT = False
@@ -650,10 +649,15 @@ def build_package(pkg_path, args, command=None):
     def build_cep(args):
         '''Wrapper for building Adobe CEP extension'''
 
+        CEP_PATH = os.path.join(MONOREPO_PATH, 'resource', 'adobe-cep')
         if not os.path.exists(CEP_PATH):
-            raise Exception('Missing "{}/" folder!'.format(CEP_PATH))
+            raise Exception('Missing common "{}/" folder!'.format(CEP_PATH))
 
-        MANIFEST_PATH = os.path.join(CEP_PATH, 'bundle', 'manifest.xml')
+        CEP_DCC_PATH = os.path.join(ROOT_PATH, 'resource', 'adobe-cep')
+        if not os.path.exists(CEP_DCC_PATH):
+            raise Exception('Missing DCC "{}/" folder!'.format(CEP_PATH))
+
+        MANIFEST_PATH = os.path.join(CEP_DCC_PATH, 'bundle', 'manifest.xml')
         if not os.path.exists(MANIFEST_PATH):
             raise Exception('Missing manifest:{}!'.format(MANIFEST_PATH))
 
@@ -708,8 +712,8 @@ def build_package(pkg_path, args, command=None):
         if not os.path.exists(style_path):
             raise Exception('Missing "{}/" folder!'.format(style_path))
 
-        # Copy html
-        for filename in ['index.html']:
+        # Copy html and base bootstrap
+        for filename in ['index.html', 'bootstrap.js']:
             parse_and_copy(
                 os.path.join(CEP_PATH, filename),
                 os.path.join(STAGING_PATH, filename),
@@ -774,18 +778,21 @@ def build_package(pkg_path, args, command=None):
                 os.path.join(STAGING_PATH, 'lib', os.path.basename(js_file)),
             )
 
+        # Copy extensions
         if DCC_NAME == 'photoshop':
-            extendscript_file = 'ps.jsx'
+            extendscript_file = 'ps{}.jsx'
         else:
-            extendscript_file = 'pp.jsx'
+            extendscript_file = 'pp{}.jsx'
 
-        for filename in ['bootstrap.js', extendscript_file]:
+        for filename in [
+            'bootstrap-dcc.js',
+            extendscript_file.format(''),
+            extendscript_file.format('-include'),
+        ]:
             parse_and_copy(
                 os.path.join(
-                    MONOREPO_PATH,
-                    'projects',
-                    f'framework-{DCC_NAME}-js',
-                    'source',
+                    EXTENSION_PATH,
+                    'js',
                     filename,
                 ),
                 os.path.join(STAGING_PATH, filename),

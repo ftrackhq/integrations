@@ -46,7 +46,7 @@ function initializeIntegration() {
                     }
                 });
             } else {
-                error("No ftrack environment variable(s) available, make sure you launch DCC from ftrack (task)!");
+                error("No ftrack environment variable(s) available, make sure you launch DCC from ftrack (task)!", false);
             }
         });
     } catch (e) {
@@ -83,11 +83,11 @@ function initializeSession(env, appVersion) {
             connect(appVersion);
         });
 
-        // Enable extension to bootstrap
+        // Enable extension to do optional bootstrap
         try {
-            initialiseExtension();
+            ftrackInitialiseExtension(session, event_manager, remote_integration_session_id);
         } catch (e) {
-            console.log("[WARNING] Failed to initialise extension! "+e+" Details: "+e.stack);
+            console.log("[WARNING] Failed to initialise ftrack additional extensions! "+e+" Details: "+e.stack);
         }
     } catch (e) {
         error("[INTERNAL ERROR] Failed to initialise ftrack session! "+e+" Details: "+e.stack);
@@ -146,6 +146,13 @@ function handleIntegrationContextDataCallback(event) {
             connected = true;
             showElement("connecting", false);
             showElement("content", true);
+
+            // Enable extension to react on connection
+            try {
+                ftrackIntegrationConnected();
+            } catch (e) {
+                console.log("[WARNING] Failed to tell extension we are connected! "+e+" Details: "+e.stack);
+            }
         } else {
             // Reply to event to confirm we received the data
             event_manager.publish_reply(event, prepareEventData(
