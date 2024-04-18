@@ -679,7 +679,6 @@ def build_package(pkg_path, args, command=None):
             )
 
         STAGING_PATH = os.path.join(BUILD_PATH, 'staging')
-        DCC_NAME = args.dcc
         assert DCC_NAME, 'Please provide DCC name to build CEP plugin for'
 
         # Clean previous build
@@ -969,12 +968,6 @@ if __name__ == '__main__':
     parser.add_argument(
         '--output_path',
         help='(QT resource build/RV pkg build) Override the QT resource output directory.',
-    )
-
-    # CEP options
-    parser.add_argument(
-        '--dcc',
-        help='(CEP plugin build) The DCC to build for, "photoshop" or "premiere".',
     )
 
     parser.add_argument(
