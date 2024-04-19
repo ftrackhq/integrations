@@ -25,7 +25,9 @@ class PremiereMovieExporterPlugin(BasePlugin):
 
         preset_path = os.path.join(
             os.path.dirname(
-                os.path.dirname(ftrack_framework_premiere.__file__)
+                os.path.dirname(
+                    os.path.dirname(ftrack_framework_premiere.__file__)
+                )
             ),
             'resource',
             'presets',
@@ -38,7 +40,9 @@ class PremiereMovieExporterPlugin(BasePlugin):
             # Get existing RPC connection instance
             premiere_connection = JavascriptRPC.instance()
 
-            self.logger.debug(f'Exporting Premiere image to {new_file_path}')
+            self.logger.debug(
+                f'Exporting Premiere movie to {new_file_path}, using preset: {preset_path}'
+            )
 
             export_result = premiere_connection.rpc(
                 'render',
@@ -49,11 +53,11 @@ class PremiereMovieExporterPlugin(BasePlugin):
             )
         except Exception as e:
             self.logger.exception(e)
-            raise PluginExecutionError(f'Exception exporting the image: {e}')
+            raise PluginExecutionError(f'Exception exporting the movie: {e}')
 
         if not export_result or isinstance(export_result, str):
             raise PluginExecutionError(
-                f'Error exporting the image: {export_result}'
+                f'Error exporting the movie: {export_result}'
             )
 
         store['components'][component_name]['exported_path'] = new_file_path
