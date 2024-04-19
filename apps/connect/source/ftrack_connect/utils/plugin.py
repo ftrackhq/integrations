@@ -47,29 +47,66 @@ def get_plugins_from_path(plugin_directory):
 
 
 def get_plugin_data(plugin_path):
-    '''Return data from the provided *plugin_path*.'''
-    plugin_re = re.compile('(?P<name>(([A-Za-z-3-4]+)))-(?P<version>(\w.+))')
+    '''
+    Return data from the provided *plugin_path*.
+
+    Valid Plugin names:
+    "plugin-24.0.0",
+    "my-plugin-24.0.0rc1",  # or b, a etc...
+    "ftrack-my-plugin-24.0.0",
+    "ftrack-my-plugin-something-else-24.0.0",
+    "ftrack-my-plugin-24.4.1-mac.zip",
+    "ftrack-my-plugin-24.4.1-custom_platform.zip",
+    "ftrack-my-plugin-24.4.1.zip",
+    "ftrack-my-plugin-24.4.1.tar.gz",
+    "ftrack-my-plugin-24.4.1-linux.tar.gz",
+    "plugin-24.4.1.zip",
+    "plugin-24.0.zip",
+
+    Deprecated Names:
+    "my_plugin"
+    "my-plugin"
+    '''
+    plugin_re = re.compile(
+        r'(?P<name>.+?)-(?P<version>\d+\.\d+(?:\.\d+)?(?:[a-zA-Z]+\d+)?)(?:-(?P<platform>\w+))?(?P<extension>(?:\.\w+)+)?$'
+    )
 
     plugin_name = os.path.basename(plugin_path)
     match = plugin_re.match(plugin_name)
     if match:
         data = match.groupdict()
     else:
+        # Check if it's a legacy action or custom plugin
+        deprecated_plugin_re = re.compile(r'^(?P<name>[a-zA-Z0-9_\-]+)$')
+        deprecated_match = deprecated_plugin_re.match(plugin_name)
+        if not deprecated_match:
+            logger.warning(
+                f"The provided plugin path can't be recognized: {plugin_path}. "
+                f"Please make sure that plugin name matches the following format: "
+                f"my-plugin-1.0.0,  "
+                f"my_plugin is also supported but will be deprecated soon.\n "
+                f"Current plugin name: {plugin_name}"
+            )
+            return False
         logger.warning(
-            f"The provided plugin path can't be recognized: {plugin_path}"
+            f"The provided plugin name would be deprecated soon, please use "
+            f"dash instead of underscore and version the plugin for further "
+            f"compatibility. "
+            f"Example: my-custom-plugin-1.0.0. \n "
+            f"Current name: {plugin_name}"
         )
-        return False
+        data = deprecated_match.groupdict()
+        data['version'] = "0.0.0"
 
     data['path'] = plugin_path
-    data['platform'] = 'noarch'
-    if data['version'].lower().endswith('.zip'):
-        # pop zip extension from the version.
-        # TODO: refine regex to catch extension
-        data['version'] = data['version'][:-4]
-        parts = data['version'].split('-')
-        if len(parts) > 1:
-            data['version'] = parts[0]
-            data['platform'] = parts[-1]
+    if not data.get('platform'):
+        data['platform'] = 'noarch'
+    if data.get('extension'):
+        if data['extension'] != '.zip':
+            logger.warning(
+                f"Sorry, we only support .zip extensions for now, ignoring plugin: {plugin_path}"
+            )
+            return False
     data['incompatible'] = is_incompatible_plugin(data)
     data['deprecated'] = is_deprecated_plugin(data)
     return data
