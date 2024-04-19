@@ -7,13 +7,13 @@ from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
 
-class PremiereDocumentExporterPlugin(BasePlugin):
+class PremiereProjectExporterPlugin(BasePlugin):
     name = 'premiere_project_exporter'
 
     def run(self, store):
         '''
         Expects full_path in collected_data in the <component_name> key of the
-        given *store*, copies it to temp location and stores the exported document
+        given *store*, copies it to temp location and stores the exported project
         path in the :obj:`store`
         '''
         component_name = self.options.get('component')

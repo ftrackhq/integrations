@@ -1,6 +1,5 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
-import os
 
 from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
@@ -8,7 +7,7 @@ from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 from ftrack_utils.rpc import JavascriptRPC
 
 
-class PremiereDocumentCollectorPlugin(BasePlugin):
+class PremiereProjectCollectorPlugin(BasePlugin):
     name = 'premiere_project_collector'
 
     def run(self, store):

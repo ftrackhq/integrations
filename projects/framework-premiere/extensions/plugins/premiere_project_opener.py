@@ -9,7 +9,7 @@ from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 from ftrack_utils.rpc import JavascriptRPC
 
 
-class PremiereDocumentOpenerPlugin(BasePlugin):
+class PremiereProjectOpenerPlugin(BasePlugin):
     name = 'premiere_project_opener'
 
     def run(self, store):
@@ -48,7 +48,7 @@ class PremiereDocumentOpenerPlugin(BasePlugin):
         except Exception as e:
             self.logger.exception(e)
             raise PluginExecutionError(
-                f'Exception telling Premiere to open document: {e}'
+                f'Exception telling Premiere to open project: {e}'
             )
 
         if not open_result or isinstance(open_result, str):

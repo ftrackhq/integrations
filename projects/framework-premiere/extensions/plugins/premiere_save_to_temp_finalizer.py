@@ -40,5 +40,5 @@ class PremiereSaveToTempFinalizerPlugin(BasePlugin):
 
         if isinstance(save_result, str):
             raise PluginExecutionError(
-                f'Error temp saving document in Premiere: {save_result}'
+                f'Error temp saving project in Premiere: {save_result}'
             )
