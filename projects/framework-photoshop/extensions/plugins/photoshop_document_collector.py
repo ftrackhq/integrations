@@ -5,7 +5,7 @@ import os
 from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
-from ftrack_framework_photoshop.rpc_cep import PhotoshopRPCCEP
+from ftrack_utils.rpc import JavascriptRPC
 
 
 class PhotoshopDocumentCollectorPlugin(BasePlugin):
@@ -17,7 +17,7 @@ class PhotoshopDocumentCollectorPlugin(BasePlugin):
         and store in the given *store* on "document_name" and "document_saved"
         '''
         # Get existing RPC connection instance
-        photoshop_connection = PhotoshopRPCCEP.instance()
+        photoshop_connection = JavascriptRPC.instance()
 
         # Get document data containing the path
         try:

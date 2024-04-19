@@ -4,22 +4,22 @@
 import logging
 import os
 
-try:
-    from PySide6 import QtWidgets
-except ImportError:
-    from PySide2 import QtWidgets
-
 import ftrack_api.event.base
 
 import ftrack_constants.framework as constants
 from ftrack_utils.framework.remote import get_remote_integration_session_id
 
 
-class PhotoshopRPCCEP(object):
-    '''Base Photoshop remote connection for CEP based integration.'''
+class JavascriptRPC(object):
+    '''Base remote connection for CEP based integrations.'''
 
     # Connection should be a singleton accessible also during plugin execution
     _instance = None
+
+    @property
+    def dcc_name(self):
+        '''Return DCC name.'''
+        return self._dcc_name
 
     @property
     def session(self):
@@ -36,14 +36,14 @@ class PhotoshopRPCCEP(object):
         return self._client
 
     @property
-    def photoshop_version(self):
-        '''Return Photoshop version.'''
-        return self._photoshop_version
+    def dcc_version(self):
+        '''Return DCC version.'''
+        return self._dcc_version
 
-    @photoshop_version.setter
-    def photoshop_version(self, value):
-        '''Set Photoshop version to *value*.'''
-        self._photoshop_version = value
+    @dcc_version.setter
+    def dcc_version(self, value):
+        '''Set DCC version to *value*.'''
+        self._dcc_version = value
 
     @property
     def remote_integration_session_id(self):
@@ -60,14 +60,14 @@ class PhotoshopRPCCEP(object):
         '''Return callback for run dialog event.'''
         return self._on_run_dialog_callback
 
-    @on_run_dialog_callback.setter
-    def on_run_dialog_callback(self, value):
-        '''Set callback for run dialog event to *value*.'''
-        self._on_run_dialog_callback = value
+    @property
+    def process_events_callback(self):
+        '''Return callback for processing events.'''
+        return self._process_events_callback
 
     @property
     def connected(self):
-        '''Return True if connected to Photoshop.'''
+        '''Return True if connected to DCC.'''
         return self._connected
 
     @connected.setter
@@ -76,24 +76,42 @@ class PhotoshopRPCCEP(object):
         self._connected = value
         if self._connected:
             self.logger.info(
-                f'Successfully established connection to Photoshop {self.photoshop_version}'
+                f'Successfully established connection to DCC {self.dcc_version}'
             )
 
     def __init__(
-        self, session, client, panel_launchers, on_run_dialog_callback
+        self,
+        dcc_name,
+        session,
+        client,
+        panel_launchers,
+        _on_run_dialog_callback,
+        process_events_callback,
     ):
-        super(PhotoshopRPCCEP, self).__init__()
+        '''
+        Initialise the javascript RPC connection
+
+        :param dcc_name: The name of the DCC; 'photoshop', 'premiere', etc.
+        :param session:
+        :param client: The client instance
+        :param panel_launchers: List of panel launchers
+        :param _on_run_dialog_callback: Callback for run dialog event
+        :param process_events_callback: Callback for processing events while waiting for RCP event reply
+        '''
+        super(JavascriptRPC, self).__init__()
 
         # Store reference to self in class variable
-        PhotoshopRPCCEP._instance = self
+        JavascriptRPC._instance = self
 
+        self._dcc_name = dcc_name
         self._session = session
         self._client = client
         self._panel_launchers = panel_launchers
-        self.on_run_dialog_callback = on_run_dialog_callback
+        self._on_run_dialog_callback = _on_run_dialog_callback
+        self._process_events_callback = process_events_callback
 
         self._remote_integration_session_id = None
-        self._photoshop_version = None
+        self._dcc_version = None
         self._connected = False
 
         self.logger = logging.getLogger(__name__)
@@ -103,27 +121,30 @@ class PhotoshopRPCCEP(object):
     @staticmethod
     def instance():
         '''Return the singleton instance, checks if it is initialised and connected.'''
-        assert PhotoshopRPCCEP._instance, 'Photoshop RPC not created!'
         assert (
-            PhotoshopRPCCEP._instance.connected
-        ), 'Photoshop not connected, please keep panel open while integration is working!'
+            JavascriptRPC._instance
+        ), 'Javascript DCC RPC instance not created!'
+        assert (
+            JavascriptRPC._instance.connected
+        ), 'DCC not connected, please keep panel open while integration is working!'
 
-        return PhotoshopRPCCEP._instance
+        return JavascriptRPC._instance
 
     def _initialise(self):
-        '''Initialise the Photoshop connection'''
-
-        self.photoshop_version = os.environ.get('FTRACK_PHOTOSHOP_VERSION')
+        '''Initialise the DCC RPC connection'''
+        env_name = f'FTRACK_{self.dcc_name.upper()}_VERSION'
+        self.dcc_version = os.environ.get(env_name)
         assert (
-            self.photoshop_version
-        ), 'Photoshop integration requires FTRACK_PHOTOSHOP_VERSION passed as environment variable!'
+            self.dcc_version
+        ), f'{self.dcc_name.title()} integration requires {env_name} passed as environment variable!'
 
         self.remote_integration_session_id = (
             get_remote_integration_session_id()
         )
-        assert (
-            self.remote_integration_session_id
-        ), 'Photoshop integration requires FTRACK_REMOTE_INTEGRATION_SESSION_ID passed as environment variable!'
+        assert self.remote_integration_session_id, (
+            f'{self.dcc_name.title()} integration requires FTRACK_REMOTE_INTEGRATION_SESSION_ID passed as environment'
+            f' variable!'
+        )
 
         event_topic = (
             f'topic={constants.event.DISCOVER_REMOTE_INTEGRATION_TOPIC} and source.applicationId=ftrack.api.javascript '
@@ -146,7 +167,7 @@ class PhotoshopRPCCEP(object):
         )
 
         self.logger.info(
-            f'Created Photoshop {self.photoshop_version} connection (session id: {self.remote_integration_session_id})'
+            f'Created {self.dcc_name} {self.dcc_version} connection (session id: {self.remote_integration_session_id})'
         )
 
     # Event hub methods
@@ -190,9 +211,9 @@ class PhotoshopRPCCEP(object):
 
         if fetch_reply:
             waited = 0
-            app = QtWidgets.QApplication.instance()
             while not reply_event:
-                app.processEvents()
+                if self.process_events_callback:
+                    self.process_events_callback()
                 self.session.event_hub.wait(0.01)
                 waited += 10
                 if waited > timeout:
@@ -242,7 +263,7 @@ class PhotoshopRPCCEP(object):
     # Lifecycle methods
 
     def check_responding(self):
-        '''Check if Photoshop is alive, send context data'''
+        '''Check if DCC is alive, send context data'''
         self.logger.info('Checking if remote integration is still alive...')
 
         try:
@@ -286,7 +307,7 @@ class PhotoshopRPCCEP(object):
             'args': args or [],
         }
 
-        self.logger.debug(f'Running Photoshop RPC call: {data}')
+        self.logger.debug(f'Running {self.dcc_name.title()} RPC call: {data}')
 
         event_topic = constants.event.REMOTE_INTEGRATION_RPC_TOPIC
 
@@ -294,6 +315,8 @@ class PhotoshopRPCCEP(object):
             event_topic, data, callback, fetch_reply=fetch_reply
         )['result']
 
-        self.logger.debug(f'Got Photoshop RPC response: {result}')
+        self.logger.debug(
+            f'Got {self.dcc_name.title()} RPC response: {result}'
+        )
 
         return result

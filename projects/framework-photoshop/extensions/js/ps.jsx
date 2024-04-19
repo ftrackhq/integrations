@@ -1,5 +1,5 @@
 /*
-ftrack Photoshop Framework integration CEP interface functions
+ftrack Photoshop Framework integration extendscript base functions
 
 Exposed by RPC call event to Python standalone host.
 
