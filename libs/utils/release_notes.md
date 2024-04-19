@@ -1,5 +1,9 @@
 # ftrack Utils library release Notes
 
+## upcoming
+
+* [fix] Allow override on dialog/widgets/plugins extensions type.
+
 ## v2.1.0
 2024-04-02
 

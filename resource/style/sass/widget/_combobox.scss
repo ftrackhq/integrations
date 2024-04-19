@@ -8,51 +8,17 @@ QComboBox {
     color: $text-color;
     text-align: center;
     combobox-popup: 0;
-
-    &:hover {
-        border-color: darken($border-color, 5%);
-    }
-
-    &:focus {
-        border: 1px solid lighten($border-color, 5%);
-    }
 }
 
 QComboBox::drop-down {
     subcontrol-origin: padding;
     subcontrol-position: top right;
-    padding: $input-padding;
-    border: 0;
-    text-align: center;
-    background-color: $background;
-}
-
-QComboBox::down-arrow {
-    image: theme-image('combobox_down_arrow');
-    width: 12px;
-    height: 12px;
-}
-
-/** Note: Styling of dropdown list does not fully apply within DCCs */
-QComboBox QAbstractItemView {
+    border: none; /* Removes border around the drop-down button */
     color: $text-color;
-    outline: 0;
-    padding-right: 0px;
-    min-width: 50px;
-    background: $background;
-    selection-background-color: $background-selected-combo;
-    text-align: center;
 }
 
-QComboBox::item {
+QComboBox QAbstractItemView::item {
     color: $text-color;
-    background: $background;
-    selection-color: $text-color-active;
-    selection-background-color: $background-selected-combo;
-}
-
-QFrame[docked='true'] QComboBox QAbstractItemView {
-    background: $background-docked !important;
 }
 
 QComboBox QAbstractItemView::item:selected {
@@ -60,14 +26,15 @@ QComboBox QAbstractItemView::item:selected {
     background-color: $background-selected !important;
 }
 
-
-QComboBox[chip='true'] {
-    border-radius: 11px;
+QComboBox::down-arrow {
+    image: theme-image('combobox_down_arrow');
+    width: 16px; /* Set the width of the arrow image */
+    height: 16px; /* Set the height of the arrow image */
 }
 
-AssetVersionSelector, VersionComboBox {
-    border: 1px solid $border-color;
-    border-radius: 11px;
+QComboBox QAbstractItemView {
+    selection-background-color: $color-primary; /* Background color of selected item */
+    selection-color: $background; /* Text color of selected item */
     color: $text-color;
 }
 

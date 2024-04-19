@@ -2,8 +2,10 @@
 
 ## Upcoming
 
+* [new] New pyinstaller Connect build targeting Python 3.10 and PySide6. Removed Connect installer package, deprecating Python 3.7, PySide2 and cx_Freeze.
 * [changed] Fixed overlay widget bugs.
-* [new] PySide6 support.
+* [new] PySide6 support; still not fully compatible until riffle is removed.
+* [new] PySide2 support.
 * [changed] Removed ftrack_connect.qt module.
 * [changed] Removed Qt.py dependency.
 

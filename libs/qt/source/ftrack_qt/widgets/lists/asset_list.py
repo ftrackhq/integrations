@@ -70,11 +70,11 @@ class AssetList(QtWidgets.QListWidget):
         self.setHorizontalScrollBarPolicy(
             QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff
         )
-        self.setVerticalScrollBarPolicy(
-            QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff
-        )
-        self.verticalScrollBar().setDisabled(True)
-        self.setAutoScroll(False)
+        # TODO: Investigate further on how to make it look correctly
+        # self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        # self.verticalScrollBar().setDisabled(True)
+        self.setAutoScroll(True)
+
         self.setSpacing(1)
         self.assets = []
         self.currentItemChanged.connect(self.on_item_changed_callback)

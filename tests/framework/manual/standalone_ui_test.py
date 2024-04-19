@@ -53,6 +53,7 @@ FTRACK_CONNECT_EXTENSIONS_PATH = [
     os.path.join(
         ROOT_INTEGRATIONS_FOLDER, 'projects', 'framework-common-extensions'
     ),
+    os.path.join(ROOT_INTEGRATIONS_FOLDER, 'tests', 'framework', 'resources'),
 ]
 
 registry_instance = registry.Registry()

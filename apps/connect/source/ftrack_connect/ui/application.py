@@ -182,7 +182,9 @@ class Application(QtWidgets.QMainWindow):
         self._plugins = self._available_plugin_data_from_plugin_directories()
 
         # Register widget for error handling.
-        self.uncaughtError = _uncaught_error.UncaughtError(parent=self)
+        self.uncaughtError = _uncaught_error.UncaughtError(
+            parent=self.centralWidget()
+        )
 
         self._login_server_thread = None
         self.tray = None
@@ -824,7 +826,7 @@ class Application(QtWidgets.QMainWindow):
     def _initialise_menu_bar(self):
         '''Initialise and add connect widget to widgets menu.'''
 
-        self.menu_bar = QtWidgets.QMenuBar()
+        self.menu_bar = QtWidgets.QMenuBar(self.centralWidget())
         self.setMenuWidget(self.menu_bar)
         widget_menu = self.menu_bar.addMenu('Widgets')
         self.menu_widget = widget_menu
@@ -832,7 +834,7 @@ class Application(QtWidgets.QMainWindow):
 
     def _create_tray_menu(self):
         '''Return a menu for system tray.'''
-        menu = QtWidgets.QMenu(self)
+        menu = QtWidgets.QMenu(self.centralWidget())
 
         logoutAction = QAction('Log Out && Quit', self, triggered=self.logout)
 

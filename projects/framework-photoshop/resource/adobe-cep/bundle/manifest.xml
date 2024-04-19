@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<ExtensionManifest ExtensionBundleId="com.ftrack.framework.photoshop.panel" ExtensionBundleVersion="{{FTRACK_FRAMEWORK_PHOTOSHOP_VERSION}}" Version="7.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<ExtensionManifest ExtensionBundleId="com.ftrack.framework.photoshop.panel" ExtensionBundleVersion="${VERSION}" Version="7.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <ExtensionList>
-    <Extension Id="com.ftrack.framework.photoshop.panel" Version="{{FTRACK_FRAMEWORK_PHOTOSHOP_VERSION}}" />
+    <Extension Id="com.ftrack.framework.photoshop.panel" Version="${VERSION}" />
   </ExtensionList>
   <ExecutionEnvironment>
     <HostList>
