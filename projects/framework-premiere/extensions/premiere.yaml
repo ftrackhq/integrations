@@ -1,0 +1,10 @@
+type: dcc_config
+name: framework-premiere
+tools:
+  - name: publish
+    label: "Publish"
+    dialog_name: framework_standard_publisher_dialog
+    icon: publish
+    options:
+      tool_configs:
+        - premiere-reviewable-publisher
