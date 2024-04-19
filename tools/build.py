@@ -10,6 +10,7 @@ official CI/CD build implementation in place.
 
 Changelog:
 
+0.4.17 [24.04.18] Build script to support extras.
 0.4.16 [24.03.19] PySide6 resource build support.
 0.4.15 [24.03.13] Fix platform dependent bug.
 0.4.14 [24.02.23] Incorporate RV pkg build.
@@ -44,7 +45,7 @@ from distutils.spawn import find_executable
 import fileinput
 import tempfile
 
-__version__ = '0.4.15'
+__version__ = '0.4.17'
 
 ZXPSIGN_CMD = 'ZXPSignCmd'
 
@@ -71,7 +72,7 @@ def build_package(pkg_path, args, command=None):
     EXTENSION_PATH = os.path.join(ROOT_PATH, 'extensions')
     CEP_PATH = os.path.join(ROOT_PATH, 'resource', 'cep')
     USES_FRAMEWORK = False
-    FTRACK_DEP_LIBS = []
+    FTRACK_DEP_LIBS = {}
     PLATFORM_DEPENDENT = False
 
     POETRY_CONFIG_PATH = os.path.join(ROOT_PATH, 'pyproject.toml')
@@ -82,7 +83,7 @@ def build_package(pkg_path, args, command=None):
         nonlocal USES_FRAMEWORK, PLATFORM_DEPENDENT, FTRACK_DEP_LIBS
         section = None
         with open(toml_path) as f:
-            for line in f:
+            for line in f.readlines():
                 if line.startswith("["):
                     section = line.strip().strip('[]')
                 elif section == 'tool.poetry.dependencies':
@@ -94,13 +95,31 @@ def build_package(pkg_path, args, command=None):
                         if lib not in FTRACK_DEP_LIBS and os.path.exists(
                             lib_toml_path
                         ):
+                            # Any extras?
+                            extras = None
+                            if line.find('extras') > -1:
+                                extras = []
+                                for extra in [
+                                    extra.strip('"')
+                                    for extra in line.split('[')[1]
+                                    .split(']')[0]
+                                    .split(',')
+                                ]:
+                                    if not extra.startswith('pyside'):
+                                        extras.append(extra)
+                                    else:
+                                        logging.warning(
+                                            f'Ignore "{extra}" extra, pyside is supplied by Connect'
+                                        )
                             logging.info(
-                                f'Identified monorepo dependency: {lib}'
+                                f'Identified monorepo dependency: {lib} (extras: {extras})'
                             )
-                            FTRACK_DEP_LIBS.append(lib)
+                            FTRACK_DEP_LIBS[lib] = {'from': toml_path}
+                            if extras:
+                                FTRACK_DEP_LIBS[lib]['extras'] = extras
                             # Recursively add monorepo dependencies
                             append_dependencies(lib_toml_path)
-                        if line.startswith('ftrack-framework-core'):
+                        if lib == 'framework-core':
                             USES_FRAMEWORK = True
 
     if os.path.exists(POETRY_CONFIG_PATH):
@@ -372,7 +391,7 @@ def build_package(pkg_path, args, command=None):
                             dependencies_path,
                         ]
                     )
-                    subprocess.check_call()
+                    subprocess.check_call(commands)
 
                 # Copy the extension
                 logging.info('Copying {}'.format(dependency_path))
@@ -450,17 +469,21 @@ def build_package(pkg_path, args, command=None):
                         continue
                     # Install it
                     logging.info('Installing library: {}'.format(wheel_name))
-                    subprocess.check_call(
-                        [
-                            sys.executable,
-                            '-m',
-                            'pip',
-                            'install',
-                            os.path.join(dist_path, wheel_name),
-                            '--target',
-                            dependencies_path,
-                        ]
+                    extras = (
+                        ",".join(FTRACK_DEP_LIBS[filename]["extras"])
+                        if 'extras' in FTRACK_DEP_LIBS[filename]
+                        else None
                     )
+                    commands = [
+                        sys.executable,
+                        '-m',
+                        'pip',
+                        'install',
+                        f'{os.path.join(dist_path, wheel_name)}{f"[{extras}]" if extras else ""}',
+                        '--target',
+                        dependencies_path,
+                    ]
+                    subprocess.check_call(commands)
 
         logging.info(
             f'Exporting dependencies from: "{os.path.basename(lock_path)}" (extras: {extras})'

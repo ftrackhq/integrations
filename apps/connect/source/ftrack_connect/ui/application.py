@@ -23,7 +23,12 @@ from ftrack_utils.usage import (
     UsageTracker,
 )
 
-from ftrack_connect.qt import QtCore, QtWidgets, QtGui
+try:
+    from PySide6 import QtWidgets, QtCore, QtGui
+    from PySide6.QtGui import QAction
+except ImportError:
+    from PySide2 import QtWidgets, QtCore, QtGui
+    from PySide2.QtWidgets import QAction
 
 from ftrack_connect import load_icons
 import ftrack_connect
@@ -177,7 +182,9 @@ class Application(QtWidgets.QMainWindow):
         self._plugins = self._available_plugin_data_from_plugin_directories()
 
         # Register widget for error handling.
-        self.uncaughtError = _uncaught_error.UncaughtError(parent=self)
+        self.uncaughtError = _uncaught_error.UncaughtError(
+            parent=self.centralWidget()
+        )
 
         self._login_server_thread = None
         self.tray = None
@@ -669,7 +676,7 @@ class Application(QtWidgets.QMainWindow):
         problems = [problem for problem in results if isinstance(problem, str)]
         if problems:
             msgBox = QtWidgets.QMessageBox(parent=self)
-            msgBox.setIcon(QtWidgets.QMessageBox.Warning)
+            msgBox.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             msgBox.setText('\n\n'.join(problems))
             msgBox.exec_()
 
@@ -819,7 +826,7 @@ class Application(QtWidgets.QMainWindow):
     def _initialise_menu_bar(self):
         '''Initialise and add connect widget to widgets menu.'''
 
-        self.menu_bar = QtWidgets.QMenuBar()
+        self.menu_bar = QtWidgets.QMenuBar(self.centralWidget())
         self.setMenuWidget(self.menu_bar)
         widget_menu = self.menu_bar.addMenu('Widgets')
         self.menu_widget = widget_menu
@@ -827,32 +834,26 @@ class Application(QtWidgets.QMainWindow):
 
     def _create_tray_menu(self):
         '''Return a menu for system tray.'''
-        menu = QtWidgets.QMenu(self)
+        menu = QtWidgets.QMenu(self.centralWidget())
 
-        logoutAction = QtWidgets.QAction(
-            'Log Out && Quit', self, triggered=self.logout
-        )
+        logoutAction = QAction('Log Out && Quit', self, triggered=self.logout)
 
-        quitAction = QtWidgets.QAction(
+        quitAction = QAction(
             'Quit', self, triggered=QtWidgets.QApplication.quit
         )
 
-        focusAction = QtWidgets.QAction('Open', self, triggered=self.focus)
+        focusAction = QAction('Open', self, triggered=self.focus)
 
-        openPluginDirectoryAction = QtWidgets.QAction(
+        openPluginDirectoryAction = QAction(
             'Open plugin directory',
             self,
             triggered=self._open_default_plugin_directory,
         )
 
-        aboutAction = QtWidgets.QAction(
-            'About', self, triggered=self._show_about
-        )
+        aboutAction = QAction('About', self, triggered=self._show_about)
 
-        alwaysOnTopAction = QtWidgets.QAction('Always on top', self)
-        restartAction = QtWidgets.QAction(
-            'Restart', self, triggered=self.restart
-        )
+        alwaysOnTopAction = QAction('Always on top', self)
+        restartAction = QAction('Restart', self, triggered=self.restart)
         alwaysOnTopAction.setCheckable(True)
         alwaysOnTopAction.triggered[bool].connect(self._set_always_on_top)
 
@@ -1030,11 +1031,11 @@ class Application(QtWidgets.QMainWindow):
         '''Set the application window to be on top'''
         if state:
             self.setWindowFlags(
-                self.windowFlags() | QtCore.Qt.WindowStaysOnTopHint
+                self.windowFlags() | QtCore.Qt.WindowType.WindowStaysOnTopHint
             )
         else:
             self.setWindowFlags(
-                self.windowFlags() & ~QtCore.Qt.WindowStaysOnTopHint
+                self.windowFlags() & ~QtCore.Qt.WindowType.WindowStaysOnTopHint
             )
         self.focus()
 
@@ -1149,7 +1150,7 @@ class Application(QtWidgets.QMainWindow):
             create_target_plugin_directory(PLUGIN_DIRECTORIES[0])
         except OSError:
             messageBox = QtWidgets.QMessageBox(parent=self)
-            messageBox.setIcon(QtWidgets.QMessageBox.Warning)
+            messageBox.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             messageBox.setText(
                 u'Could not open or create default plugin '
                 u'directory: {0}.'.format(get_default_plugin_directory())

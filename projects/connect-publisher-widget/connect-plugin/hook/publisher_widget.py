@@ -41,7 +41,10 @@ class PublisherBlockingOverlay(
         super(PublisherBlockingOverlay, self).__init__(parent, message=message)
         self.confirmButton = QtWidgets.QPushButton('Ok')
         self.contentLayout.insertWidget(
-            3, self.confirmButton, alignment=QtCore.Qt.AlignCenter, stretch=0
+            3,
+            self.confirmButton,
+            alignment=QtCore.Qt.AlignmentFlag.AlignCenter,
+            stretch=0,
         )
         self.confirmButton.hide()
         self.confirmButton.clicked.connect(self.hide)
@@ -140,7 +143,7 @@ class PublisherWidget(ftrack_connect.ui.application.ConnectWidget):
         entity = event['data']['entity']
 
         self.clear()
-        self.setFocus(QtCore.Qt.OtherFocusReason)
+        self.setFocus(QtCore.Qt.FocusReason.OtherFocusReason)
 
         # Add any components from event data
         components = event['data'].get('components', [])

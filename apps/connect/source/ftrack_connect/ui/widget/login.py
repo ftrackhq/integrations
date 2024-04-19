@@ -1,7 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 
-from ftrack_connect.qt import QtWidgets, QtCore, QtGui
+try:
+    from PySide6 import QtWidgets, QtCore, QtGui
+except ImportError:
+    from PySide2 import QtWidgets, QtCore, QtGui
 
 
 class ClickableLabel(QtWidgets.QLabel):
@@ -42,17 +45,17 @@ class Login(QtWidgets.QWidget):
         logo.setPixmap(
             logoPixmap.scaled(
                 QtCore.QSize(200, 200),
-                QtCore.Qt.KeepAspectRatio,
-                QtCore.Qt.SmoothTransformation,
+                QtCore.Qt.AspectRatioMode.KeepAspectRatio,
+                QtCore.Qt.TransformationMode.SmoothTransformation,
             )
         )
-        layout.addWidget(logo, alignment=QtCore.Qt.AlignCenter)
+        layout.addWidget(logo, alignment=QtCore.Qt.AlignmentFlag.AlignCenter)
         layout.addSpacing(25)
 
         label = QtWidgets.QLabel()
         label.setText('Sign in')
         label.setObjectName('login-label')
-        layout.addWidget(label, alignment=QtCore.Qt.AlignCenter)
+        layout.addWidget(label, alignment=QtCore.Qt.AlignmentFlag.AlignCenter)
 
         self.server = QtWidgets.QLineEdit()
         self.server.setPlaceholderText('Site name or custom domain URL')
@@ -81,7 +84,7 @@ class Login(QtWidgets.QWidget):
             'Your site name is your ftrackapp.com web address '
             '(e.g https://sitename.ftrackapp.com OR your custom domain URL).'
         )
-        label.setAlignment(QtCore.Qt.AlignCenter)
+        label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         label.setWordWrap(True)
 
         # Min height is required due to issue when word wrap is True and window
@@ -89,7 +92,7 @@ class Login(QtWidgets.QWidget):
         label.setMinimumHeight(50)
 
         label.setMinimumWidth(300)
-        layout.addWidget(label, alignment=QtCore.Qt.AlignCenter)
+        layout.addWidget(label, alignment=QtCore.Qt.AlignmentFlag.AlignCenter)
 
         self.errorLabel = QtWidgets.QLabel()
         self.errorLabel.setWordWrap(True)
@@ -106,7 +109,8 @@ class Login(QtWidgets.QWidget):
         )
         self.toggle_api_label.clicked.connect(self._toggle_credentials)
         layout.addWidget(
-            self.toggle_api_label, alignment=QtCore.Qt.AlignCenter
+            self.toggle_api_label,
+            alignment=QtCore.Qt.AlignmentFlag.AlignCenter,
         )
 
         self.untoggle_api_label = ClickableLabel()
@@ -118,7 +122,8 @@ class Login(QtWidgets.QWidget):
         )
         self.untoggle_api_label.clicked.connect(self._untoggle_credentials)
         layout.addWidget(
-            self.untoggle_api_label, alignment=QtCore.Qt.AlignCenter
+            self.untoggle_api_label,
+            alignment=QtCore.Qt.AlignmentFlag.AlignCenter,
         )
         layout.addSpacing(20)
 

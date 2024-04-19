@@ -2,21 +2,23 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 import plistlib
 import sys
-import pprint
 import re
-import os
 import ssl
 import tempfile
 import subprocess
 import collections
 import base64
-import getpass
 import json
 import logging
 import platform
 from operator import itemgetter
 from distutils.version import LooseVersion
 import os
+
+if sys.version_info.major == 3 and sys.version_info.minor >= 10:
+    from collections.abc import MutableMapping, Mapping
+else:
+    from collections import MutableMapping, Mapping
 
 import ftrack_api
 from ftrack_action_handler.action import BaseAction
@@ -1035,11 +1037,11 @@ class ApplicationLauncher(object):
             The *mapping* is modified in place.
 
         '''
-        if not isinstance(mapping, collections.MutableMapping):
+        if not isinstance(mapping, MutableMapping):
             return
 
         for key, value in mapping.copy().items():
-            if isinstance(value, collections.Mapping):
+            if isinstance(value, Mapping):
                 self._conform_environment(value)
             else:
                 value = str(value)

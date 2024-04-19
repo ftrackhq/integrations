@@ -3,7 +3,10 @@
 #             Copyright (c) 2014 Martin Pengelly-Phillips
 # :notice: Derived from Riffle (https://github.com/4degrees/riffle)
 
-from ftrack_connect.qt import QtWidgets, QtCore, QtGui
+try:
+    from PySide6 import QtWidgets, QtCore, QtGui
+except ImportError:
+    from PySide2 import QtWidgets, QtCore, QtGui
 
 import ftrack_connect.worker
 import qtawesome as qta
@@ -247,7 +250,7 @@ class EntityTreeModel(QtCore.QAbstractItemModel):
     '''Model representing entity tree.'''
 
     #: Role referring to :class:`Item` instance.
-    ITEM_ROLE = QtCore.Qt.UserRole + 1
+    ITEM_ROLE = QtCore.Qt.ItemDataRole.UserRole + 1
 
     #: Role referring to the unique identity of :class:`Item`.
     IDENTITY_ROLE = ITEM_ROLE + 1
@@ -284,9 +287,12 @@ class EntityTreeModel(QtCore.QAbstractItemModel):
     def flags(self, index):
         '''Return flags for *index*.'''
         if not index.isValid():
-            return QtCore.Qt.NoItemFlags
+            return QtCore.Qt.ItemFlag.NoItemFlags
 
-        return QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable
+        return (
+            QtCore.Qt.ItemFlag.ItemIsEnabled
+            | QtCore.Qt.ItemFlag.ItemIsSelectable
+        )
 
     def index(self, row, column, parent=None):
         '''Return index for *row* and *column* under *parent*.'''
@@ -332,7 +338,7 @@ class EntityTreeModel(QtCore.QAbstractItemModel):
 
     def icon(self, index):
         '''Return icon for index.'''
-        return self.data(index, role=QtCore.Qt.DecorationRole)
+        return self.data(index, role=QtCore.Qt.ItemDataRole.DecorationRole)
 
     def data(self, index, role):
         '''Return data for *index* according to *role*.'''
@@ -348,7 +354,7 @@ class EntityTreeModel(QtCore.QAbstractItemModel):
         elif role == self.IDENTITY_ROLE:
             return item.id
 
-        elif role == QtCore.Qt.DisplayRole:
+        elif role == QtCore.Qt.ItemDataRole.DisplayRole:
             column_name = self.columns[column]
 
             if column_name == 'Name':
@@ -356,7 +362,7 @@ class EntityTreeModel(QtCore.QAbstractItemModel):
             elif column_name == 'Type':
                 return item.type
 
-        elif role == QtCore.Qt.DecorationRole:
+        elif role == QtCore.Qt.ItemDataRole.DecorationRole:
             if column == 0:
                 return item.icon
 
@@ -364,10 +370,10 @@ class EntityTreeModel(QtCore.QAbstractItemModel):
 
     def headerData(self, section, orientation, role):
         '''Return label for *section* according to *orientation* and *role*.'''
-        if orientation == QtCore.Qt.Horizontal:
+        if orientation == QtCore.Qt.Orientation.Horizontal:
             if section < len(self.columns):
                 column = self.columns[section]
-                if role == QtCore.Qt.DisplayRole:
+                if role == QtCore.Qt.ItemDataRole.DisplayRole:
                     return column
 
         return None
@@ -472,12 +478,12 @@ class EntityTreeProxyModel(QtCore.QSortFilterProxyModel):
             if isinstance(leftItem, (Context, Project)) and not isinstance(
                 rightItem, (Context, Project)
             ):
-                return self.sortOrder() == QtCore.Qt.AscendingOrder
+                return self.sortOrder() == QtCore.Qt.SortOrder.AscendingOrder
 
             elif not isinstance(leftItem, (Context, Project)) and isinstance(
                 rightItem, (Context, Project)
             ):
-                return self.sortOrder() == QtCore.Qt.DescendingOrder
+                return self.sortOrder() == QtCore.Qt.SortOrder.DescendingOrder
 
         return super(EntityTreeProxyModel, self).lessThan(left, right)
 

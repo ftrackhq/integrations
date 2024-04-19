@@ -3,7 +3,10 @@
 
 import sys
 
-from ftrack_connect.qt import QtCore
+try:
+    from PySide6 import QtCore
+except ImportError:
+    from PySide2 import QtCore
 
 
 class Worker(QtCore.QThread):
