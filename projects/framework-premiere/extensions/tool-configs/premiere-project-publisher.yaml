@@ -1,5 +1,5 @@
 type: tool_config
-name: premiere-reviewable-publisher
+name: premiere-project-publisher
 config_type: publisher
 engine:
   - type: plugin
@@ -7,10 +7,32 @@ engine:
       - context
     plugin: store_asset_context
     options:
-      asset_type_name: edit
+      asset_type_name: scene
     ui: publisher_asset_version_selector
 
-  # Export the reviewable component only
+  # Export the snapshot component.
+  - type: group
+    tags:
+      - component
+    options:
+      component: snapshot
+    plugins:
+      - type: plugin
+        plugin: store_component
+      - type: plugin
+        tags:
+          - collector
+        plugin: premiere_project_collector
+      - type: plugin
+        tags:
+          - validator
+        plugin: premiere_project_saved_validator
+      - type: plugin
+        tags:
+          - exporter
+        plugin: premiere_project_exporter
+
+  # Export the reviewable component
   - type: group
     tags:
       - component

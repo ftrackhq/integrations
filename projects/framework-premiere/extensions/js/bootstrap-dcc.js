@@ -28,7 +28,11 @@ try {
 
 // Whitelisted functions and their mappings, add entrypoints from ps.jsx here
 window.FTRACK_RPC_FUNCTION_MAPPING = {
+    getProjectPath:"getProjectPath",
+    saveProject:"saveProject",
+    saveProjectAs:"saveProjectAs",
     render:"render",
+    openProject:"openProject",
 };
 
 window.ftrackInitialiseExtension = function(session, event_manager, remote_integration_session_id) {
