@@ -1,9 +1,9 @@
 type: launch_config
 name: framework-maya
-priority: 100
+priority: 100 # Remove this one, just have it as an optional thing, and provide 100 as default. I think it is overcomplicating.
 context:
   - Task
-identifier: ftrack-framework-launch-maya
+identifier: ftrack-framework-launch-maya # is this really needed? Can't we use the name as identifier?
 applicationIdentifier: maya_{variant}
 integrations:
   framework:
