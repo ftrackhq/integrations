@@ -2,6 +2,7 @@
 
 ## Upcoming
 
+* [changed] Allow non versioned connect plugins, supporting legacy actions name convention.
 * [changed] Fixed overlay widget bugs.
 * [new] PySide6 support; still not fully compatible until riffle is removed.
 * [new] PySide2 support.
