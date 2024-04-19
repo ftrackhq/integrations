@@ -79,21 +79,25 @@ def get_plugin_data(plugin_path):
         # Check if it's a legacy action or custom plugin
         deprecated_plugin_re = re.compile(r'^(?P<name>[a-zA-Z0-9_\-]+)$')
         deprecated_match = deprecated_plugin_re.match(plugin_name)
+
+        suggested_valid_name = suggest_valid_name(plugin_name)
+
         if not deprecated_match:
             logger.warning(
                 f"The provided plugin path can't be recognized: {plugin_path}. "
                 f"Please make sure that plugin name matches the following format: "
-                f"my-plugin-1.0.0,  "
-                f"my_plugin is also supported but will be deprecated soon.\n "
-                f"Current plugin name: {plugin_name}"
+                f"my-plugin-1.0.0. "
+                f"\n Current plugin name: {plugin_name}, "
+                f"suggested plugin name:{suggested_valid_name}"
             )
             return False
         logger.warning(
             f"The provided plugin name would be deprecated soon, please use "
             f"dash instead of underscore and version the plugin for further "
             f"compatibility. "
-            f"Example: my-custom-plugin-1.0.0. \n "
-            f"Current name: {plugin_name}"
+            f"Example of a valid plugin name: my-custom-plugin-1.0.0. \n "
+            f"Current name: {plugin_name}, "
+            f"suggested plugin name:{suggested_valid_name}"
         )
         data = deprecated_match.groupdict()
         data['version'] = "0.0.0"
@@ -110,6 +114,24 @@ def get_plugin_data(plugin_path):
     data['incompatible'] = is_incompatible_plugin(data)
     data['deprecated'] = is_deprecated_plugin(data)
     return data
+
+
+def suggest_valid_name(input_name):
+    '''
+    Suggest valid plugin name
+    '''
+    # Normalize underscores to hyphens
+    normalized_name = re.sub(r'[_]+', '-', input_name)
+    normalized_name = re.sub(r'[-]+', '-', normalized_name)
+
+    # Check if the version and possibly platform/extension are already correct
+    if not re.search(
+        r'\d+\.\d+(\.\d+)?([a-zA-Z]+\d+)?(-\w+)?(\.\w+)?$', normalized_name
+    ):
+        # Append '-0.0.0' if no version pattern is found
+        normalized_name = re.sub(r'(\.\w+)?$', r'-0.0.0\1', normalized_name)
+
+    return normalized_name
 
 
 def is_incompatible_plugin(plugin_data):
