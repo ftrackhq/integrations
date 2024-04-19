@@ -27,7 +27,6 @@ found at <https://developer.ftrack.com/integrating-pipelines/connect/>
    cd integrations/apps/connect
 ```
 
-
 ```bash
     poetry version prerelease
 ```
@@ -47,11 +46,8 @@ or:
 5. Tag and push to SCM
 
 
-### CI build
-
-See Monorepo build CI
-
 ### Test connect from sources
+
 1. Go to the Connect package within monorepo:
 
 ```bash
@@ -59,7 +55,7 @@ See Monorepo build CI
 ```
 
 2. Create and activate a virtual environment:
-- Create a Python 3.7 virtual environment. If you're using an Apple Silicon chip, follow the instructions in the [How to install compatible PySide2 on Silicon based Mac](../../README.md#how-to-install-compatible-pyside2-on-silicon-based-mac) section.
+- Create a Python 3.10 virtual environment. If you're using an Apple Silicon chip, follow the instructions in the [How to install compatible PySide2 on Silicon based Mac](../../README.md#how-to-install-compatible-pyside2-on-silicon-based-mac) section.
 - Activate the virtual environment. 
 
 3. Update dependencies:
@@ -119,29 +115,127 @@ See Monorepo build CI
 
 ```bash
 cd ../..
-pip install -r tools/requirements.txt
-python tools/build.py build_qt_resources --style_path resource --output_path source/ftrack_connect/ui/resource.py apps/connect
-cd integrations/apps/connect
+pip install -r tools/requirements-connect.txt
+python tools/build.py build_qt_resources --style_path resource --output_path source/ftrack_connect/ui/resource.py --pyside_version 6 apps/connect
 ```
 
-   1. For PySide 6
-   ```bash
-   cd ../..
-   pip install -r tools/requirements.txt
-   python tools/build.py build_qt_resources --style_path resource --output_path source/ftrack_connect/ui/resource.py --pyside_version 6 apps/connect
-   cd integrations/apps/connect
-   ```
+For PySide 2
+
+```bash
+cd ../..
+pip install -r tools/requirements-connect.txt
+python tools/build.py build_qt_resources --style_path resource --output_path source/ftrack_connect/ui/resource.py apps/connect
+```
 
 6. Build with Poetry:
 
 ```bash
+  cd integrations/apps/connect
   poetry build
 ```
-### Install wheel
+
+8. Install the wheel:
 
 ```bash
   pip install dist/ftrack-connect-<version>.whl
 ```
+
+
+### Create installer
+
+The ftrack Connect installer is a self-extracting executable that contains the
+Connect desktop application and the required dependencies. Installers for Windows,
+Mac and Linux are supported, and are triggered upon release within the ftrack
+Integrations monorepo Githib Action workflows.
+
+To create an installer manually, follow the instructions below:
+
+Preparations:
+
+- Set the version in `connect-installer/__version__.py` to the desired version.
+- Update the release notes in `release_notes.md`.
+- Tag an release
+
+1. Create a Python 3.10 virtual environment.
+2. Install Poetry (https://python-poetry.org/docs/#installation)
+3. Go to the Connect package within monorepo and install Connect:
+
+```bash
+    cd integrations/apps/connect
+    poetry install
+```
+4. Build the QT resources
+
+```bash
+pip install -r tools/requirements-connect.txt
+python tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py build_qt_resources --pyside_version 6 apps/connect
+```
+For PySide 2:
+
+```bash
+pip install -r tools/requirements.txt
+python tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py build_qt_resources apps/connect
+```
+   
+5. Install the required dependencies (pyinstaller):
+
+```bash
+    pip install -r apps/connect/connect-installer/requirements.txt
+```
+
+6. Build the installer:
+
+To on only build an executable, run:
+
+```bash
+python tools/build.py build_connect apps/connect
+```
+
+The output will be in the `dist` folder of apps/connect package.
+
+
+**Build installer on Windows:**
+
+To build the installer on Windows, add the --create_installer flag:
+
+```bash
+python tools/build.py build_connect --create_installer apps/connect 
+```
+
+To codesign on Windows, add the --codesign flag. Remember to authenticate with Google cloud before doing so:
+
+```bash
+python tools/build.py build_connect --codesign --create_installer apps/connect 
+```
+
+
+**Build installer on Mac:**
+
+To build the installer in Mac, add the --create_installer flag:
+
+```bash
+python tools/build.py build_connect --create_dmg apps/connect 
+```
+
+To codesign on Mac, add the --codesign and --notarise flag:
+
+```bash
+python tools/build.py build_connect --codesign --notarise --create_dmg apps/connect 
+```
+
+
+**Build installer on Linux:**
+
+To build the installer in Linux, add the --create_archive flag:
+
+```bash
+python tools/build.py build_connect --create_archive apps/connect 
+```
+
+Note: On Linux it might complain about a share library missing, recompile Python 3.10 with the `--enable-shared` flag 
+and add the path to the shared library path (`/usr/local/lib`) to the `LD_LIBRARY_PATH` environment variable.
+
+```bash
 
 ### Build documentation
 
