@@ -46,7 +46,7 @@ function initializeIntegration() {
                     }
                 });
             } else {
-                error("No ftrack environment variable(s) available, make sure you launch DCC from ftrack (task)!", false);
+                error("No ftrack environment variables available, make sure you launch DCC from a task within ftrack Studio or Connect!", false);
             }
         });
     } catch (e) {
