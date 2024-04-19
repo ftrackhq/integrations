@@ -528,8 +528,8 @@ pathlib2 = "*"
 six = "*"
 
 [[package]]
-name = "pyside2"
-version = "5.13.2"
+name = "pyside6"
+version = "6.5.3"
 description = "Python bindings for the Qt cross-platform application and UI framework"
 optional = false
 python-versions = "*"
