@@ -4,7 +4,10 @@
 import os
 import webbrowser
 
-from ftrack_connect.qt import QtWidgets, QtCore, QtSvg, QtGui
+try:
+    from PySide6 import QtWidgets, QtCore, QtGui, QtSvg
+except ImportError:
+    from PySide2 import QtWidgets, QtCore, QtGui, QtSvg
 
 import qtawesome as qta
 
@@ -52,11 +55,11 @@ class ConfigureScenario(QtWidgets.QWidget):
         icon = QtWidgets.QLabel()
         icon.setPixmap(
             cloud_icon.pixmap(
-                QtCore.QSize(self.width() / 3, self.height() / 3)
+                QtCore.QSize(int(self.width() / 3), int(self.height() / 3))
             )
         )
 
-        icon.setAlignment(QtCore.Qt.AlignCenter)
+        icon.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         icon.setObjectName('icon-label')
         layout.addWidget(icon)
 
@@ -78,7 +81,7 @@ class ConfigureScenario(QtWidgets.QWidget):
 
         label.setText(text)
         label.setContentsMargins(0, 0, 0, 0)
-        label.setAlignment(QtCore.Qt.AlignCenter)
+        label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         label.setWordWrap(True)
 
         # Min height is required due to issue when word wrap is True and window
@@ -86,7 +89,7 @@ class ConfigureScenario(QtWidgets.QWidget):
         label.setMinimumHeight(120)
 
         label.setMinimumWidth(300)
-        layout.addWidget(label, alignment=QtCore.Qt.AlignCenter)
+        layout.addWidget(label, alignment=QtCore.Qt.AlignmentFlag.AlignCenter)
 
         layout.addSpacing(20)
 
@@ -117,7 +120,7 @@ class ConfigureScenario(QtWidgets.QWidget):
             'ftrack connect and applications started from connect may not '
             'work as expected until configured.'
         )
-        label.setAlignment(QtCore.Qt.AlignCenter)
+        label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         label.setWordWrap(True)
 
         # Min height is required due to issue when word wrap is True and window
@@ -125,7 +128,7 @@ class ConfigureScenario(QtWidgets.QWidget):
         label.setMinimumHeight(100)
 
         label.setMinimumWidth(300)
-        layout.addWidget(label, alignment=QtCore.Qt.AlignCenter)
+        layout.addWidget(label, alignment=QtCore.Qt.AlignmentFlag.AlignCenter)
 
         layout.addStretch(1)
 
@@ -136,9 +139,9 @@ class ConfigureScenario(QtWidgets.QWidget):
             'href="https://help.ftrack.com/en/articles/1040436-configuring-file-storage"> '
             'Learn more about storage scenarios.'
         )
-        label.setAlignment(QtCore.Qt.AlignCenter)
+        label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         label.setOpenExternalLinks(True)
-        layout.addWidget(label, alignment=QtCore.Qt.AlignCenter)
+        layout.addWidget(label, alignment=QtCore.Qt.AlignmentFlag.AlignCenter)
         layout.addSpacing(20)
 
         self._subscriber_identifier = session.event_hub.subscribe(

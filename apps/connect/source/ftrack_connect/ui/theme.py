@@ -1,7 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 
-from ftrack_connect.qt import QtCore, QtWidgets, QtGui
+try:
+    from PySide6 import QtWidgets, QtCore, QtGui
+except ImportError:
+    from PySide2 import QtWidgets, QtCore, QtGui
 
 
 def applyFont():
@@ -19,7 +22,9 @@ def applyTheme(widget, theme='light', baseTheme=None):
 
     # Load stylesheet from resource file and apply.
     fileObject = QtCore.QFile(':/ftrack/style/{0}'.format(theme))
-    fileObject.open(QtCore.QFile.ReadOnly | QtCore.QFile.Text)
+    fileObject.open(
+        QtCore.QFile.OpenModeFlag.ReadOnly | QtCore.QFile.OpenModeFlag.Text
+    )
     stream = QtCore.QTextStream(fileObject)
     styleSheetContent = stream.readAll()
 

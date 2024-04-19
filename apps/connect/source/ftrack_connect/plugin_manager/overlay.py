@@ -2,7 +2,10 @@
 # :copyright: Copyright (c) 2014-2024 ftrack
 import qtawesome as qta
 
-from ftrack_connect.qt import QtWidgets, QtCore, QtGui
+try:
+    from PySide6 import QtWidgets, QtCore, QtGui
+except ImportError:
+    from PySide2 import QtWidgets, QtCore, QtGui
 
 from ftrack_connect.ui.widget.overlay import BlockingOverlay
 

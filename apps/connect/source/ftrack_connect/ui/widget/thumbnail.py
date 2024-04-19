@@ -7,7 +7,11 @@ import urllib
 import urllib.error
 import urllib.request
 
-from ftrack_connect.qt import QtWidgets, QtCore, QtGui
+try:
+    from PySide6 import QtWidgets, QtCore, QtGui
+except ImportError:
+    from PySide2 import QtWidgets, QtCore, QtGui
+
 import ftrack_connect.worker
 
 # Cache of thumbnail images.
@@ -20,8 +24,8 @@ class Base(QtWidgets.QLabel):
     def __init__(self, parent=None):
         super(Base, self).__init__(parent)
         self.thumbnailCache = {}
-        self.setFrameStyle(QtWidgets.QFrame.StyledPanel)
-        self.setAlignment(QtCore.Qt.AlignCenter)
+        self.setFrameStyle(QtWidgets.QFrame.Shape.StyledPanel)
+        self.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
 
         self.placholderThumbnail = (
             os.environ['FTRACK_SERVER'] + '/img/thumbnail2.png'
@@ -67,7 +71,8 @@ class Base(QtWidgets.QLabel):
     def _scaleAndSetPixmap(self, pixmap):
         '''Scale and set *pixmap*.'''
         scaledPixmap = pixmap.scaledToWidth(
-            self.width(), mode=QtCore.Qt.SmoothTransformation
+            self.width(),
+            mode=QtCore.Qt.TransformationMode.SmoothTransformation,
         )
         self.setPixmap(scaledPixmap)
 
@@ -118,7 +123,7 @@ class ActionIcon(Base):
         '''Initialize action icon.'''
         super(ActionIcon, self).__init__(parent)
         self.setObjectName('action-icon')
-        self.setFrameStyle(QtWidgets.QFrame.NoFrame)
+        self.setFrameStyle(QtWidgets.QFrame.Shape.NoFrame)
         self._default_icon = default_icon
 
     def setIcon(self, icon):
@@ -153,7 +158,7 @@ class ActionIcon(Base):
         scaledPixmap = pixmap.scaled(
             self.width(),
             self.height(),
-            QtCore.Qt.KeepAspectRatio,
-            QtCore.Qt.SmoothTransformation,
+            QtCore.Qt.AspectRatioMode.KeepAspectRatio,
+            QtCore.Qt.TransformationMode.SmoothTransformation,
         )
         self.setPixmap(scaledPixmap)
