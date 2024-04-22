@@ -2,7 +2,7 @@
 
 
 ## v24.4.1rc1
-2024-04-19
+2024-04-22
 
 * [changed] Release connect 3.1.0rc1
 
