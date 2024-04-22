@@ -1,6 +1,7 @@
 # ftrack Connect release Notes
 
-## Upcoming
+## v3.1.0rc1
+2024-04-19
 
 * [changed] Allow non versioned connect plugins, supporting legacy actions naming convention.
 * [changed] Fixed overlay widget bugs.
