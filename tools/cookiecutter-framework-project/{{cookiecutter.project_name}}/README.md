@@ -9,15 +9,17 @@ Community owned {{ cookiecutter.integration_name.capitalize() }} integration for
 ### Preparations
 
 
-Install Poetry
+1. Install Poetry
 
-Create a Python >=3.7, <3.12 virtual environment. If you're using an Apple Silicon chip, follow the instructions in the [How to install compatible PySide2 on Silicon based Mac](../../README.md#how-to-install-compatible-pyside2-on-silicon-based-mac) section. 
+2. Create a Python 3.7 virtual environment. If you're using an Apple Silicon chip, follow the instructions in the [How to install compatible PySide2 on Silicon based Mac](../../README.md#how-to-install-compatible-pyside2-on-silicon-based-mac) section. 
 
-Activate the virtual environment. 
+3. Activate the virtual environment. 
 
-Update release notes.
+4. If any dependent libraries updated, make sure to release them to PyPi prior to building the plugin.
 
-Set or bump version in pyproject.toml:
+5. Update release notes.
+
+6. Set or bump version in pyproject.toml:
 
 ```bash
     poetry version prerelease
@@ -35,9 +37,9 @@ or:
     poetry version major
 ```
 
-Bump the connect plugin version in integrations/projects/framework-{{ cookiecutter.integration_name }}/connect-plugin/__version__.py
+7. Bump the connect plugin version in integrations/projects/framework-{{ cookiecutter.integration_name }}/connect-plugin/__version__.py
 
-Tag and push to SCM
+8. Tag and push to SCM
 
 
 ### CI build
