@@ -67,21 +67,6 @@ to build the plugin.
 To build from source, not involving PyPi, use the `--from_source` flag.
 
 
-### Build documentation
-
-
-Install documentation dependencies:
-
-```bash
-    poetry install --only documentation
-```
-
-Build documentation:
-
-```bash
-    poetry run sphinx-build -b html doc dist/doc
-```
-
 ## Installing
 
 ### Connect plugin
