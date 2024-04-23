@@ -38,20 +38,21 @@ python_dependencies = os.path.join(connect_plugin_path, 'dependencies')
 def on_launch_integration(session, event):
     '''Handle application launch and add environment to *event*.'''
 
-    launch_data = {'integration': event['data']['integration']}
-
-    discover_data = on_discover_integration(session, event)
-    for key in discover_data['integration']:
-        launch_data['integration'][key] = discover_data['integration'][key]
-
-    integration_version = event['data']['application']['version'].version[0]
-    logger.info('Launching integration v{}'.format(integration_version))
-
-    if not launch_data['integration'].get('env'):
-        launch_data['integration']['env'] = {}
-
-    bootstrap_path = os.path.join(connect_plugin_path, 'resource', 'bootstrap')
-    logger.info('Adding {} to PYTHONPATH'.format(bootstrap_path))
+    # launch_data = {'integration': event['data']['integration']}
+    #
+    # discover_data = on_discover_integration(session, event)
+    # for key in discover_data['integration']:
+    #     launch_data['integration'][key] = discover_data['integration'][key]
+    #
+    # integration_version = event['data']['application']['version'].version[0]
+    # logger.info('Launching integration v{}'.format(integration_version))
+    #
+    # if not launch_data['integration'].get('env'):
+    #     launch_data['integration']['env'] = {}
+    #
+    # bootstrap_path = os.path.join(connect_plugin_path, 'resource', 'bootstrap')
+    # logger.info('Adding {} to PYTHONPATH'.format(bootstrap_path))
+    # TODO: we don't need this, we get the yaml file in here and we pick the info needed from there, also from there we pick the bootstrap plugin and we execut it here.
 
     launch_data['integration']['env'][
         'PYTHONPATH.prepend'
@@ -60,12 +61,15 @@ def on_launch_integration(session, event):
     launch_data['integration']['env']['FTRACK_MAYA_VERSION'] = str(
         integration_version
     )
+    # TODO: the lines above could perfectly be set in the yaml file So there is no more hook file for the integrations, hook file is only an extension that could be triggered on the launch time
 
-    selection = event['data'].get('context', {}).get('selection', [])
+    # selection = event['data'].get('context', {}).get('selection', [])
+    #
+    # if selection:
+    #     task = session.get('Context', selection[0]['entityId'])
+    #     launch_data['integration']['env']['FTRACK_CONTEXTID.set'] = task['id']
 
-    if selection:
-        task = session.get('Context', selection[0]['entityId'])
-        launch_data['integration']['env']['FTRACK_CONTEXTID.set'] = task['id']
+    # TODO: FTRACK_CONTEXTID should be set in connect everytime conectxt is changed in there.
 
     return launch_data
 

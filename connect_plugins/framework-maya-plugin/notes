@@ -1,0 +1,14 @@
+Option 1:
+- Only yaml file
+- hook file gets installed when integration is pulled from the yaml file alognside with the rest of the source integration
+Option 2:
+- Connect plugin is = to hook file + yaml file (yaml file just for dcc integraitons)
+- This way all connect plugins looks the same (So actions etc...)
+Option 3:
+- hook file is not needed for the integrations as all can be set in the yaml file
+- hook file then can be an extension that the user creates to hook on the launch.
+
+Questions:
+- Should the bootstrap be an extension? (I think it could and the applauncher(or the yaml file bootstarp path) automatically set it on the startup if it exists)
+- tha launch config drives the integration which inside it has the default extensions version for that particular version
+- but the launch config also drives the extensions, so if the extensions of the launch config are different than the ones in maya, then it gets replaced.

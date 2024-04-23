@@ -2,8 +2,14 @@ type: launch_config
 
 name: framework-maya
 version: 1.0.0
+source: your/loacl/folder or pypi or git repo
+  source: dev // pip // git
+  path: asdgf // name of the lib // url
+  version: x.x.x
+}
 
 department: modeling
+// python-env: asdasfdasfdfa
 
 priority: 100 # Remove this one, just have it as an optional thing, and provide 100 as default. I think it is overcomplicating.
 context:
