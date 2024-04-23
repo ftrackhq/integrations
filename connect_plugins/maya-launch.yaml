@@ -1,8 +1,13 @@
 type: launch_config
+
 name: framework-maya
+version: 1.0.0
+
+department: modeling
+
 priority: 100 # Remove this one, just have it as an optional thing, and provide 100 as default. I think it is overcomplicating.
 context:
-  - Task
+  - Task # Does this actually work in any other situation right now?
 identifier: ftrack-framework-launch-maya # is this really needed? Can't we use the name as identifier?
 applicationIdentifier: maya_{variant}
 integrations:

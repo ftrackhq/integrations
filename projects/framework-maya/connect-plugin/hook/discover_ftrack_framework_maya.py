@@ -23,15 +23,16 @@ __version__ = get_connect_plugin_version(connect_plugin_path)
 python_dependencies = os.path.join(connect_plugin_path, 'dependencies')
 
 
-def on_discover_integration(session, event):
-    data = {
-        'integration': {
-            'name': NAME,
-            'version': __version__,
-        }
-    }
-
-    return data
+# def on_discover_integration(session, event):
+#     data = {
+#         'integration': {
+#             'name': NAME,
+#             'version': __version__,
+#         }
+#     }
+#
+#     return data
+# TODO: this is not needed anymore and will
 
 
 def on_launch_integration(session, event):
@@ -74,17 +75,18 @@ def register(session):
     if not isinstance(session, ftrack_api.session.Session):
         return
 
-    handle_discovery_event = functools.partial(
-        on_discover_integration, session
-    )
-
-    session.event_hub.subscribe(
-        'topic=ftrack.connect.application.discover and '
-        'data.application.identifier=maya*'
-        ' and data.application.version >= 2021',
-        handle_discovery_event,
-        priority=40,
-    )
+    # handle_discovery_event = functools.partial(
+    #     on_discover_integration, session
+    # )
+    #
+    # session.event_hub.subscribe(
+    #     'topic=ftrack.connect.application.discover and '
+    #     'data.application.identifier=maya*'
+    #     ' and data.application.version >= 2021',
+    #     handle_discovery_event,
+    #     priority=40,
+    # )
+    # TODO: instead of discovering integrations by the event, we discover them by the yaml file.
 
     handle_launch_event = functools.partial(on_launch_integration, session)
 
