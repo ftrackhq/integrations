@@ -1,7 +1,9 @@
 # ftrack Connect release Notes
 
-## Upcoming
+## v3.1.0rc1
+2024-04-22
 
+* [changed] Allow non versioned connect plugins, supporting legacy actions naming convention.
 * [changed] Fixed overlay widget bugs.
 * [new] PySide6 support; still not fully compatible until riffle is removed.
 * [new] PySide2 support.

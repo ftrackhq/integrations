@@ -10,6 +10,7 @@ official CI/CD build implementation in place.
 
 Changelog:
 
+0.4.19 [24.04.22] Qt resource build; Stop replacing Qt imports in built resource.py.
 0.4.18 [24.04.19] CEP plugin support. PySide integrations not platform dependent.
 0.4.17 [24.04.18] Build script to support extras.
 0.4.16 [24.03.19] PySide6 resource build support.
@@ -565,23 +566,6 @@ def build_package(pkg_path, args, command=None):
             logging.warning(f'Removing: {STAGING_PATH}')
             shutil.rmtree(STAGING_PATH, ignore_errors=True)
 
-    def _replace_imports_(resource_target_path):
-        '''Replace imports in resource files to Qt instead of QtCore.
-
-        This allows the resource file to work with many different versions of
-        Qt.
-
-        '''
-        replace = r'from Qt import QtCore'
-        for line in fileinput.input(
-            resource_target_path, inplace=True, mode='r'
-        ):
-            if r'import QtCore' in line:
-                # Calling print will yield a new line in the resource file.
-                sys.stdout.write(line.replace(line, replace))
-            else:
-                sys.stdout.write(line)
-
     def build_qt_resources(args):
         '''Build resources.py from style'''
         try:
@@ -655,8 +639,6 @@ def build_package(pkg_path, args, command=None):
                 f'{pyside_rcc_command} could not be found. You might need to manually add '
                 'it to your PATH. See README for more information.'
             )
-
-        _replace_imports_(resource_target_path)
 
     def build_sphinx(args):
         '''Wrapper for building docs for preview'''
