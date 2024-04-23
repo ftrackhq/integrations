@@ -4,7 +4,6 @@
 from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import (
     PluginExecutionError,
-    PluginValidationError,
 )
 
 from ftrack_utils.rpc import JavascriptRPC
