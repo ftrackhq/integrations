@@ -2,7 +2,6 @@
 
 Community owned Premiere integration for ftrack.
 
-# Documentation
 
 ## Building
 
