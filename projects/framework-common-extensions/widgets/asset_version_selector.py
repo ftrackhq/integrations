@@ -58,7 +58,7 @@ class AssetVersionSelectorWidget(BaseWidget):
         self._title_label = QtWidgets.QLabel('Assets')
 
         self._label = QtWidgets.QLabel()
-        self._label.setObjectName('gray')
+        self._label.setProperty('secondary', True)
         self._label.setWordWrap(True)
 
         # Show assets from AssetBuild

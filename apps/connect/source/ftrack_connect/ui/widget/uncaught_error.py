@@ -17,10 +17,12 @@ class UncaughtError(QtWidgets.QMessageBox):
 
     onError = QtCore.Signal(object, object, object)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, parent=None):
         '''Initialise and setup widget.'''
-        super(UncaughtError, self).__init__(*args, **kwargs)
-        self.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+        super(UncaughtError, self).__init__(
+            QtWidgets.QMessageBox.Icon.Critical, '', ''
+        )
+        self.setParent(parent)
         self.onError.connect(self.exceptHook)
 
         # Listen to all unhandled exceptions.

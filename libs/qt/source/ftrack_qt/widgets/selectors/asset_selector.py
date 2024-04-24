@@ -5,7 +5,8 @@ import logging
 
 try:
     from PySide6 import QtWidgets, QtCore, QtGui
-    from PySide6.QtGui import QRegularExpressionValidator, QRegularExpression
+    from PySide6.QtCore import QRegularExpression
+    from PySide6.QtGui import QRegularExpressionValidator
 except ImportError:
     from PySide2 import QtWidgets, QtCore, QtGui
     from PySide2.QtGui import QRegExpValidator as QRegularExpressionValidator

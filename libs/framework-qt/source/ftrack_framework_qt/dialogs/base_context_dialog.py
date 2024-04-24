@@ -80,13 +80,12 @@ class BaseContextDialog(BaseDialog):
 
         self._run_button = QtWidgets.QPushButton(self.run_button_title)
 
-        self.layout().addWidget(self._header)
-        self.layout().addWidget(
-            self._context_selector,
-            QtCore.Qt.AlignmentFlag.AlignTop,
+        self.main_layout.addWidget(self._header)
+        self.main_layout.addWidget(
+            self._context_selector, QtCore.Qt.AlignmentFlag.AlignTop
         )
-        self.layout().addWidget(self._tool_widget)
-        self.layout().addWidget(self._run_button)
+        self.main_layout.addWidget(self._tool_widget)
+        self.main_layout.addWidget(self._run_button)
 
     def post_build(self):
         '''Override the post_build method to create context selector signals'''

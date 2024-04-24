@@ -53,6 +53,7 @@ FTRACK_CONNECT_EXTENSIONS_PATH = [
     os.path.join(
         ROOT_INTEGRATIONS_FOLDER, 'projects', 'framework-common-extensions'
     ),
+    os.path.join(ROOT_INTEGRATIONS_FOLDER, 'tests', 'framework', 'resources'),
 ]
 
 registry_instance = registry.Registry()
@@ -69,7 +70,7 @@ app = QtWidgets.QApplication.instance()
 if not app:
     app = QtWidgets.QApplication(sys.argv)
 
-WHAT = 'publisher'
+WHAT = 'opener'
 client_class.run_dialog(
     dialog_name=f'framework_standard_{WHAT}_dialog',
     dialog_options={'tool_config_names': [f'standalone-file-{WHAT}']},
