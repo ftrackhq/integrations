@@ -37,9 +37,13 @@ or:
     poetry version major
 ```
 
-Bump the connect plugin version in integrations/projects/framework-premiere/connect-plugin/__version__.py
+7. If dependencies updated, update the Poetry lock file. Remember to properly validate/test the change of dependencies.
 
-Tag and push to SCM
+```bash
+    $ poetry update
+```
+
+8. Tag and push to SCM
 
 
 ### CI build
@@ -69,20 +73,64 @@ to build the plugin.
 To build from source, not involving PyPi, use the `--from_source` flag.
 
 
-### Build documentation
+
+# Development
 
 
-Install documentation dependencies:
+## CEP plugin
 
-```bash
-    poetry install --only documentation
-```
-
-Build documentation:
+To enable live development, first allow unsigned extensions:
 
 ```bash
-    poetry run sphinx-build -b html doc dist/doc
+    defaults write com.adobe.CSXS.8 PlayerDebugMode 1
 ```
+
+Build and install CEP extension and then open up permissions on folder:
+
+```bash
+    sudo chmod -R 777 "/library/application support/adobe/cep/extensions/com.ftrack.framework.premiere.panel"
+```
+
+On Windows, this folder is located here: `C:\Program Files (x86)\Common Files\Adobe\CEP\extensions`
+
+You are now ready to do live changes to extension, remember to sync back changes to
+source folder before committing.
+
+
+### CEP plugin build
+
+Install Adobe ZXPSignCmd:
+
+- Download and install ZXPSignCmd from: https://github.com/Adobe-CEP/CEP-Resources/tree/master/ZXPSignCMD
+- If you are in MacOs, you can follow the instructions below:
+  - Copy ZXPSignCmd-64bit to your Documents folder
+  ```bash
+    cd ~/Documents
+    chmod +x ZXPSignCmd-64bit
+    ln ZXPSignCmd-64bit /usr/local/bin/ZXPSignCmd
+  ```
+
+Set variables:
+
+```bash
+  export ADOBE_CERTIFICATE_PASSWORD=<Adobe exchange vault entry>
+```
+
+Build Ftrack Qt Style:
+
+```bash
+    cd integrations
+    pip install -r tools/requirements.txt
+    python tools/build.py build_qt_resources libs/qt-style
+```
+
+Create Adobe extension:
+
+```bash
+    cd integrations 
+    python tools/build.py build_cep projects/framework-premiere
+```
+
 
 ## Installing
 

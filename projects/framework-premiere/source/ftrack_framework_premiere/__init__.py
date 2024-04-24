@@ -83,6 +83,12 @@ def rpc_process_events_callback():
 
 
 def probe_premiere_pid(premiere_version):
+    '''
+    Probe the running Premiere PID
+
+    :param premiere_version:
+    :return:
+    '''
     if sys.platform == 'darwin':
         PS_EXECUTABLE = f'Adobe Premiere Pro {str(premiere_version)}'
         logger.info(f'Probing Mac PID (executable: {PS_EXECUTABLE})')
@@ -98,7 +104,7 @@ def probe_premiere_pid(premiere_version):
                 return pid
 
     elif sys.platform == 'win32':
-        PS_EXECUTABLE = 'Premiere.exe'
+        PS_EXECUTABLE = 'Premiere Pro.exe'
         logger.info(f'Probing Windows PID (executable: {PS_EXECUTABLE}).')
 
         startupinfo = subprocess.STARTUPINFO()
@@ -111,8 +117,14 @@ def probe_premiere_pid(premiere_version):
         ):
             if line.find(PS_EXECUTABLE) > -1:
                 # Expect:
-                #   Premiere.exe                15364 Console                    1  2 156 928 K
-                pid = int(re.split(' +', line)[1])
+                #  Adobe Premiere Pro.exe        4656 RDP-Tcp#0                  2  1,253,924 K
+                pid = -1
+                # Support "Adobe Premiere Pro.exe", "Premiere Pro.exe" and just "Premiere.exe" to be safe
+                for idx in reversed(range(1, 4)):
+                    try:
+                        pid = int(re.split(' +', line)[idx])
+                    except Error:
+                        pass
                 logger.info(f'Found pid: {pid}.')
                 return pid
 
@@ -223,7 +235,7 @@ def bootstrap_integration(framework_extensions_path):
 
     else:
         raise RuntimeError(
-            'Premiere {premiere_connection.premiere_version} '
+            f'Premiere {premiere_rpc_connection.remote_integration_session_id} '
             f'({premiere_rpc_connection.remote_integration_session_id}) '
             'process never started. Shutting down.'
         )

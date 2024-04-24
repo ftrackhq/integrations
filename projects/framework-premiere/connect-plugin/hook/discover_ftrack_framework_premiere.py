@@ -6,6 +6,8 @@ import ftrack_api
 import logging
 import functools
 import uuid
+import sys
+import subprocess
 
 from ftrack_utils.version import get_connect_plugin_version
 
@@ -45,17 +47,19 @@ def on_launch_integration(session, event):
         launch_data['integration'][key] = discover_data['integration'][key]
 
     integration_version = event['data']['application']['version'].version[0]
-    logger.info('Launching integration v{}'.format(integration_version))
+
+    logger.info(
+        f'Launching integration v{integration_version} assuming CEP plugin has '
+        f'been properly installed prior to launch, and Premiere is set to '
+        f'launch in Rosetta mode on Silicon Mac.'
+    )
 
     if not launch_data['integration'].get('env'):
         launch_data['integration']['env'] = {}
 
-    bootstrap_path = os.path.join(connect_plugin_path, 'resource', 'bootstrap')
-    logger.info('Adding {} to PYTHONPATH'.format(bootstrap_path))
-
     launch_data['integration']['env'][
         'PYTHONPATH.prepend'
-    ] = os.path.pathsep.join([python_dependencies, bootstrap_path])
+    ] = os.path.pathsep.join([python_dependencies])
     launch_data['integration']['env'][
         'FTRACK_REMOTE_INTEGRATION_SESSION_ID'
     ] = str(uuid.uuid4())
@@ -63,6 +67,15 @@ def on_launch_integration(session, event):
     launch_data['integration']['env']['FTRACK_PREMIERE_VERSION'] = str(
         integration_version
     )
+
+    if sys.platform == 'darwin':
+        # Check if running on apple silicon (arm64)
+        if subprocess.check_output("arch").decode('utf-8').find('i386') == -1:
+            logger.warning(
+                'Running on non Intel hardware(Apple Silicon), will require PS '
+                'to be launched in Rosetta mode!'
+            )
+            launch_data['integration']['env']['FTRACK_LAUNCH_ARCH'] = 'x86_64'
 
     selection = event['data'].get('context', {}).get('selection', [])
 

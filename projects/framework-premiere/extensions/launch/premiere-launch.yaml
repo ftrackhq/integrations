@@ -19,7 +19,7 @@ search_path:
       - Adobe
     expression:
       - Adobe Premiere*
-      - Premiere.exe
+      - Premiere*.exe
   darwin:
     prefix:
       - "/"
@@ -27,7 +27,6 @@ search_path:
     expression:
       - Adobe Premiere*
       - Adobe Premiere .*\.app
-    rosetta: true
 standalone_module: ftrack_framework_premiere
 extensions_path:
   - extensions/common
