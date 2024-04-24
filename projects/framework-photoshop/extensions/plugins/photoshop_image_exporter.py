@@ -5,7 +5,7 @@ from ftrack_utils.paths import get_temp_path
 from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
-from ftrack_framework_photoshop.rpc_cep import PhotoshopRPCCEP
+from ftrack_utils.rpc import JavascriptRPC
 
 
 class PhotoshopImageExporterPlugin(BasePlugin):
@@ -28,7 +28,7 @@ class PhotoshopImageExporterPlugin(BasePlugin):
 
         try:
             # Get existing RPC connection instance
-            photoshop_connection = PhotoshopRPCCEP.instance()
+            photoshop_connection = JavascriptRPC.instance()
 
             self.logger.debug(f'Exporting Photoshop image to {new_file_path}')
 

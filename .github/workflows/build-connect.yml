@@ -183,7 +183,7 @@ jobs:
   installer-macos:
     name: Build Connect Installer on MacOs
     needs: [ set-variables, connect-build ]
-    runs-on: macos-latest
+    runs-on: macos-12
     env:
       CODESIGN: 'True' # Set this to 'True' or 'False' as needed
     steps:

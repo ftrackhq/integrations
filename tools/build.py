@@ -10,7 +10,9 @@ official CI/CD build implementation in place.
 
 Changelog:
 
-0.4.18 [24.04.24] Connect installer build & codesign support.
+0.4.20 [24.04.24] Connect installer build & codesign support.
+0.4.19 [24.04.22] Qt resource build; Stop replacing Qt imports in built resource.py.
+0.4.18 [24.04.19] CEP plugin support. PySide integrations not platform dependent.
 0.4.17 [24.04.18] Build script to support extras.
 0.4.16 [24.03.19] PySide6 resource build support.
 0.4.15 [24.03.13] Fix platform dependent bug.
@@ -49,7 +51,7 @@ import re
 import plistlib
 import traceback
 
-__version__ = '0.4.18'
+__version__ = '0.4.20'
 
 ZXPSIGN_CMD = 'ZXPSignCmd'
 
@@ -75,7 +77,6 @@ def build_package(pkg_path, args, command=None):
     BUILD_PATH = os.path.join(ROOT_PATH, 'build')
     DIST_PATH = os.path.join(ROOT_PATH, 'dist')
     EXTENSION_PATH = os.path.join(ROOT_PATH, 'extensions')
-    CEP_PATH = os.path.join(ROOT_PATH, 'resource', 'cep')
     USES_FRAMEWORK = False
     FTRACK_DEP_LIBS = {}
     PLATFORM_DEPENDENT = False
@@ -141,10 +142,7 @@ def build_package(pkg_path, args, command=None):
                         VERSION = line.split('=')[1].strip().strip('"')
                 elif section == 'tool.poetry.dependencies':
                     if line.find('pyside') > -1:
-                        PLATFORM_DEPENDENT = True
-                        logging.info(
-                            'Platform dependent build - OS suffix will be added to artifact.'
-                        )
+                        pass
 
         append_dependencies(POETRY_CONFIG_PATH)
 
@@ -192,11 +190,7 @@ def build_package(pkg_path, args, command=None):
         )
         with open(source_path, 'r') as f_src:
             with open(target_path, 'w') as f_dst:
-                f_dst.write(
-                    f_src.read().replace(
-                        '{{FTRACK_FRAMEWORK_PHOTOSHOP_VERSION}}', VERSION
-                    )
-                )
+                f_dst.write(f_src.read().replace('${VERSION}', VERSION))
 
     def build_connect_plugin(args):
         '''
@@ -1052,10 +1046,7 @@ except ImportError:
         else:
             logging.warning('No styles to compile.')
 
-        pyside_version = args.pyside_version
-        if not pyside_version:
-            pyside_version = "2"
-        pyside_rcc_command = f'pyside{pyside_version}-rcc'
+        pyside_rcc_command = 'pyside2-rcc'
         try:
             executable = None
 
@@ -1086,8 +1077,6 @@ except ImportError:
                 'it to your PATH. See README for more information.'
             )
 
-        _replace_imports_(resource_target_path)
-
     def build_sphinx(args):
         '''Wrapper for building docs for preview'''
 
@@ -1103,10 +1092,15 @@ except ImportError:
     def build_cep(args):
         '''Wrapper for building Adobe CEP extension'''
 
+        CEP_PATH = os.path.join(MONOREPO_PATH, 'resource', 'adobe-cep')
         if not os.path.exists(CEP_PATH):
-            raise Exception('Missing "{}/" folder!'.format(CEP_PATH))
+            raise Exception('Missing common "{}/" folder!'.format(CEP_PATH))
 
-        MANIFEST_PATH = os.path.join(CEP_PATH, 'bundle', 'manifest.xml')
+        CEP_DCC_PATH = os.path.join(ROOT_PATH, 'resource', 'adobe-cep')
+        if not os.path.exists(CEP_DCC_PATH):
+            raise Exception('Missing DCC "{}/" folder!'.format(CEP_PATH))
+
+        MANIFEST_PATH = os.path.join(CEP_DCC_PATH, 'bundle', 'manifest.xml')
         if not os.path.exists(MANIFEST_PATH):
             raise Exception('Missing manifest:{}!'.format(MANIFEST_PATH))
 
@@ -1127,7 +1121,8 @@ except ImportError:
                 'Certificate missing: {}!'.format(CERTIFICATE_PATH)
             )
 
-        STAGING_PATH = os.path.join(DIST_PATH, 'staging')
+        STAGING_PATH = os.path.join(BUILD_PATH, 'staging')
+        assert DCC_NAME, 'Please provide DCC name to build CEP plugin for'
 
         # Clean previous build
         if os.path.exists(DIST_PATH):
@@ -1159,8 +1154,8 @@ except ImportError:
         if not os.path.exists(style_path):
             raise Exception('Missing "{}/" folder!'.format(style_path))
 
-        # Copy html
-        for filename in ['index.html']:
+        # Copy html and base bootstrap
+        for filename in ['index.html', 'bootstrap.js']:
             parse_and_copy(
                 os.path.join(CEP_PATH, filename),
                 os.path.join(STAGING_PATH, filename),
@@ -1203,26 +1198,20 @@ except ImportError:
         )
 
         logging.info("Copying framework js lib files")
+        framework_js_path = os.path.join(
+            MONOREPO_PATH, 'libs', f'framework-js', 'source'
+        )
         for js_file in [
             os.path.join(
-                MONOREPO_PATH,
-                'projects',
-                'framework-photoshop-js',
-                'source',
+                framework_js_path,
                 'utils.js',
             ),
             os.path.join(
-                MONOREPO_PATH,
-                'projects',
-                'framework-photoshop-js',
-                'source',
+                framework_js_path,
                 'event-constants.js',
             ),
             os.path.join(
-                MONOREPO_PATH,
-                'projects',
-                'framework-photoshop-js',
-                'source',
+                framework_js_path,
                 'events-core.js',
             ),
         ]:
@@ -1230,13 +1219,22 @@ except ImportError:
                 js_file,
                 os.path.join(STAGING_PATH, 'lib', os.path.basename(js_file)),
             )
-        for filename in ['bootstrap.js', 'ps.jsx']:
+
+        # Copy extensions
+        if DCC_NAME == 'photoshop':
+            extendscript_file = 'ps{}.jsx'
+        else:
+            raise Exception('Unsupported Adobe DCC: {}'.format(DCC_NAME))
+
+        for filename in [
+            'bootstrap-dcc.js',
+            extendscript_file.format(''),
+            extendscript_file.format('-include'),
+        ]:
             parse_and_copy(
                 os.path.join(
-                    MONOREPO_PATH,
-                    'projects',
-                    'framework-photoshop-js',
-                    'source',
+                    EXTENSION_PATH,
+                    'js',
                     filename,
                 ),
                 os.path.join(STAGING_PATH, filename),
@@ -1251,8 +1249,7 @@ except ImportError:
         parse_and_copy(MANIFEST_PATH, manifest_staging_path)
 
         extension_output_path = os.path.join(
-            DIST_PATH,
-            'ftrack-framework-adobe-{}.zxp'.format(VERSION),
+            BUILD_PATH, f'ftrack-framework-{DCC_NAME}-{VERSION}.zxp'
         )
 
         if not args.nosign:
@@ -1450,16 +1447,10 @@ if __name__ == '__main__':
         help='(QT resource build) Override the default style path (resource/style).',
     )
     parser.add_argument(
-        '--pyside_version',
-        help='(QT resource build) The version of PySide to use, default is "2"',
-    )
-    # QT/RV shared
-    parser.add_argument(
         '--output_path',
         help='(QT resource build/RV pkg build) Override the QT resource output directory.',
     )
 
-    # CEP options
     parser.add_argument(
         '--nosign',
         help='(CEP plugin build) Do not sign and create ZXP.',
