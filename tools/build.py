@@ -1450,6 +1450,12 @@ if __name__ == '__main__':
         '--style_path',
         help='(QT resource build) Override the default style path (resource/style).',
     )
+
+    parser.add_argument(
+        '--pyside_version',
+        help='(QT resource build) The version of pyside to use when building resource.py.',
+    )
+
     parser.add_argument(
         '--output_path',
         help='(QT resource build/RV pkg build) Override the QT resource output directory.',
