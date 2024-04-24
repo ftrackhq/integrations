@@ -3,9 +3,10 @@
 ## v3.1.0rc2
 2024-04-24
 
-* [changed] Removed Connect installer package, replaced with pyinstaller implementation with build script.
+* [new] New pyinstaller Connect build targeting Python 3.10 and PySide6. Removed Connect installer package, deprecating Python 3.7, PySide2 and cx_Freeze.
 * [changed] Fixed overlay widget bugs.
 * [new] PySide6 support.
+
 
 ## v3.1.0rc1
 2024-04-22

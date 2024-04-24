@@ -1,6 +1,6 @@
 # ftrack QT library release Notes
 
-## upcoming
+## Upcoming
 
 * [changed] Updated accordion widget to requiring finalize of the header options button.
 * [new] PySide6 support.
@@ -9,7 +9,10 @@
 * [changed] Overlay widget has been modified;QSignals has been implemented and is meant to work with QStackedWidget.
 * [changed] Manage widgets style overrides by properties by default instead of a mix of objectName and properties.
 * [new] set_properties utility for widgets added, Using a dictionary user can set multiple properties of a specific widget.
+<<<<<<< HEAD
 
+=======
+>>>>>>> a58f0f11c2d9315432e7b7c8be13a73c6eaa14f6
 
 ## v2.1.0
 2024-04-02

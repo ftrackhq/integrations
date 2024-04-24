@@ -12,6 +12,7 @@ Changelog:
 
 0.4.20 [24.04.24] Connect installer build & codesign support.
 0.4.19 [24.04.22] Qt resource build; Stop replacing Qt imports in built resource.py.
+0.4.19 [24.04.19] Connect installer build & codesign support. Put CEP plugin staging files in build folder.
 0.4.18 [24.04.19] CEP plugin support. PySide integrations not platform dependent.
 0.4.17 [24.04.18] Build script to support extras.
 0.4.16 [24.03.19] PySide6 resource build support.
@@ -1046,7 +1047,10 @@ except ImportError:
         else:
             logging.warning('No styles to compile.')
 
-        pyside_rcc_command = 'pyside2-rcc'
+        pyside_version = args.pyside_version
+        if not pyside_version:
+            pyside_version = "2"
+        pyside_rcc_command = f'pyside{pyside_version}-rcc'
         try:
             executable = None
 
@@ -1249,7 +1253,7 @@ except ImportError:
         parse_and_copy(MANIFEST_PATH, manifest_staging_path)
 
         extension_output_path = os.path.join(
-            BUILD_PATH, f'ftrack-framework-{DCC_NAME}-{VERSION}.zxp'
+            DIST_PATH, f'ftrack-framework-{DCC_NAME}-{VERSION}.zxp'
         )
 
         if not args.nosign:

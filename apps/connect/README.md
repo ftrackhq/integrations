@@ -27,7 +27,6 @@ found at <https://developer.ftrack.com/integrating-pipelines/connect/>
    cd integrations/apps/connect
 ```
 
-
 ```bash
     poetry version prerelease
 ```
@@ -118,16 +117,15 @@ or:
 cd ../..
 pip install -r tools/requirements-connect.txt
 python tools/build.py build_qt_resources --style_path resource --output_path source/ftrack_connect/ui/resource.py --pyside_version 6 apps/connect
-cd integrations/apps/connect
 ```
 
-   1. For PySide 6
-   ```bash
-   cd ../..
-   pip install -r tools/requirements.txt
-   python tools/build.py build_qt_resources --style_path resource --output_path source/ftrack_connect/ui/resource.py --pyside_version 6 apps/connect
-   cd integrations/apps/connect
-   ```
+For PySide 2
+
+```bash
+cd ../..
+pip install -r tools/requirements-connect.txt
+python tools/build.py build_qt_resources --style_path resource --output_path source/ftrack_connect/ui/resource.py apps/connect
+```
 
 6. Build with Poetry:
 
@@ -169,9 +167,16 @@ Preparations:
 4. Build the QT resources
 
 ```bash
+pip install -r tools/requirements-connect.txt
 python tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py build_qt_resources --pyside_version 6 apps/connect
 ```
+For PySide 2:
 
+```bash
+pip install -r tools/requirements.txt
+python tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py build_qt_resources apps/connect
+```
+   
 5. Install the required dependencies (pyinstaller):
 
 ```bash
