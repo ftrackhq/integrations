@@ -63,9 +63,9 @@ jobs:
       connect_version: ${{ steps.get_version.outputs.connect_version }}
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v4
         with:
-          python-version: '3.9.15'
+          python-version: '3.9.*'
       - name: install poetry
         shell: bash
         run: |
@@ -123,9 +123,9 @@ jobs:
       CODESIGN: 'True' # Set this to 'True' or 'False' as needed
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v4
         with:
-          python-version: '3.9.15'
+          python-version: '3.9.*'
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Download the .whl file artifact
@@ -188,9 +188,9 @@ jobs:
       CODESIGN: 'True' # Set this to 'True' or 'False' as needed
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v4
         with:
-          python-version: '3.9.15'
+          python-version: '3.9.*'
       - name: Install npm dependencies
         run: npm install -g appdmg
       - name: Set CPPFLAGS LDFLAGS
