@@ -1,5 +1,10 @@
 # ftrack Connect release Notes
 
+## v3.1.0rc2
+2024-04-24
+
+* [changed] Update to python 3.9
+
 ## v3.1.0rc1
 2024-04-22
 

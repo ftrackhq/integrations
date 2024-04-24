@@ -65,7 +65,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.7'
+          python-version: '3.9'
       - name: install poetry
         shell: bash
         run: |
@@ -125,7 +125,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.7'
+          python-version: '3.9'
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Download the .whl file artifact
@@ -190,7 +190,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.7'
+          python-version: '3.9'
       - name: Install npm dependencies
         run: npm install -g appdmg
       - name: Set CPPFLAGS LDFLAGS
@@ -303,11 +303,11 @@ jobs:
           dnf install -y gh
           # Configure Git to allow the current directory
           git config --global --add safe.directory /__w/integrations/integrations
-      - name: Install Python 3.7 using pyenv
+      - name: Install Python 3.9 using pyenv
         run: |
           source ~/.bashrc
-          pyenv install 3.7.16
-          pyenv global 3.7.16
+          pyenv install 3.9.15
+          pyenv global 3.9.15
       - name: Verify Python version
         run: |
           source ~/.bashrc

@@ -1,5 +1,10 @@
 # ftrack Connect installer release Notes
 
+## v24.4.1rc2
+2024-04-24
+
+* [changed] Update to python 3.9
+
 
 ## v24.4.1rc1
 2024-04-22
