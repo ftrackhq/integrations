@@ -110,12 +110,20 @@ def bootstrap_integration(framework_extensions_path):
         label = ET.SubElement(menu_item, "label")
         label.text = tool['label']
         menu_item_script = ET.SubElement(menu_item, "scriptCode")
-        menu_item_script.text = """
+        menu_item_script.text = f"""
 <![CDATA[
+import functools
 import hdefereval
-hdefereval.executeDeferred(__import__('ftrack_framework_houdini').on_run_dialog_callback("{}", {}, {}))
+import ftrack_framework_houdini
+callable = functools.partial(
+    ftrack_framework_houdini.on_run_dialog_callback,
+    "{tool['dialog_name']}",
+    {tool['options']['tool_configs']},
+    {tool['options']['docked']}
+)
+hdefereval.executeDeferred(callable)
 ]]>
-""".format(tool['dialog_name'], tool['options']['tool_configs'], tool['options']['docked'])
+"""
 
     # Convert xml to string
     # Unescaping and decoding to avoid ending up with encoded CDATA
