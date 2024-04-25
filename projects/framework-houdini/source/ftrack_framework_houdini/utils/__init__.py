@@ -5,7 +5,6 @@ import threading
 import xml.etree.ElementTree as ET
 from xml.sax.saxutils import unescape
 import os
-import six
 import tempfile
 
 import hou
@@ -23,7 +22,7 @@ def dock_houdini_right(widget):
     created_widgets[class_name] = widget
 
     panel_xml = _generate_pypanel_xml(class_name)
-    xml = six.ensure_str(unescape(ET.tostring(panel_xml).decode()))
+    xml = unescape(ET.tostring(panel_xml).decode())
 
     xml_path = os.path.join(tempfile.gettempdir(), 'ftrack', 'connect', '{}.pypanel'.format("Title 1"))
 
@@ -91,9 +90,10 @@ def _generate_pypanel_xml(widget_name):
 <![CDATA[
 # import hou
 # hou.ui.displayMessage(globals())
-from PySide2.QtWidgets import QWidget, QVBoxLayout, QLabel
+from PySide2.QtWidgets import QWidget, QVBoxLayout
+import __main__
 layout = QVBoxLayout()
-layout.addWidget(QLabel("label"))
+layout.addWidget(__main__.ftrack_framework_houdini.utils.created_widgets['{}'])
 def onCreateInterface():
     widget = QWidget()
     widget.setLayout(layout)
