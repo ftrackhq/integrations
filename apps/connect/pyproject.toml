@@ -23,10 +23,10 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.dependencies]
-python = ">= 3.7, < 3.11"
-PySide2 = "5.13.2"
+python = ">= 3.8, < 3.11"
+PySide6 = "^6.0.0"
 clique = "1.6.1"
-Riffle = ">= 1.0.1" #Currently not supporting PySide6, needs to be replaced ASAP
+Riffle = ">= 2.0.0" #Currently not supporting PySide6, needs to be replaced ASAP
 arrow = ">= 0.4.6, < 1"
 platformdirs = "^4.0.0"
 requests = ">= 2, <3"
@@ -42,11 +42,23 @@ ftrack-action-handler = "*"
 ftrack-utils = {  version = "^2.0.0"}
 ftrack-framework-core = {  version = "^2.0.0"}
 
-[tool.poetry.group.documentation]
+[tool.poetry.group.dev]
 optional = true
 
-#[tool.poetry.scripts]
-#installer = "../intsallers/installer:main"
+[tool.poetry.group.dev.dependencies]
+ftrack-framework-core = { path = "../../libs/framework-core", develop = true }
+
+[tool.poetry.group.installer]
+optional = true
+
+[tool.poetry.group.installer.dependencies]
+ftrack-app-installer = { path = "../../installers/app-installer", develop = true }
+
+[tool.poetry.scripts]
+ftrack-connect-installer = "installer:main"
+
+[tool.poetry.group.documentation]
+optional = true
 
 [tool.poetry.group.documentation.dependencies]
 pyScss = ">= 1.2.0, < 2"
