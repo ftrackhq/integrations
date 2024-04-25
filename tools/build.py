@@ -708,7 +708,7 @@ def build_package(pkg_path, args, command=None):
                 ), f'Inno Setup failed to build installer! Exitcode: {return_code}'
 
                 installer_path = os.path.join(
-                    DIST_PATH, f"ftrack_connect_{VERSION}-win64.exe"
+                    DIST_PATH, f"ftrack_connect-{VERSION}-win64.exe"
                 )
                 if not os.path.exists(installer_path):
                     raise Exception(
