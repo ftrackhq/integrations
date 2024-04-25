@@ -947,7 +947,7 @@ def build_package(pkg_path, args, command=None):
                         raise Exception('Not a supported Linux distro!')
                     target_path = os.path.join(
                         DIST_PATH,
-                        f'ftrack_connect-{__version__}-{linux_distro}.tar.gz',
+                        f'ftrack_connect-{VERSION}-{linux_distro}.tar.gz',
                     )
                     if not os.path.exists(os.path.dirname(target_path)):
                         os.makedirs(os.path.dirname(target_path))
