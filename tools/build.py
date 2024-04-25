@@ -727,7 +727,7 @@ def build_package(pkg_path, args, command=None):
             if args.codesign:
                 # Codesign executable
                 codesign_win(
-                    os.path.join(BUILD_PATH, BUNDLE_NAME, f"{BUNDLE_NAME}.exe")
+                    os.path.join(DIST_PATH, BUNDLE_NAME, f"{BUNDLE_NAME}.exe")
                 )
 
                 if args.create_installer:
