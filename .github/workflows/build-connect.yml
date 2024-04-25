@@ -70,6 +70,11 @@ jobs:
         shell: bash
         run: |
           pip install poetry==1.5.1
+      - name: Build Qt resources
+        shell: bash
+        run: |
+          pip install -r tools/requirements-connect.txt  # Install PySide6 
+          python tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py --pyside_version 6 build_qt_resources apps/connect
       - name: poetry build and export dependencies
         shell: bash
         run: |
@@ -84,7 +89,31 @@ jobs:
           CONNECT_VERSION=$(poetry version -s)
           echo "Connect version: $CONNECT_VERSION"
           echo "connect_version=$CONNECT_VERSION" >> $GITHUB_OUTPUT
-
+      - name: Prepare upload Connect wheel to GitHub Release
+        uses: actions/upload-artifact@v2
+        with:
+          name: ftrack-connect-whl
+          path: ${{ needs.set-variables.outputs.folder }}/dist/ftrack_connect-${{ steps.get_version.outputs.connect_version }}-py3-none-any.whl
+      - name: Upload Connect wheel to GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          echo "Uploading ftrack_connect-${{ needs.connect-build.outputs.connect_version }}-py3-none-any.whl"
+          gh release upload ${{ needs.set-variables.outputs.tag }} ${{ needs.set-variables.outputs.folder }}/dist/ftrack_connect-${{ steps.get_version.outputs.connect_version }}-py3-none-any.whl --clobber
+      - name: Prepare upload requirements.txt build to GitHub Release
+        uses: actions/upload-artifact@v2
+        with:
+          name: requirements
+          path: ${{ needs.set-variables.outputs.folder }}/dist/requirements.txt
+      - name: Upload requirements.txt to GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          echo "Uploading requirements.txt"
+          gh release upload ${{ needs.set-variables.outputs.tag }} ${{ needs.set-variables.outputs.folder }}/dist/requirements.txt --clobber
+          
 
   installer-windows:
     name: Build Connect Installer on Windows
@@ -99,20 +128,17 @@ jobs:
           python-version: '3.10'
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Build Qt resources
-        shell: bash
+      - name: Download the .whl file artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: ftrack-connect-whl
+      - name: Download the .txt file artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: requirements
+      - name: Use the .whl file
         run: |
-          pip install -r tools/requirements-connect.txt  # Install PySide6 
-          python tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py --pyside_version 6 build_qt_resources apps/connect
-      - name: install poetry
-        shell: bash
-        run: |
-          pip install poetry==1.5.1
-      - name: Install dependencies
-        run: |
-          cd apps/connect
-          poetry update
-          cd ../..
+          pip install -r requirements.txt ftrack_connect-${{ needs.connect-build.outputs.connect_version }}-py3-none-any.whl
       - name: install installer requirements
         run: |
           pip install -r apps/connect/connect-installer/requirements.txt
@@ -174,23 +200,21 @@ jobs:
           export LDFLAGS=-L/usr/local/opt/openssl/lib
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Build Qt resources
-        shell: bash
+      - name: Download the .whl file artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: ftrack-connect-whl
+      - name: Download the .txt file artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: requirements
+      - name: Use the .whl file
         run: |
-          pip install -r tools/requirements-connect.txt  # Install PySide6 
-          python tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py --pyside_version 6 build_qt_resources apps/connect
-      - name: install poetry
-        shell: bash
-        run: |
-          pip install poetry==1.5.1
-      - name: Install dependencies
-        run: |
-          cd apps/connect
-          poetry update
-          cd ../..
+          pip install -r requirements.txt  ftrack_connect-${{ needs.connect-build.outputs.connect_version }}-py3-none-any.whl
       - name: install installer requirements
         run: |
           pip install -r apps/connect/connect-installer/requirements.txt
+
       - name: make installer with codesign and notarize
         if: env.CODESIGN == 'True'
         # Guidance pick from https://federicoterzi.com/blog/automatic-code-signing-and-notarization-for-macos-apps-using-github-actions/
@@ -292,23 +316,18 @@ jobs:
           pyenv exec pip install patchelf
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Build Qt resources
-        shell: bash
+      - name: Download the .whl file artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: ftrack-connect-whl
+      - name: Download the .txt file artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: requirements
+      - name: Use the .whl file
         run: |
           source ~/.bashrc
-          pyenv exec pip install -r tools/requirements-connect.txt  # Install PySide6 
-          pyenv exec python tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py --pyside_version 6 build_qt_resources apps/connect
-      - name: install poetry
-        shell: bash
-        run: |
-          source ~/.bashrc
-          pyenv exec pip install poetry==1.5.1
-      - name: Install dependencies
-        run: |
-          source ~/.bashrc
-          cd apps/connect
-          poetry update
-          cd ../..
+          pyenv exec pip install -r requirements.txt ftrack_connect-${{ needs.connect-build.outputs.connect_version }}-py3-none-any.whl
       - name: install installer requirements
         run: |
           source ~/.bashrc
