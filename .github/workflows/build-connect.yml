@@ -89,7 +89,6 @@ jobs:
   installer-windows:
     name: Build Connect Installer on Windows
     needs: [ set-variables, connect-build ]
-    if: false
     runs-on: windows-latest
     env:
       CODESIGN: 'True' # Set this to 'True' or 'False' as needed
@@ -298,11 +297,13 @@ jobs:
       - name: Build Qt resources
         shell: bash
         run: |
+          source ~/.bashrc
           pyenv exec pip install -r tools/requirements-connect.txt  # Install PySide6 
           pyenv exec python tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py --pyside_version 6 build_qt_resources apps/connect
       - name: install poetry
         shell: bash
         run: |
+          source ~/.bashrc
           pyenv exec pip install poetry==1.5.1
       - name: Install dependencies
         run: |
