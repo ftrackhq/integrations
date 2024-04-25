@@ -2,6 +2,8 @@ import subprocess
 import os
 import re
 import logging
+import json
+import plistlib
 
 import PyInstaller.__main__
 
@@ -67,12 +69,12 @@ class AppInstaller(object):
             PyInstaller.__main__.run(pyinstaller_commands)
         except Exception as e:
             f'pyinstaller failed to build {self.bundle_name}! Exitcode: {e}'
-        # TODO: on MACOs the resultant info.plist generated should be contain CFBundleGetInfoString with 'ftrack Connect {}, copyright: Copyright (c) 2024 ftrack'.format(VERSION)
-        #  And the important one, which is: CFBundleShortVersionString with the version number
 
 
 class WindowsAppInstaller(AppInstaller):
-    os_root_folder = "windows"
+    os_root_folder = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "windows"
+    )
     codesing_folder = os.path.join(os_root_folder, "codesign")
 
     def codesign(self, path):
@@ -128,12 +130,18 @@ class WindowsAppInstaller(AppInstaller):
 
 
 class MacOSAppInstaller(AppInstaller):
-    os_root_folder = "macOS"
+    os_root_folder = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "macOS"
+    )
     codesing_folder = os.path.join(os_root_folder, "codesign")
 
     @property
     def bundle_path(self):
         return os.path.join(self.dist_path, f'{self.bundle_name}.app')
+
+    def generate_executable(self):
+        super(MacOSAppInstaller, self).generate_executable()
+        self._update_info_plist()
 
     def codesign(self, path):
         '''
@@ -190,7 +198,7 @@ class MacOSAppInstaller(AppInstaller):
 
         app_dmg_args = {
             "title": f"{self.bundle_name}",
-            "background": "dmg_image.png",
+            "background": f"{self.os_root_folder}/dmg_image.png",
             "icon-size": 70,
             "contents": [
                 {"x": 390, "y": 180, "type": "link", "path": "/Applications"},
@@ -202,7 +210,15 @@ class MacOSAppInstaller(AppInstaller):
                 },
             ],
         }
-        dmg_command = f'appdmg {app_dmg_args} "{dmg_path}"'
+
+        # Define the path for the JSON file within the dist_folder
+        json_file_path = f"{self.build_path}/app_dmg_args.json"
+
+        # Serialize the dictionary to a JSON file
+        with open(json_file_path, 'w') as json_file:
+            json.dump(app_dmg_args, json_file, indent=4)
+
+        dmg_command = f'appdmg {json_file_path} "{dmg_path}"'
         dmg_result = os.system(dmg_command)
         if dmg_result != 0:
             raise Exception("dmg creation not working please check.")
@@ -296,10 +312,80 @@ class MacOSAppInstaller(AppInstaller):
                 )
         return dmg_path
 
+    def _update_info_plist(self):
+        plist_path = f"{self.bundle_path}/Contents/Info.plist"
+        try:
+            with open(plist_path, 'rb') as fp:
+                plist = plistlib.load(fp)
+
+            # Set copyright
+            plist[
+                "CFBundleGetInfoString"
+            ] = f'{self.bundle_name} {self.version}, copyright: Copyright (c) 2024 ftrack'
+            # Set the desired version
+            plist['CFBundleShortVersionString'] = self.version
+
+            with open(plist_path, 'wb') as fp:
+                plistlib.dump(plist, fp)
+        except Exception as e:
+            logging.warning(
+                'Could not change the version at Info.plist file. \n Error: {}'.format(
+                    e
+                )
+            )
+
 
 class LinuxAppInstaller(AppInstaller):
     def codesign(self):
         pass
 
     def generate_installer_package(self):
-        pass
+        try:
+            os.chdir(self.dist_path)
+            # Detect platform
+            path_os_desc = '/etc/os-release'
+            assert os.path.exists(path_os_desc), 'Not a supported Linux OS!'
+            with open(path_os_desc, 'r') as f:
+                os_desc = f.read()
+            if os_desc.lower().find('centos-7') > -1:
+                linux_distro = 'C7'
+            elif os_desc.lower().find('centos-8') > -1:
+                linux_distro = 'C8'
+            elif os_desc.lower().find('rocky-linux-8') > -1:
+                linux_distro = 'R8'
+            elif os_desc.lower().find('rocky-linux-9') > -1:
+                linux_distro = 'R9'
+            else:
+                raise Exception('Not a supported Linux distro!')
+            target_path = os.path.join(
+                self.dist_path,
+                f'ftrack_connect-{self.version}-{linux_distro}.tar.gz',
+            )
+            if not os.path.exists(os.path.dirname(target_path)):
+                os.makedirs(os.path.dirname(target_path))
+            elif os.path.exists(target_path):
+                os.unlink(target_path)
+            logging.info('Compressing...')
+            archive_commands = [
+                "tar",
+                "-zcvf",
+                target_path,
+                self.bundle_name,
+                "--transform",
+                f"s/{self.bundle_name}/ftrack-connect/",
+            ]
+            return_code = subprocess.check_call(archive_commands)
+            assert return_code == 0, f'TAR compress failed: {return_code}'
+            # Create md5 sum
+            checksum_path = f'{target_path}.md5'
+            if os.path.exists(checksum_path):
+                os.unlink(checksum_path)
+            logging.info(
+                f'Created: {target_path}, calculating md5 checksum...'
+            )
+            return_code = os.system(f'md5sum {target_path} > {checksum_path}')
+            assert return_code == 0, f'md5 failed: {return_code}'
+            logging.info(f'Checksum created: {checksum_path}')
+        finally:
+            # Go back to root path
+            os.chdir(os.path.join(os.path.dirname(os.path.abspath(__file__))))
