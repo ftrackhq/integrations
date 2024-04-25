@@ -25,9 +25,11 @@ search_path:
     prefix:
       - C:\
       - Program Files.*
-    expression:
+    expression:    
+      - Side Effects Software
       - Houdini.*
-      - Houdini\d.+.exe
+      - bin
+      - happrentice.exe
     version_expression: (?P<version>[\\d.]+[vabc]+[\\dvabc.]*)"
   darwin:
     prefix:
