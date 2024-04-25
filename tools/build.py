@@ -640,6 +640,13 @@ def build_package(pkg_path, args, command=None):
                     'ftrack_connect_installer_version_information.py',
                 )
                 + ':ftrack_connect/hook/ftrack_connect_installer_version_information.py',
+                '--add-data',
+                os.path.join(
+                    ROOT_PATH,
+                    'resource',
+                    'fonts',
+                )
+                + ':ftrack_connect/fonts',
             ]
             # if sys.platform.startswith('darwin'):
             #    pyinstaller_commands.extend([
