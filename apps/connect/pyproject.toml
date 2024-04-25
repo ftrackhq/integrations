@@ -23,10 +23,10 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.dependencies]
-python = ">= 3.7, < 3.11"
+python = ">= 3.8, < 3.11"
 PySide6 = "^6.0.0"
 clique = "1.6.1"
-Riffle = ">= 1.0.1"
+Riffle = ">= 2.0.0, < 3"
 arrow = ">= 0.4.6, < 1"
 platformdirs = "^4.0.0"
 requests = ">= 2, <3"
@@ -40,17 +40,8 @@ pyyaml = "^6.0.1"
 ftrack-python-api = "^2.5.4"
 ftrack-action-handler = "*"
 ftrack-utils = {  version = "^2.0.0"}
+# framework dependencies
 ftrack-framework-core = {  version = "^2.0.0"}
-
-[tool.poetry.group.documentation]
-optional = true
-
-[tool.poetry.group.documentation.dependencies]
-pyScss = ">= 1.2.0, < 2"
-sphinx = ">= 1.8.5, < 4"
-Jinja2 = ">2, <=3.0.3"
-sphinx_rtd_theme = ">= 0.1.6, < 1"
-lowdown = ">= 0.1.0, < 1"
 
 [tool.poetry.group.test]
 optional = true

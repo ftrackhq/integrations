@@ -141,7 +141,7 @@ jobs:
           pip install -r requirements.txt ftrack_connect-${{ needs.connect-build.outputs.connect_version }}-py3-none-any.whl
       - name: install installer requirements
         run: |
-          pip install -r pip install -r apps/connect/connect-installer/requirements.txt
+          pip install -r apps/connect/connect-installer/requirements.txt
       - uses: google-github-actions/auth@v2
         if: env.CODESIGN == 'True'
         with:
@@ -250,7 +250,7 @@ jobs:
           xcrun notarytool store-credentials "notarytool-profile" --apple-id "$PROD_MACOS_NOTARIZATION_APPLE_ID" --team-id "$PROD_MACOS_NOTARIZATION_TEAM_ID" --password "$PROD_MACOS_NOTARIZATION_PWD"
 
           # Build codesign and notarize
-          python python tools/build.py build_connect --codesign --notarize --create_dmg apps/connect
+          python tools/build.py build_connect --codesign --notarize --create_dmg apps/connect
 
       - name: make installer
         if: env.CODESIGN == 'False'
