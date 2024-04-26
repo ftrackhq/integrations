@@ -65,7 +65,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.7'
+          python-version: '3.10'
       - name: install poetry
         shell: bash
         run: |
@@ -125,20 +125,16 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.7'
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Download the .whl file artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: ftrack-connect-whl
-      - name: Download the .txt file artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: requirements
-      - name: Use the .whl file
+          python-version: '3.10'
+      - name: install poetry
+        shell: bash
         run: |
-          pip install -r requirements.txt ftrack_connect-${{ needs.connect-build.outputs.connect_version }}-py3-none-any.whl
+          pip install poetry==1.5.1
+      - name: Build Qt resources
+        shell: bash
+        run: |
+          pip install -r tools/requirements.txt
+          python tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py build_qt_resources apps/connect
       - name: install installer requirements
         run: |
           cd installers/connect-installer
@@ -153,17 +149,13 @@ jobs:
         with:
           java-version: '21'
           distribution: 'oracle'
-      - name: make installer codesign
-        if: env.CODESIGN == 'True'
+      - name: poetry build and export dependencies
+        shell: bash
         run: |
-          cd installers/connect-installer
-          # TODO: a knowing error StatusLogger Log4j2 will rise at the end of the bat execution, but it's a knowing bug coming from jsign and doesn't interfere with the good code sign of the msi.
-          python setup.py bdist_msi --codesign
-      - name: make installer
-        if: env.CODESIGN == 'False'
-        run: |
-          cd installers/connect-installer
-          python setup.py bdist_msi
+          cd ${{ needs.set-variables.outputs.folder }}
+          poetry install --with installer --no-root --sync
+          poetry run ftrack-connect-installer
+          poetry export -f requirements.txt --without-hashes -o dist/requirements.txt
       - name: Upload MSI installer to GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -178,7 +170,7 @@ jobs:
           clean_package_version="${version#v}"  # Remove leading 'v' from version
           echo "Uploading ftrack_connect-${clean_package_version}-win64.msi"
           gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack_connect-${clean_package_version}-win64.msi" --clobber
-
+        
 
   installer-macos:
     name: Build Connect Installer on MacOs
