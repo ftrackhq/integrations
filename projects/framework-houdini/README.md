@@ -58,7 +58,7 @@ Build Connect plugin:
 
 ```bash
     cd integrations
-    python tools/build.py  --include_resources resource/bootstrap build_connect_plugin projects/framework-houdini
+    python tools/build.py  --include_resources resource/bootstrap --from_source build_connect_plugin projects/framework-houdini
 ```
 
 If the build fails and Houdini is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 
