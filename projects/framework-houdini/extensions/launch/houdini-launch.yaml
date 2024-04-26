@@ -30,7 +30,6 @@ search_path:
       - Houdini.*
       - bin
       - happrentice.exe
-    version_expression: (?P<version>[\\d.]+[vabc]+[\\dvabc.]*)"
   darwin:
     prefix:
       - "/"
