@@ -109,7 +109,7 @@ def bootstrap_integration(framework_extensions_path):
         label = ET.SubElement(menu_item, "label")
         label.text = tool['label']
         menu_item_script = ET.SubElement(menu_item, "scriptCode")
-        menu_item_script.text = get_menu_item_script(tool)
+        menu_item_script.text = _get_menu_item_script(tool)
 
     # Convert xml to string
     # Unescaping and decoding to avoid ending up with encoded CDATA
@@ -129,7 +129,8 @@ def bootstrap_integration(framework_extensions_path):
 
     return client_instance
 
-def get_menu_item_script(tool):
+def _get_menu_item_script(tool):
+    ''' Return script for ftrack menu item '''
     return f"""
 <![CDATA[
 import functools
