@@ -133,7 +133,7 @@ jobs:
       - name: Build Qt resources
         shell: bash
         run: |
-          pip install -r tools/requirements.txt
+          pip install -r tools/requirements-connect.txt
           python tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py build_qt_resources apps/connect
       - name: install installer requirements
         run: |
@@ -149,6 +149,9 @@ jobs:
         with:
           java-version: '21'
           distribution: 'oracle'
+      - name: Install Inno Setup, needed to create the installer
+        run: |
+          choco install innosetup
       - name: poetry build and export dependencies
         shell: bash
         run: |
@@ -156,21 +159,20 @@ jobs:
           poetry install --with installer --no-root --sync
           poetry run ftrack-connect-installer
           poetry export -f requirements.txt --without-hashes -o dist/requirements.txt
-      - name: Upload MSI installer to GitHub Release
+      - name: Upload EXE installer to GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
-          echo "Listing contents of installers/connect-installer/dist:"
-          ls -l installers/connect-installer/dist
-          echo "Listing contents of installers/connect-installer/build:"
-          ls -l installers/connect-installer/build
-          cd installers/connect-installer/dist
+          echo "Listing contents of apps/connect/dist:"
+          ls -l apps/connect/dist
+          echo "Listing contents of apps/connect/build:"
+          ls -l apps/connect/build
+          cd apps/connect/dist
           version="${{ needs.set-variables.outputs.package_version }}"
           clean_package_version="${version#v}"  # Remove leading 'v' from version
-          echo "Uploading ftrack_connect-${clean_package_version}-win64.msi"
-          gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack_connect-${clean_package_version}-win64.msi" --clobber
-        
+          echo "Uploading ftrack_connect-${clean_package_version}-win64.exe"
+          gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack_connect-${clean_package_version}-win64.exe" --clobber
 
   installer-macos:
     name: Build Connect Installer on MacOs
