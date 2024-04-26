@@ -6,7 +6,6 @@ import os
 import traceback
 import xml.etree.ElementTree as ET
 from xml.sax.saxutils import unescape
-import six
 
 import ftrack_api
 
@@ -114,7 +113,7 @@ def bootstrap_integration(framework_extensions_path):
 
     # Convert xml to string
     # Unescaping and decoding to avoid ending up with encoded CDATA
-    xml = six.ensure_str(unescape(ET.tostring(root).decode()))
+    xml = unescape(ET.tostring(root).decode())
 
     # Find the bootstrap folder where to save MainMenuCommon.xml
     dirname = os.path.dirname(__file__)
