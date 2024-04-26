@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ftrack-connect"
-version = "3.1.0rc1"
+version = "24.5.0rc1"
 description='ftrack Connect desktop application.'
 authors = ["ftrack Integrations Team <integrations@backlight.co>"]
 readme = "README.md"
@@ -24,7 +24,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.dependencies]
 python = ">= 3.8, < 3.11"
-PySide6 = "^6.0.0"
+PySide6 = "6.5"
 clique = "1.6.1"
 Riffle = ">= 2.0.0" #Currently not supporting PySide6, needs to be replaced ASAP
 arrow = ">= 0.4.6, < 1"

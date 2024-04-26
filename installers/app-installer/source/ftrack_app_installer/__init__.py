@@ -8,6 +8,14 @@ import plistlib
 import PyInstaller.__main__
 
 
+VERSION_TEMPLATE = '''
+# :coding: utf-8
+# :copyright: Copyright (c) 2024 ftrack
+
+__version__ = '{version}'
+'''
+
+
 class AppInstaller(object):
     @property
     def bundle_name(self):
@@ -49,6 +57,8 @@ class AppInstaller(object):
         self._entry_file_path = entry_file_path
 
     def generate_executable(self):
+        version_file_path = self._generate_version_file()
+
         pyinstaller_commands = [
             self.entry_file_path,
             '--windowed',
@@ -62,6 +72,8 @@ class AppInstaller(object):
             self.dist_path,
             '--workpath',
             self.build_path,
+            '--add-data',
+            version_file_path + ':ftrack_connect',
             '-y',
             '--clean',
         ]
@@ -70,27 +82,38 @@ class AppInstaller(object):
         except Exception as e:
             f'pyinstaller failed to build {self.bundle_name}! Exitcode: {e}'
 
+    def _generate_version_file(self):
+        '''
+        Store the version of the app to a __version__.py so it can be picked
+        from the init file when start fronm the installer.
+        '''
+        version_file_path = os.path.join(self.root_path, '__version__.py')
+
+        with open(version_file_path, 'w') as file:
+            file.write(VERSION_TEMPLATE.format(version=self.version))
+
+        return version_file_path
+
 
 class WindowsAppInstaller(AppInstaller):
     os_root_folder = os.path.join(
         os.path.dirname(os.path.abspath(__file__)), "windows"
     )
     codesing_folder = os.path.join(os_root_folder, "codesign")
+    INNOSETUP_PATH = "C:\\Program Files (x86)\\Inno Setup 6\\ISCC.exe"
 
     def codesign(self, path):
         '''Codesign artifact *path* using jsign tool in Windows'''
-        return_code = os.system(
-            f'{self.codesing_folder}\\codesign.bat "{path}"'
-        )
+        bat_file = os.path.join(self.codesing_folder, "codesign.bat")
+        return_code = os.system(f'{bat_file} "{path}"')
         logging.info(f'Exitcode from code signing "{path}": {return_code}')
 
     def generate_installer_package(self, codesign=True):
         # TODO: need to make the ftrack Connect.iss generic
         '''Create installer executable on Windows. Returns the resulting path.'''
 
-        INNOSETUP_PATH = "C:\\Program Files (x86)\\Inno Setup 6\\ISCC.exe"
-        if not os.path.exists(INNOSETUP_PATH):
-            raise Exception(f'Inno Setup not found at: {INNOSETUP_PATH}')
+        if not os.path.exists(self.INNOSETUP_PATH):
+            raise Exception(f'Inno Setup not found at: {self.INNOSETUP_PATH}')
 
         # Load template and inject version
         with open(
@@ -107,7 +130,7 @@ class WindowsAppInstaller(AppInstaller):
                 f_out.write(template.replace('${VERSION}', self.version))
 
         # Run innosetup, check exitcode
-        innosetup_commands = [INNOSETUP_PATH, temp_iss_path]
+        innosetup_commands = [self.INNOSETUP_PATH, temp_iss_path]
 
         return_code = subprocess.check_call(innosetup_commands)
 
@@ -218,6 +241,7 @@ class MacOSAppInstaller(AppInstaller):
         with open(json_file_path, 'w') as json_file:
             json.dump(app_dmg_args, json_file, indent=4)
 
+        # TODO: appdmg complains on M1, check hdiutil or create-dmg as alternatives: hdiutil create -volname "ftrack Connect" -srcfolder "/path/to/ftrack Connect.app" -ov -format UDZO "/path/to/ftrack_Connect.dmg"
         dmg_command = f'appdmg {json_file_path} "{dmg_path}"'
         dmg_result = os.system(dmg_command)
         if dmg_result != 0:
@@ -339,7 +363,7 @@ class LinuxAppInstaller(AppInstaller):
     def codesign(self):
         pass
 
-    def generate_installer_package(self):
+    def generate_installer_package(self, codesign=False):
         try:
             os.chdir(self.dist_path)
             # Detect platform
