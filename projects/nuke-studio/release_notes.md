@@ -1,5 +1,9 @@
 # ftrack Nuke Studio integration release Notes
 
+## Upcoming
+
+* [fix] Launcher; Properly escaped Linux version expression.
+
 ## v24.4.0
 2024-04-02
 
