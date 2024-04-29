@@ -127,10 +127,15 @@ class WindowsAppInstaller(AppInstaller):
             )
             if not os.path.exists(os.path.dirname(temp_iss_path)):
                 os.makedirs(os.path.dirname(temp_iss_path))
+            final_content = template.replace('${VERSION}', self.version)
+            final_content = final_content.replace(
+                '${DIST_PATH}', self.dist_path
+            )
+            final_content = final_content.replace(
+                '${ROOT_PATH}', self.root_path
+            )
             with open(temp_iss_path, "w") as f_out:
-                f_out.write(template.replace('${VERSION}', self.version))
-                f_out.write(template.replace('${DIST_PATH}', self.dist_path))
-                f_out.write(template.replace('${ROOT_PATH}', self.root_path))
+                f_out.write(final_content)
 
         # Run innosetup, check exitcode
         innosetup_commands = [self.INNOSETUP_PATH, temp_iss_path]
