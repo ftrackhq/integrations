@@ -26,7 +26,7 @@ build-backend = "poetry.core.masonry.api"
 python = ">= 3.8, < 3.11"
 PySide6 = "6.5"
 clique = "1.6.1"
-Riffle = ">= 2.0.0" #Currently not supporting PySide6, needs to be replaced ASAP
+Riffle = ">= 2.0.0" # Remove this one when possible
 arrow = ">= 0.4.6, < 1"
 platformdirs = "^4.0.0"
 requests = ">= 2, <3"
