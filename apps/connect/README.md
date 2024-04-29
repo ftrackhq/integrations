@@ -92,7 +92,7 @@ python tools/build.py --style_path resource --output_path source/ftrack_connect/
 7. Generate distributible connect installer
 
 ```bash
-  poetry install --with installer --no-root --sync
+  poetry install --with installer --sync
   poetry run ftrack-connect-installer --codesign true
 ```
 Note:: If --codesign is true, please make sure you have followed all the instructions from:

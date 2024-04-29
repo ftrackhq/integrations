@@ -57,6 +57,7 @@ class AppInstaller(object):
         self._entry_file_path = entry_file_path
 
     def generate_executable(self):
+        # TODO: we should generalize this file and remove all references to connect
         version_file_path = self._generate_version_file()
 
         pyinstaller_commands = [

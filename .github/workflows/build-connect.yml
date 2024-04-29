@@ -138,7 +138,7 @@ jobs:
         shell: bash
         run: |
           cd ${{ needs.set-variables.outputs.folder }}
-          poetry install --with installer --no-root --sync
+          poetry install --with installer --sync
           poetry run ftrack-connect-installer --codesign env.CODESIGN
       - name: Upload EXE installer to GitHub Release
         env:
@@ -160,7 +160,7 @@ jobs:
     needs: [ set-variables, connect-build ]
     runs-on: macos-12
     env:
-      CODESIGN: 'False' # Set this to 'True' or 'False' as needed
+      CODESIGN: 'True' # Set this to 'True' or 'False' as needed
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v5
@@ -223,7 +223,7 @@ jobs:
         shell: bash
         run: |
           cd ${{ needs.set-variables.outputs.folder }}
-          poetry install --with installer --no-root --sync
+          poetry install --with installer --sync
           poetry run ftrack-connect-installer --codesign env.CODESIGN
 
       - name: Upload Connect DMG to GitHub Release
@@ -302,7 +302,7 @@ jobs:
         run: |
           source ~/.bashrc
           cd ${{ needs.set-variables.outputs.folder }}
-          pyenv exec poetry install --with installer --no-root --sync
+          pyenv exec poetry install --with installer --sync
           pyenv exec poetry run ftrack-connect-installer --codesign env.CODESIGN
       - name: Upload Connect tar.gz and md5 to GitHub Release
         env:
