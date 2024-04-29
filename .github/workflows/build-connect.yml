@@ -80,7 +80,6 @@ jobs:
         run: |
           cd ${{ needs.set-variables.outputs.folder }}
           poetry build
-          poetry export -f requirements.txt --without-hashes -o dist/requirements.txt
       - name: Get Connect version
         id: get_version # This ID is used to reference the output of the step
         shell: bash
@@ -100,20 +99,7 @@ jobs:
         shell: bash
         run: |
           echo "Uploading ftrack_connect-${{ needs.connect-build.outputs.connect_version }}-py3-none-any.whl"
-          gh release upload ${{ needs.set-variables.outputs.tag }} ${{ needs.set-variables.outputs.folder }}/dist/ftrack_connect-${{ steps.get_version.outputs.connect_version }}-py3-none-any.whl --clobber
-      - name: Prepare upload requirements.txt build to GitHub Release
-        uses: actions/upload-artifact@v2
-        with:
-          name: requirements
-          path: ${{ needs.set-variables.outputs.folder }}/dist/requirements.txt
-      - name: Upload requirements.txt to GitHub Release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        shell: bash
-        run: |
-          echo "Uploading requirements.txt"
-          gh release upload ${{ needs.set-variables.outputs.tag }} ${{ needs.set-variables.outputs.folder }}/dist/requirements.txt --clobber
-          
+          gh release upload ${{ needs.set-variables.outputs.tag }} ${{ needs.set-variables.outputs.folder }}/dist/ftrack_connect-${{ steps.get_version.outputs.connect_version }}-py3-none-any.whl --clobber     
 
   installer-windows:
     name: Build Connect Installer on Windows
@@ -174,7 +160,7 @@ jobs:
     needs: [ set-variables, connect-build ]
     runs-on: macos-12
     env:
-      CODESIGN: 'False' # Set this to 'True' or 'False' as needed
+      CODESIGN: 'True' # Set this to 'True' or 'False' as needed
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v5
@@ -193,21 +179,11 @@ jobs:
         shell: bash
         run: |
           pip install poetry==1.5.1
-      - name: Download the .whl file artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: ftrack-connect-whl
-      - name: Download the .txt file artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: requirements
-      - name: Use the .whl file
+      - name: Build Qt resources
+        shell: bash
         run: |
-          pip install -r requirements.txt  ftrack_connect-${{ needs.connect-build.outputs.connect_version }}-py3-none-any.whl
-      - name: install installer requirements
-        run: |
-          cd installers/connect-installer
-          pip install  -r requirements.txt
+          pip install -r tools/requirements-connect.txt
+          python tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py --pyside_version 6 build_qt_resources apps/connect
       - name: Codesign app bundle
         if: env.CODESIGN == 'True'
         # Guidance pick from https://federicoterzi.com/blog/automatic-code-signing-and-notarization-for-macos-apps-using-github-actions/
@@ -247,7 +223,7 @@ jobs:
         shell: bash
         run: |
           cd ${{ needs.set-variables.outputs.folder }}
-          poetry install --with installer --no-root --sync
+          poetry install --with installer --sync
           poetry run ftrack-connect-installer --codesign env.CODESIGN
 
       - name: Upload Connect DMG to GitHub Release
