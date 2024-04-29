@@ -47,6 +47,7 @@ optional = true
 
 [tool.poetry.group.dev.dependencies]
 ftrack-framework-core = { path = "../../libs/framework-core", develop = true }
+ftrack-utils = { path = "../../libs/utils", develop = true }
 
 [tool.poetry.group.installer]
 optional = true

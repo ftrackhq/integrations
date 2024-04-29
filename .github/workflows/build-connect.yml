@@ -63,7 +63,7 @@ jobs:
       connect_version: ${{ steps.get_version.outputs.connect_version }}
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.10'
       - name: install poetry
@@ -73,14 +73,13 @@ jobs:
       - name: Build Qt resources
         shell: bash
         run: |
-          pip install -r tools/requirements.txt
-          python tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py build_qt_resources apps/connect
+          pip install -r tools/requirements-connect.txt
+          python tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py --pyside_version 6 build_qt_resources apps/connect
       - name: poetry build and export dependencies
         shell: bash
         run: |
           cd ${{ needs.set-variables.outputs.folder }}
           poetry build
-          poetry export -f requirements.txt --without-hashes -o dist/requirements.txt
       - name: Get Connect version
         id: get_version # This ID is used to reference the output of the step
         shell: bash
@@ -100,20 +99,7 @@ jobs:
         shell: bash
         run: |
           echo "Uploading ftrack_connect-${{ needs.connect-build.outputs.connect_version }}-py3-none-any.whl"
-          gh release upload ${{ needs.set-variables.outputs.tag }} ${{ needs.set-variables.outputs.folder }}/dist/ftrack_connect-${{ steps.get_version.outputs.connect_version }}-py3-none-any.whl --clobber
-      - name: Prepare upload requirements.txt build to GitHub Release
-        uses: actions/upload-artifact@v2
-        with:
-          name: requirements
-          path: ${{ needs.set-variables.outputs.folder }}/dist/requirements.txt
-      - name: Upload requirements.txt to GitHub Release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        shell: bash
-        run: |
-          echo "Uploading requirements.txt"
-          gh release upload ${{ needs.set-variables.outputs.tag }} ${{ needs.set-variables.outputs.folder }}/dist/requirements.txt --clobber
-          
+          gh release upload ${{ needs.set-variables.outputs.tag }} ${{ needs.set-variables.outputs.folder }}/dist/ftrack_connect-${{ steps.get_version.outputs.connect_version }}-py3-none-any.whl --clobber     
 
   installer-windows:
     name: Build Connect Installer on Windows
@@ -123,7 +109,7 @@ jobs:
       CODESIGN: 'True' # Set this to 'True' or 'False' as needed
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.10'
       - name: install poetry
@@ -134,11 +120,7 @@ jobs:
         shell: bash
         run: |
           pip install -r tools/requirements-connect.txt
-          python tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py build_qt_resources apps/connect
-      - name: install installer requirements
-        run: |
-          cd installers/connect-installer
-          pip install -r requirements.txt
+          python tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py --pyside_version 6 build_qt_resources apps/connect
       - uses: google-github-actions/auth@v2
         if: env.CODESIGN == 'True'
         with:
@@ -152,13 +134,12 @@ jobs:
       - name: Install Inno Setup, needed to create the installer
         run: |
           choco install innosetup
-      - name: poetry build and export dependencies
+      - name: poetry build installer
         shell: bash
         run: |
           cd ${{ needs.set-variables.outputs.folder }}
           poetry install --with installer --no-root --sync
-          poetry run ftrack-connect-installer
-          poetry export -f requirements.txt --without-hashes -o dist/requirements.txt
+          poetry run ftrack-connect-installer --codesign env.CODESIGN
       - name: Upload EXE installer to GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -177,14 +158,14 @@ jobs:
   installer-macos:
     name: Build Connect Installer on MacOs
     needs: [ set-variables, connect-build ]
-    runs-on: macos-latest
+    runs-on: macos-12
     env:
       CODESIGN: 'True' # Set this to 'True' or 'False' as needed
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
-          python-version: '3.7'
+          python-version: '3.10'
       - name: Install npm dependencies
         run: npm install -g appdmg
       - name: Set CPPFLAGS LDFLAGS
@@ -194,22 +175,15 @@ jobs:
           export LDFLAGS=-L/usr/local/opt/openssl/lib
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Download the .whl file artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: ftrack-connect-whl
-      - name: Download the .txt file artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: requirements
-      - name: Use the .whl file
+      - name: install poetry
+        shell: bash
         run: |
-          pip install -r requirements.txt  ftrack_connect-${{ needs.connect-build.outputs.connect_version }}-py3-none-any.whl
-      - name: install installer requirements
+          pip install poetry==1.5.1
+      - name: Build Qt resources
+        shell: bash
         run: |
-          cd installers/connect-installer
-          pip install  -r requirements.txt
-
+          pip install -r tools/requirements-connect.txt
+          python tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py --pyside_version 6 build_qt_resources apps/connect
       - name: Codesign app bundle
         if: env.CODESIGN == 'True'
         # Guidance pick from https://federicoterzi.com/blog/automatic-code-signing-and-notarization-for-macos-apps-using-github-actions/
@@ -245,15 +219,13 @@ jobs:
           echo "Create keychain profile to notarize"
           xcrun notarytool store-credentials "notarytool-profile" --apple-id "$PROD_MACOS_NOTARIZATION_APPLE_ID" --team-id "$PROD_MACOS_NOTARIZATION_TEAM_ID" --password "$PROD_MACOS_NOTARIZATION_PWD"
 
-          # Build codesign and notarize
-          cd installers/connect-installer
-          python setup.py bdist_mac --codesign_frameworks --codesign --create_dmg --notarize
-
-      - name: make installer
-        if: env.CODESIGN == 'False'
+      - name: poetry build installer
+        shell: bash
         run: |
-          cd installers/connect-installer
-          python setup.py bdist_mac --create_dmg
+          cd ${{ needs.set-variables.outputs.folder }}
+          poetry install --with installer --no-root --sync
+          poetry run ftrack-connect-installer --codesign env.CODESIGN
+
       - name: Upload Connect DMG to GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -297,11 +269,11 @@ jobs:
           dnf install -y gh
           # Configure Git to allow the current directory
           git config --global --add safe.directory /__w/integrations/integrations
-      - name: Install Python 3.7 using pyenv
+      - name: Install Python 3.10 using pyenv
         run: |
           source ~/.bashrc
-          pyenv install 3.7.16
-          pyenv global 3.7.16
+          pyenv install 3.10
+          pyenv global 3.10
       - name: Verify Python version
         run: |
           source ~/.bashrc
@@ -314,28 +286,23 @@ jobs:
           pyenv exec pip install patchelf
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Download the .whl file artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: ftrack-connect-whl
-      - name: Download the .txt file artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: requirements
-      - name: Use the .whl file
+      - name: install poetry
+        shell: bash
+        run: |
+          pip install poetry==1.5.1
+      - name: Build Qt resources
+        shell: bash
         run: |
           source ~/.bashrc
-          pyenv exec pip install -r requirements.txt ftrack_connect-${{ needs.connect-build.outputs.connect_version }}-py3-none-any.whl
-      - name: install installer requirements
+          pyenv exec pip install -r tools/requirements-connect.txt
+          pyenv exec python tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py --pyside_version 6 build_qt_resources apps/connect
+      - name: poetry build installer
+        shell: bash
         run: |
           source ~/.bashrc
-          cd installers/connect-installer
-          pyenv exec pip install  -r requirements.txt
-      - name: make installer build tar.gz
-        run: |
-          source ~/.bashrc
-          cd installers/connect-installer
-          pyenv exec python setup.py build_exe --create_deployment
+          cd ${{ needs.set-variables.outputs.folder }}
+          pyenv exec poetry install --with installer --no-root --sync
+          pyenv exec poetry run ftrack-connect-installer --codesign env.CODESIGN
       - name: Upload Connect tar.gz and md5 to GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
