@@ -17,9 +17,9 @@ DisableProgramGroupPage=yes
 ; Remove the following line to run in administrative install mode (install for all users.)
 PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=dialog
-OutputDir=..\..\dist
+OutputDir=${DIST_PATH}
 OutputBaseFilename=ftrack_connect-${VERSION}-win64
-SetupIconFile=..\..\logo.ico
+SetupIconFile=${ROOT_PATH}\logo.ico
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
@@ -31,8 +31,8 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "..\..\dist\ftrack Connect\ftrack Connect.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\..\dist\ftrack Connect\_internal\*"; DestDir: "{app}\_internal"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "${DIST_PATH}\ftrack Connect\ftrack Connect.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "${DIST_PATH}\ftrack Connect\_internal\*"; DestDir: "{app}\_internal"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]

@@ -129,6 +129,8 @@ class WindowsAppInstaller(AppInstaller):
                 os.makedirs(os.path.dirname(temp_iss_path))
             with open(temp_iss_path, "w") as f_out:
                 f_out.write(template.replace('${VERSION}', self.version))
+                f_out.write(template.replace('${DIST_PATH}', self.dist_path))
+                f_out.write(template.replace('${ROOT_PATH}', self.root_path))
 
         # Run innosetup, check exitcode
         innosetup_commands = [self.INNOSETUP_PATH, temp_iss_path]
@@ -242,7 +244,6 @@ class MacOSAppInstaller(AppInstaller):
         with open(json_file_path, 'w') as json_file:
             json.dump(app_dmg_args, json_file, indent=4)
 
-        # TODO: appdmg complains on M1, check hdiutil or create-dmg as alternatives: hdiutil create -volname "ftrack Connect" -srcfolder "/path/to/ftrack Connect.app" -ov -format UDZO "/path/to/ftrack_Connect.dmg"
         dmg_command = f'appdmg {json_file_path} "{dmg_path}"'
         dmg_result = os.system(dmg_command)
         if dmg_result != 0:
