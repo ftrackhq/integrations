@@ -231,11 +231,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
-          echo "Listing contents of installers/connect-installer/dist:"
-          ls -l installers/connect-installer/dist
-          echo "Listing contents of installers/connect-installer/build:"
-          ls -l installers/connect-installer/build
-          cd installers/connect-installer/dist
+          echo "Listing contents of apps/connect/dist:"
+          ls -l apps/connect/dist
+          echo "Listing contents of apps/connect/build:"
+          ls -l apps/connect/build
+          cd apps/connect/dist
           version="${{ needs.set-variables.outputs.package_version }}"
           clean_package_version="${version#v}"  # Remove leading 'v' from version
           echo "Uploading ftrack_connect-${clean_package_version}.dmg"
@@ -289,7 +289,8 @@ jobs:
       - name: install poetry
         shell: bash
         run: |
-          pip install poetry==1.5.1
+          source ~/.bashrc
+          pyenv exec pip install poetry==1.5.1
       - name: Build Qt resources
         shell: bash
         run: |
@@ -309,11 +310,11 @@ jobs:
         shell: bash
         run: |
           source ~/.bashrc
-          echo "Listing contents of installers/connect-installer/dist:"
-          ls -l installers/connect-installer/dist
-          echo "Listing contents of installers/connect-installer/build:"
-          ls -l installers/connect-installer/build
-          cd installers/connect-installer/dist
+          echo "Listing contents of apps/connect/dist:"
+          ls -l apps/connect/dist
+          echo "Listing contents of apps/connect/build:"
+          ls -l apps/connect/build
+          cd apps/connect/dist
           version="${{ needs.set-variables.outputs.package_version }}"
           clean_package_version="${version#v}"  # Remove leading 'v' from version
           echo "Uploading ftrack_connect-${clean_package_version}-R${{ matrix.rocky-version }}.tar.gz"
