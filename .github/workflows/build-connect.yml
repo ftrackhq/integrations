@@ -174,7 +174,7 @@ jobs:
     needs: [ set-variables, connect-build ]
     runs-on: macos-12
     env:
-      CODESIGN: 'False' # Set this to 'True' or 'False' as needed
+      CODESIGN: 'True' # Set this to 'True' or 'False' as needed
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v5
