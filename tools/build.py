@@ -99,7 +99,6 @@ def build_package(invokation_path, pkg_path, args, command=None):
                 )
             )
         if not is_monorepo(MONOREPO_PATH):
-            # Is it cwd?
             logging.warning(
                 f'Integrations monorepo not found at "{MONOREPO_PATH}", '
                 f'building with framework extensions or from source will '
