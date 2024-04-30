@@ -76,6 +76,10 @@ class AppInstaller(object):
             self.build_path,
             '--add-data',
             version_file_path + ':ftrack_connect',
+            '--hidden-import',
+            # This is just making sure to add this build in python library so
+            # its available on the installer (Requested by Lorenzo)
+            'html.parser',
             '-y',
             '--clean',
         ]

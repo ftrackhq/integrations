@@ -12,7 +12,7 @@ AppPublisher=ftrack AB
 AppPublisherURL=https://www.ftrack.com/
 AppSupportURL=https://www.ftrack.com/
 AppUpdatesURL=https://www.ftrack.com/
-DefaultDirName={autopf}\ftrack Connect
+DefaultDirName={pf}\ftrack Connect
 DisableProgramGroupPage=yes
 ; Remove the following line to run in administrative install mode (install for all users.)
 PrivilegesRequired=lowest
