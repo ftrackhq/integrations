@@ -1,8 +1,10 @@
 # ftrack Framework Nuke integration release Notes
 
-## Upcoming
+## v24.4.1
+2024-04-30
 
 * [fix] Launcher; Properly escaped version expressions.
+
 
 ## v24.4.0
 2024-04-02
