@@ -113,7 +113,7 @@ class Registry(object):
                 discovered_extensions, dir_extensions
             )
 
-        for extension in discovered_extensions:
+        for extension in unique_extensions:
             self.add(**extension)
 
     def add(self, extension_type, name, extension, path):

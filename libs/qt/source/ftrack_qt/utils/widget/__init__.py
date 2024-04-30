@@ -1,9 +1,13 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
-import shiboken2
 
-from Qt import QtWidgets, QtCore, QtGui
+try:
+    from PySide6 import QtWidgets, QtCore, QtGui
+    import shiboken6 as shiboken
+except ImportError:
+    from PySide2 import QtWidgets, QtCore, QtGui
+    import shiboken2 as shiboken
 
 from ftrack_utils.framework.config.tool import get_plugins
 
@@ -39,12 +43,30 @@ def get_framework_main_dialog(widget):
 def set_property(widget, name, value):
     '''Update property *name* to *value* for *widget*, and polish afterwards.'''
     widget.setProperty(name, value)
-    if widget.style() is not None and shiboken2.isValid(
+    if widget.style() is not None and shiboken.isValid(
         widget.style()
     ):  # Only update style if applied and valid
         widget.style().unpolish(widget)
         widget.style().polish(widget)
     widget.update()
+
+
+def set_properties(widget, properties):
+    """
+    Set multiple properties on a Qt widget.
+
+    Args:
+        widget (QWidget): The widget on which to set the properties.
+        properties (dict): A dictionary of property names and values.
+    """
+    for name, value in properties.items():
+        widget.setProperty(name, value)
+        if widget.style() is not None and shiboken2.isValid(
+            widget.style()
+        ):  # Only update style if applied and valid
+            widget.style().unpolish(widget)
+            widget.style().polish(widget)
+        widget.update()
 
 
 def center_widget(widget, width=None, height=None):

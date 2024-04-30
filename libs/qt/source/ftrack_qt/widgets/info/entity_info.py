@@ -2,7 +2,10 @@
 # :copyright: Copyright (c) 2024 ftrack
 import os
 
-from Qt import QtWidgets, QtCore
+try:
+    from PySide6 import QtWidgets, QtCore
+except ImportError:
+    from PySide2 import QtWidgets, QtCore
 
 
 class EntityInfo(QtWidgets.QWidget):
@@ -58,7 +61,7 @@ class EntityInfo(QtWidgets.QWidget):
         name_widget.layout().setSpacing(0)
 
         self._name_field = QtWidgets.QLabel()
-        self._name_field.setObjectName('h3')
+        self._name_field.setProperty('h3', True)
         name_widget.layout().addWidget(self._name_field)
         if self._additional_widget:
             name_widget.layout().addWidget(self._additional_widget)
@@ -66,7 +69,7 @@ class EntityInfo(QtWidgets.QWidget):
         self.layout().addWidget(name_widget)
 
         self._path_field = QtWidgets.QLabel()
-        self._path_field.setObjectName('gray')
+        self._path_field.setProperty('secondary', True)
         self.layout().addWidget(self._path_field)
 
         self.layout().addStretch()

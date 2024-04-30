@@ -3,7 +3,10 @@ import sys
 import ftrack_api
 import logging
 
-from Qt import QtWidgets
+try:
+    from PySide6 import QtWidgets
+except ImportError:
+    from PySide2 import QtWidgets
 
 
 from ftrack_framework_core.configure_logging import configure_logging
@@ -42,14 +45,15 @@ event_manager = event.EventManager(
 )
 os.environ[
     'FTRACK_CONTEXTID'
-] = '439dc504-a904-11ec-bbac-be6e0a48ed73'  # Henrik
-# os.environ['FTRACK_CONTEXTID'] = '571a7a04-eabe-44b5-99b7-6cc5ebb74c77' # LLuis
+] = '439dc504-a904-11ec-bbac-be6e0a48ed73'  # LLuis
+# os.environ['FTRACK_CONTEXTID'] = '571a7a04-eabe-44b5-99b7-6cc5ebb74c77' # Henrik
 
 
 FTRACK_CONNECT_EXTENSIONS_PATH = [
     os.path.join(
         ROOT_INTEGRATIONS_FOLDER, 'projects', 'framework-common-extensions'
     ),
+    os.path.join(ROOT_INTEGRATIONS_FOLDER, 'tests', 'framework', 'resources'),
 ]
 
 registry_instance = registry.Registry()
@@ -66,7 +70,7 @@ app = QtWidgets.QApplication.instance()
 if not app:
     app = QtWidgets.QApplication(sys.argv)
 
-WHAT = 'opener'
+WHAT = 'publisher'
 client_class.run_dialog(
     dialog_name=f'framework_standard_{WHAT}_dialog',
     dialog_options={'tool_config_names': [f'standalone-file-{WHAT}']},

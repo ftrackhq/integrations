@@ -10,6 +10,10 @@ official CI/CD build implementation in place.
 
 Changelog:
 
+0.4.19 [24.04.22] Qt resource build; Stop replacing Qt imports in built resource.py.
+0.4.18 [24.04.19] CEP plugin support. PySide integrations not platform dependent.
+0.4.17 [24.04.18] Build script to support extras.
+0.4.16 [24.03.19] PySide6 resource build support.
 0.4.15 [24.03.13] Fix platform dependent bug.
 0.4.14 [24.02.23] Incorporate RV pkg build.
 0.4.13 [24.02.12] Build qt-style when building CEP plugin.
@@ -43,7 +47,7 @@ from distutils.spawn import find_executable
 import fileinput
 import tempfile
 
-__version__ = '0.4.15'
+__version__ = '0.4.19'
 
 ZXPSIGN_CMD = 'ZXPSignCmd'
 
@@ -68,9 +72,8 @@ def build_package(pkg_path, args, command=None):
     CONNECT_PLUGIN_PATH = os.path.join(ROOT_PATH, 'connect-plugin')
     BUILD_PATH = os.path.join(ROOT_PATH, 'dist')
     EXTENSION_PATH = os.path.join(ROOT_PATH, 'extensions')
-    CEP_PATH = os.path.join(ROOT_PATH, 'resource', 'cep')
     USES_FRAMEWORK = False
-    FTRACK_DEP_LIBS = []
+    FTRACK_DEP_LIBS = {}
     PLATFORM_DEPENDENT = False
 
     POETRY_CONFIG_PATH = os.path.join(ROOT_PATH, 'pyproject.toml')
@@ -81,7 +84,7 @@ def build_package(pkg_path, args, command=None):
         nonlocal USES_FRAMEWORK, PLATFORM_DEPENDENT, FTRACK_DEP_LIBS
         section = None
         with open(toml_path) as f:
-            for line in f:
+            for line in f.readlines():
                 if line.startswith("["):
                     section = line.strip().strip('[]')
                 elif section == 'tool.poetry.dependencies':
@@ -93,13 +96,31 @@ def build_package(pkg_path, args, command=None):
                         if lib not in FTRACK_DEP_LIBS and os.path.exists(
                             lib_toml_path
                         ):
+                            # Any extras?
+                            extras = None
+                            if line.find('extras') > -1:
+                                extras = []
+                                for extra in [
+                                    extra.strip('"')
+                                    for extra in line.split('[')[1]
+                                    .split(']')[0]
+                                    .split(',')
+                                ]:
+                                    if not extra.startswith('pyside'):
+                                        extras.append(extra)
+                                    else:
+                                        logging.warning(
+                                            f'Ignore "{extra}" extra, pyside is supplied by Connect'
+                                        )
                             logging.info(
-                                f'Identified monorepo dependency: {lib}'
+                                f'Identified monorepo dependency: {lib} (extras: {extras})'
                             )
-                            FTRACK_DEP_LIBS.append(lib)
+                            FTRACK_DEP_LIBS[lib] = {'from': toml_path}
+                            if extras:
+                                FTRACK_DEP_LIBS[lib]['extras'] = extras
                             # Recursively add monorepo dependencies
                             append_dependencies(lib_toml_path)
-                        if line.startswith('ftrack-framework-core'):
+                        if lib == 'framework-core':
                             USES_FRAMEWORK = True
 
     if os.path.exists(POETRY_CONFIG_PATH):
@@ -116,10 +137,7 @@ def build_package(pkg_path, args, command=None):
                         VERSION = line.split('=')[1].strip().strip('"')
                 elif section == 'tool.poetry.dependencies':
                     if line.find('pyside') > -1:
-                        PLATFORM_DEPENDENT = True
-                        logging.info(
-                            'Platform dependent build - OS suffix will be added to artifact.'
-                        )
+                        pass
 
         append_dependencies(POETRY_CONFIG_PATH)
 
@@ -167,11 +185,7 @@ def build_package(pkg_path, args, command=None):
         )
         with open(source_path, 'r') as f_src:
             with open(target_path, 'w') as f_dst:
-                f_dst.write(
-                    f_src.read().replace(
-                        '{{FTRACK_FRAMEWORK_PHOTOSHOP_VERSION}}', VERSION
-                    )
-                )
+                f_dst.write(f_src.read().replace('${VERSION}', VERSION))
 
     def build_connect_plugin(args):
         '''
@@ -371,7 +385,7 @@ def build_package(pkg_path, args, command=None):
                             dependencies_path,
                         ]
                     )
-                    subprocess.check_call()
+                    subprocess.check_call(commands)
 
                 # Copy the extension
                 logging.info('Copying {}'.format(dependency_path))
@@ -449,17 +463,21 @@ def build_package(pkg_path, args, command=None):
                         continue
                     # Install it
                     logging.info('Installing library: {}'.format(wheel_name))
-                    subprocess.check_call(
-                        [
-                            sys.executable,
-                            '-m',
-                            'pip',
-                            'install',
-                            os.path.join(dist_path, wheel_name),
-                            '--target',
-                            dependencies_path,
-                        ]
+                    extras = (
+                        ",".join(FTRACK_DEP_LIBS[filename]["extras"])
+                        if 'extras' in FTRACK_DEP_LIBS[filename]
+                        else None
                     )
+                    commands = [
+                        sys.executable,
+                        '-m',
+                        'pip',
+                        'install',
+                        f'{os.path.join(dist_path, wheel_name)}{f"[{extras}]" if extras else ""}',
+                        '--target',
+                        dependencies_path,
+                    ]
+                    subprocess.check_call(commands)
 
         logging.info(
             f'Exporting dependencies from: "{os.path.basename(lock_path)}" (extras: {extras})'
@@ -548,23 +566,6 @@ def build_package(pkg_path, args, command=None):
             logging.warning(f'Removing: {STAGING_PATH}')
             shutil.rmtree(STAGING_PATH, ignore_errors=True)
 
-    def _replace_imports_(resource_target_path):
-        '''Replace imports in resource files to Qt instead of QtCore.
-
-        This allows the resource file to work with many different versions of
-        Qt.
-
-        '''
-        replace = r'from Qt import QtCore'
-        for line in fileinput.input(
-            resource_target_path, inplace=True, mode='r'
-        ):
-            if r'import QtCore' in line:
-                # Calling print will yield a new line in the resource file.
-                sys.stdout.write(line.replace(line, replace))
-            else:
-                sys.stdout.write(line)
-
     def build_qt_resources(args):
         '''Build resources.py from style'''
         try:
@@ -608,8 +609,8 @@ def build_package(pkg_path, args, command=None):
         else:
             logging.warning('No styles to compile.')
 
+        pyside_rcc_command = 'pyside2-rcc'
         try:
-            pyside_rcc_command = 'pyside2-rcc'
             executable = None
 
             # Check if the command for pyside*-rcc is in executable paths.
@@ -618,7 +619,7 @@ def build_package(pkg_path, args, command=None):
 
             if not executable:
                 logging.warning(
-                    'No executable found for pyside2-rcc, attempting to run as '
+                    f'No executable found for {pyside_rcc_command}, attempting to run as '
                     'a module'
                 )
                 executable = [sys.executable, '-m', 'scss']
@@ -634,12 +635,10 @@ def build_package(pkg_path, args, command=None):
 
         except (subprocess.CalledProcessError, OSError):
             raise RuntimeError(
-                'Error compiling resource.py using pyside-rcc. Possibly '
-                'pyside-rcc could not be found. You might need to manually add '
+                f'Error compiling resource.py using {pyside_rcc_command}. Possibly '
+                f'{pyside_rcc_command} could not be found. You might need to manually add '
                 'it to your PATH. See README for more information.'
             )
-
-        _replace_imports_(resource_target_path)
 
     def build_sphinx(args):
         '''Wrapper for building docs for preview'''
@@ -656,10 +655,15 @@ def build_package(pkg_path, args, command=None):
     def build_cep(args):
         '''Wrapper for building Adobe CEP extension'''
 
+        CEP_PATH = os.path.join(MONOREPO_PATH, 'resource', 'adobe-cep')
         if not os.path.exists(CEP_PATH):
-            raise Exception('Missing "{}/" folder!'.format(CEP_PATH))
+            raise Exception('Missing common "{}/" folder!'.format(CEP_PATH))
 
-        MANIFEST_PATH = os.path.join(CEP_PATH, 'bundle', 'manifest.xml')
+        CEP_DCC_PATH = os.path.join(ROOT_PATH, 'resource', 'adobe-cep')
+        if not os.path.exists(CEP_DCC_PATH):
+            raise Exception('Missing DCC "{}/" folder!'.format(CEP_PATH))
+
+        MANIFEST_PATH = os.path.join(CEP_DCC_PATH, 'bundle', 'manifest.xml')
         if not os.path.exists(MANIFEST_PATH):
             raise Exception('Missing manifest:{}!'.format(MANIFEST_PATH))
 
@@ -681,6 +685,7 @@ def build_package(pkg_path, args, command=None):
             )
 
         STAGING_PATH = os.path.join(BUILD_PATH, 'staging')
+        assert DCC_NAME, 'Please provide DCC name to build CEP plugin for'
 
         # Clean previous build
         if os.path.exists(BUILD_PATH):
@@ -712,8 +717,8 @@ def build_package(pkg_path, args, command=None):
         if not os.path.exists(style_path):
             raise Exception('Missing "{}/" folder!'.format(style_path))
 
-        # Copy html
-        for filename in ['index.html']:
+        # Copy html and base bootstrap
+        for filename in ['index.html', 'bootstrap.js']:
             parse_and_copy(
                 os.path.join(CEP_PATH, filename),
                 os.path.join(STAGING_PATH, filename),
@@ -756,26 +761,20 @@ def build_package(pkg_path, args, command=None):
         )
 
         logging.info("Copying framework js lib files")
+        framework_js_path = os.path.join(
+            MONOREPO_PATH, 'libs', f'framework-js', 'source'
+        )
         for js_file in [
             os.path.join(
-                MONOREPO_PATH,
-                'projects',
-                'framework-photoshop-js',
-                'source',
+                framework_js_path,
                 'utils.js',
             ),
             os.path.join(
-                MONOREPO_PATH,
-                'projects',
-                'framework-photoshop-js',
-                'source',
+                framework_js_path,
                 'event-constants.js',
             ),
             os.path.join(
-                MONOREPO_PATH,
-                'projects',
-                'framework-photoshop-js',
-                'source',
+                framework_js_path,
                 'events-core.js',
             ),
         ]:
@@ -783,13 +782,22 @@ def build_package(pkg_path, args, command=None):
                 js_file,
                 os.path.join(STAGING_PATH, 'lib', os.path.basename(js_file)),
             )
-        for filename in ['bootstrap.js', 'ps.jsx']:
+
+        # Copy extensions
+        if DCC_NAME == 'photoshop':
+            extendscript_file = 'ps{}.jsx'
+        else:
+            raise Exception('Unsupported Adobe DCC: {}'.format(DCC_NAME))
+
+        for filename in [
+            'bootstrap-dcc.js',
+            extendscript_file.format(''),
+            extendscript_file.format('-include'),
+        ]:
             parse_and_copy(
                 os.path.join(
-                    MONOREPO_PATH,
-                    'projects',
-                    'framework-photoshop-js',
-                    'source',
+                    EXTENSION_PATH,
+                    'js',
                     filename,
                 ),
                 os.path.join(STAGING_PATH, filename),
@@ -804,8 +812,7 @@ def build_package(pkg_path, args, command=None):
         parse_and_copy(MANIFEST_PATH, manifest_staging_path)
 
         extension_output_path = os.path.join(
-            BUILD_PATH,
-            'ftrack-framework-adobe-{}.zxp'.format(VERSION),
+            BUILD_PATH, f'ftrack-framework-{DCC_NAME}-{VERSION}.zxp'
         )
 
         if not args.nosign:
@@ -969,7 +976,6 @@ if __name__ == '__main__':
         help='(QT resource build/RV pkg build) Override the QT resource output directory.',
     )
 
-    # CEP options
     parser.add_argument(
         '--nosign',
         help='(CEP plugin build) Do not sign and create ZXP.',

@@ -1,8 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
-from Qt import QtWidgets, QtCore
-
+try:
+    from PySide6 import QtWidgets, QtCore
+except ImportError:
+    from PySide2 import QtWidgets, QtCore
 from ftrack_framework_core.widget.dialog import FrameworkDialog
 
 from ftrack_qt.widgets.dialogs import StyledDialog
@@ -18,6 +20,26 @@ class BaseDialog(FrameworkDialog, StyledDialog):
     tool_config_type_filter = None
     run_button_title = 'run'
     ui_type = 'qt'
+
+    @property
+    def stacked_widget(self):
+        return self._stacked_widget
+
+    @property
+    def main_widget(self):
+        return self._main_widget
+
+    @property
+    def overlay_widget(self):
+        return self._overlay_widget
+
+    @property
+    def main_layout(self):
+        return self._main_layout
+
+    @property
+    def overlay_layout(self):
+        return self._overlay_layout
 
     @property
     def header(self):
@@ -78,6 +100,12 @@ class BaseDialog(FrameworkDialog, StyledDialog):
             dialog_options,
             parent,
         )
+        self._stacked_widget = None
+        self._main_widget = None
+        self._overlay_widget = None
+        self._main_layout = None
+        self._overlay_layout = None
+
         self._header = None
         self._tool_widget = None
         self._run_button = None
@@ -87,8 +115,32 @@ class BaseDialog(FrameworkDialog, StyledDialog):
         self.post_build()
 
     def pre_build(self):
-        main_layout = QtWidgets.QVBoxLayout()
-        self.setLayout(main_layout)
+        base_layout = QtWidgets.QVBoxLayout()
+
+        self._stacked_widget = QtWidgets.QStackedWidget()
+        self._main_widget = (
+            QtWidgets.QWidget()
+        )  # Main widget that holds the primary interface
+        self._overlay_widget = (
+            QtWidgets.QWidget()
+        )  # Overlay widget that can cover the main interface
+
+        self._main_layout = QtWidgets.QVBoxLayout()
+        self._main_layout.setContentsMargins(0, 0, 0, 0)
+        self._overlay_layout = QtWidgets.QVBoxLayout()
+        self._overlay_layout.setContentsMargins(0, 0, 0, 0)
+
+        self._main_widget.setLayout(self._main_layout)
+        self._overlay_widget.setLayout(self._overlay_layout)
+
+        # Add widgets to the stacked widget
+        self._stacked_widget.addWidget(self._main_widget)
+        self._stacked_widget.addWidget(self._overlay_widget)
+
+        # Set the stacked widget as the central widget
+        self.setLayout(base_layout)
+        self.layout().addWidget(self._stacked_widget)
+        self.show_main_widget()
 
     def build(self):
         # Create the header
@@ -100,15 +152,36 @@ class BaseDialog(FrameworkDialog, StyledDialog):
 
         self._run_button = QtWidgets.QPushButton(self.run_button_title)
 
-        self.layout().addWidget(self._header)
-        self.layout().addWidget(self._tool_widget)
-        self.layout().addWidget(self._run_button)
+        self.main_layout.addWidget(self._header)
+        self.main_layout.addWidget(self._tool_widget)
+        self.main_layout.addWidget(self._run_button)
 
     def post_build(self):
         '''Set up all the signals'''
         self._on_client_context_changed_callback()
         # Connect run_tool_config button
         self._run_button.clicked.connect(self._on_run_button_clicked)
+
+    def show_main_widget(self):
+        '''Show the main widget'''
+        self.show_widget(0)
+
+    def show_overlay_widget(self):
+        '''Show the overlay widget'''
+        self.show_widget(1)
+
+    def show_widget(self, idx):
+        '''Show widget from stcked_widget with given *idx*'''
+        if not self.stacked_widget.widget(idx):
+            self.stacked_widget.setCurrentIndex(0)
+            self.logger.warning(
+                f"Given index {idx} doesn't exists, setting current widget to index 0"
+            )
+        self.stacked_widget.setCurrentIndex(idx)
+
+    def add_stacked_widget(self, widget):
+        '''Add given *widget to stack_widget'''
+        self.stacked_widget.addWidget(widget)
 
     def _on_client_context_changed_callback(self, event=None):
         '''Client context has been changed'''
@@ -135,8 +208,8 @@ class BaseDialog(FrameworkDialog, StyledDialog):
         self.raise_()
         self.activateWindow()
         self.setWindowState(
-            self.windowState() & ~QtCore.Qt.WindowMinimized
-            | QtCore.Qt.WindowActive
+            self.windowState() & ~QtCore.Qt.WindowState.WindowMinimized
+            | QtCore.Qt.WindowState.WindowActive
         )
 
     def connect_focus_signal(self):

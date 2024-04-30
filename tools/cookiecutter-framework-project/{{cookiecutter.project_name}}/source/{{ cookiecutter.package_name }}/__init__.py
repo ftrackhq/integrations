@@ -1,8 +1,9 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2024 ftrack
+# :copyright: Copyright (c) 2024 ftrack
 import logging
 import os
 import traceback
+import platform
 
 import ftrack_api
 
@@ -17,6 +18,8 @@ from ftrack_constants import framework as constants
 from ftrack_utils.extensions.environment import (
     get_extensions_path_from_environment,
 )
+
+from ftrack_utils.usage import set_usage_tracker, UsageTracker
 
 from ftrack_framework_{{ cookiecutter.integration_name }}.utils import dock_{{ cookiecutter.integration_name }}_right, run_in_main_thread
 
@@ -44,11 +47,14 @@ logger.debug('v{}'.format(__version__))
 
 @run_in_main_thread
 def on_run_dialog_callback(
-    client_instance, dialog_name, tool_config_names, {{ cookiecutter.integration_name }}_args
+    client_instance, dialog_name, tool_config_names, docked, {{ cookiecutter.integration_name }}_args
 ):
     client_instance.run_dialog(
         dialog_name,
-        dialog_options={'tool_config_names': tool_config_names},
+        dialog_options={
+            'tool_config_names': tool_config_names,
+            'docked': docked,
+        },
         dock_func=dock_{{ cookiecutter.integration_name }}_right,
     )
 
@@ -70,6 +76,48 @@ def bootstrap_integration(framework_extensions_path):
     # Instantiate registry
     registry_instance = Registry()
     registry_instance.scan_extensions(paths=framework_extensions_path)
+
+    registry_info_dict = {
+        'tool_configs': [
+            item['name'] for item in registry_instance.tool_configs
+        ]
+        if registry_instance.tool_configs
+        else [],
+        'plugins': [item['name'] for item in registry_instance.plugins]
+        if registry_instance.plugins
+        else [],
+        'engines': [item['name'] for item in registry_instance.engines]
+        if registry_instance.engines
+        else [],
+        'widgets': [item['name'] for item in registry_instance.widgets]
+        if registry_instance.widgets
+        else [],
+        'dialogs': [item['name'] for item in registry_instance.dialogs]
+        if registry_instance.dialogs
+        else [],
+        'launch_configs': [
+            item['name'] for item in registry_instance.launch_configs
+        ]
+        if registry_instance.launch_configs
+        else [],
+        'dcc_configs': [item['name'] for item in registry_instance.dcc_configs]
+        if registry_instance.dcc_configs
+        else [],
+    }
+
+    # Set mix panel event
+    set_usage_tracker(
+        UsageTracker(
+            session=session,
+            default_data=dict(
+                app="{{ cookiecutter.integration_name.capitalize() }}",
+                registry=registry_info_dict,
+                version=__version__,
+                app_version="2024", # TODO: fetch DCC version through API
+                os=platform.platform(),
+            ),
+        )
+    )
 
     # Instantiate Host and Client
     Host(event_manager, registry=registry_instance)

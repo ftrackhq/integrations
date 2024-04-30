@@ -22,7 +22,7 @@ import re
 
 # The Connect installer version, remember to bump this and update release notes
 # prior to release
-__version__ = '24.4.0'
+__version__ = '24.4.1rc1'
 
 # Embedded plugins.
 
@@ -451,7 +451,6 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             'encodings',
             'PySide2',
             'shiboken2',
-            'Qt',
             'PySide2.QtSvg',
             'PySide2.QtXml',
             'PySide2.QtCore',
@@ -483,7 +482,6 @@ if sys.platform in ('darwin', 'win32', 'linux'):
         "zip_include_packages": [
             "PySide2",
             "shiboken2",
-            "Qt",
             'PySide2.QtSvg',
             'PySide2.QtXml',
             'PySide2.QtCore',

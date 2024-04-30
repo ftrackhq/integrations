@@ -1,7 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
-from Qt import QtCore, QtWidgets, QtGui
+try:
+    from PySide6 import QtWidgets, QtCore
+except ImportError:
+    from PySide2 import QtWidgets, QtCore
 
 from ftrack_qt.widgets.logos import FtrackLogo as Logo
 from ftrack_qt.widgets.user import FtrackUser as User
@@ -34,7 +37,6 @@ class SessionHeader(QtWidgets.QFrame):
         self._show_logo = show_logo
         self._title = title
         self._show_user = show_user
-        self.setObjectName('ftrack-header-widget')
 
         self.pre_build()
         self.build()
@@ -43,7 +45,7 @@ class SessionHeader(QtWidgets.QFrame):
     def pre_build(self):
         self.setLayout(QtWidgets.QVBoxLayout())
         self.layout().setContentsMargins(8, 2, 7, 8)
-        self.layout().setAlignment(QtCore.Qt.AlignTop)
+        self.layout().setAlignment(QtCore.Qt.AlignmentFlag.AlignTop)
 
     def build(self):
         # Logo & User ID
@@ -51,13 +53,13 @@ class SessionHeader(QtWidgets.QFrame):
         self.id_container_layout = QtWidgets.QHBoxLayout()
         self.id_container_layout.setContentsMargins(1, 1, 1, 1)
         self.id_container_layout.setSpacing(5)
-        self.id_container_layout.setAlignment(QtCore.Qt.AlignTop)
+        self.id_container_layout.setAlignment(QtCore.Qt.AlignmentFlag.AlignTop)
         self.id_container.setLayout(self.id_container_layout)
 
         self.logo = Logo(self)
         if len(self._title or ''):
             self._title_label = QtWidgets.QLabel(self._title)
-            self._title_label.setObjectName('h2')
+            self._title_label.setProperty('h2', True)
         self.content_container = QtWidgets.QWidget()
         self.content_container.setLayout(QtWidgets.QHBoxLayout())
         self.content_container.layout().setContentsMargins(0, 0, 0, 0)

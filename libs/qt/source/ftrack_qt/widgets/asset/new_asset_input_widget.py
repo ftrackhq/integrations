@@ -1,7 +1,11 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
-from Qt import QtWidgets, QtCore, QtGui
+try:
+    from PySide6 import QtWidgets, QtCore
+except ImportError:
+    from PySide2 import QtWidgets, QtCore
+
 from ftrack_qt.utils.widget import set_property
 
 
@@ -61,29 +65,31 @@ class NewAssetInput(QtWidgets.QFrame):
     def build(self):
         '''Build the button, name input, and version label.'''
         self._button = QtWidgets.QPushButton('NEW')
-        self._button.setStyleSheet('background: #FFDD86;')
+        self._button.setProperty('filled', True)
         self._button.setFixedSize(56, 30)
         self._button.setMaximumSize(56, 30)
 
         self.layout().addWidget(self._button)
 
         self._name = QtWidgets.QLineEdit()
+        self._name.setAttribute(QtCore.Qt.WA_MacShowFocusRect, False)
         self._name.setPlaceholderText(self._placeholder_name)
         self._name.setValidator(self._validator)
         self._name.setSizePolicy(
-            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Minimum
+            QtWidgets.QSizePolicy.Policy.Preferred,
+            QtWidgets.QSizePolicy.Policy.Minimum,
         )
         self._name.setVisible(False)
         self.layout().addWidget(self._name, 1000)
 
         self._version_label = QtWidgets.QLabel('- Version 1')
-        self._version_label.setObjectName('color-primary')
         self._version_label.setVisible(False)
         self.layout().addWidget(self._version_label)
 
         self._filler = QtWidgets.QLabel('')
         self._filler.setSizePolicy(
-            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum
+            QtWidgets.QSizePolicy.Policy.Expanding,
+            QtWidgets.QSizePolicy.Policy.Minimum,
         )
         self.layout().addWidget(self._filler, 100)
 

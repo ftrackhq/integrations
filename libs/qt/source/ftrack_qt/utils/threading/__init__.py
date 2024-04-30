@@ -1,7 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
-from Qt import QtCore, QtWidgets
+try:
+    from PySide6 import QtCore
+except ImportError:
+    from PySide2 import QtCore, QtWidgets
 
 
 class InvokeEvent(QtCore.QEvent):

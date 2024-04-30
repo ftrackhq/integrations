@@ -311,13 +311,13 @@ files = [
 
 [[package]]
 name = "idna"
-version = "3.6"
+version = "3.7"
 description = "Internationalized Domain Names in Applications (IDNA)"
 optional = false
 python-versions = ">=3.5"
 files = [
-    {file = "idna-3.6-py3-none-any.whl", hash = "sha256:c05567e9c24a6b9faaa835c4821bad0590fbb9d5779e7caa6e1cc4978e7eb24f"},
-    {file = "idna-3.6.tar.gz", hash = "sha256:9ecdbbd083b06798ae1e86adcbfe8ab1479cf864e4ee30fe4e46a003d12491ca"},
+    {file = "idna-3.7-py3-none-any.whl", hash = "sha256:82fee1fc78add43492d3a1898bfa6d8a904cc97d8427f683ed8e798d07761aa0"},
+    {file = "idna-3.7.tar.gz", hash = "sha256:028ff3aadf0609c1fd278d8ea3089299412a7a8b9bd005dd08b9f8285bcb5cfc"},
 ]
 
 [[package]]
@@ -646,20 +646,6 @@ files = [
 ]
 
 [[package]]
-name = "qt-py"
-version = "1.3.10"
-description = "Python 2 & 3 compatibility wrapper around all Qt bindings - PySide, PySide2, PyQt4 and PyQt5."
-optional = false
-python-versions = "*"
-files = [
-    {file = "Qt.py-1.3.10-py2.py3-none-any.whl", hash = "sha256:16826a5ce0574ffbb2b41d78ec6715b56016db3b7e3ee5f54cf65123331afb5d"},
-    {file = "Qt.py-1.3.10.tar.gz", hash = "sha256:7d25e8da870e7955b15619894cd085893ed0556cafb946836c2037b589403328"},
-]
-
-[package.dependencies]
-types-PySide2 = "*"
-
-[[package]]
 name = "qtawesome"
 version = "1.3.1"
 description = "FontAwesome icons in PyQt and PySide applications"
@@ -938,17 +924,6 @@ files = [
 ]
 
 [[package]]
-name = "types-pyside2"
-version = "5.15.2.1.7"
-description = "The most accurate stubs for PySide2"
-optional = false
-python-versions = "*"
-files = [
-    {file = "types_pyside2-5.15.2.1.7-py2.py3-none-any.whl", hash = "sha256:a7bec4cb4657179415ca7ec7c70a45f9f9938664e22f385c85fd7cd724b07d4d"},
-    {file = "types_pyside2-5.15.2.1.7.tar.gz", hash = "sha256:1d65072deb97481ad481b3414f94d02fd5da07f5e709c2d439ced14f79b2537c"},
-]
-
-[[package]]
 name = "typing-extensions"
 version = "4.7.1"
 description = "Backported and Experimental Type Hints for Python 3.7+"
@@ -991,5 +966,5 @@ six = "*"
 
 [metadata]
 lock-version = "2.0"
-python-versions = ">= 3.7, < 3.9"
-content-hash = "67bc0a03538bb06c61401841cdb2fefa8d381cad0f16414b4bda76b3a3ae518e"
+python-versions = ">= 3.7, < 3.11"
+content-hash = "cc0dc20cfdcb700f6201f53b9642d4836c86114a72059ecabb96b143de36f4b7"

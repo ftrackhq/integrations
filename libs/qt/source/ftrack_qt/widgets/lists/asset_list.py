@@ -3,7 +3,10 @@
 
 import logging
 
-from Qt import QtWidgets, QtCore, QtGui
+try:
+    from PySide6 import QtWidgets, QtCore
+except ImportError:
+    from PySide2 import QtWidgets, QtCore
 
 
 class AssetList(QtWidgets.QListWidget):
@@ -64,10 +67,14 @@ class AssetList(QtWidgets.QListWidget):
         self._latest_published_asset_item = None
         self._active = True
 
-        self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.verticalScrollBar().setDisabled(True)
-        self.setAutoScroll(False)
+        self.setHorizontalScrollBarPolicy(
+            QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+        )
+        # TODO: Investigate further on how to make it look correctly
+        # self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        # self.verticalScrollBar().setDisabled(True)
+        self.setAutoScroll(True)
+
         self.setSpacing(1)
         self.assets = []
         self.currentItemChanged.connect(self.on_item_changed_callback)

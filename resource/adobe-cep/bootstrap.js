@@ -1,5 +1,5 @@
 /*
- ftrack Photoshop framework bootstrap
+ ftrack Adobe framework integration common bootstrap
 
  Copyright (c) 2024 ftrack
 */
@@ -13,26 +13,8 @@ var panel_launchers;
 var context_id = undefined;
 var project_id = undefined;
 
-function jsx_callback(){
-    console.log("ps.jsx loaded");
-}
-
-try {
-    jsx.evalFile('./ps.jsx', jsx_callback);
-} catch (e) {
-    error("[INTERNAL ERROR] Failed to load JSX resource "+e+" Details: "+e.stack);
-}
-
-// Load custom extension JSX if exists
-try {
-    jsx.evalFile('./ps-include.jsx', jsx_callback);
-} catch (e) {
-    console.log("[WARNING] Failed to load JSX include resource "+e+" Details: "+e.stack);
-}
-
-
 function initializeIntegration() {
-    /* Initialise the Photoshop JS integration part. */
+    /* Initialise the JS integration. */
     try {
         var env = {};
 
@@ -64,7 +46,7 @@ function initializeIntegration() {
                     }
                 });
             } else {
-                error("No ftrack environment variable(s) available, make sure you launch Photoshop from ftrack (task)!");
+                error("No ftrack environment variables available, make sure you launch DCC from a task within ftrack Studio or Connect!", false);
             }
         });
     } catch (e) {
@@ -101,6 +83,12 @@ function initializeSession(env, appVersion) {
             connect(appVersion);
         });
 
+        // Enable extension to do optional bootstrap
+        try {
+            ftrackInitialiseExtension(session, event_manager, remote_integration_session_id);
+        } catch (e) {
+            console.log("[WARNING] Failed to initialise ftrack additional extensions! "+e+" Details: "+e.stack);
+        }
     } catch (e) {
         error("[INTERNAL ERROR] Failed to initialise ftrack session! "+e+" Details: "+e.stack);
     }
@@ -158,6 +146,13 @@ function handleIntegrationContextDataCallback(event) {
             connected = true;
             showElement("connecting", false);
             showElement("content", true);
+
+            // Enable extension to react on connection
+            try {
+                ftrackIntegrationConnected();
+            } catch (e) {
+                console.log("[WARNING] Failed to tell extension we are connected! "+e+" Details: "+e.stack);
+            }
         } else {
             // Reply to event to confirm we received the data
             event_manager.publish_reply(event, prepareEventData(
@@ -198,25 +193,25 @@ function launchTool(tool_name) {
 
 // RPC - extendscript API calls
 
-// Whitelisted functions and their mappings, add entrypoints from ps.jsx here
-var RPC_FUNCTION_MAPPING = {
-    hasDocument:"hasDocument",
-    documentSaved:"documentSaved",
-    getDocumentPath:"getDocumentPath",
-    getDocumentData:"getDocumentData",
-    saveDocument:"saveDocument",
-    exportDocument:"exportDocument",
-    openDocument:"openDocument",
-};
-
 function handleRemoteIntegrationRPCCallback(event) {
     /* Handle RPC calls from standalone process - run function with arguments
      supplied in event and return the result.*/
+    if (!FTRACK_RPC_FUNCTION_MAPPING) {
+        error_message = "[INTERNAL ERROR] No RPC function mapping defined, please "+
+        "make sure to define FTRACK_RPC_FUNCTION_MAPPING in bootstrap-dcc.js!";
+        error(error_message);
+        event_manager.publish_reply(event, prepareEventData(
+            {
+                "error_message": error_message
+            }
+        ));
+        return;
+    }
     try {
         if (event.data.remote_integration_session_id !== remote_integration_session_id)
             return;
         let function_name_raw = event.data.function_name;
-        let function_name = RPC_FUNCTION_MAPPING[function_name_raw];
+        let function_name = FTRACK_RPC_FUNCTION_MAPPING[function_name_raw];
 
         if (function_name === undefined || function_name.length === 0) {
             event_manager.publish_reply(event, prepareEventData(

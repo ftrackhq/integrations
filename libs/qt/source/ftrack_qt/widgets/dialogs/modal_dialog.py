@@ -5,7 +5,10 @@ import platform
 
 from functools import partial
 
-from Qt import QtWidgets, QtCore, QtGui
+try:
+    from PySide6 import QtWidgets, QtCore
+except ImportError:
+    from PySide2 import QtWidgets, QtCore
 
 import ftrack_constants.qt as qt_constants
 
@@ -51,7 +54,8 @@ class ModalDialog(StyledDialog):
 
         self.setModal(True)
         self.setWindowFlags(
-            QtCore.Qt.SplashScreen | QtCore.Qt.WindowStaysOnTopHint
+            QtCore.Qt.WindowType.SplashScreen
+            | QtCore.Qt.WindowType.WindowStaysOnTopHint
         )
 
     def pre_build(self):
@@ -63,7 +67,6 @@ class ModalDialog(StyledDialog):
         '''Can be overridden by custom dialogs'''
         self._title_label = QtWidgets.QLabel()
         self._title_label.setAlignment(QtCore.Qt.AlignCenter)
-        self._title_label.setObjectName('titlebar')
         self.layout().addWidget(self._title_label)
         self._title_label.setMinimumHeight(24)
 
@@ -99,7 +102,7 @@ class ModalDialog(StyledDialog):
         '''Create dialog main content widget, can be overridden to provide
         custom styled modal dialogs'''
         label = QtWidgets.QLabel(self._message)
-        label.setObjectName('h3')
+        label.setProperty('h3', True)
         return center_widget(label)
 
     def get_approve_button(self):

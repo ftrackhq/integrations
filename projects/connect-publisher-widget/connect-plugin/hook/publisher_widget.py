@@ -1,15 +1,17 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2023 ftrack
-
+# :copyright: Copyright (c) 2024 ftrack
 import os
 import sys
 import logging
 
-import ftrack_api
-from ftrack_utils.version import get_connect_plugin_version
-from ftrack_connect.qt import QtWidgets, QtCore, QtGui
-import ftrack_connect.ui.application
+try:
+    from PySide6 import QtWidgets, QtCore
+except ImportError:
+    from PySide2 import QtWidgets, QtCore
 
+import ftrack_api
+
+from ftrack_utils.version import get_connect_plugin_version
 import ftrack_connect.ui.application
 import ftrack_connect.ui.widget.overlay
 from ftrack_utils.server import send_usage_event
@@ -39,7 +41,10 @@ class PublisherBlockingOverlay(
         super(PublisherBlockingOverlay, self).__init__(parent, message=message)
         self.confirmButton = QtWidgets.QPushButton('Ok')
         self.contentLayout.insertWidget(
-            3, self.confirmButton, alignment=QtCore.Qt.AlignCenter, stretch=0
+            3,
+            self.confirmButton,
+            alignment=QtCore.Qt.AlignmentFlag.AlignCenter,
+            stretch=0,
         )
         self.confirmButton.hide()
         self.confirmButton.clicked.connect(self.hide)
@@ -138,7 +143,7 @@ class PublisherWidget(ftrack_connect.ui.application.ConnectWidget):
         entity = event['data']['entity']
 
         self.clear()
-        self.setFocus(QtCore.Qt.OtherFocusReason)
+        self.setFocus(QtCore.Qt.FocusReason.OtherFocusReason)
 
         # Add any components from event data
         components = event['data'].get('components', [])

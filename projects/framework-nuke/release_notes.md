@@ -1,5 +1,10 @@
 # ftrack Framework Nuke integration release Notes
 
+## Upcoming
+
+* [changed] Replace Qt.py imports to PySide2 and PySide6 on widgets.
+
+
 ## v24.4.1
 2024-04-30
 

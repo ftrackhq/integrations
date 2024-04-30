@@ -1,7 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
-from Qt import QtWidgets, QtCore, QtGui
+try:
+    from PySide6 import QtWidgets, QtCore
+except ImportError:
+    from PySide2 import QtWidgets, QtCore
 
 from ftrack_framework_qt.widgets import BaseWidget
 
@@ -98,7 +101,7 @@ class PublisherAssetVersionSelectorWidget(BaseWidget):
         self._title_label = QtWidgets.QLabel('Assets')
 
         self._label = QtWidgets.QLabel()
-        self._label.setObjectName('gray')
+        self._label.setProperty("secondary", True)
         self._label.setWordWrap(True)
 
         asset_layout = QtWidgets.QVBoxLayout()
@@ -124,7 +127,7 @@ class PublisherAssetVersionSelectorWidget(BaseWidget):
         status_layout.setAlignment(QtCore.Qt.AlignTop)
 
         self._asset_status_label = QtWidgets.QLabel("Status")
-        self._asset_status_label.setObjectName('gray')
+        self._asset_status_label.setProperty("secondary", True)
 
         self._status_selector = StatusSelector()
 
@@ -140,7 +143,7 @@ class PublisherAssetVersionSelectorWidget(BaseWidget):
         comments_layout.setContentsMargins(0, 0, 0, 0)
 
         comment_label = QtWidgets.QLabel('Description')
-        comment_label.setObjectName('gray')
+        comment_label.setProperty("secondary", True)
         comment_label.setAlignment(QtCore.Qt.AlignTop)
         self._comments_input = QtWidgets.QTextEdit()
         self._comments_input.setMaximumHeight(40)

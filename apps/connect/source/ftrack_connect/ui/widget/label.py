@@ -1,13 +1,18 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 
-from ftrack_connect.qt import QtWidgets, QtCore, QtGui
+try:
+    from PySide6 import QtWidgets, QtCore, QtGui
+except ImportError:
+    from PySide2 import QtWidgets, QtCore, QtGui
 
 
 class Label(QtWidgets.QLabel):
     '''Label that can elide displayed text automatically.'''
 
-    def __init__(self, elideMode=QtCore.Qt.ElideMiddle, *args, **kwargs):
+    def __init__(
+        self, elideMode=QtCore.Qt.TextElideMode.ElideMiddle, *args, **kwargs
+    ):
         '''Instantiate label with *elideMode*.
 
         If *elideMode* is not specified it defaults to

@@ -11,7 +11,10 @@ import traceback
 import zipfile
 from urllib.error import HTTPError
 
-from ftrack_connect.qt import QtWidgets, QtCore, QtGui
+try:
+    from PySide6 import QtWidgets, QtCore, QtGui
+except ImportError:
+    from PySide2 import QtWidgets, QtCore, QtGui
 from ftrack_connect.utils.plugin import get_platform_identifier
 
 logger = logging.getLogger(__name__)
@@ -30,7 +33,7 @@ class STATUSES(object):
 class ROLES(object):
     '''Store plugin roles'''
 
-    PLUGIN_STATUS = QtCore.Qt.UserRole + 1
+    PLUGIN_STATUS = QtCore.Qt.ItemDataRole.UserRole + 1
     PLUGIN_NAME = PLUGIN_STATUS + 1
     PLUGIN_VERSION = PLUGIN_NAME + 1
     PLUGIN_SOURCE_PATH = PLUGIN_VERSION + 1
