@@ -95,7 +95,9 @@ python tools/build.py --style_path resource --output_path source/ftrack_connect/
   poetry install --with installer --sync
   poetry run ftrack-connect-installer --codesign true
 ```
-Note:: If --codesign is true, please make sure you have followed all the instructions from:
+**Note:** If you don't codesign, the resultant dmg file will not be valid to be shared and will appear as damaged app in other computers.
+
+**Note:** If --codesign is true, please make sure you have followed all the instructions from: https://github.com/ftrackhq/integrations/blob/main/installers/app-installer/README.md
 
 ### Build documentation
 
