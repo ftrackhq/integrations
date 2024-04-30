@@ -233,6 +233,7 @@ class MacOSAppInstaller(AppInstaller):
             f"{self.os_root_folder}/dmg_image.png",
             f"{self.build_path}/dmg_image.png",
         )
+        # TODO: it might work now, so the first check is to use the install from poetry so we don't have to download the wheel, then second check is to pass absolute path into here
 
         app_dmg_args = {
             "title": f"{self.bundle_name}",

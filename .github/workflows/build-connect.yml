@@ -244,7 +244,7 @@ jobs:
         run: |
           cd ${{ needs.set-variables.outputs.folder }}
           poetry install --with installer --no-root --sync
-          poetry run ftrack-connect-installer --codesign env.CODESIGN
+          poetry run ftrack-connect-installer --codesign ${CODESIGN}
 
       - name: Upload Connect DMG to GitHub Release
         env:
@@ -323,7 +323,7 @@ jobs:
 #          source ~/.bashrc
 #          cd ${{ needs.set-variables.outputs.folder }}
 #          pyenv exec poetry install --with installer --sync
-#          pyenv exec poetry run ftrack-connect-installer --codesign env.CODESIGN
+#          pyenv exec poetry run ftrack-connect-installer --codesign ${CODESIGN}
 #      - name: Upload Connect tar.gz and md5 to GitHub Release
 #        env:
 #          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
