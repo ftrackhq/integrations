@@ -101,66 +101,66 @@ jobs:
           echo "Uploading ftrack_connect-${{ needs.connect-build.outputs.connect_version }}-py3-none-any.whl"
           gh release upload ${{ needs.set-variables.outputs.tag }} ${{ needs.set-variables.outputs.folder }}/dist/ftrack_connect-${{ steps.get_version.outputs.connect_version }}-py3-none-any.whl --clobber 
 
-#  installer-windows:
-#    name: Build Connect Installer on Windows
-#    needs: [ set-variables, connect-build ]
-#    runs-on: windows-latest
-#    env:
-#      CODESIGN: 'True' # Set this to 'True' or 'False' as needed
-#    steps:
-#      - uses: actions/checkout@v3
-#      - uses: actions/setup-python@v5
-#        with:
-#          python-version: '3.10'
-#      - name: install poetry
-#        shell: bash
-#        run: |
-#          pip install poetry==1.5.1
-#      - name: Build Qt resources
-#        shell: bash
-#        run: |
-#          pip install -r tools/requirements-connect.txt
-#          python tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py --pyside_version 6 build_qt_resources apps/connect
-#      - uses: google-github-actions/auth@v2
-#        if: env.CODESIGN == 'True'
-#        with:
-#          credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
-#      - uses: google-github-actions/setup-gcloud@v2
-#      - name: Setup Java JDK
-#        uses: actions/setup-java@v4
-#        with:
-#          java-version: '21'
-#          distribution: 'oracle'
-#      - name: Install Inno Setup, needed to create the installer
-#        run: |
-#          choco install innosetup
-#      - name: poetry build installer
-#        shell: bash
-#        run: |
-#          cd ${{ needs.set-variables.outputs.folder }}
-#          poetry install --with installer --sync
-#          poetry run ftrack-connect-installer --codesign env.CODESIGN
-#      - name: Upload EXE installer to GitHub Release
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#        shell: bash
-#        run: |
-#          echo "Listing contents of apps/connect/dist:"
-#          ls -l apps/connect/dist
-#          echo "Listing contents of apps/connect/build:"
-#          ls -l apps/connect/build
-#          cd apps/connect/dist
-#          version="${{ needs.set-variables.outputs.package_version }}"
-#          clean_package_version="${version#v}"  # Remove leading 'v' from version
-#          echo "Uploading ftrack_connect-${clean_package_version}-win64.exe"
-#          gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack_connect-${clean_package_version}-win64.exe" --clobber
+  installer-windows:
+    name: Build Connect Installer on Windows
+    needs: [ set-variables, connect-build ]
+    runs-on: windows-latest
+    env:
+      CODESIGN: 'True' # Set this to 'True' or 'False' as needed
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: install poetry
+        shell: bash
+        run: |
+          pip install poetry==1.5.1
+      - name: Build Qt resources
+        shell: bash
+        run: |
+          pip install -r tools/requirements-connect.txt
+          python tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py --pyside_version 6 build_qt_resources apps/connect
+      - uses: google-github-actions/auth@v2
+        if: env.CODESIGN == 'True'
+        with:
+          credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
+      - uses: google-github-actions/setup-gcloud@v2
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'oracle'
+      - name: Install Inno Setup, needed to create the installer
+        run: |
+          choco install innosetup
+      - name: poetry build installer
+        shell: bash
+        run: |
+          cd ${{ needs.set-variables.outputs.folder }}
+          poetry install --with installer --sync
+          poetry run ftrack-connect-installer --codesign env.CODESIGN
+      - name: Upload EXE installer to GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          echo "Listing contents of apps/connect/dist:"
+          ls -l apps/connect/dist
+          echo "Listing contents of apps/connect/build:"
+          ls -l apps/connect/build
+          cd apps/connect/dist
+          version="${{ needs.set-variables.outputs.package_version }}"
+          clean_package_version="${version#v}"  # Remove leading 'v' from version
+          echo "Uploading ftrack_connect-${clean_package_version}-win64.exe"
+          gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack_connect-${clean_package_version}-win64.exe" --clobber
 
   installer-macos:
     name: Build Connect Installer on MacOs
     needs: [ set-variables, connect-build ]
     runs-on: macos-12
     env:
-      CODESIGN: 'True' # Set this to 'True' or 'False' as needed
+      CODESIGN: 'True' # A not codesigned dmg will always show damaged app. Please build locally if don't want to codesign and generate a ZIP instead of a dmg.
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v5
@@ -240,81 +240,81 @@ jobs:
           gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack_connect-${clean_package_version}-macOS.dmg" --clobber
 
 
-#  installer-rocky:
-#    name: Build Connect Installer on Rocky linux
-#    needs: [ set-variables, connect-build ]
-#    runs-on: ubuntu-latest
-#    strategy:
-#      matrix:
-#        rocky-version: [ '8', '9' ]
-#    container:
-#      image: rockylinux/rockylinux:${{ matrix.rocky-version }}
-#    steps:
-#      - uses: actions/checkout@v3
-#      - name: Install dependencies and pyenv
-#        run: |
-#          dnf groupinstall -y "Development Tools"
-#          dnf install -y gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz-devel git findutils patch wget tar make libuuid-devel mesa-libGL
-#          curl https://pyenv.run | bash
-#          echo 'export PATH="$HOME/.pyenv/bin:$PATH"' >> ~/.bashrc
-#          echo 'eval "$(pyenv init --path)"' >> ~/.bashrc
-#          echo 'eval "$(pyenv virtualenv-init -)"' >> ~/.bashrc
-#          source ~/.bashrc
-#      - name: Install GitHub CLI
-#        run: |
-#          dnf install -y dnf-plugins-core
-#          dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
-#          dnf install -y gh
-#          # Configure Git to allow the current directory
-#          git config --global --add safe.directory /__w/integrations/integrations
-#      - name: Install Python 3.10 using pyenv
-#        run: |
-#          source ~/.bashrc
-#          pyenv install 3.10
-#          pyenv global 3.10
-#      - name: Verify Python version
-#        run: |
-#          source ~/.bashrc
-#          pyenv versions
-#          python --version
-#          pyenv exec python -m pip install --upgrade pip
-#      - name: Install patchelf using pip
-#        run: |
-#          source ~/.bashrc
-#          pyenv exec pip install patchelf
-#      - name: Checkout code
-#        uses: actions/checkout@v2
-#      - name: install poetry
-#        shell: bash
-#        run: |
-#          source ~/.bashrc
-#          pyenv exec pip install poetry==1.5.1
-#      - name: Build Qt resources
-#        shell: bash
-#        run: |
-#          source ~/.bashrc
-#          pyenv exec pip install -r tools/requirements-connect.txt
-#          pyenv exec python tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py --pyside_version 6 build_qt_resources apps/connect
-#      - name: poetry build installer
-#        shell: bash
-#        run: |
-#          source ~/.bashrc
-#          cd ${{ needs.set-variables.outputs.folder }}
-#          pyenv exec poetry install --with installer --sync
-#          pyenv exec poetry run ftrack-connect-installer --codesign ${CODESIGN}
-#      - name: Upload Connect tar.gz and md5 to GitHub Release
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#        shell: bash
-#        run: |
-#          source ~/.bashrc
-#          echo "Listing contents of apps/connect/dist:"
-#          ls -l apps/connect/dist
-#          echo "Listing contents of apps/connect/build:"
-#          ls -l apps/connect/build
-#          cd apps/connect/dist
-#          version="${{ needs.set-variables.outputs.package_version }}"
-#          clean_package_version="${version#v}"  # Remove leading 'v' from version
-#          echo "Uploading ftrack_connect-${clean_package_version}-R${{ matrix.rocky-version }}.tar.gz"
-#          gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack_connect-${clean_package_version}-R${{ matrix.rocky-version }}.tar.gz" --clobber
-#          gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack_connect-${clean_package_version}-R${{ matrix.rocky-version }}.tar.gz.md5" --clobber
+  installer-rocky:
+    name: Build Connect Installer on Rocky linux
+    needs: [ set-variables, connect-build ]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        rocky-version: [ '8', '9' ]
+    container:
+      image: rockylinux/rockylinux:${{ matrix.rocky-version }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install dependencies and pyenv
+        run: |
+          dnf groupinstall -y "Development Tools"
+          dnf install -y gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz-devel git findutils patch wget tar make libuuid-devel mesa-libGL
+          curl https://pyenv.run | bash
+          echo 'export PATH="$HOME/.pyenv/bin:$PATH"' >> ~/.bashrc
+          echo 'eval "$(pyenv init --path)"' >> ~/.bashrc
+          echo 'eval "$(pyenv virtualenv-init -)"' >> ~/.bashrc
+          source ~/.bashrc
+      - name: Install GitHub CLI
+        run: |
+          dnf install -y dnf-plugins-core
+          dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+          dnf install -y gh
+          # Configure Git to allow the current directory
+          git config --global --add safe.directory /__w/integrations/integrations
+      - name: Install Python 3.10 using pyenv
+        run: |
+          source ~/.bashrc
+          pyenv install 3.10
+          pyenv global 3.10
+      - name: Verify Python version
+        run: |
+          source ~/.bashrc
+          pyenv versions
+          python --version
+          pyenv exec python -m pip install --upgrade pip
+      - name: Install patchelf using pip
+        run: |
+          source ~/.bashrc
+          pyenv exec pip install patchelf
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: install poetry
+        shell: bash
+        run: |
+          source ~/.bashrc
+          pyenv exec pip install poetry==1.5.1
+      - name: Build Qt resources
+        shell: bash
+        run: |
+          source ~/.bashrc
+          pyenv exec pip install -r tools/requirements-connect.txt
+          pyenv exec python tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py --pyside_version 6 build_qt_resources apps/connect
+      - name: poetry build installer
+        shell: bash
+        run: |
+          source ~/.bashrc
+          cd ${{ needs.set-variables.outputs.folder }}
+          pyenv exec poetry install --with installer --sync
+          pyenv exec poetry run ftrack-connect-installer --codesign ${CODESIGN}
+      - name: Upload Connect tar.gz and md5 to GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          source ~/.bashrc
+          echo "Listing contents of apps/connect/dist:"
+          ls -l apps/connect/dist
+          echo "Listing contents of apps/connect/build:"
+          ls -l apps/connect/build
+          cd apps/connect/dist
+          version="${{ needs.set-variables.outputs.package_version }}"
+          clean_package_version="${version#v}"  # Remove leading 'v' from version
+          echo "Uploading ftrack_connect-${clean_package_version}-R${{ matrix.rocky-version }}.tar.gz"
+          gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack_connect-${clean_package_version}-R${{ matrix.rocky-version }}.tar.gz" --clobber
+          gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack_connect-${clean_package_version}-R${{ matrix.rocky-version }}.tar.gz.md5" --clobber

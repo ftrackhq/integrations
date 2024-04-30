@@ -228,16 +228,9 @@ class MacOSAppInstaller(AppInstaller):
             os.unlink(dmg_path)
         logging.info('Creating image...')
 
-        logging.info('Copying background image...')
-        shutil.copy(
-            f"{self.os_root_folder}/dmg_image.png",
-            f"{self.build_path}/dmg_image.png",
-        )
-        # TODO: it might work now, so the first check is to use the install from poetry so we don't have to download the wheel, then second check is to pass absolute path into here
-
         app_dmg_args = {
             "title": f"{self.bundle_name}",
-            "background": f"dmg_image.png",
+            "background": f"{self.os_root_folder}/dmg_image.png",
             "icon-size": 70,
             "contents": [
                 {"x": 390, "y": 180, "type": "link", "path": "/Applications"},
@@ -245,7 +238,7 @@ class MacOSAppInstaller(AppInstaller):
                     "x": 130,
                     "y": 180,
                     "type": "file",
-                    "path": f"../dist/{self.bundle_name}.app",
+                    "path": f"{self.bundle_path}",
                 },
             ],
         }
