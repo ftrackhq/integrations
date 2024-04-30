@@ -71,7 +71,7 @@ def is_monorepo(path):
     return False
 
 
-def build_package(pkg_path, args, command=None):
+def build_package(invokation_path, pkg_path, args, command=None):
     '''Build the package @ pkg_path'''
     MONOREPO_PATH = None
     if args.integrations_repo_path:
@@ -88,10 +88,18 @@ def build_package(pkg_path, args, command=None):
     # Check monorepo
     if not is_monorepo(MONOREPO_PATH):
         # Assume build script is run within the repo
-        MONOREPO_PATH = os.path.realpath(
-            os.path.join(os.path.dirname(sys.argv[0]), '..')
-        )
+        if os.path.isabs(sys.argv[0]):
+            MONOREPO_PATH = os.path.realpath(
+                os.path.join(os.path.dirname(sys.argv[0]), '..')
+            )
+        else:
+            MONOREPO_PATH = os.path.realpath(
+                os.path.join(
+                    invokation_path, os.path.dirname(sys.argv[0]), '..'
+                )
+            )
         if not is_monorepo(MONOREPO_PATH):
+            # Is it cwd?
             logging.warning(
                 f'Integrations monorepo not found at "{MONOREPO_PATH}", '
                 f'building with framework extensions or from source will '
@@ -498,7 +506,10 @@ def build_package(pkg_path, args, command=None):
                     save_cwd = os.getcwd()
                     os.chdir(MONOREPO_PATH)
                     build_package(
-                        'libs/qt-style', args, command='build_qt_resources'
+                        invokation_path,
+                        'libs/qt-style',
+                        args,
+                        command='build_qt_resources',
                     )
                     os.chdir(save_cwd)
                 # Build
@@ -764,7 +775,12 @@ def build_package(pkg_path, args, command=None):
         logging.info('Building style...')
         save_cwd = os.getcwd()
         os.chdir(MONOREPO_PATH)
-        build_package('libs/qt-style', args, command='build_qt_resources')
+        build_package(
+            invokation_path,
+            'libs/qt-style',
+            args,
+            command='build_qt_resources',
+        )
         os.chdir(save_cwd)
 
         style_path = args.style_path
@@ -1095,6 +1111,6 @@ if __name__ == '__main__':
             )
         logging.info('*' * 100)
         logging.info(f'Building package: {pkg_path}')
-        save_path = os.getcwd()
-        build_package(os.path.realpath(pkg_path), args)
-        os.chdir(save_path)  # Restore original path
+        invokation_path = os.getcwd()
+        build_package(invokation_path, os.path.realpath(pkg_path), args)
+        os.chdir(invokation_path)  # Restore original path
