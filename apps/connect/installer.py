@@ -1,3 +1,6 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2024 ftrack
+
 import os
 import sys
 import logging
@@ -12,6 +15,7 @@ from ftrack_app_installer import (
 
 
 def setup_installer(bundle_name, version, root_path, entry_file):
+    '''Return the instance of the installer class depending on the current platform'''
     if sys.platform.startswith('win'):
         return WindowsAppInstaller(
             bundle_name,

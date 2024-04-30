@@ -1,4 +1,6 @@
-import shutil
+# :coding: utf-8
+# :copyright: Copyright (c) 2024 ftrack
+
 import subprocess
 import os
 import re
@@ -18,32 +20,40 @@ __version__ = '{version}'
 
 
 class AppInstaller(object):
+    '''Generic class to produce an application installer and package it'''
+
     @property
     def bundle_name(self):
         return self._bundle_name
 
     @property
     def version(self):
+        '''Version of the app'''
         return self._version
 
     @property
     def icon_path(self):
+        '''Path to your app icon'''
         return self._icon_path
 
     @property
     def root_path(self):
+        '''Path to your app repository root'''
         return self._root_path
 
     @property
     def dist_path(self):
+        '''Path to the desired app distribution folder'''
         return self._dist_path
 
     @property
     def build_path(self):
+        '''Path to the desired app build folder'''
         return self._build_path
 
     @property
     def entry_file_path(self):
+        '''path to the entry file of your application'''
         return self._entry_file_path
 
     def __init__(
@@ -58,6 +68,7 @@ class AppInstaller(object):
         self._entry_file_path = entry_file_path
 
     def generate_executable(self):
+        '''Generates a platform dependant executable with pyinstaller'''
         # TODO: we should generalize this file and remove all references to connect
         version_file_path = self._generate_version_file()
 
@@ -102,6 +113,8 @@ class AppInstaller(object):
 
 
 class WindowsAppInstaller(AppInstaller):
+    '''Packages and codesign the executable for windows'''
+
     os_root_folder = os.path.join(
         os.path.dirname(os.path.abspath(__file__)), "windows"
     )
@@ -121,7 +134,7 @@ class WindowsAppInstaller(AppInstaller):
         if not os.path.exists(self.INNOSETUP_PATH):
             raise Exception(f'Inno Setup not found at: {self.INNOSETUP_PATH}')
 
-        # Load template and inject version
+        # Load template and inject data
         with open(
             os.path.join(self.os_root_folder, 'ftrack Connect.iss'),
             "r",
@@ -166,6 +179,8 @@ class WindowsAppInstaller(AppInstaller):
 
 
 class MacOSAppInstaller(AppInstaller):
+    '''Packages and codesign the executable for MacOS'''
+
     os_root_folder = os.path.join(
         os.path.dirname(os.path.abspath(__file__)), "macOS"
     )
@@ -349,6 +364,7 @@ class MacOSAppInstaller(AppInstaller):
         return dmg_path
 
     def _update_info_plist(self):
+        '''Updates the info.plist file with the correct version'''
         plist_path = f"{self.bundle_path}/Contents/Info.plist"
         try:
             with open(plist_path, 'rb') as fp:
@@ -372,10 +388,13 @@ class MacOSAppInstaller(AppInstaller):
 
 
 class LinuxAppInstaller(AppInstaller):
+    '''Packages the executable for linux'''
+
     def codesign(self):
         pass
 
     def generate_installer_package(self, codesign=False):
+        '''Generates a tar.gz file of the current app'''
         try:
             os.chdir(self.dist_path)
             # Detect platform

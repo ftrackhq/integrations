@@ -1,6 +1,6 @@
 # ftrack Connect release Notes
 
-## upcoming
+## 24.5.0rc1
 
 * [changed] Connect installer removed, now using a script to call the ftrack-app-installer library to package connect and codesign it on all platforms.
 * [changed] New versioning system matching all backlight products.
