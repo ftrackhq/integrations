@@ -20,7 +20,7 @@ search_path:
       - {{ cookiecutter.integration_name.capitalize() }}.*
     expression:
       - {{ cookiecutter.integration_name.capitalize() }}\d.+
-    version_expression: {{ cookiecutter.integration_name.capitalize() }}(?P<version>.*)\/.+$
+    version_expression: "{{ cookiecutter.integration_name.capitalize() }}(?P<version>.*)\/.+$"
   windows:
     prefix:
       - C:\
@@ -28,7 +28,7 @@ search_path:
     expression:
       - {{ cookiecutter.integration_name.capitalize() }}.*
       - {{ cookiecutter.integration_name.capitalize() }}\d.+.exe
-    version_expression: (?P<version>[\\d.]+[vabc]+[\\dvabc.]*)"
+    version_expression: "(?P<version>[\\d.]+[vabc]+[\\dvabc.]*)"
   darwin:
     prefix:
       - "/"
