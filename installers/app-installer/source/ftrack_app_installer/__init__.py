@@ -75,15 +75,8 @@ class AppInstaller(object):
             self.build_path,
             '--add-data',
             version_file_path + ':ftrack_connect',
-            '--add-data',
-            os.path.join(
-                self.root_path,
-                'resource',
-                'fonts',
-            )
-            + ':ftrack_connect/fonts',
-            #'-y',
-            #'--clean',
+            '-y',
+            '--clean',
         ]
         try:
             PyInstaller.__main__.run(pyinstaller_commands)
