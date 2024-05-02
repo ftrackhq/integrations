@@ -20,7 +20,7 @@ or download the source ZIP from the [Integrations repository](https://github.com
 Follow these steps to prepare your environment:
 
 1. Install Poetry.
-2. Create a Python >=3.7, <3.12 virtual environment. If you're using an Apple Silicon chip, follow the instructions in the [How to install compatible PySide2 on Silicon based Mac](#how-to-install-compatible-pyside2-on-silicon-based-mac) section.
+2. Create a Python >=3.7, <3.12 virtual environment. If you're using an Apple Silicon chip, and python <3.10 follow the instructions in the [How to install compatible PySide2 on Silicon based Mac](#how-to-install-compatible-pyside2-on-silicon-based-mac) section.
 
 ### How to install compatible PySide2 on Silicon based Mac 
 
@@ -83,10 +83,14 @@ PyTest tests/framework/unit/
 
 ## Build and publish libraries
 - Update version of the library
-- Update the poetry.lock file
 - Update the release notes date and provide a PR
 - Create a tag for the library to be released
 - Once tag is pushed the CI action will start and will publish to PyPi test
+
+```bash
+git tag -a utils/v2.2.0 -m "" && git push origin utils/v2.2.0
+```
+
 - Review PyPi Test publication
 - Approve the deployment on the CI and will automatically release to Prod pypi
 - **Note: Remember that libraries has dependencies to other libraries, follow this release order if you want to make sure to always use he latest version: utils - constants - framework-core - qt-style - qt - framework-qt**
@@ -108,9 +112,9 @@ PyTest tests/framework/unit/
 
 ## Installers
 
-| Package                                             | Path                         | Description                   |
-|-----------------------------------------------------|------------------------------|-------------------------------|
-| [connect-installer](./installers/connect-installer) | installers/connect-installer | ftrack Connect app installer  |
+| Package                                     | Path                     | Description          |
+|---------------------------------------------|--------------------------|----------------------|
+| [app-installer](./installers/app-installer) | installers/app-installer | ftrack app installer |
 
 ## Libs
 
