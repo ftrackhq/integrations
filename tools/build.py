@@ -10,6 +10,7 @@ official CI/CD build implementation in place.
 
 Changelog:
 
+0.4.21 [24.04.30] Support for building packages outside the monorepo.
 0.4.20 [24.04.26] Add PySide6/2 compatibility
 0.4.19 [24.04.22] Qt resource build; Stop replacing Qt imports in built resource.py.
 0.4.18 [24.04.19] CEP plugin support. PySide integrations not platform dependent.
@@ -48,7 +49,7 @@ from distutils.spawn import find_executable
 import fileinput
 import tempfile
 
-__version__ = '0.4.20'
+__version__ = '0.4.21'
 
 ZXPSIGN_CMD = 'ZXPSignCmd'
 
@@ -62,14 +63,50 @@ __version__ = '{version}'
 '''
 
 
-def build_package(pkg_path, args, command=None):
+def is_monorepo(path):
+    if os.path.exists(os.path.join(path, 'pyproject.toml')):
+        with open(os.path.join(path, 'pyproject.toml'), 'r') as f:
+            for line in f.readlines():
+                if line.startswith('name = "ftrack-integrations-monorepo"'):
+                    return True
+    return False
+
+
+def build_package(invokation_path, pkg_path, args, command=None):
     '''Build the package @ pkg_path'''
+    MONOREPO_PATH = None
+    if args.integrations_repo_path:
+        MONOREPO_PATH = os.path.realpath(args.integrations_repo_path)
+
     os.chdir(pkg_path)
 
     if command is None:
         command = args.command
-    ROOT_PATH = os.path.realpath(os.getcwd())
-    MONOREPO_PATH = os.path.realpath(os.path.join(ROOT_PATH, '..', '..'))
+    ROOT_PATH = pkg_path
+    if not args.integrations_repo_path:
+        MONOREPO_PATH = os.path.realpath(os.path.join(ROOT_PATH, '..', '..'))
+
+    # Check monorepo
+    if not is_monorepo(MONOREPO_PATH):
+        # Assume build script is run within the repo
+        if os.path.isabs(sys.argv[0]):
+            MONOREPO_PATH = os.path.realpath(
+                os.path.join(os.path.dirname(sys.argv[0]), '..')
+            )
+        else:
+            MONOREPO_PATH = os.path.realpath(
+                os.path.join(
+                    invokation_path, os.path.dirname(sys.argv[0]), '..'
+                )
+            )
+        if not is_monorepo(MONOREPO_PATH):
+            logging.warning(
+                f'Integrations monorepo not found at "{MONOREPO_PATH}", '
+                f'building with framework extensions or from source will '
+                f'not work'
+            )
+            MONOREPO_PATH = None
+
     CONNECT_PLUGIN_PATH = os.path.join(ROOT_PATH, 'connect-plugin')
     BUILD_PATH = os.path.join(ROOT_PATH, 'dist')
     EXTENSION_PATH = os.path.join(ROOT_PATH, 'extensions')
@@ -91,6 +128,14 @@ def build_package(pkg_path, args, command=None):
                 elif section == 'tool.poetry.dependencies':
                     if line.startswith('ftrack-'):
                         lib = line.split('=')[0][7:].strip()
+                        if lib == 'framework-core':
+                            USES_FRAMEWORK = True
+                        if not MONOREPO_PATH:
+                            logging.warning(
+                                f'Cannot evaluate dependencies of {lib} -'
+                                'do not have integrations monorepo path'
+                            )
+                            continue
                         lib_toml_path = os.path.join(
                             MONOREPO_PATH, 'libs', lib, 'pyproject.toml'
                         )
@@ -121,8 +166,6 @@ def build_package(pkg_path, args, command=None):
                                 FTRACK_DEP_LIBS[lib]['extras'] = extras
                             # Recursively add monorepo dependencies
                             append_dependencies(lib_toml_path)
-                        if lib == 'framework-core':
-                            USES_FRAMEWORK = True
 
     if os.path.exists(POETRY_CONFIG_PATH):
         PROJECT_NAME = None
@@ -167,7 +210,9 @@ def build_package(pkg_path, args, command=None):
         ROOT_PATH, 'source', PROJECT_NAME.replace('-', '_')
     )
 
-    DEFAULT_STYLE_PATH = os.path.join(MONOREPO_PATH, 'resource', 'style')
+    DEFAULT_STYLE_PATH = None
+    if MONOREPO_PATH:
+        DEFAULT_STYLE_PATH = os.path.join(MONOREPO_PATH, 'resource', 'style')
 
     def clean(args):
         '''Remove build folder'''
@@ -315,6 +360,11 @@ def build_package(pkg_path, args, command=None):
         if not args.from_source:
             extras = ['ftrack-libs']
         if USES_FRAMEWORK:
+            if not MONOREPO_PATH:
+                raise Exception(
+                    f'Need integrations monorepo path to be able to '
+                    f'build with framework extensions.'
+                )
             if not args.from_source:
                 extras.append('framework-libs')
 
@@ -429,6 +479,11 @@ def build_package(pkg_path, args, command=None):
 
         if args.from_source:
             # Build library dependencies from source
+            if not MONOREPO_PATH:
+                raise Exception(
+                    f'Need integrations monorepo path to be able to '
+                    f'build from sources.'
+                )
             libs_path = os.path.join(MONOREPO_PATH, 'libs')
             for filename in os.listdir(libs_path):
                 lib_path = os.path.join(libs_path, filename)
@@ -451,7 +506,10 @@ def build_package(pkg_path, args, command=None):
                     save_cwd = os.getcwd()
                     os.chdir(MONOREPO_PATH)
                     build_package(
-                        'libs/qt-style', args, command='build_qt_resources'
+                        invokation_path,
+                        'libs/qt-style',
+                        args,
+                        command='build_qt_resources',
                     )
                     os.chdir(save_cwd)
                 # Build
@@ -569,6 +627,11 @@ def build_package(pkg_path, args, command=None):
 
     def build_qt_resources(args):
         '''Build resources.py from style'''
+        if not DEFAULT_STYLE_PATH:
+            raise Exception(
+                f'Need integrations monorepo path to be able to '
+                f'build style.'
+            )
         try:
             import scss
         except ImportError:
@@ -658,6 +721,11 @@ def build_package(pkg_path, args, command=None):
 
     def build_cep(args):
         '''Wrapper for building Adobe CEP extension'''
+        if not MONOREPO_PATH:
+            raise Exception(
+                f'Need integrations monorepo path to be able to '
+                f'build CEP plugins with style.'
+            )
 
         CEP_PATH = os.path.join(MONOREPO_PATH, 'resource', 'adobe-cep')
         if not os.path.exists(CEP_PATH):
@@ -710,7 +778,12 @@ def build_package(pkg_path, args, command=None):
         logging.info('Building style...')
         save_cwd = os.getcwd()
         os.chdir(MONOREPO_PATH)
-        build_package('libs/qt-style', args, command='build_qt_resources')
+        build_package(
+            invokation_path,
+            'libs/qt-style',
+            args,
+            command='build_qt_resources',
+        )
         os.chdir(save_cwd)
 
         style_path = args.style_path
@@ -938,6 +1011,13 @@ if __name__ == '__main__':
 
     logging.info('ftrack Integrations build script v{}'.format(__version__))
 
+    # Shared options
+    parser.add_argument(
+        '--integrations_repo_path',
+        help='Path to the ftrack Integrations monorepo, in case of an external'
+        'build.',
+    )
+
     # Connect plugin options
     parser.add_argument(
         '--include_assets',
@@ -1012,7 +1092,10 @@ if __name__ == '__main__':
     parser.add_argument(
         'packages',
         help=(
-            'Comma separated list of relative or absolute package paths to build\n'
+            'Comma separated list of relative or absolute package paths to build.'
+            'If the package is outside the ftrack Integrations monorepo and resources'
+            'from there is needed, specify the path to integrations repo with the '
+            '--integrations_repo_path argument.\n'
         ),
     )
 
@@ -1037,4 +1120,6 @@ if __name__ == '__main__':
             )
         logging.info('*' * 100)
         logging.info(f'Building package: {pkg_path}')
-        build_package(pkg_path, args)
+        invokation_path = os.getcwd()
+        build_package(invokation_path, os.path.realpath(pkg_path), args)
+        os.chdir(invokation_path)  # Restore original path
