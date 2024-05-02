@@ -63,7 +63,7 @@ Build Connect plugin:
 
 ```bash
     cd integrations
-    python tools/build.py --include_resources resource/bootstrap build_connect_plugin projects/framework-premiere
+    python tools/build.py --include_resources resource/presets build_connect_plugin projects/framework-premiere
 ```
 
 If the build fails and Premiere is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 
