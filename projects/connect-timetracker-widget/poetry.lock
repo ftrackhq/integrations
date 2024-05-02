@@ -4,7 +4,7 @@
 name = "clique"
 version = "1.6.1"
 description = "Manage collections with common numerical component"
-optional = true
+optional = false
 python-versions = ">=2.7, <4.0"
 files = [
     {file = "clique-1.6.1-py2.py3-none-any.whl", hash = "sha256:8619774fa035661928dd8c93cd805acf2d42533ccea1b536c09815ed426c9858"},
@@ -18,19 +18,24 @@ test = ["pytest (>=2.3.5,<5)", "pytest-cov (>=2,<3)", "pytest-runner (>=2.7,<3)"
 
 [[package]]
 name = "ftrack-utils"
-version = "2.1.0"
+version = "2.2.0"
 description = "ftrack utils library"
-optional = true
-python-versions = "<3.12,>=3.7"
+optional = false
+python-versions = ">=3.7,<3.12"
 files = [
-    {file = "ftrack_utils-2.1.0-py3-none-any.whl", hash = "sha256:ce91df88af9ee473e629eca9c7598c793a6b234a455e6eaaa9b9fe51ec9c132d"},
-    {file = "ftrack_utils-2.1.0.tar.gz", hash = "sha256:4b1b4b3f5a18541047177571f3293f8886afc50787b6c24eef86c5acf800082a"},
+    {file = "ftrack_utils-2.2.0-py3-none-any.whl", hash = "sha256:25ba6d2ddd17d66289506a6ac516a22923ca816378643c00d4b688c13da773f4"},
+    {file = "ftrack_utils-2.2.0.tar.gz", hash = "sha256:7fecd76fe36cc1bdf36431427d3fd90924b64b9de647f849e307d2e6e5dda911"},
 ]
 
 [package.dependencies]
 clique = "1.6.1"
 six = ">=1,<2"
 toml = ">=0.10.2,<0.11.0"
+
+[package.source]
+type = "legacy"
+url = "https://test.pypi.org/simple"
+reference = "testpypi"
 
 [[package]]
 name = "packaging"
@@ -78,7 +83,7 @@ test = ["pytest (>=6,!=7.0.0,!=7.0.1)", "pytest-cov (>=3.0.0)", "pytest-qt"]
 name = "six"
 version = "1.16.0"
 description = "Python 2 and 3 compatibility utilities"
-optional = true
+optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
 files = [
     {file = "six-1.16.0-py2.py3-none-any.whl", hash = "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"},
@@ -89,7 +94,7 @@ files = [
 name = "toml"
 version = "0.10.2"
 description = "Python Library for Tom's Obvious, Minimal Language"
-optional = true
+optional = false
 python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 files = [
     {file = "toml-0.10.2-py2.py3-none-any.whl", hash = "sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b"},
@@ -101,5 +106,5 @@ ftrack-libs = ["ftrack-utils"]
 
 [metadata]
 lock-version = "2.0"
-python-versions = ">= 3.7, < 3.9"
-content-hash = "6f7e0ea84362d264cd23613f9597c472ce76aeda700052f08f33e2283587df9c"
+python-versions = ">= 3.7, < 3.11"
+content-hash = "d9b594289c959da3ba9f132f78ab0bb70a6df5935bfb19fc51d4b0af35d6b95c"

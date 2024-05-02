@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ftrack-framework-nuke"
-version = "24.4.1"
+version = "24.5.0rc1"
 description='ftrack Adobe Photoshop integration'
 authors = ["ftrack Integrations Team <integrations@backlight.co>"]
 readme = "README.md"
@@ -33,6 +33,31 @@ ftrack-framework-core = {  version = "^2.0.0", optional = true }
 ftrack-framework-qt = {  version = "^2.0.0", optional = true }
 ftrack-qt = { version = "^2.0.0", optional = true }
 ftrack-qt-style = { version = "^2.0.0", optional = true }
+
+[tool.poetry.group.dev]
+optional = true
+
+# TODO: activate this and install using poetry install --with dev if you want to pick dependencies from local
+[tool.poetry.group.dev.dependencies]
+#ftrack-constants = { path = "../../libs/constants",  develop = true }
+#ftrack-utils = { path = "../../libs/utils",  develop = true }
+#ftrack-framework-core = { path = "../../libs/framework-core",  develop = true }
+#ftrack-framework-qt = { path = "../../libs/framework-qt",  develop = true }
+#ftrack-qt = { path = "../../libs/qt",  develop = true }
+#ftrack-qt-style = { path = "../../libs/qt-style", develop = true }
+
+[tool.poetry.group.testPypi]
+optional = true
+
+# TODO: activate this and install using poetry install --with testPypi if you want to pick dependencies from test pypi
+[tool.poetry.group.testPypi.dependencies]
+ftrack-constants = { version = "^2.0.0", source = "testpypi" }
+ftrack-utils = { version = "^2.0.0", source = "testpypi" }
+ftrack-framework-core = { version = "^2.0.0", source = "testpypi" }
+ftrack-framework-qt = { version = "^2.0.0", source = "testpypi" }
+ftrack-qt = { version = "^2.0.0", source = "testpypi" }
+ftrack-qt-style = { version = "^2.0.0", source = "testpypi" }
+
 
 [tool.poetry.extras]
 ftrack-libs = ["ftrack-constants", "ftrack-utils", "ftrack-qt", "ftrack-qt-style"]
