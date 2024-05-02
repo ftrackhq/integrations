@@ -10,10 +10,13 @@ homepage = "https://ftrack.com"
 repository = "https://github.com/ftrackhq/integrations/tree/main/projects/framework-premiere"
 
 [[tool.poetry.source]]
+name = "PyPI"
+priority = "primary"
+
+[[tool.poetry.source]]
 name = "testpypi"
 url = "https://test.pypi.org/simple/"
-default = false
-secondary = false
+priority = "explicit"
 
 [build-system]
 requires = ["poetry-core"]
