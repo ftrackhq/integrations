@@ -123,7 +123,7 @@ def probe_premiere_pid(premiere_version):
                 for idx in reversed(range(1, 4)):
                     try:
                         pid = int(re.split(' +', line)[idx])
-                    except Error:
+                    except Exception:
                         pass
                 logger.info(f'Found pid: {pid}.')
                 return pid
