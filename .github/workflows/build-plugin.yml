@@ -21,7 +21,7 @@ jobs:
           echo "TAG_NAME=${TAG_NAME}"
           
           # Define an array of supported tag prefixes
-          SUPPORTED_TAG_PREFIXES=("connect-publisher-widget/" "connect-timetracker-widget/" "nuke-studio/" "rv/" "framework-photoshop/" "framework-maya/" "framework-nuke/")
+          SUPPORTED_TAG_PREFIXES=("connect-publisher-widget/" "connect-timetracker-widget/" "nuke-studio/" "rv/" "framework-photoshop/" "framework-maya/" "framework-nuke/" "framework-premiere/")
   
           # Initialize match flag as false
           MATCH_FOUND=false
