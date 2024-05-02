@@ -1,9 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 import threading
+from functools import wraps
 
 # Dock widget in {{ cookiecutter.integration_name.capitalize() }}
-def dock_{{ cookiecutter.integration_name.capitalize() }}_right(widget):
+def dock_{{ cookiecutter.integration_name }}_right(widget):
     '''Dock *widget* to the right side of {{ cookiecutter.integration_name.capitalize() }}.'''
     pass
 
