@@ -10,7 +10,8 @@ official CI/CD build implementation in place.
 
 Changelog:
 
-0.4.20 [24.04.30] Support for building packages outside the monorepo.
+0.4.21 [24.04.30] Support for building packages outside the monorepo.
+0.4.20 [24.04.26] Add PySide6/2 compatibility
 0.4.19 [24.04.22] Qt resource build; Stop replacing Qt imports in built resource.py.
 0.4.18 [24.04.19] CEP plugin support. PySide integrations not platform dependent.
 0.4.17 [24.04.18] Build script to support extras.
@@ -48,7 +49,7 @@ from distutils.spawn import find_executable
 import fileinput
 import tempfile
 
-__version__ = '0.4.20'
+__version__ = '0.4.21'
 
 ZXPSIGN_CMD = 'ZXPSignCmd'
 
@@ -672,7 +673,10 @@ def build_package(invokation_path, pkg_path, args, command=None):
         else:
             logging.warning('No styles to compile.')
 
-        pyside_rcc_command = 'pyside2-rcc'
+        pyside_version = args.pyside_version
+        if not pyside_version:
+            pyside_version = "2"
+        pyside_rcc_command = f'pyside{pyside_version}-rcc'
         try:
             executable = None
 
@@ -1005,9 +1009,7 @@ def build_package(invokation_path, pkg_path, args, command=None):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
-    logging.info(
-        'ftrack Integration deployment script v{}'.format(__version__)
-    )
+    logging.info('ftrack Integrations build script v{}'.format(__version__))
 
     # Shared options
     parser.add_argument(
@@ -1051,6 +1053,12 @@ if __name__ == '__main__':
         '--style_path',
         help='(QT resource build) Override the default style path (resource/style).',
     )
+
+    parser.add_argument(
+        '--pyside_version',
+        help='(QT resource build) The version of pyside to use when building resource.py.',
+    )
+
     parser.add_argument(
         '--output_path',
         help='(QT resource build/RV pkg build) Override the QT resource output directory.',
@@ -1067,7 +1075,9 @@ if __name__ == '__main__':
         help=(
             'clean; Clean(remove) build folder \n'
             'build_connect_plugin; Build Connect plugin archive\n'
-            'build_resources; Build QT resources\n'
+            'build_qt_resources; Build QT resources\n'
+            'build_cep; Build Adobe CEP(.zxp) plugin\n'
+            'build_rvpkg; Build RV pkg\n'
         ),
         choices=[
             'clean',
