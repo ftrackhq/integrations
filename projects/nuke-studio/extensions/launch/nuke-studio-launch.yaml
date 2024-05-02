@@ -19,7 +19,7 @@ search_path:
       - Nuke.*
     expression:
       - Nuke\d.+
-    version_expression: Nuke(?P<version>.*)\/.+$
+    version_expression: "Nuke(?P<version>.*)\/.+$"
     launch_arguments:
       - "--studio"
   windows:
