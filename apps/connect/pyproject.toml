@@ -45,9 +45,18 @@ ftrack-framework-core = {  version = "^2.0.0"}
 [tool.poetry.group.dev]
 optional = true
 
+# TODO: activate this and install using poetry install --with dev if you want to pick dependencies from local
 [tool.poetry.group.dev.dependencies]
 #ftrack-framework-core = { path = "../../libs/framework-core", develop = true }
 #ftrack-utils = { path = "../../libs/utils", develop = true }
+
+[tool.poetry.group.testPypi]
+optional = true
+
+# TODO: activate this and install using poetry install --with dev if you want to pick dependencies from test pypi
+[tool.poetry.group.testPypi.dependencies]
+#ftrack-framework-core = { version = "^2.0.0", source = "testpypi" }
+#ftrack-utils = { version = "^2.0.0", source = "testpypi" }
 
 [tool.poetry.group.installer]
 optional = true
