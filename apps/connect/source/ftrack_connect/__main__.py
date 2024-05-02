@@ -177,10 +177,15 @@ def main(arguments=None):
         # Run the framework standalone module using Connect
 
         # Connect package built executable does not bootstrap PYTHONPATH,
-        # make sure it is done properly. Also puth them first in sys.path
-        # to have priority over Connect packages.
+        # make sure it is done properly.
+        dependencies_path = None
         for path in os.environ.get('PYTHONPATH', []).split(os.pathsep):
-            sys.path.insert(0, path)
+            if path.find('dependencies') > -1:
+                dependencies_path = path
+            elif path not in sys.path:
+                sys.path.append(path)
+        # Put plugin deps first in sys.path to have priority over Connect packages.
+        sys.path.insert(0, dependencies_path)
 
         import ftrack_utils
 
@@ -188,7 +193,14 @@ def main(arguments=None):
         # have been optimized by cx_Freeze and will not work
         # TODO: Provide a better way to do this, for example by running through a separate
         # clean framework Python interpreter.
+        logging.warning('Reloading ftrack_utils lib.')
         importlib.reload(ftrack_utils)
+
+        # Do that same for framework-core
+        import ftrack_framework_core
+
+        logging.warning('Reloading ftrack_framework_core lib.')
+        importlib.reload(ftrack_framework_core)
 
         importlib.import_module(framework_standalone_module, package=None)
     else:
