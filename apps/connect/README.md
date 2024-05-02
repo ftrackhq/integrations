@@ -99,6 +99,14 @@ python tools/build.py --style_path resource --output_path source/ftrack_connect/
 
 **Note:** If --codesign is true, please make sure you have followed all the instructions from: https://github.com/ftrackhq/integrations/blob/main/installers/app-installer/README.md
 
+### Windows connect installation options.
+1. Check the following link to know all available install options: https://jrsoftware.org/ishelp/index.php?topic=setupcmdline&anchor=SILENT
+2. For example to silently install connect in a central location, you might use:
+
+```bash
+  ftrack_connect-24.5.0rc1-win64.exe /VERYSILENT /DIR=C:\TEMP\mydir /SP- /CURRENTUSER
+```
+
 ### Build documentation
 
 1. Install documentation dependencies:
