@@ -19,7 +19,7 @@ search_path:
       - Adobe
     expression:
       - Adobe Premiere*
-      - Premiere*.exe
+      - Adobe Premiere Pro.exe
   darwin:
     prefix:
       - "/"
