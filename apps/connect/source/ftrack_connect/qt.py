@@ -23,6 +23,3 @@ except ImportError:
         QtOpenGL,
         QtQuick,
     )
-
-
-# from Qt import __version__, QtCompat
