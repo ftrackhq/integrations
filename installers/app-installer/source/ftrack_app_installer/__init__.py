@@ -139,7 +139,11 @@ class WindowsAppInstaller(AppInstaller):
             raise Exception(f'Inno Setup not found at: {self.INNOSETUP_PATH}')
 
         if codesign:
-            self.codesign(self.dist_path)
+            self.codesign(
+                os.path.join(
+                    self.dist_path, 'ftrack Connect', 'ftrack Connect.exe'
+                )
+            )
 
         # Load template and inject data
         with open(
