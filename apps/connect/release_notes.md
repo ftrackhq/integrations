@@ -1,7 +1,7 @@
 # ftrack Connect release Notes
 
 
-## 24.5.0rc1
+## 24.5.0rc3
 2024-04-03
 
 * [fix] Connect fonts picked from resources.
