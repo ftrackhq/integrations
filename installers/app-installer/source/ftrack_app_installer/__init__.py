@@ -79,6 +79,10 @@ class AppInstaller(object):
             self.bundle_name,
             '--collect-all',
             'ftrack_connect',
+            '--collect-all',
+            'ftrack_utils',
+            '--collect-all',
+            'ftrack_framework_core',
             '--icon',
             self.icon_path,
             '--distpath',
@@ -118,12 +122,12 @@ class WindowsAppInstaller(AppInstaller):
     os_root_folder = os.path.join(
         os.path.dirname(os.path.abspath(__file__)), "windows"
     )
-    codesing_folder = os.path.join(os_root_folder, "codesign")
+    codesign_folder = os.path.join(os_root_folder, "codesign")
     INNOSETUP_PATH = "C:\\Program Files (x86)\\Inno Setup 6\\ISCC.exe"
 
     def codesign(self, path):
         '''Codesign artifact *path* using jsign tool in Windows'''
-        bat_file = os.path.join(self.codesing_folder, "codesign.bat")
+        bat_file = os.path.join(self.codesign_folder, "codesign.bat")
         return_code = os.system(f'{bat_file} "{path}"')
         logging.info(f'Exitcode from code signing "{path}": {return_code}')
 
@@ -184,7 +188,7 @@ class MacOSAppInstaller(AppInstaller):
     os_root_folder = os.path.join(
         os.path.dirname(os.path.abspath(__file__)), "macOS"
     )
-    codesing_folder = os.path.join(os_root_folder, "codesign")
+    codesign_folder = os.path.join(os_root_folder, "codesign")
 
     @property
     def bundle_path(self):
@@ -210,7 +214,7 @@ class MacOSAppInstaller(AppInstaller):
             "please don't stop the process."
         )
         entitlements_path = os.path.join(
-            self.codesing_folder, 'entitlements.plist'
+            self.codesign_folder, 'entitlements.plist'
         )
         codesign_command = (
             'codesign --verbose --force --options runtime --timestamp --deep --strict '
