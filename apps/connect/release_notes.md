@@ -1,6 +1,11 @@
 # ftrack Connect release Notes
 
 
+## upcoming
+
+* [changed] Make sure Windows executable is code signed.
+
+
 ## 24.5.0
 2024-04-03
 
