@@ -55,9 +55,9 @@ configure_logging(
 logger = logging.getLogger(__name__)
 logger.debug('v{}'.format(__version__))
 
-photoshop_rpc_connection = object()
-remote_session = object()
-process_monitor = object()
+photoshop_rpc_connection = None
+remote_session = None
+process_monitor = None
 
 # Create Qt application
 app = QtWidgets.QApplication.instance()

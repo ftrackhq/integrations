@@ -49,7 +49,7 @@ def on_launch_integration(session, event):
     photoshop_version = event['data']['application']['version'].version[0]
 
     logger.info(
-        'Assuming CEP plugin has been properly installed prior to launch, Photoshop'
+        'Assuming CEP plugin has been properly installed prior to launch and Photoshop'
         'is set to launch in Rosetta mode on Silicon Mac'
     )
 
@@ -65,15 +65,6 @@ def on_launch_integration(session, event):
     launch_data['integration']['env']['FTRACK_PHOTOSHOP_VERSION'] = str(
         photoshop_version
     )
-
-    if sys.platform == 'darwin':
-        # Check if running on apple silicon (arm64)
-        if subprocess.check_output("arch").decode('utf-8').find('i386') == -1:
-            logger.warning(
-                'Running on non Intel hardware(Apple Silicon), will require PS '
-                'to be launched in Rosetta mode!'
-            )
-            launch_data['integration']['env']['FTRACK_LAUNCH_ARCH'] = 'x86_64'
 
     selection = event['data'].get('context', {}).get('selection', [])
 

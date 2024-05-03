@@ -37,7 +37,7 @@ class PhotoshopDocumentOpenerPlugin(BasePlugin):
             photoshop_connection = JavascriptRPC.instance()
 
             self.logger.debug(
-                f'Telling Photoshop to save document to: {collected_path}'
+                f'Telling Photoshop to open document from: {collected_path}'
             )
 
             open_result = photoshop_connection.rpc(

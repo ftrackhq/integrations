@@ -144,7 +144,8 @@ function exportDocument(output_path, format) {
         app.activeDocument.saveAs(new File(output_path), options, true);
         return "true";
     } catch (e) {
-        return "An error occurred: "+e+" Details: "+e.stack;
+        alert(e);
+        return "Error: Could not export document: "+e+" Details: "+e.stack;
     }
 }
 
