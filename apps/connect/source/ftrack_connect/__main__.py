@@ -180,19 +180,22 @@ def main(arguments=None):
     if framework_standalone_module:
         # Run the framework standalone module using Connect
 
-        # Connect package built executable does not bootstrap PYTHONPATH,
-        # make sure it is done properly. Also put them first in sys.path
-        # to have priority over Connect packages.
+        # Connect installer built executable does not bootstrap PYTHONPATH,
+        # make sure it is done properly.
+        dependencies_path = None
         for path in os.environ.get('PYTHONPATH', []).split(os.pathsep):
-            sys.path.insert(0, path)
+            if path.find('dependencies') > -1:
+                dependencies_path = path
+            elif path not in sys.path:
+                sys.path.append(path)
+        # Put plugin deps first in sys.path to have priority over Connect packages, does not really
+        # work since pyinstaller since its python interpreter deps seems locked to the executable
+        sys.path.insert(0, dependencies_path)
 
-        import ftrack_utils
-
-        # Reload ftrack_utils from the correct sys path, not from Connect as it has might
-        # have been optimized by cx_Freeze and will not work
+        # Adding dependencies folder on top does not make the imports work as expected,
+        # libs (utils & framework core) are still loaded and used from Connect.
         # TODO: Provide a better way to do this, for example by running through a separate
         # clean framework Python interpreter.
-        importlib.reload(ftrack_utils)
 
         importlib.import_module(framework_standalone_module, package=None)
     elif script:
