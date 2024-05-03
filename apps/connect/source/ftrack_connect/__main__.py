@@ -188,23 +188,9 @@ def main(arguments=None):
                 dependencies_path = path
             elif path not in sys.path:
                 sys.path.append(path)
-        # Put plugin deps first in sys.path to have priority over Connect packages.
+        # Put plugin deps first in sys.path to have priority over Connect packages, does not really
+        # work since pyinstaller since its python interpreter deps seems locked to the executable
         sys.path.insert(0, dependencies_path)
-
-        import ftrack_utils
-
-        # Reload ftrack_utils from the correct sys path, not from Connect as it has might
-        # have been optimized by cx_Freeze and will not work
-        # TODO: Provide a better way to do this, for example by running through a separate
-        # clean framework Python interpreter.
-        logging.warning('Reloading ftrack_utils lib.')
-        importlib.reload(ftrack_utils)
-
-        # Do that same for framework-core
-        import ftrack_framework_core
-
-        logging.warning('Reloading ftrack_framework_core lib.')
-        importlib.reload(ftrack_framework_core)
 
         importlib.import_module(framework_standalone_module, package=None)
     elif script:
