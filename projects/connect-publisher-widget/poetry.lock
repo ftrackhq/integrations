@@ -18,13 +18,13 @@ test = ["pytest (>=2.3.5,<5)", "pytest-cov (>=2,<3)", "pytest-runner (>=2.7,<3)"
 
 [[package]]
 name = "ftrack-utils"
-version = "2.1.0"
+version = "2.2.0"
 description = "ftrack utils library"
 optional = true
 python-versions = "<3.12,>=3.7"
 files = [
-    {file = "ftrack_utils-2.1.0-py3-none-any.whl", hash = "sha256:ce91df88af9ee473e629eca9c7598c793a6b234a455e6eaaa9b9fe51ec9c132d"},
-    {file = "ftrack_utils-2.1.0.tar.gz", hash = "sha256:4b1b4b3f5a18541047177571f3293f8886afc50787b6c24eef86c5acf800082a"},
+    {file = "ftrack_utils-2.2.0-py3-none-any.whl", hash = "sha256:25ba6d2ddd17d66289506a6ac516a22923ca816378643c00d4b688c13da773f4"},
+    {file = "ftrack_utils-2.2.0.tar.gz", hash = "sha256:7fecd76fe36cc1bdf36431427d3fd90924b64b9de647f849e307d2e6e5dda911"},
 ]
 
 [package.dependencies]
@@ -59,5 +59,5 @@ ftrack-libs = ["ftrack-utils"]
 
 [metadata]
 lock-version = "2.0"
-python-versions = ">= 3.7, < 3.9"
-content-hash = "39c5e61bb7523bdbfa7e4e8b7e1369b456c0e61d8dcfb7499e02cf130dfa968c"
+python-versions = ">= 3.7, < 3.11"
+content-hash = "94dbde1df77c9a7f941143e63db0285ea51ef95446a04a37863d5293cf19cee1"

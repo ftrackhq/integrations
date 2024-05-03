@@ -180,7 +180,7 @@ def main(arguments=None):
     if framework_standalone_module:
         # Run the framework standalone module using Connect
 
-        # Connect package built executable does not bootstrap PYTHONPATH,
+        # Connect installer built executable does not bootstrap PYTHONPATH,
         # make sure it is done properly.
         dependencies_path = None
         for path in os.environ.get('PYTHONPATH', []).split(os.pathsep):
@@ -191,6 +191,11 @@ def main(arguments=None):
         # Put plugin deps first in sys.path to have priority over Connect packages, does not really
         # work since pyinstaller since its python interpreter deps seems locked to the executable
         sys.path.insert(0, dependencies_path)
+
+        # Adding dependencies folder on top does not make the imports work as expected,
+        # libs (utils & framework core) are still loaded and used from Connect.
+        # TODO: Provide a better way to do this, for example by running through a separate
+        # clean framework Python interpreter.
 
         importlib.import_module(framework_standalone_module, package=None)
     elif script:
