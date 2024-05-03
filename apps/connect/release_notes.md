@@ -7,6 +7,18 @@
 * [deprecated] FTRACK_CONNECT_PLUGIN_PATH is deprecated in favor of plugin_path in the connect_config.yaml
 * [new] Implemented connect_config.yaml file driven by FTRACK_CONNECT_CONFIG_PATH
 
+## 24.5.0
+2024-04-03
+
+* [changed] Connect installer removed, now using a script to call the ftrack-app-installer library to package connect and codesign it on all platforms.
+* [changed] New versioning system matching all backlight products.
+* [changed] Allow non versioned connect plugins, supporting legacy actions naming convention.
+* [changed] Fixed overlay widget bugs.
+* [new] PySide6 support;
+* [new] PySide2 support.
+* [changed] Removed ftrack_connect.qt module.
+* [changed] Removed Qt.py dependency.
+
 ## v3.0.0
 2024-04-02
 

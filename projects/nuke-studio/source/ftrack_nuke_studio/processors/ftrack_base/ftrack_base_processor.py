@@ -1049,7 +1049,7 @@ class FtrackProcessor(FtrackBase):
         ).name
 
         thumbnail_qimage_resized = thumbnail_qimage.scaledToWidth(
-            1280, QtCore.Qt.SmoothTransformation
+            1280, QtCore.Qt.TransformationMode.SmoothTransformation
         )
 
         thumbnail_qimage_resized.save(thumbnail_file)

@@ -1,7 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 
-from ftrack_connect.qt import QtWidgets, QtCore, QtGui
+try:
+    from PySide6 import QtWidgets, QtCore, QtGui
+except ImportError:
+    from PySide2 import QtWidgets, QtCore, QtGui
 
 
 class LineEditIconButton(QtWidgets.QToolButton):
@@ -13,8 +16,8 @@ class LineEditIconButton(QtWidgets.QToolButton):
     def __init__(self, *args, **kw):
         '''Initialise button.'''
         super(LineEditIconButton, self).__init__(*args, **kw)
-        self.setCursor(QtCore.Qt.ArrowCursor)
-        self.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.setCursor(QtCore.Qt.CursorShape.ArrowCursor)
+        self.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
 
     def paintEvent(self, event):
         '''Handle paint *event*.'''
@@ -22,14 +25,16 @@ class LineEditIconButton(QtWidgets.QToolButton):
 
         # Note: isDown should ideally use the 'active' state, but in most styles
         # this has no proper feedback.
-        state = QtGui.QIcon.Disabled
+        state = QtGui.QIcon.Mode.Disabled
         if self.isEnabled():
-            state = QtGui.QIcon.Normal
+            state = QtGui.QIcon.Mode.Normal
             if self.isDown():
-                state = QtGui.QIcon.Selected
+                state = QtGui.QIcon.Mode.Selected
 
         iconPixmap = self.icon().pixmap(
-            QtCore.QSize(self.iconSize, self.iconSize), state, QtGui.QIcon.Off
+            QtCore.QSize(self.iconSize, self.iconSize),
+            state,
+            QtGui.QIcon.State.Off,
         )
 
         iconRegion = QtCore.QRect(

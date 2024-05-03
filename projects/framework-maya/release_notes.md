@@ -1,7 +1,9 @@
 # ftrack Framework Maya integration release Notes
 
-## Upcoming
+## v24.5.0
+2024-05-03
 
+* [fix] Launcher; Properly escaped version expressions.
 * [changed] Replace Qt.py imports to PySide2 and PySide6 on widgets.
 
 ## v24.4.0

@@ -1,5 +1,10 @@
 # ftrack Framework Core library release Notes
 
+## v2.2.0
+2024-05-02
+
+* [fix] Registry; Correctly registering unique objects.
+
 ## v2.1.0
 2024-04-02
 

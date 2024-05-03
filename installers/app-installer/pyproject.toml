@@ -1,0 +1,31 @@
+[tool.poetry]
+name = "ftrack-app-installer"
+version = "0.0.0"
+description='ftrack App installer library'
+authors = ["ftrack Integrations Team <integrations@backlight.co>"]
+readme = "README.md"
+packages = [{include = "ftrack_app_installer", from = "source"}]
+license = "Apache-2.0"
+homepage = "https://ftrack.com"
+repository = "https://github.com/ftrackhq/integrations/tree/main/installers/app_installer"
+
+[[tool.poetry.source]]
+name = "PyPI"
+priority = "primary"
+
+[[tool.poetry.source]]
+name = "testpypi"
+url = "https://test.pypi.org/simple/"
+priority = "explicit"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.dependencies]
+python = ">= 3.8, < 3.12"
+pyinstaller = "^6.6.0"
+
+[tool.black]
+line-length = 79
+skip-string-normalization = true

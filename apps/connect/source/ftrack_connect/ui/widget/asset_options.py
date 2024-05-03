@@ -3,7 +3,10 @@
 
 import logging
 
-from ftrack_connect.qt import QtWidgets
+try:
+    from PySide6 import QtWidgets
+except ImportError:
+    from PySide2 import QtWidgets
 
 from ftrack_connect.error import NotUniqueError
 from ftrack_connect.ui.widget import asset_name_edit as _asset_name_edit

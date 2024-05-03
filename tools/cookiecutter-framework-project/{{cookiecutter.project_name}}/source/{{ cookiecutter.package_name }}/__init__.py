@@ -113,7 +113,7 @@ def bootstrap_integration(framework_extensions_path):
                 app="{{ cookiecutter.integration_name.capitalize() }}",
                 registry=registry_info_dict,
                 version=__version__,
-                app_version=get_dcc_version(),
+                app_version="2024", # TODO: fetch DCC version through API
                 os=platform.platform(),
             ),
         )

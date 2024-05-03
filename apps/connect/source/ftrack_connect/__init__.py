@@ -5,6 +5,7 @@ import os
 import logging
 import qtawesome as qta
 import re
+import sys
 
 logger = logging.getLogger(__name__)
 
@@ -22,26 +23,37 @@ except Exception:
     logging.warning(traceback.format_exc())
     __version__ = "0.0.0"
 
-if (
-    __version__ == "0.0.0"
-    and 'FTRACK_CONNECT_INSTALLER_RESOURCE_PATH' in os.environ
-):
+if __version__ == "0.0.0":
     # If the version is still 0.0.0, we are probably running as executable from within
     # the installer. In this case, we can use the version stored by the installer.
-    FTRACK_CONNECT_INSTALLER_RESOURCE_PATH = os.environ.get(
-        'FTRACK_CONNECT_INSTALLER_RESOURCE_PATH',
-        os.path.abspath(os.path.join(os.path.dirname(__file__), '..')),
+
+    if getattr(sys, 'frozen', False):
+        # If the application is run as a bundle, the pyInstaller bootloader
+        # extends the sys module by a flag frozen=True and sets the app
+        # path into variable _MEIPASS.
+        base_path = sys._MEIPASS
+    else:
+        base_path = os.path.abspath(".")
+
+    version_file_path = os.path.join(
+        base_path, 'ftrack_connect', '__version__.py'
     )
 
-    with open(
-        os.path.join(
-            FTRACK_CONNECT_INSTALLER_RESOURCE_PATH,
-            'ftrack_connect_version.py',
-        )
-    ) as _version_file:
-        __version__ = re.match(
-            r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
-        ).group(1)
+    try:
+        with open(version_file_path, 'r') as _version_file:
+            version_content = _version_file.read()
+            version_match = re.match(
+                r".*__version__ = '(.*?)'", version_content, re.DOTALL
+            )
+            if version_match:
+                __version__ = version_match.group(1)
+            else:
+                __version__ = "0.0.0"
+                logging.warning("Version string not found in __version__.py")
+
+    except Exception as e:
+        logging.warning(f"Error reading version file: {e}")
+        __version__ = "0.0.0"
 
 
 _resource = {"loaded": False}

@@ -11,7 +11,10 @@ import logging
 import qtawesome as qta
 
 
-from ftrack_connect.qt import QtWidgets, QtCore, QtGui
+try:
+    from PySide6 import QtWidgets, QtCore, QtGui
+except ImportError:
+    from PySide2 import QtWidgets, QtCore, QtGui
 
 from ftrack_connect.utils.plugin import (
     get_plugin_json_url_from_environment,
@@ -109,21 +112,21 @@ class DndPluginList(QtWidgets.QFrame):
             if plugin_data['platform'] != platform:
                 # Not our platform, ask user if they want to install anyway
                 msgbox = QtWidgets.QMessageBox(
-                    QtWidgets.QMessageBox.Warning,
+                    QtWidgets.QMessageBox.Icon.Warning,
                     'Warning',
                     'This plugin is not compatible with your platform:'
                     f':\n\n{destination_filename}\n\nProceed install anyway?',
-                    buttons=QtWidgets.QMessageBox.Yes
-                    | QtWidgets.QMessageBox.No
-                    | QtWidgets.QMessageBox.Cancel,
+                    buttons=QtWidgets.QMessageBox.StandardButton.Yes
+                    | QtWidgets.QMessageBox.StandardButton.No
+                    | QtWidgets.QMessageBox.StandardButton.Cancel,
                     parent=self,
                 )
                 answer = msgbox.exec_()
-                if answer == QtWidgets.QMessageBox.Yes:
+                if answer == QtWidgets.QMessageBox.StandardButton.Yes:
                     pass
-                elif answer == QtWidgets.QMessageBox.No:
+                elif answer == QtWidgets.QMessageBox.StandardButton.No:
                     return  # Skip this one, but proceed
-                elif answer == QtWidgets.QMessageBox.Cancel:
+                elif answer == QtWidgets.QMessageBox.StandardButton.Cancel:
                     raise Exception('Plugin installation cancelled by user.')
 
             if destination_filename.endswith(f'-{plugin_data["platform"]}'):
@@ -192,7 +195,7 @@ class DndPluginList(QtWidgets.QFrame):
                 if status is STATUSES.NEW:
                     # enable it by default as is new.
                     plugin_item.setCheckable(True)
-                    plugin_item.setCheckState(QtCore.Qt.Checked)
+                    plugin_item.setCheckState(QtCore.Qt.CheckState.Checked)
 
             self._plugin_model.appendRow(plugin_item)
             self._plugin_model.itemChanged.emit(plugin_item)
@@ -226,7 +229,7 @@ class DndPluginList(QtWidgets.QFrame):
             # enable it by default if we are updating
             stored_item.setCheckable(True)
             stored_item.setEnabled(True)
-            stored_item.setCheckState(QtCore.Qt.Checked)
+            stored_item.setCheckState(QtCore.Qt.CheckState.Checked)
 
     def plugin_is_available(self, plugin_data):
         '''Return item from *plugin_data* if found.'''
@@ -365,7 +368,7 @@ class DndPluginList(QtWidgets.QFrame):
 
     def dragEnterEvent(self, event):
         '''Override dragEnterEvent and accept all events.'''
-        event.setDropAction(QtCore.Qt.CopyAction)
+        event.setDropAction(QtCore.Qt.DropAction.CopyAction)
         event.accept()
         self._set_drop_zone_state('active')
 

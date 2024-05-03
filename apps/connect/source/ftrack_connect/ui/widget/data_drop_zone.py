@@ -4,11 +4,16 @@
 import logging
 import os
 
-from ftrack_connect.qt import QtCore
-from ftrack_connect.qt import QtWidgets
+try:
+    from PySide6 import QtWidgets, QtCore
+except ImportError:
+    from PySide2 import QtWidgets, QtCore
+
 import qtawesome as qta
 
 import clique
+
+# TODO: replace riffle as it is not PySide6 compatible
 import riffle.browser
 from riffle.icon_factory import IconFactory, IconType
 
@@ -66,8 +71,14 @@ class DataDropZone(QtWidgets.QFrame):
         layout = QtWidgets.QVBoxLayout()
         self.setLayout(layout)
 
-        bottomCenterAlignment = QtCore.Qt.AlignBottom | QtCore.Qt.AlignHCenter
-        topCenterAlignment = QtCore.Qt.AlignTop | QtCore.Qt.AlignHCenter
+        bottomCenterAlignment = (
+            QtCore.Qt.AlignmentFlag.AlignBottom
+            | QtCore.Qt.AlignmentFlag.AlignHCenter
+        )
+        topCenterAlignment = (
+            QtCore.Qt.AlignmentFlag.AlignTop
+            | QtCore.Qt.AlignmentFlag.AlignHCenter
+        )
 
         self._label = QtWidgets.QLabel('Drop files here or')
         layout.addWidget(self._label, alignment=bottomCenterAlignment)
@@ -174,7 +185,7 @@ class DataDropZone(QtWidgets.QFrame):
 
     def dragEnterEvent(self, event):
         '''Override dragEnterEvent and accept all events.'''
-        event.setDropAction(QtCore.Qt.CopyAction)
+        event.setDropAction(QtCore.Qt.DropAction.CopyAction)
         event.accept()
         files = self._processMimeData(event.mimeData(), raise_message=False)
         if files:

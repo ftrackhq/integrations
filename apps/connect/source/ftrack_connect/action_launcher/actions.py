@@ -5,7 +5,10 @@ import logging
 import functools
 import platform
 
-from ftrack_connect.qt import QtCore, QtWidgets
+try:
+    from PySide6 import QtWidgets, QtCore
+except ImportError:
+    from PySide2 import QtWidgets, QtCore
 
 import ftrack_api.event.base
 from ftrack_utils.decorators import asynchronous
@@ -127,7 +130,7 @@ class Actions(QtWidgets.QWidget):
 
         self._all_label = QtWidgets.QLabel('Discovering actions..')
         self._all_label.setWordWrap(True)
-        self._all_label.setAlignment(QtCore.Qt.AlignCenter)
+        self._all_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(self._all_label)
         self._all_section = ActionSection(self.session, self)
         self._all_section.beforeActionLaunch.connect(
@@ -188,7 +191,7 @@ class Actions(QtWidgets.QWidget):
 
         if rise_message:
             message_box = QtWidgets.QMessageBox(
-                QtWidgets.QMessageBox.Warning,
+                QtWidgets.QMessageBox.Icon.Warning,
                 'Warning',
                 rise_message,
                 buttons=QtWidgets.QMessageBox.Ok,
@@ -313,10 +316,10 @@ class Actions(QtWidgets.QWidget):
         self._all_section.clear()
         if self._actions:
             self._all_section.add_actions(self._actions)
-            self._all_label.setAlignment(QtCore.Qt.AlignLeft)
+            self._all_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeft)
             self._all_label.setText('All actions')
         else:
-            self._all_label.setAlignment(QtCore.Qt.AlignCenter)
+            self._all_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
             self._all_label.setText(
                 '<h2 style="font-weight: medium"> No matching applications or actions was found</h2>'
                 '<p>Try another selection, add some actions and make sure you have the right integrations set up for the applications you want to launch.</p>'
