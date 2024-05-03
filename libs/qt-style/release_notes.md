@@ -1,5 +1,10 @@
 # ftrack Framework QT Style library release Notes
 
+## v2.2.1
+2024-05-02
+
+* [fix] Replace resource.py import to be PySide2 and PySide6 compatible.
+
 ## v2.2.0
 2024-05-02
 
