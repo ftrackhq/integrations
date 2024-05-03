@@ -99,14 +99,14 @@ jobs:
         run: |
           pip install -r tools/requirements.txt
           # Use --testpypi or --from_source to change where the deps are picked from
-          python tools/build.py --remove_intermediate_folder build_connect_plugin --testpypi ${{ needs.set-variables.outputs.folder }}
+          python tools/build.py --remove_intermediate_folder build_connect_plugin ${{ needs.set-variables.outputs.folder }}
       - name: build standard connect DCC integration plugin
         if: ${{ needs.set-variables.outputs.package == 'framework-maya' || needs.set-variables.outputs.package == 'framework-nuke' }}
         shell: bash
         run: |
           pip install -r tools/requirements.txt
           # Use --testpypi or --from_source to change where the deps are picked from
-          python tools/build.py --remove_intermediate_folder --include_resources resource/bootstrap build_connect_plugin --testpypi ${{ needs.set-variables.outputs.folder }}
+          python tools/build.py --remove_intermediate_folder --include_resources resource/bootstrap build_connect_plugin ${{ needs.set-variables.outputs.folder }}
       - name: build nuke studio connect plugin
         if: ${{ needs.set-variables.outputs.package == 'nuke-studio' }}
         shell: bash

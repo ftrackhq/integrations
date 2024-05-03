@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ftrack-connect"
-version = "24.5.0rc1"
+version = "24.5.0"
 description='ftrack Connect desktop application.'
 authors = ["ftrack Integrations Team <integrations@backlight.co>"]
 readme = "README.md"
@@ -55,8 +55,8 @@ optional = true
 
 # TODO: activate this and install using poetry install --with testPypi if you want to pick dependencies from test pypi
 [tool.poetry.group.testPypi.dependencies]
-ftrack-framework-core = { version = "^2.0.0", source = "testpypi" }
-ftrack-utils = { version = "^2.0.0", source = "testpypi" }
+#ftrack-framework-core = { version = "^2.0.0", source = "testpypi" }
+#ftrack-utils = { version = "^2.0.0", source = "testpypi" }
 
 [tool.poetry.group.installer]
 optional = true
