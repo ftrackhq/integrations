@@ -68,14 +68,6 @@ def on_launch_integration(session, event):
         integration_version
     )
 
-    if sys.platform == 'darwin':
-        # Check if running on apple silicon (arm64)
-        if subprocess.check_output("arch").decode('utf-8').find('i386') == -1:
-            logger.warning(
-                'Running on non Intel hardware(Apple Silicon), will require PS '
-                'to be launched in Rosetta mode!'
-            )
-            launch_data['integration']['env']['FTRACK_LAUNCH_ARCH'] = 'x86_64'
 
     selection = event['data'].get('context', {}).get('selection', [])
 
