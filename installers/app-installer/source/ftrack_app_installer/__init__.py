@@ -125,6 +125,12 @@ class WindowsAppInstaller(AppInstaller):
     codesign_folder = os.path.join(os_root_folder, "codesign")
     INNOSETUP_PATH = "C:\\Program Files (x86)\\Inno Setup 6\\ISCC.exe"
 
+    @property
+    def executable_path(self):
+        return os.path.join(
+            self.dist_path, 'ftrack Connect', f'{self.bundle_name}.exe'
+        )
+
     def codesign(self, path):
         '''Codesign artifact *path* using jsign tool in Windows'''
         bat_file = os.path.join(self.codesign_folder, "codesign.bat")
@@ -139,11 +145,7 @@ class WindowsAppInstaller(AppInstaller):
             raise Exception(f'Inno Setup not found at: {self.INNOSETUP_PATH}')
 
         if codesign:
-            self.codesign(
-                os.path.join(
-                    self.dist_path, 'ftrack Connect', 'ftrack Connect.exe'
-                )
-            )
+            self.codesign(self.executable_path)
 
         # Load template and inject data
         with open(
