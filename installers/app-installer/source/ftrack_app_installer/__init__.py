@@ -91,6 +91,9 @@ class AppInstaller(object):
             self.build_path,
             '--add-data',
             version_file_path + ':ftrack_connect',
+            '--add-data',
+            os.path.join(self.root_path, "resource", "fonts")
+            + ':ftrack_connect',
             '--hidden-import',
             # This is just making sure to add this build in python library so
             # its available on the installer (Requested by Lorenzo)
