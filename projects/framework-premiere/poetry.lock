@@ -169,8 +169,8 @@ ftrack-libs = ["ftrack-utils (>=2.0.0,<3.0.0)"]
 name = "ftrack-framework-core"
 version = "2.2.0"
 description = "ftrack Framework Core library"
-optional = false
-python-versions = ">=3.7,<3.12"
+optional = true
+python-versions = "<3.12,>=3.7"
 files = [
     {file = "ftrack_framework_core-2.2.0-py3-none-any.whl", hash = "sha256:6511300fbf2a05faf34e245afc4b3162b31ac100e22b09461572d7ed97bbe88f"},
     {file = "ftrack_framework_core-2.2.0.tar.gz", hash = "sha256:6fbe469ada9f377b2a13b103acb6a671afd624227a4ab4bcf3482d2a0b7e8887"},
@@ -185,17 +185,12 @@ six = ">=1,<2"
 [package.extras]
 ftrack-libs = ["ftrack-constants (>=2.0.0,<3.0.0)", "ftrack-utils (>=2.0.0,<3.0.0)"]
 
-[package.source]
-type = "legacy"
-url = "https://test.pypi.org/simple"
-reference = "testpypi"
-
 [[package]]
 name = "ftrack-framework-qt"
 version = "2.2.0"
 description = "ftrack framework qt library"
-optional = false
-python-versions = ">=3.7,<3.12"
+optional = true
+python-versions = "<3.12,>=3.7"
 files = [
     {file = "ftrack_framework_qt-2.2.0-py3-none-any.whl", hash = "sha256:65b43d0da6b2071abb6db5f8d794f19cdf5989c1307263d1d983aa89fa63fc91"},
     {file = "ftrack_framework_qt-2.2.0.tar.gz", hash = "sha256:feec444fd668ee6e22f0ebc3a482d0bc09b20fe4026d90558fd27c5e4c47f04e"},
@@ -206,11 +201,6 @@ framework-libs = ["ftrack-framework-core (>=2.0.0,<3.0.0)"]
 ftrack-libs = ["ftrack-constants (>=2.0.0,<3.0.0)", "ftrack-qt (>=2.0.0,<3.0.0)", "ftrack-utils (>=2.0.0,<3.0.0)"]
 pyside2 = ["PySide2 (>=5.13.2,<6.0.0)"]
 pyside6 = ["PySide6 (>=6.5,<7.0)"]
-
-[package.source]
-type = "legacy"
-url = "https://test.pypi.org/simple"
-reference = "testpypi"
 
 [[package]]
 name = "ftrack-python-api"
@@ -237,8 +227,8 @@ websocket-client = ">=0.40.0,<1"
 name = "ftrack-qt"
 version = "2.2.0"
 description = "ftrack qt library"
-optional = false
-python-versions = ">=3.7,<3.12"
+optional = true
+python-versions = "<3.12,>=3.7"
 files = [
     {file = "ftrack_qt-2.2.0-py3-none-any.whl", hash = "sha256:192dc461b006c9a1a90882dee555328549bdf4d0412703ec05d635707dd1e78a"},
     {file = "ftrack_qt-2.2.0.tar.gz", hash = "sha256:f033e4f5034a8204ca9a47146fd01215cf8b5fe4e6660e864ca2f09a917ad1c6"},
@@ -249,20 +239,15 @@ ftrack-libs = ["ftrack-constants (>=2.0.0,<3.0.0)", "ftrack-qt-style (>=2.0.0,<3
 pyside2 = ["PySide2 (>=5.13.2,<6.0.0)"]
 pyside6 = ["PySide6 (>=6.5,<7.0)"]
 
-[package.source]
-type = "legacy"
-url = "https://test.pypi.org/simple"
-reference = "testpypi"
-
 [[package]]
 name = "ftrack-qt-style"
-version = "2.2.0"
+version = "2.2.1"
 description = "ftrack qt style library"
 optional = false
 python-versions = ">=3.7,<3.12"
 files = [
-    {file = "ftrack_qt_style-2.2.0-py3-none-any.whl", hash = "sha256:5952f5987e30da4e5845f61b32a0c1da93383f1a3dea9d08d1363ac5a766d8b8"},
-    {file = "ftrack_qt_style-2.2.0.tar.gz", hash = "sha256:9516a091106184fceeaab4083b72db4b12f78744c0788e92edbbcdd56afd0165"},
+    {file = "ftrack_qt_style-2.2.1-py3-none-any.whl", hash = "sha256:a579251b006ee6dae6be79c5847858510fa1187929f20359a0efa341b91a682c"},
+    {file = "ftrack_qt_style-2.2.1.tar.gz", hash = "sha256:a661b0b6c933d50274748ddf60f34768afe013049ee4b38a1dbf8c1b4602b965"},
 ]
 
 [package.extras]
@@ -277,8 +262,8 @@ reference = "testpypi"
 name = "ftrack-utils"
 version = "2.2.0"
 description = "ftrack utils library"
-optional = false
-python-versions = ">=3.7,<3.12"
+optional = true
+python-versions = "<3.12,>=3.7"
 files = [
     {file = "ftrack_utils-2.2.0-py3-none-any.whl", hash = "sha256:25ba6d2ddd17d66289506a6ac516a22923ca816378643c00d4b688c13da773f4"},
     {file = "ftrack_utils-2.2.0.tar.gz", hash = "sha256:7fecd76fe36cc1bdf36431427d3fd90924b64b9de647f849e307d2e6e5dda911"},
@@ -288,11 +273,6 @@ files = [
 clique = "1.6.1"
 six = ">=1,<2"
 toml = ">=0.10.2,<0.11.0"
-
-[package.source]
-type = "legacy"
-url = "https://test.pypi.org/simple"
-reference = "testpypi"
 
 [[package]]
 name = "future"
@@ -319,7 +299,7 @@ files = [
 name = "platformdirs"
 version = "4.0.0"
 description = "A small Python package for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
-optional = false
+optional = true
 python-versions = ">=3.7"
 files = [
     {file = "platformdirs-4.0.0-py3-none-any.whl", hash = "sha256:118c954d7e949b35437270383a3f2531e99dd93cf7ce4dc8340d3356d30f173b"},
@@ -362,7 +342,7 @@ six = ">=1.5"
 name = "pyyaml"
 version = "6.0.1"
 description = "YAML parser and emitter for Python"
-optional = false
+optional = true
 python-versions = ">=3.6"
 files = [
     {file = "PyYAML-6.0.1-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:d858aa552c999bc8a8d57426ed01e40bef403cd8ccdd0fc5f6f04a00414cac2a"},
@@ -454,7 +434,7 @@ files = [
 name = "toml"
 version = "0.10.2"
 description = "Python Library for Tom's Obvious, Minimal Language"
-optional = false
+optional = true
 python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 files = [
     {file = "toml-0.10.2-py2.py3-none-any.whl", hash = "sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b"},
@@ -465,7 +445,7 @@ files = [
 name = "typing-extensions"
 version = "4.7.1"
 description = "Backported and Experimental Type Hints for Python 3.7+"
-optional = false
+optional = true
 python-versions = ">=3.7"
 files = [
     {file = "typing_extensions-4.7.1-py3-none-any.whl", hash = "sha256:440d5dd3af93b060174bf433bccd69b0babc3b15b1a8dca43789fd7f61514b36"},
@@ -510,4 +490,4 @@ ftrack-libs = ["ftrack-constants", "ftrack-qt", "ftrack-qt-style", "ftrack-utils
 [metadata]
 lock-version = "2.0"
 python-versions = ">= 3.7, < 3.11"
-content-hash = "2fe7fdaa71171076541425e5837c79774af0d56ad5e75b25e732c109cd8cdc98"
+content-hash = "b8624aa3403f7bc5be1f68b0027531847b63020a215e7e2200970b68075fa08b"
