@@ -223,6 +223,7 @@ jobs:
           cd ${{ needs.set-variables.outputs.folder }}
           poetry install --with installer --sync
           poetry run ftrack-connect-installer --codesign ${CODESIGN}
+          poetry build
 
       - name: Upload Connect DMG to GitHub Release
         env:
