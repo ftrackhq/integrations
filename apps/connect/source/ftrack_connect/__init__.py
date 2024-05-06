@@ -107,13 +107,11 @@ def load_fonts_resource():
         # If the application is run as a bundle, the pyInstaller bootloader
         # extends the sys module by a flag frozen=True and sets the app
         # path into variable _MEIPASS.
-        icon_fonts_path = os.path.join(sys._MEIPASS, "fonts")
+        icon_fonts_path = os.path.join(sys._MEIPASS, "ftrack_connect", "fonts")
     else:
         # Get the directory of the current script
         current_dir = os.path.dirname(os.path.abspath(__file__))
-        # Navigate up two levels to the apps/connect/ directory
-        base_dir = os.path.join(current_dir, '..', '..')
         # Path to the fonts folder
-        icon_fonts_path = os.path.join(base_dir, 'resource', 'fonts')
+        icon_fonts_path = os.path.join(current_dir, 'fonts')
 
     load_icons(icon_fonts_path)
