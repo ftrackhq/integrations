@@ -167,13 +167,13 @@ ftrack-libs = ["ftrack-utils (>=2.0.0,<3.0.0)"]
 
 [[package]]
 name = "ftrack-framework-core"
-version = "2.1.0"
+version = "2.2.0"
 description = "ftrack Framework Core library"
 optional = true
 python-versions = "<3.12,>=3.7"
 files = [
-    {file = "ftrack_framework_core-2.1.0-py3-none-any.whl", hash = "sha256:d1e15e887cb29a64d7487296f89aff006334e03b29d624921d2ac1fcd236ef6f"},
-    {file = "ftrack_framework_core-2.1.0.tar.gz", hash = "sha256:e8568c46ec6284463f680650207482caaaadab3c61faa70fde99d20c00920430"},
+    {file = "ftrack_framework_core-2.2.0-py3-none-any.whl", hash = "sha256:6511300fbf2a05faf34e245afc4b3162b31ac100e22b09461572d7ed97bbe88f"},
+    {file = "ftrack_framework_core-2.2.0.tar.gz", hash = "sha256:6fbe469ada9f377b2a13b103acb6a671afd624227a4ab4bcf3482d2a0b7e8887"},
 ]
 
 [package.dependencies]
@@ -187,21 +187,20 @@ ftrack-libs = ["ftrack-constants (>=2.0.0,<3.0.0)", "ftrack-utils (>=2.0.0,<3.0.
 
 [[package]]
 name = "ftrack-framework-qt"
-version = "2.1.0"
+version = "2.2.0"
 description = "ftrack framework qt library"
 optional = true
 python-versions = "<3.12,>=3.7"
 files = [
-    {file = "ftrack_framework_qt-2.1.0-py3-none-any.whl", hash = "sha256:bbc37d5ebcf77cf3b949a0a0e5d450c716363cbb325e932638609a20decfc2c5"},
-    {file = "ftrack_framework_qt-2.1.0.tar.gz", hash = "sha256:3070b3c7d85b7e4dd4a13541a514a9b1fcc5a414731ec16503c39d44e20b0773"},
+    {file = "ftrack_framework_qt-2.2.0-py3-none-any.whl", hash = "sha256:65b43d0da6b2071abb6db5f8d794f19cdf5989c1307263d1d983aa89fa63fc91"},
+    {file = "ftrack_framework_qt-2.2.0.tar.gz", hash = "sha256:feec444fd668ee6e22f0ebc3a482d0bc09b20fe4026d90558fd27c5e4c47f04e"},
 ]
-
-[package.dependencies]
-"Qt.py" = ">=1.0.0,<2"
 
 [package.extras]
 framework-libs = ["ftrack-framework-core (>=2.0.0,<3.0.0)"]
 ftrack-libs = ["ftrack-constants (>=2.0.0,<3.0.0)", "ftrack-qt (>=2.0.0,<3.0.0)", "ftrack-utils (>=2.0.0,<3.0.0)"]
+pyside2 = ["PySide2 (>=5.13.2,<6.0.0)"]
+pyside6 = ["PySide6 (>=6.5,<7.0)"]
 
 [[package]]
 name = "ftrack-python-api"
@@ -226,31 +225,29 @@ websocket-client = ">=0.40.0,<1"
 
 [[package]]
 name = "ftrack-qt"
-version = "2.1.0"
+version = "2.2.0"
 description = "ftrack qt library"
 optional = true
 python-versions = "<3.12,>=3.7"
 files = [
-    {file = "ftrack_qt-2.1.0-py3-none-any.whl", hash = "sha256:be5d92c726372d9603851cc38d81017617b138f3775a64057b63f031276ab1dd"},
-    {file = "ftrack_qt-2.1.0.tar.gz", hash = "sha256:d9ae6d40ca0176728e7650a31dd15bf2d0a2ad430a9b0c970ae7fbe23b51120e"},
+    {file = "ftrack_qt-2.2.0-py3-none-any.whl", hash = "sha256:192dc461b006c9a1a90882dee555328549bdf4d0412703ec05d635707dd1e78a"},
+    {file = "ftrack_qt-2.2.0.tar.gz", hash = "sha256:f033e4f5034a8204ca9a47146fd01215cf8b5fe4e6660e864ca2f09a917ad1c6"},
 ]
-
-[package.dependencies]
-"Qt.py" = ">=1.0.0,<2"
 
 [package.extras]
 ftrack-libs = ["ftrack-constants (>=2.0.0,<3.0.0)", "ftrack-qt-style (>=2.0.0,<3.0.0)", "ftrack-utils (>=2.0.0,<3.0.0)"]
-pyside = ["PySide2 (>=5.13.2,<6.0.0)"]
+pyside2 = ["PySide2 (>=5.13.2,<6.0.0)"]
+pyside6 = ["PySide6 (>=6.5,<7.0)"]
 
 [[package]]
 name = "ftrack-qt-style"
-version = "2.1.0"
+version = "2.2.0"
 description = "ftrack qt style library"
 optional = true
 python-versions = "<3.12,>=3.7"
 files = [
-    {file = "ftrack_qt_style-2.1.0-py3-none-any.whl", hash = "sha256:42422ba300dd8127206578eb0cf22d2423dc6214507c57c46b07505819c263a1"},
-    {file = "ftrack_qt_style-2.1.0.tar.gz", hash = "sha256:7cc85017d8645d98cc13f774181e1a597d4cd3e1e44bf0fbb9a35a9eda11e7a8"},
+    {file = "ftrack_qt_style-2.2.0-py3-none-any.whl", hash = "sha256:5952f5987e30da4e5845f61b32a0c1da93383f1a3dea9d08d1363ac5a766d8b8"},
+    {file = "ftrack_qt_style-2.2.0.tar.gz", hash = "sha256:9516a091106184fceeaab4083b72db4b12f78744c0788e92edbbcdd56afd0165"},
 ]
 
 [package.extras]
@@ -258,13 +255,13 @@ ftrack-libs = ["ftrack-utils (>=2.0.0,<3.0.0)"]
 
 [[package]]
 name = "ftrack-utils"
-version = "2.1.0"
+version = "2.2.0"
 description = "ftrack utils library"
 optional = true
 python-versions = "<3.12,>=3.7"
 files = [
-    {file = "ftrack_utils-2.1.0-py3-none-any.whl", hash = "sha256:ce91df88af9ee473e629eca9c7598c793a6b234a455e6eaaa9b9fe51ec9c132d"},
-    {file = "ftrack_utils-2.1.0.tar.gz", hash = "sha256:4b1b4b3f5a18541047177571f3293f8886afc50787b6c24eef86c5acf800082a"},
+    {file = "ftrack_utils-2.2.0-py3-none-any.whl", hash = "sha256:25ba6d2ddd17d66289506a6ac516a22923ca816378643c00d4b688c13da773f4"},
+    {file = "ftrack_utils-2.2.0.tar.gz", hash = "sha256:7fecd76fe36cc1bdf36431427d3fd90924b64b9de647f849e307d2e6e5dda911"},
 ]
 
 [package.dependencies]
@@ -434,20 +431,6 @@ files = [
 ]
 
 [[package]]
-name = "qt-py"
-version = "1.3.10"
-description = "Python 2 & 3 compatibility wrapper around all Qt bindings - PySide, PySide2, PyQt4 and PyQt5."
-optional = true
-python-versions = "*"
-files = [
-    {file = "Qt.py-1.3.10-py2.py3-none-any.whl", hash = "sha256:16826a5ce0574ffbb2b41d78ec6715b56016db3b7e3ee5f54cf65123331afb5d"},
-    {file = "Qt.py-1.3.10.tar.gz", hash = "sha256:7d25e8da870e7955b15619894cd085893ed0556cafb946836c2037b589403328"},
-]
-
-[package.dependencies]
-types-PySide2 = "*"
-
-[[package]]
 name = "requests"
 version = "2.31.0"
 description = "Python HTTP for Humans."
@@ -488,17 +471,6 @@ python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 files = [
     {file = "toml-0.10.2-py2.py3-none-any.whl", hash = "sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b"},
     {file = "toml-0.10.2.tar.gz", hash = "sha256:b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f"},
-]
-
-[[package]]
-name = "types-pyside2"
-version = "5.15.2.1.7"
-description = "The most accurate stubs for PySide2"
-optional = true
-python-versions = "*"
-files = [
-    {file = "types_pyside2-5.15.2.1.7-py2.py3-none-any.whl", hash = "sha256:a7bec4cb4657179415ca7ec7c70a45f9f9938664e22f385c85fd7cd724b07d4d"},
-    {file = "types_pyside2-5.15.2.1.7.tar.gz", hash = "sha256:1d65072deb97481ad481b3414f94d02fd5da07f5e709c2d439ced14f79b2537c"},
 ]
 
 [[package]]
@@ -565,4 +537,4 @@ ftrack-libs = ["ftrack-constants", "ftrack-qt", "ftrack-qt-style", "ftrack-utils
 [metadata]
 lock-version = "2.0"
 python-versions = ">= 3.7, < 3.11"
-content-hash = "a3d07b79cc1d8c9b7ae61770191853da5226fb0c95295c29761a0eb640cc7f00"
+content-hash = "3753654a259afd9a43d4fa839407d0da844d948ef833b96fe9b063d249775d2c"
