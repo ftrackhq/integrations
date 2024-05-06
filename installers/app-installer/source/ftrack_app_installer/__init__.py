@@ -128,7 +128,7 @@ class WindowsAppInstaller(AppInstaller):
     @property
     def executable_path(self):
         return os.path.join(
-            self.dist_path, 'ftrack Connect', f'{self.bundle_name}.exe'
+            self.dist_path, self.bundle_name, f'{self.bundle_name}.exe'
         )
 
     def codesign(self, path):
