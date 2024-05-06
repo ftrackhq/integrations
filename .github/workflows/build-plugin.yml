@@ -196,6 +196,11 @@ jobs:
           pip install -r tools/requirements.txt
           # Use --testpypi or --from_source to change where the deps are picked from
           python tools/build.py --remove_intermediate_folder build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+      - name: Build CSS resources for CEP extension
+        if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' }}
+        shell: bash
+        run: |
+          python tools/build.py build_qt_resources --css_only libs/qt-style
       - name: build PS CEP extension
         if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' }}
         shell: bash
