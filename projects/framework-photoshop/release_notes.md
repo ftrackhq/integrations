@@ -2,6 +2,7 @@
 
 ## Upcoming
 
+* [changed] Aligned PS with changes from Premiere, fix CI.
 * [changed] Moved extendscript jsx resources to extensions js folder, added PS specific bootstrap extension.
 * [changed] Refactored the code to enable code sharing with other Adobe CEP integrations.
 * [changed] Replace Qt.py imports to PySide2 and PySide6 on widgets.
