@@ -736,10 +736,10 @@ def build_package(invokation_path, pkg_path, args, command=None):
                     'it to your PATH. See README for more information.'
                 )
 
+            _replace_imports_(resource_target_path)
+
         else:
             logging.warning('Not compiling QT resource.py.')
-
-        _replace_imports_(resource_target_path)
 
     def build_sphinx(args):
         '''Wrapper for building docs for preview'''
