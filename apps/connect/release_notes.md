@@ -4,6 +4,7 @@
 ## 24.5.0rc3
 2024-04-03
 
+* [changed] Make sure Windows executable is code signed.
 * [changed] Connect installer removed, now using a script to call the ftrack-app-installer library to package connect and codesign it on all platforms.
 * [changed] New versioning system matching all backlight products.
 * [changed] Allow non versioned connect plugins, supporting legacy actions naming convention.
