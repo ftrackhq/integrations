@@ -31,7 +31,7 @@ def main_connect(arguments=None):
 
         is_pyside2 = True
 
-    from ftrack_connect import load_icons
+    from ftrack_connect import load_fonts_resource
     import ftrack_connect.utils.log
     import ftrack_connect.singleton
 
@@ -157,8 +157,7 @@ def main_connect(arguments=None):
     application.setFont(font)
     application.aboutToQuit.connect(connectWindow.emitConnectUsage)
 
-    icon_fonts = os.path.join(os.path.dirname(__file__), 'fonts')
-    load_icons(icon_fonts)
+    load_fonts_resource()
 
     return application.exec_()
 
