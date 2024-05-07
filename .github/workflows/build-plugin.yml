@@ -179,7 +179,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: '3.7'
       - name: install poetry
         shell: bash
         run: |
@@ -189,7 +189,7 @@ jobs:
         run: |
           cd ${{ needs.set-variables.outputs.folder }}
           poetry build
-      - name: build standalone framework DCC integration plugin
+      - name: build photoshop framework DCC integration plugin
         if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' }}
         shell: bash
         run: |
