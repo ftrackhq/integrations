@@ -4,6 +4,7 @@
 ## 24.5.0
 2024-05-07
 
+* [changed] Add certifies just when running from installer.
 * [changed] Make sure Windows executable is code signed.
 * [changed] Connect installer removed, now using a script to call the ftrack-app-installer library to package connect and codesign it on all platforms.
 * [changed] New versioning system matching all backlight products.
