@@ -24,7 +24,7 @@
 | libs/framework-core/source/ftrack\_framework\_core/exceptions/plugin.py       |       21 |       12 |     43% |15, 25-27, 33-42, 51 |
 | libs/framework-core/source/ftrack\_framework\_core/plugin/\_\_init\_\_.py     |       28 |        9 |     68% |14, 21, 46, 54, 61-74 |
 | libs/framework-core/source/ftrack\_framework\_core/plugin/plugin\_info.py     |       24 |        2 |     92% |    10, 52 |
-| libs/framework-core/source/ftrack\_framework\_core/registry/\_\_init\_\_.py   |      111 |       49 |     56% |22, 29, 36, 43, 50, 57, 64, 71, 75, 103-117, 125, 142, 146, 148, 150, 161-162, 181-182, 189-190, 202-205, 212-243 |
+| libs/framework-core/source/ftrack\_framework\_core/registry/\_\_init\_\_.py   |      112 |       50 |     55% |22, 29, 36, 43, 50, 57, 64, 71, 75, 102-118, 126, 143, 147, 149, 151, 162-163, 182-183, 190-191, 203-206, 213-244 |
 | libs/utils/source/ftrack\_utils/\_\_init\_\_.py                               |        6 |        2 |     67% |     13-14 |
 | libs/utils/source/ftrack\_utils/decorators/\_\_init\_\_.py                    |        3 |        0 |    100% |           |
 | libs/utils/source/ftrack\_utils/decorators/asynchronous.py                    |       18 |        4 |     78% |     25-28 |
@@ -45,7 +45,7 @@
 | libs/utils/source/ftrack\_utils/version/\_\_init\_\_.py                       |       31 |       22 |     29% |13-20, 24-31, 38-52 |
 | tests/framework/unit/\_\_init\_\_.py                                          |        0 |        0 |    100% |           |
 | tests/framework/unit/test\_engine.py                                          |       49 |        0 |    100% |           |
-|                                                                     **TOTAL** |  **804** |  **262** | **67%** |           |
+|                                                                     **TOTAL** |  **805** |  **263** | **67%** |           |
 
 
 ## Setup coverage badge
