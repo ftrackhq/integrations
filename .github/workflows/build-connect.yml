@@ -58,7 +58,7 @@ jobs:
   connect-build:
     name: Build Connect
     needs: set-variables
-    runs-on: ubuntu-latest
+    runs-on: macos-12
     outputs:
       connect_version: ${{ steps.get_version.outputs.connect_version }}
     steps:
@@ -66,40 +66,40 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-#      - name: install poetry
-#        shell: bash
-#        run: |
-#          pip install poetry==1.5.1
-#      - name: Build Qt resources
-#        shell: bash
-#        run: |
-#          pip install -r tools/requirements-connect.txt
-#          python tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py --pyside_version 6 build_qt_resources apps/connect
-#      - name: poetry build and export dependencies
-#        shell: bash
-#        run: |
-#          cd ${{ needs.set-variables.outputs.folder }}
-#          poetry build
-#      - name: Get Connect version
-#        id: get_version # This ID is used to reference the output of the step
-#        shell: bash
-#        run: |
-#          cd ${{ needs.set-variables.outputs.folder }}
-#          CONNECT_VERSION=$(poetry version -s)
-#          echo "Connect version: $CONNECT_VERSION"
-#          echo "connect_version=$CONNECT_VERSION" >> $GITHUB_OUTPUT
-#      - name: Prepare upload Connect wheel to GitHub Release
-#        uses: actions/upload-artifact@v2
-#        with:
-#          name: ftrack-connect-whl
-#          path: ${{ needs.set-variables.outputs.folder }}/dist/ftrack_connect-${{ steps.get_version.outputs.connect_version }}-py3-none-any.whl
-#      - name: Upload Connect wheel to GitHub Release
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#        shell: bash
-#        run: |
-#          echo "Uploading ftrack_connect-${{ needs.connect-build.outputs.connect_version }}-py3-none-any.whl"
-#          gh release upload ${{ needs.set-variables.outputs.tag }} ${{ needs.set-variables.outputs.folder }}/dist/ftrack_connect-${{ steps.get_version.outputs.connect_version }}-py3-none-any.whl --clobber
+      - name: install poetry
+        shell: bash
+        run: |
+          pip install poetry==1.5.1
+      - name: Build Qt resources
+        shell: bash
+        run: |
+          pip install -r tools/requirements-connect.txt
+          python tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py --pyside_version 6 build_qt_resources apps/connect
+      - name: poetry build and export dependencies
+        shell: bash
+        run: |
+          cd ${{ needs.set-variables.outputs.folder }}
+          poetry build
+      - name: Get Connect version
+        id: get_version # This ID is used to reference the output of the step
+        shell: bash
+        run: |
+          cd ${{ needs.set-variables.outputs.folder }}
+          CONNECT_VERSION=$(poetry version -s)
+          echo "Connect version: $CONNECT_VERSION"
+          echo "connect_version=$CONNECT_VERSION" >> $GITHUB_OUTPUT
+      - name: Prepare upload Connect wheel to GitHub Release
+        uses: actions/upload-artifact@v2
+        with:
+          name: ftrack-connect-whl
+          path: ${{ needs.set-variables.outputs.folder }}/dist/ftrack_connect-${{ steps.get_version.outputs.connect_version }}-py3-none-any.whl
+      - name: Upload Connect wheel to GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          echo "Uploading ftrack_connect-${{ needs.connect-build.outputs.connect_version }}-py3-none-any.whl"
+          gh release upload ${{ needs.set-variables.outputs.tag }} ${{ needs.set-variables.outputs.folder }}/dist/ftrack_connect-${{ steps.get_version.outputs.connect_version }}-py3-none-any.whl --clobber
 
   installer-windows:
     name: Build Connect Installer on Windows
@@ -223,7 +223,6 @@ jobs:
           cd ${{ needs.set-variables.outputs.folder }}
           poetry install --with installer --sync
           poetry run ftrack-connect-installer --codesign ${CODESIGN}
-          poetry build
 
       - name: Upload Connect DMG to GitHub Release
         env:
@@ -240,27 +239,6 @@ jobs:
           echo "Uploading ftrack_connect-${clean_package_version}.dmg"
           gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack_connect-${clean_package_version}-macOS.dmg" --clobber
 
-      - name: Get Connect version
-        id: get_version # This ID is used to reference the output of the step
-        shell: bash
-        run: |
-          cd ${{ needs.set-variables.outputs.folder }}
-          CONNECT_VERSION=$(poetry version -s)
-          echo "Connect version: $CONNECT_VERSION"
-          echo "connect_version=$CONNECT_VERSION" >> $GITHUB_OUTPUT
-      - name: Prepare upload Connect wheel to GitHub Release
-        uses: actions/upload-artifact@v2
-        with:
-          name: ftrack-connect-whl
-          path: ${{ needs.set-variables.outputs.folder }}/dist/ftrack_connect-${{ steps.get_version.outputs.connect_version }}-py3-none-any.whl
-      - name: Upload Connect wheel to GitHub Release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        shell: bash
-        run: |
-          echo "Uploading ftrack_connect-${{ needs.connect-build.outputs.connect_version }}-py3-none-any.whl"
-          gh release upload ${{ needs.set-variables.outputs.tag }} ${{ needs.set-variables.outputs.folder }}/dist/ftrack_connect-${{ steps.get_version.outputs.connect_version }}-py3-none-any.whl --clobber
-  
 
   installer-rocky:
     name: Build Connect Installer on Rocky linux
