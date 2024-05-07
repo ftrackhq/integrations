@@ -1,8 +1,8 @@
 # ftrack Connect release Notes
 
 
-## 24.5.0rc3
-2024-04-03
+## 24.5.0
+2024-05-07
 
 * [changed] Make sure Windows executable is code signed.
 * [changed] Connect installer removed, now using a script to call the ftrack-app-installer library to package connect and codesign it on all platforms.
