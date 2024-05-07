@@ -118,6 +118,7 @@ def load_fonts_resource():
 
 
 def set_up_certificates():
+    '''When runing from the installer setup the certificates to avoid problems with SSL certificates.'''
     if getattr(sys, 'frozen', False):
         # If the application is run as a bundle, the pyInstaller bootloader
         # extends the sys module by a flag frozen=True and sets the app
