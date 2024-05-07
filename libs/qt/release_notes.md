@@ -4,7 +4,7 @@
 ## v2.2.1
 2024-05-07
 
-* [fix] Fix shiboken2 reference in utils/widget/__init__.py.
+* [fix] Fix shiboken2 reference in widget.
 
 
 ## v2.2.0
