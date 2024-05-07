@@ -241,17 +241,22 @@ pyside6 = ["PySide6 (>=6.5,<7.0)"]
 
 [[package]]
 name = "ftrack-qt-style"
-version = "2.2.0"
+version = "2.2.1"
 description = "ftrack qt style library"
-optional = true
-python-versions = "<3.12,>=3.7"
+optional = false
+python-versions = ">=3.7,<3.12"
 files = [
-    {file = "ftrack_qt_style-2.2.0-py3-none-any.whl", hash = "sha256:5952f5987e30da4e5845f61b32a0c1da93383f1a3dea9d08d1363ac5a766d8b8"},
-    {file = "ftrack_qt_style-2.2.0.tar.gz", hash = "sha256:9516a091106184fceeaab4083b72db4b12f78744c0788e92edbbcdd56afd0165"},
+    {file = "ftrack_qt_style-2.2.1-py3-none-any.whl", hash = "sha256:a579251b006ee6dae6be79c5847858510fa1187929f20359a0efa341b91a682c"},
+    {file = "ftrack_qt_style-2.2.1.tar.gz", hash = "sha256:a661b0b6c933d50274748ddf60f34768afe013049ee4b38a1dbf8c1b4602b965"},
 ]
 
 [package.extras]
 ftrack-libs = ["ftrack-utils (>=2.0.0,<3.0.0)"]
+
+[package.source]
+type = "legacy"
+url = "https://test.pypi.org/simple"
+reference = "testpypi"
 
 [[package]]
 name = "ftrack-utils"
@@ -537,4 +542,4 @@ ftrack-libs = ["ftrack-constants", "ftrack-qt", "ftrack-qt-style", "ftrack-utils
 [metadata]
 lock-version = "2.0"
 python-versions = ">= 3.7, < 3.11"
-content-hash = "3753654a259afd9a43d4fa839407d0da844d948ef833b96fe9b063d249775d2c"
+content-hash = "39dfb5c6ae1d515589dfa562fed976d2c57bab2cdbc79328e631e53ddbc11448"

@@ -56,7 +56,7 @@ optional = true
 #ftrack-framework-core = { version = "^2.0.0", source = "testpypi" }
 #ftrack-framework-qt = { version = "^2.0.0", source = "testpypi" }
 #ftrack-qt = { version = "^2.0.0", source = "testpypi" }
-#ftrack-qt-style = { version = "^2.0.0", source = "testpypi" }
+ftrack-qt-style = { version = "^2.0.0", source = "testpypi" }
 
 [tool.poetry.extras]
 ftrack-libs = ["ftrack-constants", "ftrack-utils", "ftrack-qt", "ftrack-qt-style"]
