@@ -75,7 +75,7 @@ jobs:
     needs: set-variables
     concurrency:
       group: ci-${{ github.ref }}
-    if: ${{ needs.set-variables.outputs.package != 'framework-photoshop' }}
+    if: ${{ needs.set-variables.outputs.package != 'framework-photoshop' && needs.set-variables.outputs.package != 'framework-premiere' }}
     runs-on: ubuntu-latest
     outputs:
       package: ${{ needs.set-variables.outputs.package }}
@@ -107,13 +107,6 @@ jobs:
           pip install -r tools/requirements.txt
           # Use --testpypi or --from_source to change where the deps are picked from
           python tools/build.py --remove_intermediate_folder --include_resources resource/bootstrap build_connect_plugin ${{ needs.set-variables.outputs.folder }}
-      - name: build standalone framework DCC integration plugin
-        if: ${{ needs.set-variables.outputs.package == 'framework-premiere' }}
-        shell: bash
-        run: |
-          pip install -r tools/requirements.txt
-          # Use --testpypi or --from_source to change where the deps are picked from
-          python tools/build.py --remove_intermediate_folder --include_resources resource/presets build_connect_plugin ${{ needs.set-variables.outputs.folder }}
       - name: build nuke studio connect plugin
         if: ${{ needs.set-variables.outputs.package == 'nuke-studio' }}
         shell: bash
@@ -180,7 +173,7 @@ jobs:
     needs: set-variables
     concurrency:
       group: ci-${{ github.ref }}
-    if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' }}
+    if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' || needs.set-variables.outputs.package == 'framework-premiere' }}
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
@@ -196,13 +189,31 @@ jobs:
         run: |
           cd ${{ needs.set-variables.outputs.folder }}
           poetry build
-      - name: build standard connect plugin
+      - name: build photoshop framework DCC integration plugin
+        if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' }}
         shell: bash
         run: |
           pip install -r tools/requirements.txt
           python tools/build.py --remove_intermediate_folder build_connect_plugin ${{ needs.set-variables.outputs.folder }}
-      - name: build PS CEP extension
+      - name: build photoshop CEP extension
         if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' }}
+        shell: bash
+        run: |
+          # Install ZXPsign
+          wget -c https://raw.github.com/Adobe-CEP/CEP-Resources/master/ZXPSignCMD/4.1.2/macOS/ZXPSignCmd-64bit.dmg  -O /tmp/ZXPSignCmd-64bit.dmg
+          hdiutil attach /tmp/ZXPSignCmd-64bit.dmg
+          ln -s /Volumes/ZXPSignCmd-64bit/ZXPSignCmd-64bit /usr/local/bin/ZXPSignCMD
+          export ADOBE_CERTIFICATE_PASSWORD=${{ secrets.ADOBE_CERTIFICATE_PASSWORD }}
+          python tools/build.py build_cep --remove_intermediate_folder ${{ needs.set-variables.outputs.folder }}
+      - name: build premiere framework DCC integration plugin
+        if: ${{ needs.set-variables.outputs.package == 'framework-premiere' }}
+        shell: bash
+        run: |
+          pip install -r tools/requirements.txt
+          # Use --testpypi or --from_source to change where the deps are picked from
+          python tools/build.py --remove_intermediate_folder --include_resources resource/presets build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+      - name: build premiere CEP extension
+        if: ${{ needs.set-variables.outputs.package == 'framework-premiere' }}
         shell: bash
         run: |
           # Install ZXPsign
