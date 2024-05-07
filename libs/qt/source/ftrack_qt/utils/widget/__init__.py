@@ -61,7 +61,7 @@ def set_properties(widget, properties):
     """
     for name, value in properties.items():
         widget.setProperty(name, value)
-        if widget.style() is not None and shiboken2.isValid(
+        if widget.style() is not None and shiboken.isValid(
             widget.style()
         ):  # Only update style if applied and valid
             widget.style().unpolish(widget)
