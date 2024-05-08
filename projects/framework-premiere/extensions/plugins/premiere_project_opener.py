@@ -40,9 +40,11 @@ class PremiereProjectOpenerPlugin(BasePlugin):
                 f'Telling Premiere to open project from: {collected_path}'
             )
 
+            # Tell Photoshop to open document, convert backlash to forward slash
+            # to prevent JSON encoding errors.
             open_result = premiere_connection.rpc(
                 'openProject',
-                [collected_path],
+                [collected_path.replace('\\', '/')],
             )
 
         except Exception as e:
