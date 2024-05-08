@@ -192,9 +192,11 @@ class Application(QtWidgets.QMainWindow):
                 f"Please provide one before continuing."
             )
 
-        self._discovered_plugins = (
-            self._discover_plugin_data_from_plugin_directories()
-        )
+        self._discovered_plugins = []
+        # self._discovered_plugins = (
+        # self._discover_plugin_data_from_plugin_directories()
+        # )
+        # TODO: think on removing this as it does almost the same as the previous function
         self._plugins = self._available_plugin_data_from_plugin_directories()
 
         # Register widget for error handling.
@@ -500,7 +502,13 @@ class Application(QtWidgets.QMainWindow):
                 )
                 continue
             checked_plugins.append(plugin['name'])
-            api_plugin_paths.append(os.path.join(plugin['path'], 'hook'))
+            # TODO: probably use type connect-estension or something similar
+            if plugin.get("type") == "launch_config":
+                # TODO: make this work on relative paths as well
+                hook_folder = plugin.get("launch_hook_path")
+            else:
+                hook_folder = os.path.join(plugin['path'], 'hook')
+            api_plugin_paths.append(hook_folder)
 
         return api_plugin_paths
 
@@ -769,6 +777,7 @@ class Application(QtWidgets.QMainWindow):
             for plugin in self._gather_plugins(
                 plugin_base_directory, source_index=i
             ):
+                self._discovered_plugins.append(plugin)
                 # Append plugin if not already in more prioritized paths. - top plugin path takes preference
                 found = False
                 for existing_plugin in result:
@@ -1188,15 +1197,25 @@ class Application(QtWidgets.QMainWindow):
             f' {len(self.plugins)} plugins.'
         )
 
-        if isinstance(self.connect_config['launch_path'], list):
-            for launch_path in self.connect_config['launch_path']:
-                found_dirs = glob.glob(
-                    launch_path
-                )  # We can use recursive=True if we want to look in the entire folder
-                if found_dirs:
-                    for path in found_dirs:
-                        if os.path.isdir(path):
-                            launcher_config_paths.append(path)
+        for plugin in self.plugins:
+            if plugin.get('type') == 'launch_config':
+                # TODO: propose if we want to have the launch config separated of the plugin itseld
+                launcher_config_paths.append(os.path.dirname(plugin['path']))
+            else:
+                launcher_config_path = os.path.join(plugin['path'], 'launch')
+                if os.path.isdir(launcher_config_path):
+                    launcher_config_paths.append(launcher_config_path)
+
+        # TODO: remove launch_path from connect config, this will be given on the yaml file
+        # if isinstance(self.connect_config['launch_path'], list):
+        #     for launch_path in self.connect_config['launch_path']:
+        #         found_dirs = glob.glob(
+        #             launch_path
+        #         )  # We can use recursive=True if we want to look in the entire folder
+        #         if found_dirs:
+        #             for path in found_dirs:
+        #                 if os.path.isdir(path):
+        #                     launcher_config_paths.append(path)
 
         # Create store containing launchable applications.
         self._application_launcher = DiscoverApplications(

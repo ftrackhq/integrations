@@ -460,6 +460,7 @@ class ApplicationLauncher(object):
         self._session = applicationStore.session
 
     def discover_integrations(self, application, context):
+        # TODO: with the new approach we shouldn't be in need of discovering the application.
         context = context or {}
         results = self.session.event_hub.publish(
             ftrack_api.event.base.Event(
@@ -1122,7 +1123,14 @@ class ApplicationLaunchAction(BaseAction):
             context = event['data'].copy()
             context['source'] = event['source']
 
-            if self.launcher and application.get('integrations'):
+            # TODO: when in the new connect builds, no need for discovering the
+            #  integration, also seems that integrations is not needed anymore
+            #  as is always self contained
+            if (
+                self.launcher
+                and application.get('integrations')
+                and application_identifier != 'maya_2022 [framework]'
+            ):
                 (
                     _,
                     lost_integration_groups,

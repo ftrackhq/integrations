@@ -1,15 +1,17 @@
 type: launch_config
 
+launch_hook_path: "/Users/ftrack/work/ftrack/repos/integrations/connect_plugins/framework-maya-plugin"
+
 name: framework-maya
 version: 1.0.0
-source: your/loacl/folder or pypi or git repo
-  source: dev // pip // git
-  path: asdgf // name of the lib // url
-  version: x.x.x
-}
+source: ftrack-framework-maya #your/loacl/folder or pypi or git repo
+  #source: dev // pip // git
+  #path: asdgf // name of the lib // url
+  #version: x.x.x
+#}
 
 department: modeling
-// python-env: asdasfdasfdfa
+# python-env: asdasfdasfdfa
 
 priority: 100 # Remove this one, just have it as an optional thing, and provide 100 as default. I think it is overcomplicating.
 context:

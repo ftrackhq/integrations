@@ -19,6 +19,8 @@ from ftrack_connect import (
     DEPRECATED_PLUGINS,
 )
 
+from ftrack_utils import yaml as yaml_utils
+
 logger = logging.getLogger(__name__)
 
 
@@ -40,6 +42,15 @@ def get_plugins_from_path(plugin_directory):
         if not f.startswith('.')
         and os.path.isdir(os.path.join(plugin_directory, f))
     ]
+    # Not only pick directories but also pick yaml files
+    # Filter to get only files that are not hidden and have a YAML extension
+    yaml_extensions = [
+        f
+        for f in os.listdir(plugin_directory)
+        if f.endswith(('.yaml', '.yml')) and not f.startswith('.')
+    ]
+    plugins.extend(yaml_extensions)
+
     return plugins
 
 
@@ -64,6 +75,16 @@ def get_plugin_data(plugin_path):
     "my_plugin"
     "my-plugin"
     '''
+    if plugin_path.endswith(('.yaml', '.yml')):
+        yaml_content = yaml_utils.read_yaml_file(plugin_path)
+        # TODO: we will have to somehow adapt this data to be able to check if incompatible or deprecated plugin etc...
+        yaml_content['incompatible'] = False
+        yaml_content['deprecated'] = False
+        # TODO: currently haking the path to its own location as the launch info is in the same place, decide later if we want to separate the laucnh config from the connect plugin or not
+        yaml_content['path'] = plugin_path
+        return yaml_content
+
+    # TODO: in here instead of reading this data, we read the yaml file
     plugin_re = re.compile(
         r'(?P<name>.+?)-(?P<version>\d+\.\d+(?:\.\d+)?(?:[a-zA-Z]+\d+)?)(?:-(?P<platform>\w+))?(?P<extension>(?:\.\w+)+)?$'
     )

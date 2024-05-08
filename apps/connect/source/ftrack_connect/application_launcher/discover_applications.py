@@ -40,6 +40,7 @@ class DiscoverApplications(object):
     def _parse_configurations(self, config_paths):
         '''Use the extensions library to load and merge launch configurations'''
         loaded_filtered_files = []
+        # TODO: clarify what do we do with the CONNECT_EXTENSION_PATH? What do expect to have in it
         connect_extensions_path = (
             get_connect_extensions_path_from_environment()
         )
