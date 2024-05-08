@@ -12,7 +12,7 @@ except ImportError:
 import qtawesome as qta
 
 import ftrack_api.exception
-from ftrack_connect import load_icons
+from ftrack_connect import load_fonts_resource
 
 # We need to force load the icons or ftrack.<icon> won't be available
 # not sure why is the case, likely due to be in threded function.
@@ -27,10 +27,8 @@ class ConfigureScenario(QtWidgets.QWidget):
     def __init__(self, session):
         '''Instantiate the configure scenario widget.'''
         super(ConfigureScenario, self).__init__()
-        icons_path = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), '..', '..', 'fonts')
-        )
-        load_icons(icons_path)
+
+        load_fonts_resource()
 
         # Check if user has permissions to configure scenario.
         # TODO: Update this with an actual permission check once available in
