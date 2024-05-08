@@ -37,12 +37,14 @@ class PhotoshopDocumentOpenerPlugin(BasePlugin):
             photoshop_connection = JavascriptRPC.instance()
 
             self.logger.debug(
-                f'Telling Photoshop to save document to: {collected_path}'
+                f'Telling Photoshop to open document from: {collected_path}'
             )
 
+            # Tell Photoshop to open document, convert backlash to forward slash
+            # to prevent JSON encoding errors.
             open_result = photoshop_connection.rpc(
                 'openDocument',
-                [collected_path],
+                [collected_path.replace('\\', '/')],
             )
 
         except Exception as e:

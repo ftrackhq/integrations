@@ -134,39 +134,39 @@ jobs:
           name: dist
           path: ${{ needs.set-variables.outputs.folder }}/dist
 
-  build-windows:
-    name: Build Windows platform dependent artifacts
-    needs: set-variables
-    concurrency:
-      group: ci-${{ github.ref }}
-    if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' }}
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.7'
-      - name: install poetry
-        shell: bash
-        run: |
-          pip install poetry==1.5.1
-      - name: poetry build
-        shell: bash
-        run: |
-          cd ${{ needs.set-variables.outputs.folder }}
-          poetry build
-      - name: build standard connect plugin
-        shell: bash
-        run: |
-          pip install -r tools/requirements.txt
-          python tools/build.py --remove_intermediate_folder build_connect_plugin ${{ needs.set-variables.outputs.folder }}
-      - name: upload artifacts to release
-        shell: bash
-        run: |
-          cd ${{ needs.set-variables.outputs.folder }}
-          gh release upload ${{ needs.set-variables.outputs.tag }} dist/*  --clobber
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#  build-windows:
+#    name: Build Windows platform dependent artifacts
+#    needs: set-variables
+#    concurrency:
+#      group: ci-${{ github.ref }}
+#    if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' }}
+#    runs-on: windows-latest
+#    steps:
+#      - uses: actions/checkout@v3
+#      - uses: actions/setup-python@v4
+#        with:
+#          python-version: '3.7'
+#      - name: install poetry
+#        shell: bash
+#        run: |
+#          pip install poetry==1.5.1
+#      - name: poetry build
+#        shell: bash
+#        run: |
+#          cd ${{ needs.set-variables.outputs.folder }}
+#          poetry build
+#      - name: build standard connect plugin
+#        shell: bash
+#        run: |
+#          pip install -r tools/requirements.txt
+#          python tools/build.py --remove_intermediate_folder build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+#      - name: upload artifacts to release
+#        shell: bash
+#        run: |
+#          cd ${{ needs.set-variables.outputs.folder }}
+#          gh release upload ${{ needs.set-variables.outputs.tag }} dist/*  --clobber
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build-mac:
     name: Build Mac platform dependent artifacts
@@ -174,12 +174,12 @@ jobs:
     concurrency:
       group: ci-${{ github.ref }}
     if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' }}
-    runs-on: macos-latest
+    runs-on: macos-12
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.7'
+          python-version: '3.10'
       - name: install poetry
         shell: bash
         run: |
@@ -189,11 +189,18 @@ jobs:
         run: |
           cd ${{ needs.set-variables.outputs.folder }}
           poetry build
-      - name: build standard connect plugin
+      - name: build photoshop framework DCC integration plugin
+        if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' }}
         shell: bash
         run: |
           pip install -r tools/requirements.txt
+          # Use --testpypi or --from_source to change where the deps are picked from
           python tools/build.py --remove_intermediate_folder build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+      - name: Build CSS resources for CEP extension
+        if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' }}
+        shell: bash
+        run: |
+          python tools/build.py build_qt_resources --css_only libs/qt-style
       - name: build PS CEP extension
         if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' }}
         shell: bash
