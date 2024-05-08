@@ -18,7 +18,7 @@ cwd = os.path.dirname(__file__)
 connect_plugin_path = os.path.abspath(os.path.join(cwd, '..'))
 
 # Read version number from __version__.py
-__version__ = get_connect_plugin_version(connect_plugin_path)
+# __version__ = get_connect_plugin_version(connect_plugin_path)
 
 python_dependencies = os.path.join(connect_plugin_path, 'dependencies')
 
@@ -38,7 +38,7 @@ python_dependencies = os.path.join(connect_plugin_path, 'dependencies')
 def on_launch_integration(session, event):
     '''Handle application launch and add environment to *event*.'''
 
-    # launch_data = {'integration': event['data']['integration']}
+    launch_data = {'integration': event['data']['integration']}
     #
     # discover_data = on_discover_integration(session, event)
     # for key in discover_data['integration']:
@@ -54,6 +54,8 @@ def on_launch_integration(session, event):
     # logger.info('Adding {} to PYTHONPATH'.format(bootstrap_path))
     # TODO: we don't need this, we get the yaml file in here and we pick the info needed from there, also from there we pick the bootstrap plugin and we execut it here.
 
+    bootstrap_path = "mok"
+    integration_version = "1.2.3"
     launch_data['integration']['env'][
         'PYTHONPATH.prepend'
     ] = os.path.pathsep.join([python_dependencies, bootstrap_path])
@@ -102,8 +104,8 @@ def register(session):
         priority=40,
     )
 
-    logger.info(
-        'Registered {} integration v{} discovery and launch.'.format(
-            NAME, __version__
-        )
-    )
+    # logger.info(
+    #     'Registered {} integration v{} discovery and launch.'.format(
+    #         NAME, __version__
+    #     )
+    # )

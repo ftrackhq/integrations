@@ -82,6 +82,7 @@ def get_plugin_data(plugin_path):
         yaml_content['deprecated'] = False
         # TODO: currently haking the path to its own location as the launch info is in the same place, decide later if we want to separate the laucnh config from the connect plugin or not
         yaml_content['path'] = plugin_path
+        yaml_content['platform'] = 'noarch'
         return yaml_content
 
     # TODO: in here instead of reading this data, we read the yaml file
