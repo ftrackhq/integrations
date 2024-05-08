@@ -1,7 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
-from Qt import QtWidgets, QtCore
+try:
+    from PySide6 import QtWidgets, QtCore
+except ImportError:
+    from PySide2 import QtWidgets, QtCore
 
 from ftrack_framework_qt.dialogs.base_dialog import BaseDialog
 
@@ -78,7 +81,9 @@ class BaseContextDialog(BaseDialog):
         self._run_button = QtWidgets.QPushButton(self.run_button_title)
 
         self.main_layout.addWidget(self._header)
-        self.main_layout.addWidget(self._context_selector, QtCore.Qt.AlignTop)
+        self.main_layout.addWidget(
+            self._context_selector, QtCore.Qt.AlignmentFlag.AlignTop
+        )
         self.main_layout.addWidget(self._tool_widget)
         self.main_layout.addWidget(self._run_button)
 

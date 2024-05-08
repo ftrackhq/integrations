@@ -3,7 +3,10 @@ import sys
 import ftrack_api
 import logging
 
-from Qt import QtWidgets
+try:
+    from PySide6 import QtWidgets
+except ImportError:
+    from PySide2 import QtWidgets
 
 
 from ftrack_framework_core.configure_logging import configure_logging

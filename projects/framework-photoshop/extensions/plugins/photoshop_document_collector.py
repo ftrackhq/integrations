@@ -5,7 +5,7 @@ import os
 from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
-from ftrack_framework_photoshop.rpc_cep import PhotoshopRPCCEP
+from ftrack_utils.rpc import JavascriptRPC
 
 
 class PhotoshopDocumentCollectorPlugin(BasePlugin):
@@ -14,10 +14,10 @@ class PhotoshopDocumentCollectorPlugin(BasePlugin):
     def run(self, store):
         '''
         Collect the current document data from Photoshop
-        and store in the given *store* on "document_name" and "document_saved"
+        and store in the given *store* on "document_path" and "document_saved"
         '''
         # Get existing RPC connection instance
-        photoshop_connection = PhotoshopRPCCEP.instance()
+        photoshop_connection = JavascriptRPC.instance()
 
         # Get document data containing the path
         try:
@@ -57,13 +57,13 @@ class PhotoshopDocumentCollectorPlugin(BasePlugin):
                 f'Photoshop document query failed: {document_saved_result}'
             )
 
-        document_name = (
+        document_path = (
             document_data.get('full_path') if document_data else None
         )
 
-        if document_name:
+        if document_path:
             # Convert forward slashes to backslashes on Windows
-            document_name = os.path.normpath(document_name)
+            document_path = os.path.normpath(document_path)
 
         try:
             extension_format = self.options['extension_format']
@@ -72,11 +72,11 @@ class PhotoshopDocumentCollectorPlugin(BasePlugin):
                 f"Could not provide extension_format: {error}"
             )
 
-        self.logger.debug(f"Current document name is: {document_name}.")
+        self.logger.debug(f"Current document name is: {document_path}.")
         self.logger.debug(f"Extension format set to {extension_format}.")
 
         component_name = self.options.get('component', 'main')
-        store['components'][component_name]['document_name'] = document_name
+        store['components'][component_name]['document_path'] = document_path
         store['components'][component_name][
             'extension_format'
         ] = extension_format

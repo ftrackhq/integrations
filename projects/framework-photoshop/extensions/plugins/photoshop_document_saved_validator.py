@@ -10,7 +10,7 @@ from ftrack_framework_core.exceptions.plugin import (
     PluginValidationError,
 )
 
-from ftrack_framework_photoshop.rpc_cep import PhotoshopRPCCEP
+from ftrack_utils.rpc import JavascriptRPC
 
 
 class PhotoshopDocumentSavedValidatorPlugin(BasePlugin):
@@ -26,7 +26,7 @@ class PhotoshopDocumentSavedValidatorPlugin(BasePlugin):
         '''
 
         # Get existing RPC connection instance
-        photoshop_connection = PhotoshopRPCCEP.instance()
+        photoshop_connection = JavascriptRPC.instance()
 
         self.logger.warning('Photoshop document not saved, asking to save')
         temp_path = get_temp_path(filename_extension=extension_format)
@@ -43,7 +43,7 @@ class PhotoshopDocumentSavedValidatorPlugin(BasePlugin):
             self.logger.info('Document saved successfully')
 
         component_name = self.options.get('component', 'main')
-        store['components'][component_name]['document_name'] = temp_path
+        store['components'][component_name]['document_path'] = temp_path
         store['components'][component_name]['document_saved'] = True
         store['components'][component_name]['valid_file'] = True
 
@@ -52,8 +52,8 @@ class PhotoshopDocumentSavedValidatorPlugin(BasePlugin):
         Run the validation process for the Photoshop document.
         '''
         component_name = self.options.get('component', 'main')
-        document_name = store['components'][component_name].get(
-            'document_name'
+        document_path = store['components'][component_name].get(
+            'document_path'
         )
         extension_format = store['components'][component_name].get(
             'extension_format'
@@ -64,8 +64,8 @@ class PhotoshopDocumentSavedValidatorPlugin(BasePlugin):
 
         if (
             not document_saved
-            or not document_name
-            or not os.path.exists(document_name)
+            or not document_path
+            or not os.path.exists(document_path)
         ):
             # Document is not saved or path not found, save it first.
             self.logger.warning('Photoshop document has never been saved.')
@@ -75,7 +75,7 @@ class PhotoshopDocumentSavedValidatorPlugin(BasePlugin):
                 on_fix_callback=self.save_document_to_temp,
                 fix_kwargs={'extension_format': extension_format},
             )
-        elif not document_name.lower().endswith(extension_format.lower()):
+        elif not document_path.lower().endswith(extension_format.lower()):
             self.logger.warning(
                 f'Photoshop document saved in wrong format, '
                 f're-saving as {extension_format}'

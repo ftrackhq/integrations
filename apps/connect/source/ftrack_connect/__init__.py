@@ -5,6 +5,7 @@ import os
 import logging
 import qtawesome as qta
 import re
+import sys
 
 logger = logging.getLogger(__name__)
 
@@ -22,26 +23,37 @@ except Exception:
     logging.warning(traceback.format_exc())
     __version__ = "0.0.0"
 
-if (
-    __version__ == "0.0.0"
-    and 'FTRACK_CONNECT_INSTALLER_RESOURCE_PATH' in os.environ
-):
+if __version__ == "0.0.0":
     # If the version is still 0.0.0, we are probably running as executable from within
     # the installer. In this case, we can use the version stored by the installer.
-    FTRACK_CONNECT_INSTALLER_RESOURCE_PATH = os.environ.get(
-        'FTRACK_CONNECT_INSTALLER_RESOURCE_PATH',
-        os.path.abspath(os.path.join(os.path.dirname(__file__), '..')),
+
+    if getattr(sys, 'frozen', False):
+        # If the application is run as a bundle, the pyInstaller bootloader
+        # extends the sys module by a flag frozen=True and sets the app
+        # path into variable _MEIPASS.
+        base_path = sys._MEIPASS
+    else:
+        base_path = os.path.abspath(".")
+
+    version_file_path = os.path.join(
+        base_path, 'ftrack_connect', '__version__.py'
     )
 
-    with open(
-        os.path.join(
-            FTRACK_CONNECT_INSTALLER_RESOURCE_PATH,
-            'ftrack_connect_version.py',
-        )
-    ) as _version_file:
-        __version__ = re.match(
-            r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
-        ).group(1)
+    try:
+        with open(version_file_path, 'r') as _version_file:
+            version_content = _version_file.read()
+            version_match = re.match(
+                r".*__version__ = '(.*?)'", version_content, re.DOTALL
+            )
+            if version_match:
+                __version__ = version_match.group(1)
+            else:
+                __version__ = "0.0.0"
+                logging.warning("Version string not found in __version__.py")
+
+    except Exception as e:
+        logging.warning(f"Error reading version file: {e}")
+        __version__ = "0.0.0"
 
 
 _resource = {"loaded": False}
@@ -86,3 +98,52 @@ def load_icons(font_folder):
             directory=font_folder,
         )
         _resource['loaded'] = True
+
+
+def load_fonts_resource():
+    '''Load fonts from the resource folder'''
+    icon_fonts_path = None
+    if getattr(sys, 'frozen', False):
+        # If the application is run as a bundle, the pyInstaller bootloader
+        # extends the sys module by a flag frozen=True and sets the app
+        # path into variable _MEIPASS.
+        icon_fonts_path = os.path.join(sys._MEIPASS, "ftrack_connect", "fonts")
+    else:
+        # Get the directory of the current script
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        # Path to the fonts folder
+        icon_fonts_path = os.path.join(current_dir, 'fonts')
+
+    load_icons(icon_fonts_path)
+
+
+def set_up_certificates():
+    '''When runing from the installer setup the certificates to avoid problems with SSL certificates.'''
+    if getattr(sys, 'frozen', False):
+        # If the application is run as a bundle, the pyInstaller bootloader
+        # extends the sys module by a flag frozen=True and sets the app
+        # path into variable _MEIPASS.
+        connect_cert_dir = os.path.join(
+            sys._MEIPASS, "ftrack_connect", "certs"
+        )
+
+        # Set the path to certificate file in resource folder. This allows requests
+        # module to read it outside frozen zip file.
+        os.environ.setdefault(
+            'REQUESTS_CA_BUNDLE',
+            os.path.abspath(os.path.join(connect_cert_dir, 'cacert.pem')),
+        )
+
+        # Websocket-client ships with its own cacert file, we however default
+        # to the one shipped with the requests library.
+        os.environ.setdefault(
+            'WEBSOCKET_CLIENT_CA_BUNDLE', os.environ.get('REQUESTS_CA_BUNDLE')
+        )
+
+        # The httplib in python +2.7.9 requires a cacert file.
+        os.environ.setdefault(
+            'SSL_CERT_FILE', os.environ.get('REQUESTS_CA_BUNDLE')
+        )
+
+
+set_up_certificates()

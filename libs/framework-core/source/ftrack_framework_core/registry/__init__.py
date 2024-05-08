@@ -99,6 +99,7 @@ class Registry(object):
         Scan framework extension modules from the given *paths*. If *extension_types*
         is given, only consider the given extension types.
         '''
+        unique_extensions = []
 
         discovered_extensions = []
         for path in reversed(paths):
@@ -113,7 +114,7 @@ class Registry(object):
                 discovered_extensions, dir_extensions
             )
 
-        for extension in discovered_extensions:
+        for extension in unique_extensions:
             self.add(**extension)
 
     def add(self, extension_type, name, extension, path):

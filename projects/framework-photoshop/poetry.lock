@@ -167,13 +167,13 @@ ftrack-libs = ["ftrack-utils (>=2.0.0,<3.0.0)"]
 
 [[package]]
 name = "ftrack-framework-core"
-version = "2.1.0"
+version = "2.2.1"
 description = "ftrack Framework Core library"
 optional = true
 python-versions = "<3.12,>=3.7"
 files = [
-    {file = "ftrack_framework_core-2.1.0-py3-none-any.whl", hash = "sha256:d1e15e887cb29a64d7487296f89aff006334e03b29d624921d2ac1fcd236ef6f"},
-    {file = "ftrack_framework_core-2.1.0.tar.gz", hash = "sha256:e8568c46ec6284463f680650207482caaaadab3c61faa70fde99d20c00920430"},
+    {file = "ftrack_framework_core-2.2.1-py3-none-any.whl", hash = "sha256:77b9b34e42da65cfb2d612c5962e7df679b038458e23e425fe4027e0e1c1a810"},
+    {file = "ftrack_framework_core-2.2.1.tar.gz", hash = "sha256:d032f13493dca2f4511e9f318d4ec33946728b553f73fd86b16a03f95ad63829"},
 ]
 
 [package.dependencies]
@@ -187,21 +187,20 @@ ftrack-libs = ["ftrack-constants (>=2.0.0,<3.0.0)", "ftrack-utils (>=2.0.0,<3.0.
 
 [[package]]
 name = "ftrack-framework-qt"
-version = "2.1.0"
+version = "2.2.0"
 description = "ftrack framework qt library"
 optional = true
 python-versions = "<3.12,>=3.7"
 files = [
-    {file = "ftrack_framework_qt-2.1.0-py3-none-any.whl", hash = "sha256:bbc37d5ebcf77cf3b949a0a0e5d450c716363cbb325e932638609a20decfc2c5"},
-    {file = "ftrack_framework_qt-2.1.0.tar.gz", hash = "sha256:3070b3c7d85b7e4dd4a13541a514a9b1fcc5a414731ec16503c39d44e20b0773"},
+    {file = "ftrack_framework_qt-2.2.0-py3-none-any.whl", hash = "sha256:65b43d0da6b2071abb6db5f8d794f19cdf5989c1307263d1d983aa89fa63fc91"},
+    {file = "ftrack_framework_qt-2.2.0.tar.gz", hash = "sha256:feec444fd668ee6e22f0ebc3a482d0bc09b20fe4026d90558fd27c5e4c47f04e"},
 ]
-
-[package.dependencies]
-"Qt.py" = ">=1.0.0,<2"
 
 [package.extras]
 framework-libs = ["ftrack-framework-core (>=2.0.0,<3.0.0)"]
 ftrack-libs = ["ftrack-constants (>=2.0.0,<3.0.0)", "ftrack-qt (>=2.0.0,<3.0.0)", "ftrack-utils (>=2.0.0,<3.0.0)"]
+pyside2 = ["PySide2 (>=5.13.2,<6.0.0)"]
+pyside6 = ["PySide6 (>=6.5,<7.0)"]
 
 [[package]]
 name = "ftrack-python-api"
@@ -226,32 +225,29 @@ websocket-client = ">=0.40.0,<1"
 
 [[package]]
 name = "ftrack-qt"
-version = "2.1.0"
+version = "2.2.1"
 description = "ftrack qt library"
 optional = true
 python-versions = "<3.12,>=3.7"
 files = [
-    {file = "ftrack_qt-2.1.0-py3-none-any.whl", hash = "sha256:be5d92c726372d9603851cc38d81017617b138f3775a64057b63f031276ab1dd"},
-    {file = "ftrack_qt-2.1.0.tar.gz", hash = "sha256:d9ae6d40ca0176728e7650a31dd15bf2d0a2ad430a9b0c970ae7fbe23b51120e"},
+    {file = "ftrack_qt-2.2.1-py3-none-any.whl", hash = "sha256:fd0f11feb0aa5ece9d653fc1a9e61df9ba5a9ea39ae70df666df8ab0b800a199"},
+    {file = "ftrack_qt-2.2.1.tar.gz", hash = "sha256:cf27a6d1f1a98cb12d816ab398d994b840bc5909762a8e2f1dee6e9d96011a02"},
 ]
-
-[package.dependencies]
-PySide2 = {version = ">=5.13.2,<6.0.0", optional = true, markers = "extra == \"pyside\""}
-"Qt.py" = ">=1.0.0,<2"
 
 [package.extras]
 ftrack-libs = ["ftrack-constants (>=2.0.0,<3.0.0)", "ftrack-qt-style (>=2.0.0,<3.0.0)", "ftrack-utils (>=2.0.0,<3.0.0)"]
-pyside = ["PySide2 (>=5.13.2,<6.0.0)"]
+pyside2 = ["PySide2 (>=5.13.2,<6.0.0)"]
+pyside6 = ["PySide6 (>=6.5,<7.0)"]
 
 [[package]]
 name = "ftrack-qt-style"
-version = "2.1.0"
+version = "2.2.1"
 description = "ftrack qt style library"
 optional = true
 python-versions = "<3.12,>=3.7"
 files = [
-    {file = "ftrack_qt_style-2.1.0-py3-none-any.whl", hash = "sha256:42422ba300dd8127206578eb0cf22d2423dc6214507c57c46b07505819c263a1"},
-    {file = "ftrack_qt_style-2.1.0.tar.gz", hash = "sha256:7cc85017d8645d98cc13f774181e1a597d4cd3e1e44bf0fbb9a35a9eda11e7a8"},
+    {file = "ftrack_qt_style-2.2.1-py3-none-any.whl", hash = "sha256:a579251b006ee6dae6be79c5847858510fa1187929f20359a0efa341b91a682c"},
+    {file = "ftrack_qt_style-2.2.1.tar.gz", hash = "sha256:a661b0b6c933d50274748ddf60f34768afe013049ee4b38a1dbf8c1b4602b965"},
 ]
 
 [package.extras]
@@ -259,13 +255,13 @@ ftrack-libs = ["ftrack-utils (>=2.0.0,<3.0.0)"]
 
 [[package]]
 name = "ftrack-utils"
-version = "2.1.0"
+version = "2.2.0"
 description = "ftrack utils library"
 optional = true
 python-versions = "<3.12,>=3.7"
 files = [
-    {file = "ftrack_utils-2.1.0-py3-none-any.whl", hash = "sha256:ce91df88af9ee473e629eca9c7598c793a6b234a455e6eaaa9b9fe51ec9c132d"},
-    {file = "ftrack_utils-2.1.0.tar.gz", hash = "sha256:4b1b4b3f5a18541047177571f3293f8886afc50787b6c24eef86c5acf800082a"},
+    {file = "ftrack_utils-2.2.0-py3-none-any.whl", hash = "sha256:25ba6d2ddd17d66289506a6ac516a22923ca816378643c00d4b688c13da773f4"},
+    {file = "ftrack_utils-2.2.0.tar.gz", hash = "sha256:7fecd76fe36cc1bdf36431427d3fd90924b64b9de647f849e307d2e6e5dda911"},
 ]
 
 [package.dependencies]
@@ -285,13 +281,13 @@ files = [
 
 [[package]]
 name = "idna"
-version = "3.6"
+version = "3.7"
 description = "Internationalized Domain Names in Applications (IDNA)"
 optional = false
 python-versions = ">=3.5"
 files = [
-    {file = "idna-3.6-py3-none-any.whl", hash = "sha256:c05567e9c24a6b9faaa835c4821bad0590fbb9d5779e7caa6e1cc4978e7eb24f"},
-    {file = "idna-3.6.tar.gz", hash = "sha256:9ecdbbd083b06798ae1e86adcbfe8ab1479cf864e4ee30fe4e46a003d12491ca"},
+    {file = "idna-3.7-py3-none-any.whl", hash = "sha256:82fee1fc78add43492d3a1898bfa6d8a904cc97d8427f683ed8e798d07761aa0"},
+    {file = "idna-3.7.tar.gz", hash = "sha256:028ff3aadf0609c1fd278d8ea3089299412a7a8b9bd005dd08b9f8285bcb5cfc"},
 ]
 
 [[package]]
@@ -359,24 +355,6 @@ files = [
     {file = "pyparsing-2.4.7-py2.py3-none-any.whl", hash = "sha256:ef9d7589ef3c200abe66653d3f1ab1033c3c419ae9b9bdb1240a85b024efc88b"},
     {file = "pyparsing-2.4.7.tar.gz", hash = "sha256:c203ec8783bf771a155b207279b9bccb8dea02d8f0c9e5f8ead507bc3246ecc1"},
 ]
-
-[[package]]
-name = "pyside2"
-version = "5.15.2.1"
-description = "Python bindings for the Qt cross-platform application and UI framework"
-optional = true
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, <3.11"
-files = [
-    {file = "PySide2-5.15.2.1-5.15.2-cp27-cp27m-macosx_10_13_intel.whl", hash = "sha256:b5e1d92f26b0bbaefff67727ccbb2e1b577f2c0164b349b3d6e80febb4c5bde2"},
-    {file = "PySide2-5.15.2.1-5.15.2-cp27-cp27mu-manylinux1_x86_64.whl", hash = "sha256:235240b6ec8206d9fdf0232472c6ef3241783d480425e5b54796f06e39ed23da"},
-    {file = "PySide2-5.15.2.1-5.15.2-cp35.cp36.cp37.cp38.cp39.cp310-abi3-macosx_10_13_intel.whl", hash = "sha256:a9e2e6bbcb5d2ebb421e46e72244a0f4fe0943b2288115f80a863aacc1de1f06"},
-    {file = "PySide2-5.15.2.1-5.15.2-cp35.cp36.cp37.cp38.cp39.cp310-abi3-manylinux1_x86_64.whl", hash = "sha256:23886c6391ebd916e835fa1b5ae66938048504fd3a2934ae3189a96cd5ac0b46"},
-    {file = "PySide2-5.15.2.1-5.15.2-cp35.cp36.cp37.cp38.cp39.cp310-none-win32.whl", hash = "sha256:439509e53cfe05abbf9a99422a2cbad086408b0f9bf5e6f642ff1b13b1f8b055"},
-    {file = "PySide2-5.15.2.1-5.15.2-cp35.cp36.cp37.cp38.cp39.cp310-none-win_amd64.whl", hash = "sha256:af6b263fe63ba6dea7eaebae80aa7b291491fe66f4f0057c0aafe780cc83da9d"},
-]
-
-[package.dependencies]
-shiboken2 = "5.15.2.1"
 
 [[package]]
 name = "python-dateutil"
@@ -453,20 +431,6 @@ files = [
 ]
 
 [[package]]
-name = "qt-py"
-version = "1.3.10"
-description = "Python 2 & 3 compatibility wrapper around all Qt bindings - PySide, PySide2, PyQt4 and PyQt5."
-optional = true
-python-versions = "*"
-files = [
-    {file = "Qt.py-1.3.10-py2.py3-none-any.whl", hash = "sha256:16826a5ce0574ffbb2b41d78ec6715b56016db3b7e3ee5f54cf65123331afb5d"},
-    {file = "Qt.py-1.3.10.tar.gz", hash = "sha256:7d25e8da870e7955b15619894cd085893ed0556cafb946836c2037b589403328"},
-]
-
-[package.dependencies]
-types-PySide2 = "*"
-
-[[package]]
 name = "requests"
 version = "2.31.0"
 description = "Python HTTP for Humans."
@@ -488,21 +452,6 @@ socks = ["PySocks (>=1.5.6,!=1.5.7)"]
 use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
 
 [[package]]
-name = "shiboken2"
-version = "5.15.2.1"
-description = "Python / C++ bindings helper module"
-optional = true
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, <3.11"
-files = [
-    {file = "shiboken2-5.15.2.1-5.15.2-cp27-cp27m-macosx_10_13_intel.whl", hash = "sha256:f890f5611ab8f48b88cfecb716da2ac55aef99e2923198cefcf781842888ea65"},
-    {file = "shiboken2-5.15.2.1-5.15.2-cp27-cp27mu-manylinux1_x86_64.whl", hash = "sha256:87079c07587859a525b9800d60b1be971338ce9b371d6ead81f15ee5a46d448b"},
-    {file = "shiboken2-5.15.2.1-5.15.2-cp35.cp36.cp37.cp38.cp39.cp310-abi3-macosx_10_13_intel.whl", hash = "sha256:ffd3d0ec3d508e592d7ee3885d27fee1f279a49989f734eb130f46d9501273a9"},
-    {file = "shiboken2-5.15.2.1-5.15.2-cp35.cp36.cp37.cp38.cp39.cp310-abi3-manylinux1_x86_64.whl", hash = "sha256:63debfcc531b6a2b4985aa9b71433d2ad3bac542acffc729cc0ecaa3854390c0"},
-    {file = "shiboken2-5.15.2.1-5.15.2-cp35.cp36.cp37.cp38.cp39.cp310-none-win32.whl", hash = "sha256:eb0da44b6fa60c6bd317b8f219e500595e94e0322b33ec5b4e9f406bedaee555"},
-    {file = "shiboken2-5.15.2.1-5.15.2-cp35.cp36.cp37.cp38.cp39.cp310-none-win_amd64.whl", hash = "sha256:a0d0fdeb12b72c8af349b9642ccc67afd783dca449309f45e78cda50272fd6b7"},
-]
-
-[[package]]
 name = "six"
 version = "1.16.0"
 description = "Python 2 and 3 compatibility utilities"
@@ -522,17 +471,6 @@ python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 files = [
     {file = "toml-0.10.2-py2.py3-none-any.whl", hash = "sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b"},
     {file = "toml-0.10.2.tar.gz", hash = "sha256:b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f"},
-]
-
-[[package]]
-name = "types-pyside2"
-version = "5.15.2.1.7"
-description = "The most accurate stubs for PySide2"
-optional = true
-python-versions = "*"
-files = [
-    {file = "types_pyside2-5.15.2.1.7-py2.py3-none-any.whl", hash = "sha256:a7bec4cb4657179415ca7ec7c70a45f9f9938664e22f385c85fd7cd724b07d4d"},
-    {file = "types_pyside2-5.15.2.1.7.tar.gz", hash = "sha256:1d65072deb97481ad481b3414f94d02fd5da07f5e709c2d439ced14f79b2537c"},
 ]
 
 [[package]]
@@ -598,5 +536,5 @@ ftrack-libs = ["ftrack-constants", "ftrack-qt", "ftrack-qt-style", "ftrack-utils
 
 [metadata]
 lock-version = "2.0"
-python-versions = ">= 3.7, < 3.9"
-content-hash = "ed1297e65430467959b9665d7dad40095dafe2eca6ce57ce71af8473d26e102e"
+python-versions = ">= 3.7, < 3.11"
+content-hash = "3753654a259afd9a43d4fa839407d0da844d948ef833b96fe9b063d249775d2c"

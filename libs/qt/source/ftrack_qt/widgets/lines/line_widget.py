@@ -1,7 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
-from Qt import QtWidgets, QtCore, QtGui
+try:
+    from PySide6 import QtWidgets, QtCore
+except ImportError:
+    from PySide2 import QtWidgets, QtCore
 
 from ftrack_qt.utils.widget import set_property
 
@@ -23,7 +26,8 @@ class LineWidget(QtWidgets.QFrame):
             self.setMaximumHeight(1)
             self.setMinimumHeight(1)
             self.setSizePolicy(
-                QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Minimum
+                QtWidgets.QSizePolicy.Policy.Preferred,
+                QtWidgets.QSizePolicy.Policy.Minimum,
             )
         else:
             self.setMaximumWidth(1)
@@ -31,7 +35,8 @@ class LineWidget(QtWidgets.QFrame):
             self.setMaximumHeight(16)
             self.setMinimumHeight(16)
             self.setSizePolicy(
-                QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred
+                QtWidgets.QSizePolicy.Policy.Minimum,
+                QtWidgets.QSizePolicy.Policy.Preferred,
             )
         if style is not None:
             set_property(self, 'style', style)

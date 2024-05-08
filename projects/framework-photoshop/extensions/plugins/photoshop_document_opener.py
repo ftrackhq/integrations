@@ -6,7 +6,7 @@ import os
 from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
-from ftrack_framework_photoshop.rpc_cep import PhotoshopRPCCEP
+from ftrack_utils.rpc import JavascriptRPC
 
 
 class PhotoshopDocumentOpenerPlugin(BasePlugin):
@@ -34,15 +34,17 @@ class PhotoshopDocumentOpenerPlugin(BasePlugin):
 
         try:
             # Get existing RPC connection instance
-            photoshop_connection = PhotoshopRPCCEP.instance()
+            photoshop_connection = JavascriptRPC.instance()
 
             self.logger.debug(
-                f'Telling Photoshop to save document to: {collected_path}'
+                f'Telling Photoshop to open document from: {collected_path}'
             )
 
+            # Tell Photoshop to open document, convert backlash to forward slash
+            # to prevent JSON encoding errors.
             open_result = photoshop_connection.rpc(
                 'openDocument',
-                [collected_path],
+                [collected_path.replace('\\', '/')],
             )
 
         except Exception as e:

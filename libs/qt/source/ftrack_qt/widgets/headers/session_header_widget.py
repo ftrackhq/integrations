@@ -1,7 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
-from Qt import QtCore, QtWidgets, QtGui
+try:
+    from PySide6 import QtWidgets, QtCore
+except ImportError:
+    from PySide2 import QtWidgets, QtCore
 
 from ftrack_qt.widgets.logos import FtrackLogo as Logo
 from ftrack_qt.widgets.user import FtrackUser as User
@@ -42,7 +45,7 @@ class SessionHeader(QtWidgets.QFrame):
     def pre_build(self):
         self.setLayout(QtWidgets.QVBoxLayout())
         self.layout().setContentsMargins(8, 2, 7, 8)
-        self.layout().setAlignment(QtCore.Qt.AlignTop)
+        self.layout().setAlignment(QtCore.Qt.AlignmentFlag.AlignTop)
 
     def build(self):
         # Logo & User ID
@@ -50,7 +53,7 @@ class SessionHeader(QtWidgets.QFrame):
         self.id_container_layout = QtWidgets.QHBoxLayout()
         self.id_container_layout.setContentsMargins(1, 1, 1, 1)
         self.id_container_layout.setSpacing(5)
-        self.id_container_layout.setAlignment(QtCore.Qt.AlignTop)
+        self.id_container_layout.setAlignment(QtCore.Qt.AlignmentFlag.AlignTop)
         self.id_container.setLayout(self.id_container_layout)
 
         self.logo = Logo(self)

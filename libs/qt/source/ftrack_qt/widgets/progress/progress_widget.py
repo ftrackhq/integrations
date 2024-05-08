@@ -1,6 +1,9 @@
 import logging
 
-from Qt import QtWidgets, QtCore
+try:
+    from PySide6 import QtWidgets, QtCore
+except ImportError:
+    from PySide2 import QtWidgets, QtCore
 
 import ftrack_constants as constants
 

@@ -1,7 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
-from Qt import QtGui, QtCore, QtWidgets
+try:
+    from PySide6 import QtWidgets, QtCore, QtGui
+except ImportError:
+    from PySide2 import QtWidgets, QtCore, QtGui
 
 
 class StatusSelector(QtWidgets.QComboBox):
@@ -35,9 +38,15 @@ class StatusSelector(QtWidgets.QComboBox):
             self.addItem(status['name'].upper(), status)
             # TODO: color not working.
             color = QtGui.QColor(status['color'])
-            self.setItemData(index, color, QtCore.Qt.ForegroundRole)
             self.setItemData(
-                index, QtGui.QColor('#131920'), QtCore.Qt.BackgroundRole
+                index,
+                color,
+                QtCore.Qt.ItemDataRole.ForegroundRole,
+            )
+            self.setItemData(
+                index,
+                QtGui.QColor('#131920'),
+                QtCore.Qt.ItemDataRole.BackgroundRole,
             )
         self.setCurrentIndex(0)
 

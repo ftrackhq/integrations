@@ -4,12 +4,15 @@
 import os
 import webbrowser
 
-from ftrack_connect.qt import QtWidgets, QtCore, QtSvg, QtGui
+try:
+    from PySide6 import QtWidgets, QtCore, QtGui, QtSvg
+except ImportError:
+    from PySide2 import QtWidgets, QtCore, QtGui, QtSvg
 
 import qtawesome as qta
 
 import ftrack_api.exception
-from ftrack_connect import load_icons
+from ftrack_connect import load_fonts_resource
 
 # We need to force load the icons or ftrack.<icon> won't be available
 # not sure why is the case, likely due to be in threded function.
@@ -24,10 +27,8 @@ class ConfigureScenario(QtWidgets.QWidget):
     def __init__(self, session):
         '''Instantiate the configure scenario widget.'''
         super(ConfigureScenario, self).__init__()
-        icons_path = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), '..', '..', 'fonts')
-        )
-        load_icons(icons_path)
+
+        load_fonts_resource()
 
         # Check if user has permissions to configure scenario.
         # TODO: Update this with an actual permission check once available in
@@ -52,11 +53,11 @@ class ConfigureScenario(QtWidgets.QWidget):
         icon = QtWidgets.QLabel()
         icon.setPixmap(
             cloud_icon.pixmap(
-                QtCore.QSize(self.width() / 3, self.height() / 3)
+                QtCore.QSize(int(self.width() / 3), int(self.height() / 3))
             )
         )
 
-        icon.setAlignment(QtCore.Qt.AlignCenter)
+        icon.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         icon.setObjectName('icon-label')
         layout.addWidget(icon)
 
@@ -78,7 +79,7 @@ class ConfigureScenario(QtWidgets.QWidget):
 
         label.setText(text)
         label.setContentsMargins(0, 0, 0, 0)
-        label.setAlignment(QtCore.Qt.AlignCenter)
+        label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         label.setWordWrap(True)
 
         # Min height is required due to issue when word wrap is True and window
@@ -86,7 +87,7 @@ class ConfigureScenario(QtWidgets.QWidget):
         label.setMinimumHeight(120)
 
         label.setMinimumWidth(300)
-        layout.addWidget(label, alignment=QtCore.Qt.AlignCenter)
+        layout.addWidget(label, alignment=QtCore.Qt.AlignmentFlag.AlignCenter)
 
         layout.addSpacing(20)
 
@@ -117,7 +118,7 @@ class ConfigureScenario(QtWidgets.QWidget):
             'ftrack connect and applications started from connect may not '
             'work as expected until configured.'
         )
-        label.setAlignment(QtCore.Qt.AlignCenter)
+        label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         label.setWordWrap(True)
 
         # Min height is required due to issue when word wrap is True and window
@@ -125,7 +126,7 @@ class ConfigureScenario(QtWidgets.QWidget):
         label.setMinimumHeight(100)
 
         label.setMinimumWidth(300)
-        layout.addWidget(label, alignment=QtCore.Qt.AlignCenter)
+        layout.addWidget(label, alignment=QtCore.Qt.AlignmentFlag.AlignCenter)
 
         layout.addStretch(1)
 
@@ -136,9 +137,9 @@ class ConfigureScenario(QtWidgets.QWidget):
             'href="https://help.ftrack.com/en/articles/1040436-configuring-file-storage"> '
             'Learn more about storage scenarios.'
         )
-        label.setAlignment(QtCore.Qt.AlignCenter)
+        label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         label.setOpenExternalLinks(True)
-        layout.addWidget(label, alignment=QtCore.Qt.AlignCenter)
+        layout.addWidget(label, alignment=QtCore.Qt.AlignmentFlag.AlignCenter)
         layout.addSpacing(20)
 
         self._subscriber_identifier = session.event_hub.subscribe(

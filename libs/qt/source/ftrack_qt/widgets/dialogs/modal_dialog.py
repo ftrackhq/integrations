@@ -5,7 +5,10 @@ import platform
 
 from functools import partial
 
-from Qt import QtWidgets, QtCore, QtGui
+try:
+    from PySide6 import QtWidgets, QtCore
+except ImportError:
+    from PySide2 import QtWidgets, QtCore
 
 import ftrack_constants.qt as qt_constants
 
@@ -51,7 +54,8 @@ class ModalDialog(StyledDialog):
 
         self.setModal(True)
         self.setWindowFlags(
-            QtCore.Qt.SplashScreen | QtCore.Qt.WindowStaysOnTopHint
+            QtCore.Qt.WindowType.SplashScreen
+            | QtCore.Qt.WindowType.WindowStaysOnTopHint
         )
 
     def pre_build(self):

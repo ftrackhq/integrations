@@ -1,7 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 
-from ftrack_connect.qt import QtWidgets, QtCore, QtSvg, QtGui
+try:
+    from PySide6 import QtWidgets, QtCore, QtGui, QtSvg
+except ImportError:
+    from PySide2 import QtWidgets, QtCore, QtGui, QtSvg
 
 
 class BusyIndicator(QtWidgets.QWidget):
@@ -45,7 +48,7 @@ class BusyIndicator(QtWidgets.QWidget):
         painter.begin(self)
 
         try:
-            painter.setRenderHint(QtGui.QPainter.Antialiasing)
+            painter.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
             area = QtCore.QRect(
                 0, 0, painter.device().width(), painter.device().height()
             )
@@ -69,9 +72,9 @@ class BusyIndicator(QtWidgets.QWidget):
             # Draw spinner at current spin angle.
             pen = QtGui.QPen()
             penWidth = 8.0
-            pen.setWidth(penWidth)
+            pen.setWidth(int(penWidth))
             pen.setColor(self._spinnerColor)
-            pen.setCapStyle(QtCore.Qt.RoundCap)
+            pen.setCapStyle(QtCore.Qt.PenCapStyle.RoundCap)
 
             painter.setPen(pen)
 

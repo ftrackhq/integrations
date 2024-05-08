@@ -4,7 +4,10 @@
 
 import urllib.request, urllib.parse, urllib.error
 
-from Qt import QtCore, QtGui, QtWidgets
+try:
+    from PySide6 import QtCore, QtWidgets
+except ImportError:
+    from PySide2 import QtCore, QtWidgets
 
 from ftrack_qt.widgets.thumbnails.session_base_thumbnail import (
     SessionThumbnailBase,
@@ -52,8 +55,8 @@ class ContextThumbnail(SessionThumbnailBase):
         if self._scale:
             scaled_pixmap = pixmap.scaled(
                 self.size(),
-                QtCore.Qt.KeepAspectRatio,
-                QtCore.Qt.SmoothTransformation,
+                QtCore.Qt.AspectRatioMode.KeepAspectRatio,
+                QtCore.Qt.TransformationMode.SmoothTransformation,
             )
         else:
             scaled_pixmap = pixmap

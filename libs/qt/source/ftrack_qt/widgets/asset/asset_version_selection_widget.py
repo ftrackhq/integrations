@@ -1,9 +1,11 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
-from Qt import QtWidgets, QtCore, QtGui
+try:
+    from PySide6 import QtWidgets, QtCore
+except ImportError:
+    from PySide2 import QtWidgets, QtCore
 
-from ftrack_qt.widgets.selectors.version_selector import VersionSelector
 from ftrack_qt.widgets.thumbnails import AssetVersionThumbnail
 
 
@@ -61,6 +63,11 @@ class AssetVersionSelection(QtWidgets.QFrame):
 
     def build(self):
         '''Build the widget components.'''
+
+        from ftrack_qt.widgets.selectors.version_selector import (
+            VersionSelector,
+        )
+
         self._thumbnail_widget = AssetVersionThumbnail()
         self._thumbnail_widget.setScaledContents(True)
         self._thumbnail_widget.setMinimumSize(57, 31)

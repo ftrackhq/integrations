@@ -1,5 +1,25 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2023 ftrack
+# :copyright: Copyright (c) 2024 ftrack
 
-from Qt import *
-from Qt import __version__, QtCompat
+try:
+    from PySide6 import (
+        QtWidgets,
+        QtCore,
+        QtGui,
+        QtNetwork,
+        QtMultimedia,
+        QtSvg,
+        QtOpenGL,
+        QtQuick,
+    )
+except ImportError:
+    from PySide2 import (
+        QtWidgets,
+        QtCore,
+        QtGui,
+        QtNetwork,
+        QtMultimedia,
+        QtSvg,
+        QtOpenGL,
+        QtQuick,
+    )
