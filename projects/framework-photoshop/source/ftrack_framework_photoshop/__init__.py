@@ -126,7 +126,7 @@ def probe_photoshop_pid(photoshop_version):
 
 def bootstrap_integration(framework_extensions_path):
     '''Initialise Photoshop Framework Python standalone part,
-    with panels defined in *panel_launchers*'''
+    with extensions defined @ *framework_extensions_path*'''
 
     global photoshop_rpc_connection, remote_session, process_monitor
 
