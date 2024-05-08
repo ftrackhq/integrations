@@ -40,4 +40,4 @@ class PremiereProjectCollectorPlugin(BasePlugin):
             )
 
         component_name = self.options.get('component', 'main')
-        store['components'][component_name]['project_name'] = project_path
+        store['components'][component_name]['project_path'] = project_path

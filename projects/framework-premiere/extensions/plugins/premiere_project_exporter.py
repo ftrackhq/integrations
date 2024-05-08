@@ -17,7 +17,7 @@ class PremiereProjectExporterPlugin(BasePlugin):
         path in the :obj:`store`
         '''
         component_name = self.options.get('component')
-        project_path = store['components'][component_name]['project_name']
+        project_path = store['components'][component_name]['project_path']
 
         new_file_path = get_temp_path(filename_extension='prproj')
 
