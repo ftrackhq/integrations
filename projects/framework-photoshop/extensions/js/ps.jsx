@@ -8,10 +8,38 @@ Copyright (c) 2024 ftrack
 
 #target photoshop
 
+// Util
+
+/**
+* Convert to forward slashes to fix issues with JSON encoding
+*/
+function exportPath(path) {
+    return path.replace(/\\/g, "/");
+}
+
+/**
+* Convert to back slashes on windows
+*/
+function importPath(path) {
+    if ($.os.indexOf("Windows") != -1)
+        return path.replace(/\//g, "\\");
+    else
+        return path;
+}
+
+// Document
+
+
+/*
+* Returns 'true' if there is a document open, 'false' otherwise
+*/
 function hasDocument() {
     return documents.length > 0?"true":"false";
 }
 
+/*
+* Returns the name of the active document, or an empty string if there is no document open.
+*/
 function documentSaved() {
      if (documents.length == 0) {
         return "No document open!";
@@ -20,24 +48,25 @@ function documentSaved() {
     return activeDoc.saved?"true":"false";
 }
 
+/*
+* Returns the path of the document, or an empty string if it has not been saved
+*/
 function getDocumentPath() {
-    /*
-     * Returns the path of the document, or an empty string if it has not been saved
-    */
     try {
         var f = new File(app.activeDocument.fullName);
         var result = f.fsName;
         f.close();
-        return result.replace(/\\/g, "/"); // Convert to forward slashes to fix issues with JSON encoding
+        return exportPath(result);
     } catch (e) {
         return "";
     }
 }
 
+/*
+* Returns a JSON string with the document data, or an empty JSON string if
+* there is no document open.
+*/
 function getDocumentData() {
-    /*
-     * Returns a JSON string with the document data, or an empty string if there is no document open.
-    */
      if (documents.length == 0) {
         // No document open
         return '{}';
@@ -65,11 +94,12 @@ function getDocumentData() {
 
 }
 
+/*
+* Saves the document to the given temp_path, return "true" if successful,
+* error message otherwise. Support psd or psb format.
+*/
 function saveDocument(temp_path, extension_format) {
-    /*
-     * Saves the document to the given temp_path, return "true" if successful,
-     * "false" otherwise. Support psd or psb format.
-    */
+
     try {
         if (documents.length == 0) {
             // No document open
@@ -94,11 +124,11 @@ function saveDocument(temp_path, extension_format) {
     }
 }
 
+/*
+ * Exports the document to the given output_path, return "true" if successful,
+ * error message otherwise.
+*/
 function exportDocument(output_path, format) {
-    /*
-     * Exports the document to the given output_path, return "true" if successful,
-     * "false" otherwise.
-    */
     if (documents.length == 0) {
         // No document open
         return "false";
@@ -141,20 +171,21 @@ function exportDocument(output_path, format) {
         } else {
             return "Unknown export format: "+format
         }
-        app.activeDocument.saveAs(new File(output_path), options, true);
+        app.activeDocument.saveAs(new File(importPath(output_path)), options, true);
         return "true";
     } catch (e) {
-        return "An error occurred: "+e+" Details: "+e.stack;
+        alert(e);
+        return "Error: Could not export document: "+e+" Details: "+e.stack;
     }
 }
 
+/*
+* Opens the document from the given path, return "true" if successful,
+* "false" otherwise.
+*/
 function openDocument(path) {
-    /*
-     * Opens the document from the given path, return "true" if successful,
-     * "false" otherwise.
-    */
     try {
-        app.open(new File(path));
+        app.open(new File(importPath(path)));
         return "true";
     } catch (e) {
         alert(e);

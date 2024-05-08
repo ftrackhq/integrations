@@ -98,3 +98,52 @@ def load_icons(font_folder):
             directory=font_folder,
         )
         _resource['loaded'] = True
+
+
+def load_fonts_resource():
+    '''Load fonts from the resource folder'''
+    icon_fonts_path = None
+    if getattr(sys, 'frozen', False):
+        # If the application is run as a bundle, the pyInstaller bootloader
+        # extends the sys module by a flag frozen=True and sets the app
+        # path into variable _MEIPASS.
+        icon_fonts_path = os.path.join(sys._MEIPASS, "ftrack_connect", "fonts")
+    else:
+        # Get the directory of the current script
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        # Path to the fonts folder
+        icon_fonts_path = os.path.join(current_dir, 'fonts')
+
+    load_icons(icon_fonts_path)
+
+
+def set_up_certificates():
+    '''When runing from the installer setup the certificates to avoid problems with SSL certificates.'''
+    if getattr(sys, 'frozen', False):
+        # If the application is run as a bundle, the pyInstaller bootloader
+        # extends the sys module by a flag frozen=True and sets the app
+        # path into variable _MEIPASS.
+        connect_cert_dir = os.path.join(
+            sys._MEIPASS, "ftrack_connect", "certs"
+        )
+
+        # Set the path to certificate file in resource folder. This allows requests
+        # module to read it outside frozen zip file.
+        os.environ.setdefault(
+            'REQUESTS_CA_BUNDLE',
+            os.path.abspath(os.path.join(connect_cert_dir, 'cacert.pem')),
+        )
+
+        # Websocket-client ships with its own cacert file, we however default
+        # to the one shipped with the requests library.
+        os.environ.setdefault(
+            'WEBSOCKET_CLIENT_CA_BUNDLE', os.environ.get('REQUESTS_CA_BUNDLE')
+        )
+
+        # The httplib in python +2.7.9 requires a cacert file.
+        os.environ.setdefault(
+            'SSL_CERT_FILE', os.environ.get('REQUESTS_CA_BUNDLE')
+        )
+
+
+set_up_certificates()
