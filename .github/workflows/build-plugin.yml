@@ -200,6 +200,7 @@ jobs:
         if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' || needs.set-variables.outputs.package == 'framework-premiere' }}
         shell: bash
         run: |
+          pip install -r tools/requirements.txt
           python tools/build.py build_qt_resources --css_only libs/qt-style
       - name: build photoshop CEP extension
         if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' }}
@@ -210,6 +211,7 @@ jobs:
           hdiutil attach /tmp/ZXPSignCmd-64bit.dmg
           ln -s /Volumes/ZXPSignCmd-64bit/ZXPSignCmd-64bit /usr/local/bin/ZXPSignCMD
           export ADOBE_CERTIFICATE_PASSWORD=${{ secrets.ADOBE_CERTIFICATE_PASSWORD }}
+          pip install -r tools/requirements.txt
           python tools/build.py build_cep --remove_intermediate_folder ${{ needs.set-variables.outputs.folder }}
       - name: build premiere framework DCC integration plugin
         if: ${{ needs.set-variables.outputs.package == 'framework-premiere' }}
@@ -227,6 +229,7 @@ jobs:
           hdiutil attach /tmp/ZXPSignCmd-64bit.dmg
           ln -s /Volumes/ZXPSignCmd-64bit/ZXPSignCmd-64bit /usr/local/bin/ZXPSignCMD
           export ADOBE_CERTIFICATE_PASSWORD=${{ secrets.ADOBE_CERTIFICATE_PASSWORD }}
+          pip install -r tools/requirements.txt
           python tools/build.py build_cep --remove_intermediate_folder ${{ needs.set-variables.outputs.folder }}
       - name: upload artifacts to release
         shell: bash
