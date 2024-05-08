@@ -4,6 +4,8 @@
 from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
+import hou
+
 
 class HoudiniSceneCollectorPlugin(BasePlugin):
     name = 'houdini_scene_collector'
@@ -15,23 +17,20 @@ class HoudiniSceneCollectorPlugin(BasePlugin):
         scene_name and collect if scene is saved.
         '''
         try:
-            self.logger.debug('TODO: Get scene name')
-            scene_name = "TODO: scene_name"
-            # TODO: get scene name from DCC
+            scene_name = hou.hipFile.path()
         except Exception as error:
             raise PluginExecutionError(
                 f"Error retrieving the scene name: {error}"
             )
         try:
-            self.logger.debug('TODO: check if DCC scene is saved')
-            scene_saved = True
-            # TODO: check if DCC scene is saved
+            scene_saved = not hou.hipFile.hasUnsavedChanges()
         except Exception as error:
             raise PluginExecutionError(
                 f"Error Checking if the scene is saved: {error}"
             )
 
         self.logger.debug(f"Current scene name is: {scene_name}.")
+        self.logger.debug(f"Is current scene saved?: {scene_saved}.")
 
         component_name = self.options.get('component', 'main')
 

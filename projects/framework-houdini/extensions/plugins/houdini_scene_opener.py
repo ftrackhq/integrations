@@ -4,9 +4,11 @@
 from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
+import hou
+
 
 class HoudiniSceneOpenerPlugin(BasePlugin):
-    name = 'Houdini_scene_opener'
+    name = 'houdini_scene_opener'
 
     def run(self, store):
         '''
@@ -24,8 +26,7 @@ class HoudiniSceneOpenerPlugin(BasePlugin):
 
 
         try:
-            self.logger.debug("TODO: open file")
-            # TODO: Open file in DCC
+            hou.hipFile.load(collected_path.replace('\\', '/'))
         except Exception as error:
             raise PluginExecutionError(
                 f"Couldn't open the given path. Error: {error}"

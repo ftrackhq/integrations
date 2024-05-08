@@ -10,6 +10,8 @@ from ftrack_framework_core.exceptions.plugin import (
     PluginValidationError,
 )
 
+import hou
+
 
 class HoudiniSceneSavedValidatorPlugin(BasePlugin):
     '''
@@ -25,8 +27,7 @@ class HoudiniSceneSavedValidatorPlugin(BasePlugin):
         try:
             # Save file to a temp file
             save_path = get_temp_path(filename_extension=extension_format)
-            # TODO: Tell DCC to save scene to this path
-
+            hou.hipFile.save(save_path, False)
             self.logger.debug(f"Scene has been saved to: {save_path}.")
         except Exception as error:
             raise PluginExecutionError(message=error)
@@ -41,7 +42,7 @@ class HoudiniSceneSavedValidatorPlugin(BasePlugin):
         Save the current scene.
         '''
         try:
-            # TODO: tell DCC to save scene
+            hou.hipFile.save(None, False)
             self.logger.debug(f"Scene has been saved.")
         except Exception as error:
             raise PluginExecutionError(
@@ -67,7 +68,7 @@ class HoudiniSceneSavedValidatorPlugin(BasePlugin):
             raise PluginValidationError(
                 message='Houdini scene has never been saved, Click fix to save it to a temp file',
                 on_fix_callback=self.save_to_temp,
-                fix_kwargs={'extension_format': "TODO houdini file type"},
+                fix_kwargs={'extension_format': 'hip'},
             )
         if not scene_saved:
             self.logger.warning('Houdini scene not saved')

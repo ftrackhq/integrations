@@ -5,6 +5,7 @@ from ftrack_utils.paths import get_temp_path
 from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
+import hou
 
 class HoudiniSaveToTempPlugin(BasePlugin):
     name = 'houdini_save_to_temp_finalizer'
@@ -14,13 +15,13 @@ class HoudiniSaveToTempPlugin(BasePlugin):
         Makes sure that the current opened scene is saved to a temp file so
         prevents it to be overriden.
         '''
-        # scene_type = '.mb'
+        scene_type = '.hip'
 
         try:
             # Save file to a temp file
             save_path = get_temp_path(filename_extension=scene_type)
             # Save Houdini scene to this path
-
+            hou.hipFile.save(save_path, False)
             self.logger.debug(
                 f"Houdini scene saved to temp path: {save_path}"
             )
