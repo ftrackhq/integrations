@@ -625,6 +625,34 @@ def build_package(invokation_path, pkg_path, args, command=None):
             logging.warning(f'Removing: {STAGING_PATH}')
             shutil.rmtree(STAGING_PATH, ignore_errors=True)
 
+    def _replace_imports_(resource_target_path):
+        '''Replace imports in resource files to Qt instead of QtCore.
+
+        This allows the resource file to work with many different versions of
+        Qt.
+
+        '''
+
+        # Define the new import block to insert
+        new_imports = (
+            "try:\n"
+            "    from PySide6 import QtCore\n"
+            "except ImportError:\n"
+            "    from PySide2 import QtCore\n"
+        )
+
+        # Loop through the file line by line
+        for line in fileinput.input(
+            resource_target_path, inplace=True, mode='r'
+        ):
+            # Check if the line contains an import statement we want to replace
+            if 'from PySide2 import QtCore' in line:
+                # Print the new import block instead of the old line
+                sys.stdout.write(new_imports)
+            else:
+                # Otherwise, print the line unchanged
+                sys.stdout.write(line)
+
     def build_qt_resources(args):
         '''Build resources.py from style'''
         if not DEFAULT_STYLE_PATH:
@@ -706,6 +734,8 @@ def build_package(invokation_path, pkg_path, args, command=None):
                 f'{pyside_rcc_command} could not be found. You might need to manually add '
                 'it to your PATH. See README for more information.'
             )
+
+        _replace_imports_(resource_target_path)
 
     def build_sphinx(args):
         '''Wrapper for building docs for preview'''

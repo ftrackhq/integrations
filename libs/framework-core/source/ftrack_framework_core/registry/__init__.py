@@ -99,6 +99,7 @@ class Registry(object):
         Scan framework extension modules from the given *paths*. If *extension_types*
         is given, only consider the given extension types.
         '''
+        unique_extensions = []
 
         discovered_extensions = []
         for path in reversed(paths):
