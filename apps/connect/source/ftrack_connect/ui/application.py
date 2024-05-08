@@ -30,7 +30,7 @@ except ImportError:
     from PySide2 import QtWidgets, QtCore, QtGui
     from PySide2.QtWidgets import QAction
 
-from ftrack_connect import load_icons
+from ftrack_connect import load_fonts_resource
 import ftrack_connect
 import ftrack_connect.event_hub_thread as _event_hub_thread
 import ftrack_connect.error
@@ -880,7 +880,7 @@ class Application(QtWidgets.QMainWindow):
         responses = self.session.event_hub.publish(event, synchronous=True)
 
         # Load icons
-        load_icons(os.path.join(os.path.dirname(__file__), '..', 'fonts'))
+        load_fonts_resource()
 
         for plugin_class in self._builtin_widget_plugins + responses:
             widget_plugin = None

@@ -7,6 +7,7 @@ import re
 import logging
 import json
 import plistlib
+import requests.certs
 
 import PyInstaller.__main__
 
@@ -91,6 +92,8 @@ class AppInstaller(object):
             self.build_path,
             '--add-data',
             version_file_path + ':ftrack_connect',
+            '--add-data',
+            requests.certs.where() + ':ftrack_connect/certs',
             '--hidden-import',
             # This is just making sure to add this build in python library so
             # its available on the installer (Requested by Lorenzo)
@@ -125,6 +128,12 @@ class WindowsAppInstaller(AppInstaller):
     codesign_folder = os.path.join(os_root_folder, "codesign")
     INNOSETUP_PATH = "C:\\Program Files (x86)\\Inno Setup 6\\ISCC.exe"
 
+    @property
+    def executable_path(self):
+        return os.path.join(
+            self.dist_path, self.bundle_name, f'{self.bundle_name}.exe'
+        )
+
     def codesign(self, path):
         '''Codesign artifact *path* using jsign tool in Windows'''
         bat_file = os.path.join(self.codesign_folder, "codesign.bat")
@@ -137,6 +146,9 @@ class WindowsAppInstaller(AppInstaller):
 
         if not os.path.exists(self.INNOSETUP_PATH):
             raise Exception(f'Inno Setup not found at: {self.INNOSETUP_PATH}')
+
+        if codesign:
+            self.codesign(self.executable_path)
 
         # Load template and inject data
         with open(
