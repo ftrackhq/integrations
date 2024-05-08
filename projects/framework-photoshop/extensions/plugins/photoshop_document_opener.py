@@ -40,6 +40,8 @@ class PhotoshopDocumentOpenerPlugin(BasePlugin):
                 f'Telling Photoshop to open document from: {collected_path}'
             )
 
+            # Tell Photoshop to open document, convert backlash to forward slash
+            # to prevent JSON encoding errors.
             open_result = photoshop_connection.rpc(
                 'openDocument',
                 [collected_path.replace('\\', '/')],
