@@ -42,7 +42,7 @@ class PhotoshopDocumentOpenerPlugin(BasePlugin):
 
             open_result = photoshop_connection.rpc(
                 'openDocument',
-                [collected_path],
+                [collected_path.replace('\\', '/')],
             )
 
         except Exception as e:

@@ -2,6 +2,7 @@
 
 ## Upcoming
 
+* [fix] Fixed bug where document could not be opened on Windows.
 * [changed] Fixed styling bug in panel causing footer to have different grey background.
 * [changed] Aligned PS with changes from Premiere, fix CI.
 * [changed] Moved extendscript jsx resources to extensions js folder, added PS specific bootstrap extension.
