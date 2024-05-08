@@ -1,5 +1,9 @@
 # ftrack Connect release Notes
 
+## upcoming
+
+* [changed] Prevent additional icon for standalone process to appear on windows.
+
 
 ## 24.5.0
 2024-04-03
