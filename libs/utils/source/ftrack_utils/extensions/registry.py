@@ -10,6 +10,7 @@ import yaml
 import re
 
 from ftrack_utils.directories.scan_dir import fast_scandir
+from ftrack_utils.yaml import read_yaml_file, substitute_placeholders
 
 logger = logging.getLogger(__name__)
 
@@ -37,31 +38,29 @@ def register_yaml_files(file_list):
 
     registered_files = []
     for _file in file_list:
-        with open(_file, 'r') as yaml_file:
-            try:
-                yaml_content = yaml.safe_load(yaml_file)
-            except yaml.YAMLError as exc:
-                # Log an error if the yaml file is invalid.
-                logger.error(
-                    "Invalid .yaml file\nFile: {}\nError: {}".format(
-                        _file, exc
-                    )
-                )
-                continue
-            if not yaml_content.get("type"):
-                # Log warning if yaml file doesn't contain type key.
-                logger.warning(
-                    "No extension compatible .yaml file, missing 'type'."
-                    "\nFile: {}".format(_file)
-                )
-                continue
-            data = {
-                "extension_type": yaml_content['type'],
-                "name": yaml_content['name'],
-                "extension": yaml_content,
-                "path": _file,
-            }
-            registered_files.append(data)
+        try:
+            yaml_content = read_yaml_file(_file)
+            yaml_content = substitute_placeholders(yaml_content, yaml_content)
+        except yaml.YAMLError as exc:
+            # Log an error if the yaml file is invalid.
+            logger.error(
+                "Invalid .yaml file\nFile: {}\nError: {}".format(_file, exc)
+            )
+            continue
+        if not yaml_content.get("type"):
+            # Log warning if yaml file doesn't contain type key.
+            logger.warning(
+                "No extension compatible .yaml file, missing 'type'."
+                "\nFile: {}".format(_file)
+            )
+            continue
+        data = {
+            "extension_type": yaml_content['type'],
+            "name": yaml_content['name'],
+            "extension": yaml_content,
+            "path": _file,
+        }
+        registered_files.append(data)
     return registered_files
 
 

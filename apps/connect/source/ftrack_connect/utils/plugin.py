@@ -77,13 +77,16 @@ def get_plugin_data(plugin_path):
     '''
     if plugin_path.endswith(('.yaml', '.yml')):
         yaml_content = yaml_utils.read_yaml_file(plugin_path)
+        found_config = yaml_utils.substitute_placeholders(
+            yaml_content, yaml_content
+        )
         # TODO: we will have to somehow adapt this data to be able to check if incompatible or deprecated plugin etc...
-        yaml_content['incompatible'] = False
-        yaml_content['deprecated'] = False
-        # TODO: currently haking the path to its own location as the launch info is in the same place, decide later if we want to separate the laucnh config from the connect plugin or not
-        yaml_content['path'] = plugin_path
-        yaml_content['platform'] = 'noarch'
-        return yaml_content
+        found_config['incompatible'] = False
+        found_config['deprecated'] = False
+        # TODO: currently hacking the path to its own location as the launch info is in the same place, decide later if we want to separate the laucnh config from the connect plugin or not
+        found_config['path'] = plugin_path
+        found_config['platform'] = 'noarch'
+        return found_config
 
     # TODO: in here instead of reading this data, we read the yaml file
     plugin_re = re.compile(

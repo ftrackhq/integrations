@@ -202,6 +202,7 @@ class ApplicationStore(object):
         environment_variables=None,
         connect_plugin_path=None,
         rosetta=False,
+        config=dict,
     ):
         '''
         Return list of applications found in filesystem matching *expression*.
@@ -260,6 +261,8 @@ class ApplicationStore(object):
 
         *rosetta* dictates if the app needs to be in rosetta mode for Silicon
         chip based Mac.
+
+        *config* The entire configuration file so the hook can have acces to the new yaml configs.
 
         '''
 
@@ -361,6 +364,7 @@ class ApplicationStore(object):
                             'description': description,
                             'integrations': integrations or {},
                             'rosetta': rosetta,
+                            'config': config,
                         }
                         if standalone_module:
                             application[
@@ -570,12 +574,17 @@ class ApplicationLauncher(object):
                 application=application,
                 context=context,
                 integration={
-                    'name': None,
-                    'version': None,
+                    'name': application['config'].get('name')
+                    if application.get('config')
+                    else None,
+                    'version': application['config'].get('version')
+                    if application.get('config')
+                    else None,
                     'env': application.get('environment_variables', {}),
                     'launch_arguments': [],
                 },
                 platform=self.current_os,
+                config=application['config'],
             )
 
             results = self.session.event_hub.publish(

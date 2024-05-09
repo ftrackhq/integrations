@@ -1,6 +1,9 @@
 type: launch_config
 
 launch_hook_path: "/Users/ftrack/work/ftrack/repos/integrations/connect_plugins/framework-maya-plugin"
+bootstrap_path: "/Users/ftrack/work/ftrack/repos/integrations/projects/framework-maya/source/ftrack_framework_maya/resource/bootstrap"
+
+
 
 name: framework-maya
 version: 1.0.0
@@ -11,7 +14,23 @@ source: ftrack-framework-maya #your/loacl/folder or pypi or git repo
 #}
 
 department: modeling
-# python-env: asdasfdasfdfa
+
+# TODO: we could setup all the paths in here if we don't want to use the hook by default and leave that clean for the user to hook whatever he feels is needed.
+environment_variables:
+  PYTHONPATH.prepend:
+    #- source result
+    - '/Users/ftrack/work/ftrack/repos/integrations/projects/framework-maya/source'
+    - '${bootstrap_path}'
+  MAYA_SCRIPT_PATH:
+    - '${bootstrap_path}'
+  FTRACK_MAYA_VERSION:
+    - '${version}'
+
+# TODO: mayabe we could use a template engine like Jinja2 to resolve the
+#  placeholders in a standard way: https://jinja.palletsprojects.com/en/3.1.x/
+#  name: "default-connect-config"
+#  place_holder_for_env: "{{ os.getenv('FTRACK_CONNECT_PLUGIN_PATH') }}"
+#  place_holder_for_local_var: "{{ name }}"
 
 priority: 100 # Remove this one, just have it as an optional thing, and provide 100 as default. I think it is overcomplicating.
 context:

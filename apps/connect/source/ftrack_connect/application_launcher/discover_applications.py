@@ -140,6 +140,7 @@ class DiscoverApplications(object):
                         os.path.join(os.path.dirname(config_path), '..')
                     ),
                     rosetta=rosetta,
+                    config=config,
                 )
                 store.applications.extend(applications)
 
