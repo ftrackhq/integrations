@@ -1196,11 +1196,12 @@ class Application(QtWidgets.QMainWindow):
             f'Discovering applications launcher configs based on'
             f' {len(self.plugins)} plugins.'
         )
-
+        configurations = []
         for plugin in self.plugins:
             if plugin.get('type') == 'launch_config':
                 # TODO: propose if we want to have the launch config separated of the plugin itseld
-                launcher_config_paths.append(os.path.dirname(plugin['path']))
+                # launcher_config_paths.append(os.path.dirname(plugin['path']))
+                configurations.append((plugin, plugin['path']))
             else:
                 launcher_config_path = os.path.join(plugin['path'], 'launch')
                 if os.path.isdir(launcher_config_path):
@@ -1218,9 +1219,13 @@ class Application(QtWidgets.QMainWindow):
         #                     launcher_config_paths.append(path)
 
         # Create store containing launchable applications.
-        self._application_launcher = DiscoverApplications(
-            self.session, launcher_config_paths
+        self._application_launcher = DiscoverApplications(self.session, None)
+        configurations.extend(
+            self._application_launcher._parse_configurations(
+                launcher_config_paths
+            )
         )
+        self._application_launcher._build_launchers(configurations)
         self._application_launcher.register()
 
     def _configure_action_launcher_widget(self):

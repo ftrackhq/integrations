@@ -28,14 +28,14 @@ class DiscoverApplications(object):
         )
 
         # If a single path is passed by mistake, handle it here.
-        if isinstance(applications_config_paths, str):
-            applications_config_paths = [applications_config_paths]
+        # if isinstance(applications_config_paths, str):
+        # applications_config_paths = [applications_config_paths]
 
         self._actions = []
 
         self._session = session
-        configurations = self._parse_configurations(applications_config_paths)
-        self._build_launchers(configurations)
+        # configurations = self._parse_configurations(applications_config_paths)
+        # self._build_launchers(configurations)
 
     def _parse_configurations(self, config_paths):
         '''Use the extensions library to load and merge launch configurations'''

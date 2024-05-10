@@ -30,8 +30,17 @@ extensions:
   # TODO: think about how to install specific extensions requirements.
   # - git release ftrack-framework-maya-extension-24.5.0
   # - from pip ftrack-framework-maya-extension == 24.5.0
+  # TODO: we do the same as in source we donwload the extensions, put it in the plugin_data folder and link the dependnecies folder to the pythonpath and the source extension folde replaces this one.
+  #- type: git-release
+    #url: "https://github.com/ftrackhq/integrations/releases/download/maya-dependnecies-test%2Fv0.0.0/dependencies.zip"
+  #- type: local
+    #path: "/Users/ftrack/work/ftrack/repos/integrations/extensions/framework-common-extensions"
+  #- type: local
+    #path: "/Users/ftrack/work/ftrack/repos/integrations/extensions/framework-maya-extensions"
   - "/Users/ftrack/work/ftrack/repos/integrations/extensions/framework-common-extensions"
   - "/Users/ftrack/work/ftrack/repos/integrations/extensions/framework-maya-extensions"
+
+# TODO: extensions are same as the soource, so when we install an extension from a github release it will install in the plugin_data folder and put the provided dependnecies folder into the pythonpath if there is a dependnecies folder. If user has its own extensions, then is up to the user to put the dependncies on the pythonpath.
 
 # TODO: think about if we prefere to specify where the hooks and the bootstrap scripts are in here or they should simply
 #  always be in the extensions and registered as scripts. Pointing them in here for the prototype
@@ -67,7 +76,7 @@ context:
   - Task # Does this actually work in any other situation right now?
 identifier: ftrack-framework-launch-maya # is this really needed? Can't we use the name as identifier?
 applicationIdentifier: maya_{variant}
-integrations:
+integrations: # I think this can be removed.
   framework:
     - framework-maya
 label: Maya
