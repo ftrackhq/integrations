@@ -61,13 +61,15 @@ class {{ cookiecutter.integration_name.capitalize() }}SceneSavedValidatorPlugin(
         scene_name = store['components'][component_name].get('scene_name')
         scene_saved = store['components'][component_name].get('scene_saved')
 
+        extension_format = '<format>'
+
         if not scene_name:
             # Scene is not saved, save it first.
             self.logger.warning('{{ cookiecutter.integration_name.capitalize() }} scene has never been saved.')
             raise PluginValidationError(
                 message='{{ cookiecutter.integration_name.capitalize() }} scene has never been saved, Click fix to save it to a temp file',
                 on_fix_callback=self.save_to_temp,
-                fix_kwargs={'extension_format': <Your file type>},
+                fix_kwargs={'extension_format': extension_format},
             )
         if not scene_saved:
             self.logger.warning('{{ cookiecutter.integration_name.capitalize() }} scene not saved')
