@@ -35,9 +35,9 @@ extensions:
 
 # TODO: think about if we prefere to specify where the hooks and the bootstrap scripts are in here or they should simply
 #  always be in the extensions and registered as scripts. Pointing them in here for the prototype
-launch_hook_path: "/Users/ftrack/work/ftrack/repos/integrations/connect_plugins/framework-maya-plugin"
+launch_hook_path: "/Users/ftrack/work/ftrack/repos/integrations/extensions/framework-maya-extensions/hooks"
 # launch_hook_path: "${extensions}/hooks"
-bootstrap_path: "/Users/ftrack/work/ftrack/repos/integrations/projects/framework-maya/source/ftrack_framework_maya/resource/bootstrap"
+bootstrap_path: "/Users/ftrack/work/ftrack/repos/integrations/extensions/framework-maya-extensions/bootstrap"
 
 # TODO: Think on if to provide something like this.
 # python_standalone_interpreter: "/Applications/Autodesk/maya2022/Maya.app/Contents/bin/mayapy"
