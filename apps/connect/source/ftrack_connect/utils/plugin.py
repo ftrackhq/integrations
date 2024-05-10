@@ -7,6 +7,10 @@ import re
 import sys
 import requests
 import glob
+import subprocess
+import tempfile
+import urllib
+import zipfile
 
 import platformdirs
 from packaging.version import parse
@@ -54,6 +58,92 @@ def get_plugins_from_path(plugin_directory):
     return plugins
 
 
+def check_source(source, python_standalone_interpreter=False):
+    # TODO: what if we type is not added, should we automatically detect it?
+    if source['type'] == 'local':
+        # If dependnencies is sepcified, all setup is by the user
+        # If not, then we execute poetry and install
+        path = source['path']
+        if source.get('dependnecies'):
+            dependencies = os.path.join(source['path'])
+        else:
+            # TODO: here we should set the poetry config virtualenvs.in-project true --local to # # TODO: enforce to create virtual env to the project folder but not with the in_project, so specifying directly
+            # Python code as a string that executes 'poetry install' using subprocess
+            python_code = "\nimport subprocess\nsubprocess.run(['poetry', 'install'], check=True)"
+
+            # Command to run the given Python code with the specified interpreter
+            command = [source['interpreter'], '-c', python_code]
+
+            # Execute the command in the specified directory
+            result = subprocess.run(
+                command, cwd=path, text=True, capture_output=True
+            )
+
+            # Check the result
+            if result.returncode == 0:
+                print("Poetry install completed successfully.")
+                print(result.stdout)
+            else:
+                print("Poetry install failed.")
+                print(result.stderr)
+
+            dependencies = os.path.join(
+                source['path'], ".venv", "lib", "python3.7", "site-packages"
+            )
+        return dependencies  # TODO: should be a list with the dependnecies and with the path in this case
+    if source['type'] == 'pip':
+        # TODO: decide on the target destination:
+        data_folder = None
+        # Define the command to install a package using the specified Python interpreter
+        command = [
+            source['interpreter'],
+            '-m',
+            'pip',
+            'install',
+            '-t',
+            data_folder,
+            source['package'],
+        ]
+
+        # Execute the command
+        result = subprocess.run(command, text=True, capture_output=True)
+
+        # Check if the installation was successful
+        if result.returncode == 0:
+            print("Package installed successfully.")
+            print(result.stdout)
+        else:
+            print("Package installation failed.")
+            print(result.stderr)
+
+        dependencies = os.path.join(
+            source['path'], ".venv", "lib", "python3.7", "site-packages"
+        )
+
+    if source['type'] == 'git-release':
+        try:
+            # TODO implement logic to find version from name and version in the source or from specified URL
+            source_path = source['url']
+            zip_name = os.path.basename(source_path)
+            save_path = tempfile.gettempdir()
+            temp_path = os.path.join(save_path, zip_name)
+
+            logger.info(f'Downloading {source_path} to {temp_path}')
+
+            with urllib.request.urlopen(source_path) as dl_file:
+                with open(temp_path, 'wb') as out_file:
+                    out_file.write(dl_file.read())
+            # TODO: Set the plugins data path on the connect config file
+            with zipfile.ZipFile(temp_path, 'r') as zip_ref:
+                zip_ref.extractall(
+                    "/Users/ftrack/Library/Application Support/ftrack-connect/plugins_data/ftrack-framework-maya-1.0.0-modeling"
+                )
+
+            return "/Users/ftrack/Library/Application Support/ftrack-connect/plugins_data/ftrack-framework-maya-1.0.0-modeling/dependencies"
+        except Exception as e:
+            raise Exception(e)
+
+
 def get_plugin_data(plugin_path):
     '''
     Return data from the provided *plugin_path*.
@@ -77,9 +167,12 @@ def get_plugin_data(plugin_path):
     '''
     if plugin_path.endswith(('.yaml', '.yml')):
         yaml_content = yaml_utils.read_yaml_file(plugin_path)
+        dependencies = check_source(yaml_content['source'])
+        yaml_content['source']['dependencies'] = dependencies
         found_config = yaml_utils.substitute_placeholders(
             yaml_content, yaml_content
         )
+
         # TODO: we will have to somehow adapt this data to be able to check if incompatible or deprecated plugin etc...
         found_config['incompatible'] = False
         found_config['deprecated'] = False

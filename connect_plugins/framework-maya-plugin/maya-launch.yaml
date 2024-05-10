@@ -1,25 +1,52 @@
 type: launch_config
 
+# TODO: in the connect config, we should have a connect data location and is where all the dependnecies are located
+name: framework-maya
+department: modeling # This allows user to decide to which department this launch should be discoverable
+version: 1.0.0
+source:
+  type: git-release
+  # TODO: If user specify url we pick it from ther but if user sets name and version then we look in our repo and check for releases matching
+  url: "https://github.com/ftrackhq/integrations/releases/download/maya-dependnecies-test%2Fv0.0.0/dependencies.zip"
+  # TODO: dependnecies key is automatically set when downloading and installing the source
+
+# TODO: local and pip should also be supported
+#source:
+  #type: local
+  # TODO: seems that maya can't read the .pth file for redirection, so we have to sepcify the main repo location and the dependnecies separatelly
+  # Or maybe we just point to the framework-maya and is connect who executes the poetry install and points the dependnecies to the dep folder and the other to the source folder.
+  # If dependnencies key is passed then all setup manually by the user.
+  #path: "/Users/ftrack/work/ftrack/repos/integrations/projects/framework-maya"
+  #interpreter: ""
+  # Basically seems that pointing to the venv works for the dependencies but not for the integration itself,
+  #dependnecies: "/Users/ftrack/work/ftrack/repos/integrations/projects/framework-maya/.venv/lib/python3.7/site-packages"
+#source:
+#  type: pip
+#  package: "ftrack-framework-maya==1.2.3"
+#  interpreter: "/Applications/Autodesk/maya2022/Maya.app/Contents/bin/mayapy"
+
+extensions:
+  # TODO we support extensions published on git (but pointing to local folder for the prototype)
+  # TODO: think about how to install specific extensions requirements.
+  # - git release ftrack-framework-maya-extension-24.5.0
+  # - from pip ftrack-framework-maya-extension == 24.5.0
+  - "/Users/ftrack/work/ftrack/repos/integrations/extensions/framework-common-extensions"
+  - "/Users/ftrack/work/ftrack/repos/integrations/extensions/framework-maya-extensions"
+
+# TODO: think about if we prefere to specify where the hooks and the bootstrap scripts are in here or they should simply
+#  always be in the extensions and registered as scripts. Pointing them in here for the prototype
 launch_hook_path: "/Users/ftrack/work/ftrack/repos/integrations/connect_plugins/framework-maya-plugin"
+# launch_hook_path: "${extensions}/hooks"
 bootstrap_path: "/Users/ftrack/work/ftrack/repos/integrations/projects/framework-maya/source/ftrack_framework_maya/resource/bootstrap"
 
-
-
-name: framework-maya
-version: 1.0.0
-source: ftrack-framework-maya #your/loacl/folder or pypi or git repo
-  #source: dev // pip // git
-  #path: asdgf // name of the lib // url
-  #version: x.x.x
-#}
-
-department: modeling
+# TODO: Think on if to provide something like this.
+# python_standalone_interpreter: "/Applications/Autodesk/maya2022/Maya.app/Contents/bin/mayapy"
 
 # TODO: we could setup all the paths in here if we don't want to use the hook by default and leave that clean for the user to hook whatever he feels is needed.
 environment_variables:
   PYTHONPATH.prepend:
     #- source result
-    - '/Users/ftrack/work/ftrack/repos/integrations/projects/framework-maya/source'
+    - '${source.dependencies}'
     - '${bootstrap_path}'
   MAYA_SCRIPT_PATH:
     - '${bootstrap_path}'
@@ -31,6 +58,9 @@ environment_variables:
 #  name: "default-connect-config"
 #  place_holder_for_env: "{{ os.getenv('FTRACK_CONNECT_PLUGIN_PATH') }}"
 #  place_holder_for_local_var: "{{ name }}"
+
+
+# TODO: the follwoing code I think should be in a separated file, but is something that we have to think about. Also can be very simplified.
 
 priority: 100 # Remove this one, just have it as an optional thing, and provide 100 as default. I think it is overcomplicating.
 context:
@@ -72,5 +102,6 @@ search_path:
       - maya$
     version_expression: "maya(?P<version>\\d{4})"
 extensions_path:
-  - extensions/common
-  - extensions/maya
+  - "${extensions}"
+  #- extensions/common
+  #- extensions/maya

@@ -71,6 +71,13 @@ class Registry(object):
         return self.__registry.get('dcc_config')
 
     @property
+    def scripts(self):
+        '''
+        Returns the registered dcc configs`
+        '''
+        return self.__registry.get('scripts')
+
+    @property
     def registered_modules(self):
         return self.__registry
 

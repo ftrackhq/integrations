@@ -51,7 +51,16 @@ def resolve_placeholders(value, data):
             if not match:
                 break
             placeholder = match.group(1)
-            replacement = data.get(placeholder, os.getenv(placeholder, ''))
+            keys = placeholder.split('.')
+            if keys:
+                replacement = data
+                for key in keys:
+                    if key in replacement:
+                        replacement = replacement[key]
+                    else:
+                        replacement = None
+            else:
+                replacement = data.get(placeholder, os.getenv(placeholder, ''))
             # Split environment variable string into list if it contains path separator
             if isinstance(replacement, str) and os.pathsep in replacement:
                 replacement = replacement.split(os.pathsep)
