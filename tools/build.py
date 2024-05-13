@@ -701,41 +701,45 @@ def build_package(invokation_path, pkg_path, args, command=None):
         else:
             logging.warning('No styles to compile.')
 
-        pyside_version = args.pyside_version
-        if not pyside_version:
-            pyside_version = "2"
-        pyside_rcc_command = f'pyside{pyside_version}-rcc'
-        try:
-            executable = None
+        if not args.css_only:
+            pyside_version = args.pyside_version
+            if not pyside_version:
+                pyside_version = "2"
+            pyside_rcc_command = f'pyside{pyside_version}-rcc'
+            try:
+                executable = None
 
-            # Check if the command for pyside*-rcc is in executable paths.
-            if find_executable(pyside_rcc_command):
-                executable = [pyside_rcc_command]
+                # Check if the command for pyside*-rcc is in executable paths.
+                if find_executable(pyside_rcc_command):
+                    executable = [pyside_rcc_command]
 
-            if not executable:
-                logging.warning(
-                    f'No executable found for {pyside_rcc_command}, attempting to run as '
-                    'a module'
+                if not executable:
+                    logging.warning(
+                        f'No executable found for {pyside_rcc_command}, attempting to run as '
+                        'a module'
+                    )
+                    executable = [sys.executable, '-m', 'scss']
+
+                # Use the first occurrence if more than one is found.
+                cmd = executable + [
+                    '-o',
+                    resource_target_path,
+                    resource_source_path,
+                ]
+                logging.info('Running: {}'.format(cmd))
+                subprocess.check_call(cmd)
+
+            except (subprocess.CalledProcessError, OSError):
+                raise RuntimeError(
+                    f'Error compiling resource.py using {pyside_rcc_command}. Possibly '
+                    f'{pyside_rcc_command} could not be found. You might need to manually add '
+                    'it to your PATH. See README for more information.'
                 )
-                executable = [sys.executable, '-m', 'scss']
 
-            # Use the first occurrence if more than one is found.
-            cmd = executable + [
-                '-o',
-                resource_target_path,
-                resource_source_path,
-            ]
-            logging.info('Running: {}'.format(cmd))
-            subprocess.check_call(cmd)
+            _replace_imports_(resource_target_path)
 
-        except (subprocess.CalledProcessError, OSError):
-            raise RuntimeError(
-                f'Error compiling resource.py using {pyside_rcc_command}. Possibly '
-                f'{pyside_rcc_command} could not be found. You might need to manually add '
-                'it to your PATH. See README for more information.'
-            )
-
-        _replace_imports_(resource_target_path)
+        else:
+            logging.warning('Not compiling QT resource.py.')
 
     def build_sphinx(args):
         '''Wrapper for building docs for preview'''
@@ -803,18 +807,6 @@ def build_package(invokation_path, pkg_path, args, command=None):
         os.makedirs(os.path.join(STAGING_PATH))
         os.makedirs(os.path.join(STAGING_PATH, 'image'))
         os.makedirs(os.path.join(STAGING_PATH, 'css'))
-
-        # Build resources
-        logging.info('Building style...')
-        save_cwd = os.getcwd()
-        os.chdir(MONOREPO_PATH)
-        build_package(
-            invokation_path,
-            'libs/qt-style',
-            args,
-            command='build_qt_resources',
-        )
-        os.chdir(save_cwd)
 
         style_path = args.style_path
         if style_path is None:
@@ -1090,9 +1082,17 @@ if __name__ == '__main__':
     )
 
     parser.add_argument(
+        '--css_only',
+        help='(QT resource build) Only build CSS, do not compile QT resource.py.',
+        action='store_true',
+    )
+
+    parser.add_argument(
         '--output_path',
         help='(QT resource build/RV pkg build) Override the QT resource output directory.',
     )
+
+    # CEP options
 
     parser.add_argument(
         '--nosign',
