@@ -1,6 +1,7 @@
 # ftrack Framework Photoshop integration release Notes
 
-## Upcoming
+## 24.5.0
+2024-05-13
 
 * [fix] Fixed bug where document could not be opened on Windows.
 * [changed] Fixed styling bug in panel causing footer to have different grey background.
