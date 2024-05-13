@@ -50,8 +50,7 @@ def on_launch_integration(session, event):
 
     logger.info(
         f'Launching integration v{integration_version} assuming CEP plugin has '
-        f'been properly installed prior to launch, and Premiere is set to '
-        f'launch in Rosetta mode on Silicon Mac.'
+        'been properly installed prior to launch.'
     )
 
     if not launch_data['integration'].get('env'):
@@ -67,7 +66,6 @@ def on_launch_integration(session, event):
     launch_data['integration']['env']['FTRACK_PREMIERE_VERSION'] = str(
         integration_version
     )
-
 
     selection = event['data'].get('context', {}).get('selection', [])
 
