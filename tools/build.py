@@ -885,6 +885,8 @@ def build_package(invokation_path, pkg_path, args, command=None):
         # Copy extensions
         if DCC_NAME == 'photoshop':
             extendscript_file = 'ps{}.jsx'
+        elif DCC_NAME == 'premiere':
+            extendscript_file = 'pp{}.jsx'
         else:
             raise Exception('Unsupported Adobe DCC: {}'.format(DCC_NAME))
 

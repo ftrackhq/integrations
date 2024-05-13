@@ -9,6 +9,10 @@ import sys
 
 logger = logging.getLogger(__name__)
 
+# Create stderr, set to None on Windows. Required for BaseHTTPRequestHandler to be able to log.
+if sys.stderr is None:
+    sys.stderr = open(os.devnull, 'w')
+
 # Evaluate version and log package version
 try:
     from ftrack_utils.version import get_version

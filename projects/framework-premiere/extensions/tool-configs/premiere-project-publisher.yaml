@@ -1,0 +1,58 @@
+type: tool_config
+name: premiere-project-publisher
+config_type: publisher
+engine:
+  - type: plugin
+    tags:
+      - context
+    plugin: store_asset_context
+    options:
+      asset_type_name: scene
+    ui: publisher_asset_version_selector
+
+  # Export the snapshot component.
+  - type: group
+    tags:
+      - component
+    options:
+      component: snapshot
+    plugins:
+      - type: plugin
+        plugin: store_component
+      - type: plugin
+        tags:
+          - collector
+        plugin: premiere_project_collector
+      - type: plugin
+        tags:
+          - validator
+        plugin: premiere_project_saved_validator
+      - type: plugin
+        tags:
+          - exporter
+        plugin: premiere_project_exporter
+
+  # Export the reviewable component
+  - type: group
+    tags:
+      - component
+    options:
+      component: reviewable
+    optional: false
+    plugins:
+      - type: plugin
+        plugin: store_component
+      - type: plugin
+        tags:
+          - exporter
+        plugin: premiere_movie_exporter
+
+  # Common validator check all exported paths exists.
+  - type: plugin
+    tags:
+      - validator
+    plugin: exported_paths_validator
+    ui: validator_label
+
+  # Publish to ftrack.
+  - publish_to_ftrack
