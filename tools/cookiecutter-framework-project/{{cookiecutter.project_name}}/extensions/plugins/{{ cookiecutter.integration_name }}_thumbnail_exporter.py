@@ -18,6 +18,7 @@ class {{ cookiecutter.integration_name.capitalize() }}ThumbnailExporterPlugin(Ba
         '''
         component_name = self.options.get('component')
 
+        thumbnail_path = None
         try:
             # TODO: thumbnail_path = Export thumbnail
 

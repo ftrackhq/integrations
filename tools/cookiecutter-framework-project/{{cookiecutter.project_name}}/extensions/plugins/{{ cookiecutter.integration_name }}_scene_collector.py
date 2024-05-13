@@ -14,14 +14,18 @@ class {{ cookiecutter.integration_name.capitalize() }}SceneCollectorPlugin(BaseP
         extension format to be published to the *store*. Also collect the
         scene_name and collect if scene is saved.
         '''
+        scene_name = None
+        scene_saved = False
         try:
             # TODO: get scene name from DCC
+            pass
         except Exception as error:
             raise PluginExecutionError(
                 f"Error retrieving the scene name: {error}"
             )
         try:
             # TODO: check if DCC scene is saved
+            pass
         except Exception as error:
             raise PluginExecutionError(
                 f"Error Checking if the scene is saved: {error}"
