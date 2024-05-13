@@ -98,8 +98,6 @@ class AppInstaller(object):
             # This is just making sure to add this build in python library so
             # its available on the installer (Requested by Lorenzo)
             'html.parser',
-            '--hidden-import',
-            'sys.stderr',
             '-y',
             '--clean',
         ]
