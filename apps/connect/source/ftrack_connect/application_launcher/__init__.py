@@ -778,10 +778,10 @@ class ApplicationLauncher(object):
                     options["creationflags"] = subprocess.CREATE_NO_WINDOW
                     options["shell"] = True
 
-                startupinfo = subprocess.STARTUPINFO()
-                startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                    startupinfo = subprocess.STARTUPINFO()
+                    startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 
-                options['startupinfo'] = startupinfo
+                    options['startupinfo'] = startupinfo
 
                 try:
                     process = subprocess.Popen(command, **options)
