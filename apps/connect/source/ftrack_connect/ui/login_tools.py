@@ -23,6 +23,17 @@ class LoginServerHandler(BaseHTTPRequestHandler):
         self.login_callback = login_callback
         BaseHTTPRequestHandler.__init__(self, *args, **kw)
 
+    def log_message(self, format, *args):
+        '''(Override) sys.stderr is set to None on Windows, so we override this method to use our logger instead.'''
+        print(
+            "%s - - [%s] %s\n"
+            % (
+                self.address_string(),
+                self.log_date_time_string(),
+                format % args,
+            )
+        )
+
     def do_GET(self):
         '''Override to handle requests ourselves.'''
         try:
