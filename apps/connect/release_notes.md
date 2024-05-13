@@ -1,6 +1,7 @@
 # ftrack Connect release Notes
 
-## upcoming
+## 24.5.1
+2024-05-13
 
 * [fix] Fix issue with connect login not working on Windows.
 * [changed] Prevent additional icon for standalone process to appear on windows.
