@@ -1,15 +1,18 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
-
+import traceback
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import urllib.parse
 import webbrowser
 import functools
+import logging
 
 try:
     from PySide6 import QtCore
 except ImportError:
     from PySide2 import QtCore
+
+logger = logging.getLogger(__name__)
 
 
 class LoginServerHandler(BaseHTTPRequestHandler):
@@ -22,57 +25,65 @@ class LoginServerHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         '''Override to handle requests ourselves.'''
-        parsed_path = urllib.parse.urlparse(self.path)
-        query = parsed_path.query
+        try:
+            parsed_path = urllib.parse.urlparse(self.path)
+            query = parsed_path.query
 
-        api_user = None
-        api_key = None
-        login_credentials = None
-        if 'api_user' and 'api_key' in query:
-            login_credentials = urllib.parse.parse_qs(query)
-            api_user = login_credentials['api_user'][0]
-            api_key = login_credentials['api_key'][0]
-            message = """
-                <html>
-                    <style type="text/css">
-                        body {{
-                            max-width: 400px;
-                            margin: 30px auto;
-                            font-family: 'Roboto', 'Open Sans', 'Droid Sans', Arial, Helvetica, sans-serif;
-                            text-align: center;
-                        }}
+            api_user = None
+            api_key = None
+            login_credentials = None
+            if 'api_user' and 'api_key' in query:
+                login_credentials = urllib.parse.parse_qs(query)
+                api_user = login_credentials['api_user'][0]
+                api_key = login_credentials['api_key'][0]
+                message = """
+                    <html>
+                        <style type="text/css">
+                            body {{
+                                max-width: 400px;
+                                margin: 30px auto;
+                                font-family: 'Roboto', 'Open Sans', 'Droid Sans', Arial, Helvetica, sans-serif;
+                                text-align: center;
+                            }}
+    
+                            h1 {{
+                                font-size: 20px;
+                                font-weight: medium;
+                                margin: 20px 0;
+                            }}
+    
+                            p {{
+                                color: #999;
+                                margin: 30px 10px;
+                            }}
+                        </style>
+                    <body>
+                        <h1>Sign in to ftrack connect was successful</h1>
+                        <p>
+                            You signed in with username <em>{0}</em> and can now
+                            close this window.
+                        </p>
+                    </body>
+                    </html>
+                """.format(
+                    api_user
+                )
+            else:
+                message = '<h1>Failed to sign in</h1>'
 
-                        h1 {{
-                            font-size: 20px;
-                            font-weight: medium;
-                            margin: 20px 0;
-                        }}
+            self.send_response(200)
+            self.end_headers()
+            self.wfile.write(message.encode())
 
-                        p {{
-                            color: #999;
-                            margin: 30px 10px;
-                        }}
-                    </style>
-                <body>
-                    <h1>Sign in to ftrack connect was successful</h1>
-                    <p>
-                        You signed in with username <em>{0}</em> and can now
-                        close this window.
-                    </p>
-                </body>
-                </html>
-            """.format(
-                api_user
+            if login_credentials:
+                self.login_callback(api_user, api_key)
+        except:
+            logger.warning(traceback.format_exc())
+            logger.exception(
+                'An internal error occurred when handling request.'
             )
-        else:
-            message = '<h1>Failed to sign in</h1>'
-
-        self.send_response(200)
-        self.end_headers()
-        self.wfile.write(message.encode())
-
-        if login_credentials:
-            self.login_callback(api_user, api_key)
+            self.send_response(500)
+            self.end_headers()
 
 
 class LoginServerThread(QtCore.QThread):
@@ -101,4 +112,5 @@ class LoginServerThread(QtCore.QThread):
                 self.url, self._server.server_port
             )
         )
+        logger.debug(f'Started login server @ port {self._server.server_port}')
         self._server.handle_request()

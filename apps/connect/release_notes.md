@@ -2,6 +2,7 @@
 
 ## upcoming
 
+* [fix] Fix issue with connect login not working on Windows.
 * [changed] Prevent additional icon for standalone process to appear on windows.
 
 
@@ -18,6 +19,7 @@
 * [new] PySide2 support.
 * [changed] Removed ftrack_connect.qt module.
 * [changed] Removed Qt.py dependency.
+
 
 ## v3.0.0
 2024-04-02
