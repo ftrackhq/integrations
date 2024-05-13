@@ -3,6 +3,7 @@
 ## upcoming
 
 * [fix] Fix issue with connect login not working on Windows.
+* [changed] Prevent additional icon for standalone process to appear on windows.
 
 
 ## 24.5.0
