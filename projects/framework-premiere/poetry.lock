@@ -225,13 +225,13 @@ websocket-client = ">=0.40.0,<1"
 
 [[package]]
 name = "ftrack-qt"
-version = "2.2.0"
+version = "2.2.1"
 description = "ftrack qt library"
 optional = true
 python-versions = "<3.12,>=3.7"
 files = [
-    {file = "ftrack_qt-2.2.0-py3-none-any.whl", hash = "sha256:192dc461b006c9a1a90882dee555328549bdf4d0412703ec05d635707dd1e78a"},
-    {file = "ftrack_qt-2.2.0.tar.gz", hash = "sha256:f033e4f5034a8204ca9a47146fd01215cf8b5fe4e6660e864ca2f09a917ad1c6"},
+    {file = "ftrack_qt-2.2.1-py3-none-any.whl", hash = "sha256:fd0f11feb0aa5ece9d653fc1a9e61df9ba5a9ea39ae70df666df8ab0b800a199"},
+    {file = "ftrack_qt-2.2.1.tar.gz", hash = "sha256:cf27a6d1f1a98cb12d816ab398d994b840bc5909762a8e2f1dee6e9d96011a02"},
 ]
 
 [package.extras]
