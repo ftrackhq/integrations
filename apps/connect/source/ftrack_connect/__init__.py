@@ -88,7 +88,9 @@ DEPRECATED_PLUGINS = [
 ]
 
 # ftrack integrations repo URL from were to discover and download plugins
-INTEGRATIONS_REPO = 'https://api.github.com/repos/ftrackhq/integrations'
+DEFAULT_INTEGRATIONS_REPO_URL = (
+    'https://api.github.com/repos/ftrackhq/integrations'
+)
 
 
 def load_icons(font_folder):

@@ -1,5 +1,11 @@
 # ftrack Connect release Notes
 
+## upcoming
+
+* [new] Ability to set the default URL for downloading releases from Github in the plugin manager, by setting the environment variable FTRACK_CONNECT_GITHUB_RELEASES_URL. Also supports disabling fetch by setting it to 'none'.
+* [new] Possibility to disable the plugin manager by setting environment variable FTRACK_CONNECT_DISABLE_PLUGIN_MANAGER to true.
+
+
 ## 24.5.1
 2024-05-13
 
