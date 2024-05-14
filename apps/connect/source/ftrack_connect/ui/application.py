@@ -713,7 +713,7 @@ class Application(QtWidgets.QMainWindow):
 
         if (
             os.environ.get('FTRACK_CONNECT_DISABLE_PLUGIN_MANAGER') or ''
-        ) not in [
+        ).lower() not in [
             'true',
             '1',
         ]:
