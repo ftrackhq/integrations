@@ -1,11 +1,22 @@
 # ftrack Connect release Notes
 
-## v3.1.0rc1
-2024-04-22
+## 24.5.1
+2024-05-13
 
+* [fix] Fix issue with connect login not working on Windows.
+* [changed] Prevent additional icon for standalone process to appear on windows.
+
+
+## 24.5.0
+2024-05-07
+
+* [changed] Add certifies just when running from installer.
+* [changed] Make sure Windows executable is code signed.
+* [changed] Connect installer removed, now using a script to call the ftrack-app-installer library to package connect and codesign it on all platforms.
+* [changed] New versioning system matching all backlight products.
 * [changed] Allow non versioned connect plugins, supporting legacy actions naming convention.
 * [changed] Fixed overlay widget bugs.
-* [new] PySide6 support; still not fully compatible until riffle is removed.
+* [new] PySide6 support;
 * [new] PySide2 support.
 * [changed] Removed ftrack_connect.qt module.
 * [changed] Removed Qt.py dependency.

@@ -1,0 +1,33 @@
+type: launch_config
+name: framework-premiere
+priority: 100
+context:
+  - Task
+identifier: ftrack-framework-launch-premiere
+applicationIdentifier: premiere_{variant}
+integrations:
+  framework:
+    - framework-premiere
+label: Adobe Premiere
+icon: premiere
+variant: "{version}"
+search_path:
+  windows:
+    prefix:
+      - C:\
+      - Program Files.*
+      - Adobe
+    expression:
+      - Adobe Premiere*
+      - Adobe Premiere Pro.exe
+  darwin:
+    prefix:
+      - "/"
+      - Applications
+    expression:
+      - Adobe Premiere*
+      - Adobe Premiere .*\.app
+standalone_module: ftrack_framework_premiere
+extensions_path:
+  - extensions/common
+  - extensions/premiere

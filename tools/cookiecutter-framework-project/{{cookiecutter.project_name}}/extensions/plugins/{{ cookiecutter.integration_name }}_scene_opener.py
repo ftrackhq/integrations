@@ -25,6 +25,7 @@ class {{ cookiecutter.integration_name.capitalize() }}SceneOpenerPlugin(BasePlug
 
         try:
             # TODO: Open file in DCC
+            pass
         except Exception as error:
             raise PluginExecutionError(
                 f"Couldn't open the given path. Error: {error}"

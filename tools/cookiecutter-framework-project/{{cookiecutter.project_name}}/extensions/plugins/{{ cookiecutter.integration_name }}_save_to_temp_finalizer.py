@@ -14,7 +14,7 @@ class {{ cookiecutter.integration_name.capitalize() }}SaveToTempPlugin(BasePlugi
         Makes sure that the current opened scene is saved to a temp file so
         prevents it to be overriden.
         '''
-        # scene_type = '.mb'
+        scene_type = '.mb'
 
         try:
             # Save file to a temp file

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ftrack-qt"
-version = "2.1.0"
+version = "2.2.1"
 description='ftrack qt library'
 authors = ["ftrack Integrations Team <integrations@backlight.co>"]
 readme = "README.md"

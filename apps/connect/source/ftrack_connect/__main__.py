@@ -31,7 +31,7 @@ def main_connect(arguments=None):
 
         is_pyside2 = True
 
-    from ftrack_connect import load_icons
+    from ftrack_connect import load_fonts_resource
     import ftrack_connect.utils.log
     import ftrack_connect.singleton
 
@@ -157,8 +157,7 @@ def main_connect(arguments=None):
     application.setFont(font)
     application.aboutToQuit.connect(connectWindow.emitConnectUsage)
 
-    icon_fonts = os.path.join(os.path.dirname(__file__), 'fonts')
-    load_icons(icon_fonts)
+    load_fonts_resource()
 
     return application.exec_()
 
@@ -167,30 +166,42 @@ def main(arguments=None):
     '''Main app entry point.'''
     # Pre-parse arguments to check if we should run a framework standalone process
     framework_standalone_module = None
+    script = None
     for index, arg in enumerate(sys.argv):
         if arg == '--run-framework-standalone':
-            # (Unoffical feature) Run framework standalone process using Connect Python interpreter
+            # (Unofficial feature) Run framework standalone process using Connect Python interpreter
             framework_standalone_module = sys.argv[index + 1]
             break
-
+        elif index == 1 and arg.endswith('.py'):
+            # Run a script
+            script = sys.argv[index]
+            break
     if framework_standalone_module:
         # Run the framework standalone module using Connect
 
-        # Connect package built executable does not bootstrap PYTHONPATH,
-        # make sure it is done properly. Also puth them first in sys.path
-        # to have priority over Connect packages.
+        # Connect installer built executable does not bootstrap PYTHONPATH,
+        # make sure it is done properly.
+        dependencies_path = None
         for path in os.environ.get('PYTHONPATH', []).split(os.pathsep):
-            sys.path.insert(0, path)
+            if path.find('dependencies') > -1:
+                dependencies_path = path
+            elif path not in sys.path:
+                sys.path.append(path)
+        # Put plugin deps first in sys.path to have priority over Connect packages, does not really
+        # work since pyinstaller since its python interpreter deps seems locked to the executable
+        sys.path.insert(0, dependencies_path)
 
-        import ftrack_utils
-
-        # Reload ftrack_utils from the correct sys path, not from Connect as it has might
-        # have been optimized by cx_Freeze and will not work
+        # Adding dependencies folder on top does not make the imports work as expected,
+        # libs (utils & framework core) are still loaded and used from Connect.
         # TODO: Provide a better way to do this, for example by running through a separate
         # clean framework Python interpreter.
-        importlib.reload(ftrack_utils)
 
         importlib.import_module(framework_standalone_module, package=None)
+    elif script:
+        # Ported from Connect 2 installer main
+        # If first argument is an executable python script, execute the file.
+        exec(open(script).read())
+        raise SystemExit()
     else:
         return main_connect(arguments)
 

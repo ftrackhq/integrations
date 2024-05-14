@@ -10,6 +10,8 @@ official CI/CD build implementation in place.
 
 Changelog:
 
+0.4.21 [24.04.30] Support for building packages outside the monorepo.
+0.4.20 [24.04.26] Add PySide6/2 compatibility
 0.4.19 [24.04.22] Qt resource build; Stop replacing Qt imports in built resource.py.
 0.4.18 [24.04.19] CEP plugin support. PySide integrations not platform dependent.
 0.4.17 [24.04.18] Build script to support extras.
@@ -47,7 +49,7 @@ from distutils.spawn import find_executable
 import fileinput
 import tempfile
 
-__version__ = '0.4.19'
+__version__ = '0.4.21'
 
 ZXPSIGN_CMD = 'ZXPSignCmd'
 
@@ -61,14 +63,50 @@ __version__ = '{version}'
 '''
 
 
-def build_package(pkg_path, args, command=None):
+def is_monorepo(path):
+    if os.path.exists(os.path.join(path, 'pyproject.toml')):
+        with open(os.path.join(path, 'pyproject.toml'), 'r') as f:
+            for line in f.readlines():
+                if line.startswith('name = "ftrack-integrations-monorepo"'):
+                    return True
+    return False
+
+
+def build_package(invokation_path, pkg_path, args, command=None):
     '''Build the package @ pkg_path'''
+    MONOREPO_PATH = None
+    if args.integrations_repo_path:
+        MONOREPO_PATH = os.path.realpath(args.integrations_repo_path)
+
     os.chdir(pkg_path)
 
     if command is None:
         command = args.command
-    ROOT_PATH = os.path.realpath(os.getcwd())
-    MONOREPO_PATH = os.path.realpath(os.path.join(ROOT_PATH, '..', '..'))
+    ROOT_PATH = pkg_path
+    if not args.integrations_repo_path:
+        MONOREPO_PATH = os.path.realpath(os.path.join(ROOT_PATH, '..', '..'))
+
+    # Check monorepo
+    if not is_monorepo(MONOREPO_PATH):
+        # Assume build script is run within the repo
+        if os.path.isabs(sys.argv[0]):
+            MONOREPO_PATH = os.path.realpath(
+                os.path.join(os.path.dirname(sys.argv[0]), '..')
+            )
+        else:
+            MONOREPO_PATH = os.path.realpath(
+                os.path.join(
+                    invokation_path, os.path.dirname(sys.argv[0]), '..'
+                )
+            )
+        if not is_monorepo(MONOREPO_PATH):
+            logging.warning(
+                f'Integrations monorepo not found at "{MONOREPO_PATH}", '
+                f'building with framework extensions or from source will '
+                f'not work'
+            )
+            MONOREPO_PATH = None
+
     CONNECT_PLUGIN_PATH = os.path.join(ROOT_PATH, 'connect-plugin')
     BUILD_PATH = os.path.join(ROOT_PATH, 'dist')
     EXTENSION_PATH = os.path.join(ROOT_PATH, 'extensions')
@@ -90,6 +128,14 @@ def build_package(pkg_path, args, command=None):
                 elif section == 'tool.poetry.dependencies':
                     if line.startswith('ftrack-'):
                         lib = line.split('=')[0][7:].strip()
+                        if lib == 'framework-core':
+                            USES_FRAMEWORK = True
+                        if not MONOREPO_PATH:
+                            logging.warning(
+                                f'Cannot evaluate dependencies of {lib} -'
+                                'do not have integrations monorepo path'
+                            )
+                            continue
                         lib_toml_path = os.path.join(
                             MONOREPO_PATH, 'libs', lib, 'pyproject.toml'
                         )
@@ -120,8 +166,6 @@ def build_package(pkg_path, args, command=None):
                                 FTRACK_DEP_LIBS[lib]['extras'] = extras
                             # Recursively add monorepo dependencies
                             append_dependencies(lib_toml_path)
-                        if lib == 'framework-core':
-                            USES_FRAMEWORK = True
 
     if os.path.exists(POETRY_CONFIG_PATH):
         PROJECT_NAME = None
@@ -166,7 +210,9 @@ def build_package(pkg_path, args, command=None):
         ROOT_PATH, 'source', PROJECT_NAME.replace('-', '_')
     )
 
-    DEFAULT_STYLE_PATH = os.path.join(MONOREPO_PATH, 'resource', 'style')
+    DEFAULT_STYLE_PATH = None
+    if MONOREPO_PATH:
+        DEFAULT_STYLE_PATH = os.path.join(MONOREPO_PATH, 'resource', 'style')
 
     def clean(args):
         '''Remove build folder'''
@@ -314,6 +360,11 @@ def build_package(pkg_path, args, command=None):
         if not args.from_source:
             extras = ['ftrack-libs']
         if USES_FRAMEWORK:
+            if not MONOREPO_PATH:
+                raise Exception(
+                    f'Need integrations monorepo path to be able to '
+                    f'build with framework extensions.'
+                )
             if not args.from_source:
                 extras.append('framework-libs')
 
@@ -428,6 +479,11 @@ def build_package(pkg_path, args, command=None):
 
         if args.from_source:
             # Build library dependencies from source
+            if not MONOREPO_PATH:
+                raise Exception(
+                    f'Need integrations monorepo path to be able to '
+                    f'build from sources.'
+                )
             libs_path = os.path.join(MONOREPO_PATH, 'libs')
             for filename in os.listdir(libs_path):
                 lib_path = os.path.join(libs_path, filename)
@@ -450,7 +506,10 @@ def build_package(pkg_path, args, command=None):
                     save_cwd = os.getcwd()
                     os.chdir(MONOREPO_PATH)
                     build_package(
-                        'libs/qt-style', args, command='build_qt_resources'
+                        invokation_path,
+                        'libs/qt-style',
+                        args,
+                        command='build_qt_resources',
                     )
                     os.chdir(save_cwd)
                 # Build
@@ -566,8 +625,41 @@ def build_package(pkg_path, args, command=None):
             logging.warning(f'Removing: {STAGING_PATH}')
             shutil.rmtree(STAGING_PATH, ignore_errors=True)
 
+    def _replace_imports_(resource_target_path):
+        '''Replace imports in resource files to Qt instead of QtCore.
+
+        This allows the resource file to work with many different versions of
+        Qt.
+
+        '''
+
+        # Define the new import block to insert
+        new_imports = (
+            "try:\n"
+            "    from PySide6 import QtCore\n"
+            "except ImportError:\n"
+            "    from PySide2 import QtCore\n"
+        )
+
+        # Loop through the file line by line
+        for line in fileinput.input(
+            resource_target_path, inplace=True, mode='r'
+        ):
+            # Check if the line contains an import statement we want to replace
+            if 'from PySide2 import QtCore' in line:
+                # Print the new import block instead of the old line
+                sys.stdout.write(new_imports)
+            else:
+                # Otherwise, print the line unchanged
+                sys.stdout.write(line)
+
     def build_qt_resources(args):
         '''Build resources.py from style'''
+        if not DEFAULT_STYLE_PATH:
+            raise Exception(
+                f'Need integrations monorepo path to be able to '
+                f'build style.'
+            )
         try:
             import scss
         except ImportError:
@@ -609,36 +701,45 @@ def build_package(pkg_path, args, command=None):
         else:
             logging.warning('No styles to compile.')
 
-        pyside_rcc_command = 'pyside2-rcc'
-        try:
-            executable = None
+        if not args.css_only:
+            pyside_version = args.pyside_version
+            if not pyside_version:
+                pyside_version = "2"
+            pyside_rcc_command = f'pyside{pyside_version}-rcc'
+            try:
+                executable = None
 
-            # Check if the command for pyside*-rcc is in executable paths.
-            if find_executable(pyside_rcc_command):
-                executable = [pyside_rcc_command]
+                # Check if the command for pyside*-rcc is in executable paths.
+                if find_executable(pyside_rcc_command):
+                    executable = [pyside_rcc_command]
 
-            if not executable:
-                logging.warning(
-                    f'No executable found for {pyside_rcc_command}, attempting to run as '
-                    'a module'
+                if not executable:
+                    logging.warning(
+                        f'No executable found for {pyside_rcc_command}, attempting to run as '
+                        'a module'
+                    )
+                    executable = [sys.executable, '-m', 'scss']
+
+                # Use the first occurrence if more than one is found.
+                cmd = executable + [
+                    '-o',
+                    resource_target_path,
+                    resource_source_path,
+                ]
+                logging.info('Running: {}'.format(cmd))
+                subprocess.check_call(cmd)
+
+            except (subprocess.CalledProcessError, OSError):
+                raise RuntimeError(
+                    f'Error compiling resource.py using {pyside_rcc_command}. Possibly '
+                    f'{pyside_rcc_command} could not be found. You might need to manually add '
+                    'it to your PATH. See README for more information.'
                 )
-                executable = [sys.executable, '-m', 'scss']
 
-            # Use the first occurrence if more than one is found.
-            cmd = executable + [
-                '-o',
-                resource_target_path,
-                resource_source_path,
-            ]
-            logging.info('Running: {}'.format(cmd))
-            subprocess.check_call(cmd)
+            _replace_imports_(resource_target_path)
 
-        except (subprocess.CalledProcessError, OSError):
-            raise RuntimeError(
-                f'Error compiling resource.py using {pyside_rcc_command}. Possibly '
-                f'{pyside_rcc_command} could not be found. You might need to manually add '
-                'it to your PATH. See README for more information.'
-            )
+        else:
+            logging.warning('Not compiling QT resource.py.')
 
     def build_sphinx(args):
         '''Wrapper for building docs for preview'''
@@ -654,6 +755,11 @@ def build_package(pkg_path, args, command=None):
 
     def build_cep(args):
         '''Wrapper for building Adobe CEP extension'''
+        if not MONOREPO_PATH:
+            raise Exception(
+                f'Need integrations monorepo path to be able to '
+                f'build CEP plugins with style.'
+            )
 
         CEP_PATH = os.path.join(MONOREPO_PATH, 'resource', 'adobe-cep')
         if not os.path.exists(CEP_PATH):
@@ -701,13 +807,6 @@ def build_package(pkg_path, args, command=None):
         os.makedirs(os.path.join(STAGING_PATH))
         os.makedirs(os.path.join(STAGING_PATH, 'image'))
         os.makedirs(os.path.join(STAGING_PATH, 'css'))
-
-        # Build resources
-        logging.info('Building style...')
-        save_cwd = os.getcwd()
-        os.chdir(MONOREPO_PATH)
-        build_package('libs/qt-style', args, command='build_qt_resources')
-        os.chdir(save_cwd)
 
         style_path = args.style_path
         if style_path is None:
@@ -786,6 +885,8 @@ def build_package(pkg_path, args, command=None):
         # Copy extensions
         if DCC_NAME == 'photoshop':
             extendscript_file = 'ps{}.jsx'
+        elif DCC_NAME == 'premiere':
+            extendscript_file = 'pp{}.jsx'
         else:
             raise Exception('Unsupported Adobe DCC: {}'.format(DCC_NAME))
 
@@ -932,8 +1033,13 @@ def build_package(pkg_path, args, command=None):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
-    logging.info(
-        'ftrack Integration deployment script v{}'.format(__version__)
+    logging.info('ftrack Integrations build script v{}'.format(__version__))
+
+    # Shared options
+    parser.add_argument(
+        '--integrations_repo_path',
+        help='Path to the ftrack Integrations monorepo, in case of an external'
+        'build.',
     )
 
     # Connect plugin options
@@ -971,10 +1077,24 @@ if __name__ == '__main__':
         '--style_path',
         help='(QT resource build) Override the default style path (resource/style).',
     )
+
+    parser.add_argument(
+        '--pyside_version',
+        help='(QT resource build) The version of pyside to use when building resource.py.',
+    )
+
+    parser.add_argument(
+        '--css_only',
+        help='(QT resource build) Only build CSS, do not compile QT resource.py.',
+        action='store_true',
+    )
+
     parser.add_argument(
         '--output_path',
         help='(QT resource build/RV pkg build) Override the QT resource output directory.',
     )
+
+    # CEP options
 
     parser.add_argument(
         '--nosign',
@@ -987,7 +1107,9 @@ if __name__ == '__main__':
         help=(
             'clean; Clean(remove) build folder \n'
             'build_connect_plugin; Build Connect plugin archive\n'
-            'build_resources; Build QT resources\n'
+            'build_qt_resources; Build QT resources\n'
+            'build_cep; Build Adobe CEP(.zxp) plugin\n'
+            'build_rvpkg; Build RV pkg\n'
         ),
         choices=[
             'clean',
@@ -1002,7 +1124,10 @@ if __name__ == '__main__':
     parser.add_argument(
         'packages',
         help=(
-            'Comma separated list of relative or absolute package paths to build\n'
+            'Comma separated list of relative or absolute package paths to build.'
+            'If the package is outside the ftrack Integrations monorepo and resources'
+            'from there is needed, specify the path to integrations repo with the '
+            '--integrations_repo_path argument.\n'
         ),
     )
 
@@ -1027,4 +1152,6 @@ if __name__ == '__main__':
             )
         logging.info('*' * 100)
         logging.info(f'Building package: {pkg_path}')
-        build_package(pkg_path, args)
+        invokation_path = os.getcwd()
+        build_package(invokation_path, os.path.realpath(pkg_path), args)
+        os.chdir(invokation_path)  # Restore original path

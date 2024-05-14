@@ -38,7 +38,7 @@ search_path:
     expression:
       - bin
       - maya$
-    version_expression: maya(?P<version>\d{4})
+    version_expression: "maya(?P<version>\\d{4})"
 extensions_path:
   - extensions/common
   - extensions/maya

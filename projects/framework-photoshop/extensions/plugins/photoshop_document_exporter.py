@@ -20,7 +20,7 @@ class PhotoshopDocumentExporterPlugin(BasePlugin):
         extension_format = store['components'][component_name].get(
             'extension_format'
         )
-        document_path = store['components'][component_name]['document_name']
+        document_path = store['components'][component_name]['document_path']
 
         new_file_path = get_temp_path(filename_extension=extension_format)
 
