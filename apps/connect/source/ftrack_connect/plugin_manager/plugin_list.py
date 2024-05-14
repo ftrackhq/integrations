@@ -302,7 +302,7 @@ class DndPluginList(QtWidgets.QFrame):
                 )
                 return
             # Read latest releases from ftrack integrations repository
-            releases = fetch_github_releases(prereleases=prereleases)
+            releases = fetch_github_releases(url, prereleases=prereleases)
 
             for release in releases:
                 self._add_plugin(
