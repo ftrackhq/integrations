@@ -711,7 +711,9 @@ class Application(QtWidgets.QMainWindow):
 
         self._configure_action_launcher_widget()  # Was external ftrack-connect action-launcher plugin
 
-        if (os.environ.get('FTRACK_DISABLE_PLUGIN_MANAGER') or '') not in [
+        if (
+            os.environ.get('FTRACK_CONNECT_DISABLE_PLUGIN_MANAGER') or ''
+        ) not in [
             'true',
             '1',
         ]:
