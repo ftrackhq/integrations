@@ -1,0 +1,51 @@
+type: tool_config
+name: harmony-scene-publisher
+config_type: publisher
+engine:
+  - type: plugin
+    tags:
+      - context
+    plugin: store_asset_context
+    options:
+      asset_type_name: scene
+    ui: publisher_asset_version_selector
+
+  # Export image sequence
+  - type: group
+    tags:
+      - component
+    options:
+      component: sequence
+    plugins:
+      - type: plugin
+        plugin: store_component
+      - type: plugin
+        tags:
+          - exporter
+        plugin: harmony_sequence_exporter
+        options:
+          export_type: png
+
+#  # Export Thumbnail
+#  - type: group
+#    tags:
+#      - component
+#    options:
+#      component: thumbnail
+#    plugins:
+#      - type: plugin
+#        plugin: store_component
+#      - type: plugin
+#        tags:
+#          - exporter
+#        plugin: harmony_thumbnail_exporter
+
+  # Common validator check all exported paths exists.
+  - type: plugin
+    tags:
+      - validator
+    plugin: exported_paths_validator
+    ui: validator_label
+
+  # Publish to ftrack.
+  - publish_to_ftrack

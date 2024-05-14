@@ -21,10 +21,11 @@ const REMOTE_INTEGRATION_RPC_TOPIC = _BASE_ + ".remote.integration.rpc";
 MessageLog.trace("[ftrack] Including utilities");
 include(__packageFolder__+"/ftrack/harmony-utils.js");
 
-info("Including extensions");
+info("Including base extensions");
 include(__packageFolder__+"/ftrack/harmony-extensions.js");
 
-
+info("Including user extensions");
+include(__packageFolder__+"/ftrack/harmony-user-extensions.js");
 
 
 /*
@@ -105,12 +106,12 @@ function TCPServer(host, port, integration) {
                 this.connection.readyRead.connect(this, this.handleEvent);
 
                 //this.connection.error.connect(this, this.onError);
-
+ 
                 this.connection.disconnected.connect(this, this.onDisconnect);
 
                 info("Client connected: " + this.connection.toString()+ " (state: "+state+")");
 
-                this.connected = true;
+                this.connected = true; 
 
             }
             else
@@ -125,13 +126,16 @@ function TCPServer(host, port, integration) {
 
     this.prepareEvent = function(topic, event_data, source, in_reply_to_event) {
         event_data["integration_session_id"] = this.integration.harmony_session_id
-        return {
+        var result = {
             id: uuidv4(),
             topic: topic,
             data: event_data,
-            source: source,
-            in_reply_to_event: in_reply_to_event
+            source: source
         }
+        if (in_reply_to_event != undefined) {
+            result["in_reply_to_event"] = in_reply_to_event;
+        }
+        return result;
     }
 
     this.send = function(topic, event_data, in_reply_to_event) {
@@ -191,7 +195,7 @@ function TCPServer(host, port, integration) {
                 if (this.blocksize > 0 && this.connection.bytesAvailable() >= this.blocksize)
                 {
                     var data = this.connection.read(this.blocksize);
-
+                    
                     // create the event
                     var raw_event = "";
                     for ( var j = 0; j < data.size(); j++)
@@ -202,7 +206,7 @@ function TCPServer(host, port, integration) {
                         }
                     }
                     this.decodeAndProcessEvent(raw_event);
-                    this.blocksize = 0;
+                    this.blocksize = 0; 
                     i+=1;
                 }
             }
@@ -245,7 +249,7 @@ function TCPServer(host, port, integration) {
         this.socket.close()
     }
 
-
+    
 }
 
 
@@ -267,6 +271,27 @@ function HarmonyIntegration() {
         app.aboutToQuit.connect(app, this.shutdown);
     }
 
+    this.spawnIntegration = function() {
+
+        debug("spawnIntegration()");
+
+        this.harmony_session_id = System.getenv("FTRACK_REMOTE_INTEGRATION_SESSION_ID");
+        if (!this.harmony_session_id) {
+            error("Missing FTRACK_REMOTE_INTEGRATION_SESSION_ID environment, cannot launch ftrack integration. Really launched from Connect?");
+            return;
+        }
+
+        info('Session ID: '+this.harmony_session_id);
+
+        // Spawn TCP server and start listening to events
+
+        var port = parseInt(System.getenv("FTRACK_INTEGRATION_LISTEN_PORT"));
+        this._tcp_server = new TCPServer("localhost", port, this);
+        this._tcp_server.start();
+
+        this.initialized = true;
+    }
+
     this.sendEvent = function(topic, data, in_reply_to_event) {
         this._tcp_server.send(topic, data, in_reply_to_event);
     }
@@ -274,11 +299,11 @@ function HarmonyIntegration() {
     this.processEvent = function(topic, data, id) {
         info("Processing incoming '"+topic+"' event: "+JSON.stringify(data));
         if (topic === REMOTE_INTEGRATION_CONTEXT_DATA_TOPIC) {
+            // Incoming connection from standalone integration
             this.handleIntegrationContextDataCallback(topic, data, id);
             this.sendEvent(topic, {}, id); // Return reply
         } else if (topic === REMOTE_INTEGRATION_RPC_TOPIC) {
-            // TODO: Perform a RPC extension function call
-
+            this.handleRemoteIntegrationRPCCallback(topic, data, id);
         } else {
             // Have extension process event
             processEvent(integration, topic, data, id);
@@ -302,7 +327,7 @@ function HarmonyIntegration() {
         //---------------------------
         //Create Menu item
 
-        action = "launchTool('"+name+"') in ./configure.js";
+        action = "launchTool('"+name+"') in ./actions.js";
         payload = {
             targetMenuId : "Windows",
             id           : "ftrackMenu"+name+"ID",
@@ -340,27 +365,6 @@ function HarmonyIntegration() {
         ScriptManager.addMenuItem( payload );
     }
 
-    this.spawnIntegration = function() {
-
-        debug("spawnIntegration()");
-
-        this.harmony_session_id = System.getenv("FTRACK_REMOTE_INTEGRATION_SESSION_ID");
-        if (!this.harmony_session_id) {
-            error("Missing FTRACK_REMOTE_INTEGRATION_SESSION_ID environment, cannot launch ftrack integration. Really launched from Connect?");
-            return;
-        }
-
-        info('Session ID: '+this.harmony_session_id);
-
-        // Spawn TCP server and start listening to events
-
-        var port = parseInt(System.getenv("FTRACK_INTEGRATION_LISTEN_PORT"));
-        this._tcp_server = new TCPServer("localhost", port, this);
-        this._tcp_server.start();
-
-        this.initialized = true;
-    }
-
     this.launchTool = function(tool_name) {
         // Find dialog name
         var dialog_name = undefined, tool_configs = undefined;
@@ -382,25 +386,77 @@ function HarmonyIntegration() {
         )
     }
 
-    this.get_scene_path = function() {
+    this.handleRemoteIntegrationRPCCallback = function(topic, data, id) {
+        /* Handle RPC calls from standalone process - run function with arguments
+            supplied in event and return the result.*/
+        try {
+            var function_name = data.function_name;
+
+            if (function_name === undefined || function_name.length === 0) {
+                this.send(topic, {
+                    "error_message": "No RCP function name given!"
+                }, id);
+                return;
+            }
+            // Build args, quote strings
+            var s_args = '';
+            for (var idx = 0; idx < data.args.length; idx++) {
+                var value = data.args[idx];
+                if (typeof value === 'string')
+                    value = '"' + value + '"';
+                s_args += (s_args.length>0?",":"") + value;
+            }
+    
+            eval(function_name+'('+s_args+')', function (result) {
+                try {
+                    // String is the evalScript type, decode
+                    if (result.startsWith("{"))
+                        result = JSON.parse(result);
+                    else if (result === "true")
+                        result = true;
+                    else if (result === "false")
+                        result = false;
+                    event_manager.publish_reply(event, prepareEventData(
+                        {
+                            "result": result
+                        }
+                    ));
+                } catch (e) {
+                    error_message = "[INTERNAL ERROR] Failed to convert RPC call result '"+result+"'! "+e+" Details: "+e.stack;
+                    this.send(topic, {
+                        "error_message": error_message
+                    }, id);
+                    error(error_message);
+                }
+            });
+        } catch (e) {
+            error_message = "[INTERNAL ERROR] Failed to run RPC call! "+e+" Details: "+e.stack;
+            this.send(topic, {
+                "error_message": error_message
+            }, id);
+            error(error_message);
+        }
+    }
+
+    this.getScenePath = function() {
         var scene_path = scene.currentProjectPath();
         return scene_path;
     }
 
-    this.get_start_frame = function(data)
+    this.getStartFrame = function(data)
     {
         var start_frame = scene.getStartFrame();
         return start_frame;
     }
 
-    this.get_end_frame = function(data)
+    this.getEndFrame = function(data)
     {
         var end_frame = scene.getStopFrame();
         return end_frame;
     }
 
     this.shutdown = function() {
-        warning("SHUTDOWN")
+        warning("Shutting down ftrack integration.")
         // terminate tcp server
         this._tcp_server.close();
     }
@@ -415,15 +471,6 @@ function configure(packageFolder, packageName)
 
     app.integration = new HarmonyIntegration();
     app.integration.bootstrap();
-}
-
-function launchTool(tool_name) {
-    var app = QCoreApplication.instance();
-    if (app.integration != undefined) {
-        app.integration.launchTool(tool_name);
-    } else {
-        warning("Can't open tool - integration not initialised yet!");
-    }
 }
 
 function init()
