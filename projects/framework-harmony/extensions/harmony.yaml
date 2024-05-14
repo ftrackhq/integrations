@@ -1,0 +1,11 @@
+type: dcc_config
+name: framework-harmony
+tools:
+  - name: publish
+    label: "Publish"
+    dialog_name: framework_standard_publisher_dialog
+    icon: publish
+    options:
+      tool_configs:
+        - harmony-scene-publisher
+      docked: false
