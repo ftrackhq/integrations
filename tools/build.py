@@ -10,6 +10,7 @@ official CI/CD build implementation in place.
 
 Changelog:
 
+0.4.22 [24.05.14] CEP build; Support for JS include folder, overriding extensions/js folder.
 0.4.21 [24.04.30] Support for building packages outside the monorepo.
 0.4.20 [24.04.26] Add PySide6/2 compatibility
 0.4.19 [24.04.22] Qt resource build; Stop replacing Qt imports in built resource.py.
@@ -49,7 +50,7 @@ from distutils.spawn import find_executable
 import fileinput
 import tempfile
 
-__version__ = '0.4.21'
+__version__ = '0.4.22'
 
 ZXPSIGN_CMD = 'ZXPSignCmd'
 
@@ -895,6 +896,21 @@ def build_package(invokation_path, pkg_path, args, command=None):
             extendscript_file.format(''),
             extendscript_file.format('-include'),
         ]:
+            # Check if overriden in include path
+            if args.include:
+                if not os.path.exists(args.include):
+                    raise Exception(
+                        'CEP include path does not exist: {}'.format(
+                            args.include
+                        )
+                    )
+                include_path = os.path.join(args.include, filename)
+                if os.path.exists(include_path):
+                    parse_and_copy(
+                        include_path,
+                        os.path.join(STAGING_PATH, filename),
+                    )
+                    continue
             parse_and_copy(
                 os.path.join(
                     EXTENSION_PATH,
@@ -1100,6 +1116,11 @@ if __name__ == '__main__':
         '--nosign',
         help='(CEP plugin build) Do not sign and create ZXP.',
         action='store_true',
+    )
+
+    parser.add_argument(
+        '--include',
+        help='(CEP plugin build) Path to external folder containing override JS extensions.',
     )
 
     parser.add_argument(
