@@ -12,7 +12,6 @@ import platformdirs
 from packaging.version import parse
 from packaging.specifiers import SpecifierSet
 
-from ftrack_connect import INTEGRATIONS_REPO
 
 from ftrack_connect import (
     INCOMPATIBLE_PLUGINS,
@@ -217,19 +216,19 @@ def check_major_version(version, major_version_start=24):
         return False
 
 
-def fetch_github_releases(latest=True, prereleases=False):
+def fetch_github_releases(url, latest=True, prereleases=False):
     '''Read github releases and return a list of releases, and
     list of assets as value. If *latest* is True, only the latest
     version of each plugin is returned. If *prereleases* is True,
     prereleases are included in the result.'''
 
     logger.debug(
-        f'Fetching releases from: {INTEGRATIONS_REPO} (pre-releases: {prereleases})'
+        f'Fetching releases from: {url} (pre-releases: {prereleases})'
     )
 
-    response = requests.get(f"{INTEGRATIONS_REPO}/releases")
+    response = requests.get(f"{url}/releases")
     if response.status_code != 200:
-        logger.error(f'Failed to fetch releases from {INTEGRATIONS_REPO}')
+        logger.error(f'Failed to fetch releases from {url}')
         return []
 
     data = {}
