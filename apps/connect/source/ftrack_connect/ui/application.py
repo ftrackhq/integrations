@@ -1196,8 +1196,18 @@ class Application(QtWidgets.QMainWindow):
 
         from ftrack_connect.plugin_manager import PluginManager
 
-        # Add together with discovered widgets
-        self._builtin_widget_plugins.append(PluginManager)
+        if (
+            os.environ.get('FTRACK_CONNECT_DISABLE_PLUGIN_MANAGER') or ''
+        ).lower() not in [
+            'true',
+            '1',
+        ]:
+            # Add together with discovered widgets
+            self._builtin_widget_plugins.append(PluginManager)
+        else:
+            self.logger.warning(
+                'Plugin manager disabled by user environment variable.'
+            )
 
     def closeEvent(self, event):
         ''' ' Quit application when main window is closed, and no tray'''

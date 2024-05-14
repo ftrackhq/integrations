@@ -1,5 +1,10 @@
 # ftrack Connect release Notes
 
+## upcoming
+
+* [new] Possibility to disable the plugin manager by setting environment variable FTRACK_CONNECT_DISABLE_PLUGIN_MANAGER to true.
+
+
 ## 24.5.1
 2024-05-13
 
