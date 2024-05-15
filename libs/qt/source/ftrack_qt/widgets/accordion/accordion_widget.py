@@ -272,6 +272,10 @@ class AccordionBaseWidget(QtWidgets.QFrame):
                 'selected' if self._selected else 'transparent',
             )
 
+    def set_title(self, new_title):
+        self._title = new_title
+        self._header_widget.set_title(self.title)
+
     def teardown(self):
         '''Teardown the header widget - properly cleanup the options overlay'''
         self._header_widget.teardown()

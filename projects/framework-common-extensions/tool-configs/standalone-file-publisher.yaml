@@ -42,6 +42,41 @@ engine:
         options:
           export_destination: "~/Desktop/myPublishedFile.png"
 
+  # Add a generic component.
+  - type: group
+    tags:
+      - component
+      - multi
+    options:
+      component: generic
+      #renameable: true
+    optional: True # by default so is no need
+    #enabled: True by default so is no need
+    plugins:
+      - type: plugin
+        plugin: store_component
+      - type: plugin
+        tags:
+          - collector
+        plugin: file_collector
+        ui: file_browser_collector
+        options:
+          folder_path: null
+          file_name: null
+      - type: plugin
+        tags:
+          - validator
+        plugin: file_exists_validator
+        ui: validator_label
+      - type: plugin
+        tags:
+          - exporter
+        plugin: generic_file_exporter
+        ui: generic_file_exporter_options
+        options:
+          rename: auto # True means user choose or a string is a fixed not renamable with the name should be allowed
+          export_destination: "~/Desktop/myPublishedFile.png"
+
   # Common validator check all exported paths exists.
   - type: plugin
     tags:

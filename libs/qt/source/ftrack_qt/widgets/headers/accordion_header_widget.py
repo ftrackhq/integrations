@@ -187,6 +187,10 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
         '''Set status message within header, to be implemented by child'''
         pass
 
+    def set_title(self, new_title):
+        self._title = new_title
+        self._title_label.setText(self.title)
+
     def teardown(self):
         '''Teardown the options button - properly cleanup the options overlay'''
         self._options_button.teardown()
