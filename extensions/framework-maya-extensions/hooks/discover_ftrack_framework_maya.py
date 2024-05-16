@@ -67,11 +67,11 @@ def on_launch_integration(session, event):
     # )
     # TODO: the lines above could perfectly be set in the yaml file So there is no more hook file for the integrations, hook file is only an extension that could be triggered on the launch time
 
-    # selection = event['data'].get('context', {}).get('selection', [])
+    selection = event['data'].get('context', {}).get('selection', [])
     #
-    # if selection:
-    #     task = session.get('Context', selection[0]['entityId'])
-    #     launch_data['integration']['env']['FTRACK_CONTEXTID.set'] = task['id']
+    if selection:
+        task = session.get('Context', selection[0]['entityId'])
+        launch_data['integration']['env']['FTRACK_CONTEXTID.set'] = task['id']
 
     # TODO: FTRACK_CONTEXTID should be set in connect everytime conectxt is changed in there.
 

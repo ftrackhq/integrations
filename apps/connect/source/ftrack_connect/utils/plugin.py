@@ -122,22 +122,23 @@ def check_source(source, python_standalone_interpreter=False):
 
     if source['type'] == 'git-release':
         try:
+            # TODO temporally deactivated this as the release is not published anymore.
             # TODO implement logic to find version from name and version in the source or from specified URL
-            source_path = source['url']
-            zip_name = os.path.basename(source_path)
-            save_path = tempfile.gettempdir()
-            temp_path = os.path.join(save_path, zip_name)
-
-            logger.info(f'Downloading {source_path} to {temp_path}')
-
-            with urllib.request.urlopen(source_path) as dl_file:
-                with open(temp_path, 'wb') as out_file:
-                    out_file.write(dl_file.read())
-            # TODO: Set the plugins data path on the connect config file
-            with zipfile.ZipFile(temp_path, 'r') as zip_ref:
-                zip_ref.extractall(
-                    "/Users/ftrack/Library/Application Support/ftrack-connect/plugins_data/ftrack-framework-maya-1.0.0-modeling"
-                )
+            # source_path = source['url']
+            # zip_name = os.path.basename(source_path)
+            # save_path = tempfile.gettempdir()
+            # temp_path = os.path.join(save_path, zip_name)
+            #
+            # logger.info(f'Downloading {source_path} to {temp_path}')
+            #
+            # with urllib.request.urlopen(source_path) as dl_file:
+            #     with open(temp_path, 'wb') as out_file:
+            #         out_file.write(dl_file.read())
+            # # TODO: Set the plugins data path on the connect config file
+            # with zipfile.ZipFile(temp_path, 'r') as zip_ref:
+            #     zip_ref.extractall(
+            #         "/Users/ftrack/Library/Application Support/ftrack-connect/plugins_data/ftrack-framework-maya-1.0.0-modeling"
+            #     )
 
             return "/Users/ftrack/Library/Application Support/ftrack-connect/plugins_data/ftrack-framework-maya-1.0.0-modeling/dependencies"
         except Exception as e:
