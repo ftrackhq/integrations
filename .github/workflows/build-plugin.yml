@@ -21,7 +21,7 @@ jobs:
           echo "TAG_NAME=${TAG_NAME}"
           
           # Define an array of supported tag prefixes
-          SUPPORTED_TAG_PREFIXES=("connect-publisher-widget/" "connect-timetracker-widget/" "nuke-studio/" "rv/" "framework-photoshop/" "framework-maya/" "framework-nuke/")
+          SUPPORTED_TAG_PREFIXES=("connect-publisher-widget/" "connect-timetracker-widget/" "nuke-studio/" "rv/" "framework-photoshop/" "framework-maya/" "framework-nuke/" "framework-premiere/")
   
           # Initialize match flag as false
           MATCH_FOUND=false
@@ -75,7 +75,7 @@ jobs:
     needs: set-variables
     concurrency:
       group: ci-${{ github.ref }}
-    if: ${{ needs.set-variables.outputs.package != 'framework-photoshop' }}
+    if: ${{ needs.set-variables.outputs.package != 'framework-photoshop' && needs.set-variables.outputs.package != 'framework-premiere' }}
     runs-on: ubuntu-latest
     outputs:
       package: ${{ needs.set-variables.outputs.package }}
@@ -100,7 +100,7 @@ jobs:
           pip install -r tools/requirements.txt
           # Use --testpypi or --from_source to change where the deps are picked from
           python tools/build.py --remove_intermediate_folder build_connect_plugin ${{ needs.set-variables.outputs.folder }}
-      - name: build standard connect DCC integration plugin
+      - name: build standard framework DCC integration plugin
         if: ${{ needs.set-variables.outputs.package == 'framework-maya' || needs.set-variables.outputs.package == 'framework-nuke' }}
         shell: bash
         run: |
@@ -173,7 +173,7 @@ jobs:
     needs: set-variables
     concurrency:
       group: ci-${{ github.ref }}
-    if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' }}
+    if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' || needs.set-variables.outputs.package == 'framework-premiere' }}
     runs-on: macos-12
     steps:
       - uses: actions/checkout@v3
@@ -196,13 +196,21 @@ jobs:
           pip install -r tools/requirements.txt
           # Use --testpypi or --from_source to change where the deps are picked from
           python tools/build.py --remove_intermediate_folder build_connect_plugin ${{ needs.set-variables.outputs.folder }}
-      - name: Build CSS resources for CEP extension
-        if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' }}
+      - name: build premiere framework DCC integration plugin
+        if: ${{ needs.set-variables.outputs.package == 'framework-premiere' }}
         shell: bash
         run: |
+          pip install -r tools/requirements.txt
+          # Use --testpypi or --from_source to change where the deps are picked from
+          python tools/build.py --remove_intermediate_folder --include_resources resource/presets build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+      - name: Build CSS resources for CEP extension
+        if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' || needs.set-variables.outputs.package == 'framework-premiere' }}
+        shell: bash
+        run: |
+          pip install -r tools/requirements.txt
           python tools/build.py build_qt_resources --css_only libs/qt-style
-      - name: build PS CEP extension
-        if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' }}
+      - name: build CEP extension
+        if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' || needs.set-variables.outputs.package == 'framework-premiere' }}
         shell: bash
         run: |
           # Install ZXPsign
@@ -210,6 +218,7 @@ jobs:
           hdiutil attach /tmp/ZXPSignCmd-64bit.dmg
           ln -s /Volumes/ZXPSignCmd-64bit/ZXPSignCmd-64bit /usr/local/bin/ZXPSignCMD
           export ADOBE_CERTIFICATE_PASSWORD=${{ secrets.ADOBE_CERTIFICATE_PASSWORD }}
+          pip install -r tools/requirements.txt
           python tools/build.py build_cep --remove_intermediate_folder ${{ needs.set-variables.outputs.folder }}
       - name: upload artifacts to release
         shell: bash

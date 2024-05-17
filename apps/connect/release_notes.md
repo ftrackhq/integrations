@@ -1,5 +1,18 @@
 # ftrack Connect release Notes
 
+## 24.5.2
+2024-05-14
+
+* [new] Ability to set the default URL for downloading releases from Github in the plugin manager, by setting the environment variable FTRACK_CONNECT_GITHUB_RELEASES_URL. Also supports disabling fetch by setting it to 'none'.
+* [new] Possibility to disable the plugin manager by setting environment variable FTRACK_CONNECT_DISABLE_PLUGIN_MANAGER to true.
+
+
+## 24.5.1
+2024-05-13
+
+* [fix] Fix issue with connect login not working on Windows.
+* [changed] Prevent additional icon for standalone process to appear on windows.
+
 
 ## 24.5.0
 2024-05-07
@@ -14,6 +27,7 @@
 * [new] PySide2 support.
 * [changed] Removed ftrack_connect.qt module.
 * [changed] Removed Qt.py dependency.
+
 
 ## v3.0.0
 2024-04-02

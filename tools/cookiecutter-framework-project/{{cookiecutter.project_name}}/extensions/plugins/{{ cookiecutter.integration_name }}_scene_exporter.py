@@ -19,12 +19,14 @@ class {{ cookiecutter.integration_name.capitalize() }}SceneExporterPlugin(BasePl
         component_name = self.options.get('component')
 
         export_type = store['components'][component_name].get('export_type')
-
         scene_name = store['components'][component_name].get('scene_name')
+
+        exported_path = None
 
         if export_type == 'selection':
             try:
-               # TODO: Export selected objects
+                # TODO: Export selected objects
+                pass
             except Exception as error:
                 raise PluginExecutionError(
                     message=f"Couldn't export selection, error:{error}"

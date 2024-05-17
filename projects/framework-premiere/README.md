@@ -1,6 +1,7 @@
-# Framework Photoshop integration
+# ftrack Premiere integration
 
-Community owned Photoshop integration for ftrack.
+Community owned Premiere integration for ftrack.
+
 
 ## Building
 
@@ -20,19 +21,19 @@ Community owned Photoshop integration for ftrack.
 6. Set or bump version in pyproject.toml:
 
 ```bash
-    $ poetry version prerelease
+    poetry version prerelease
 ```
 or:
 ```bash
-    $ poetry version patch
+    poetry version patch
 ```
 or:
 ```bash
-    $ poetry version minor
+    poetry version minor
 ```
 or:
 ```bash
-    $ poetry version major
+    poetry version major
 ```
 
 7. If dependencies updated, update the Poetry lock file. Remember to properly validate/test the change of dependencies.
@@ -51,23 +52,25 @@ See Monorepo build CI
 
 ### Manual build
 
-1. Build with Poetry
+Build with Poetry:
 
 ```bash
-    $ poetry build
+    poetry build
 ```
 
-2. Build Connect plugin from wheel and the locked dependencies using Monorepo custom toolset:
+Build Connect plugin:
+
 
 ```bash
     cd integrations
-    python tools/build.py build_connect_plugin projects/framework-photoshop
+    python tools/build.py --include_resources resource/presets build_connect_plugin projects/framework-premiere
 ```
 
-If the build fails and Photoshop is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 
+If the build fails and Premiere is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 
 to build the plugin.
 
 To build from source, not involving PyPi, use the `--from_source` flag.
+
 
 
 # Development
@@ -84,8 +87,10 @@ To enable live development, first allow unsigned extensions:
 Build and install CEP extension and then open up permissions on folder:
 
 ```bash
-    sudo chmod -R 777 "/library/application support/adobe/cep/extensions/com.ftrack.framework.photoshop.panel"
+    sudo chmod -R 777 "/library/application support/adobe/cep/extensions/com.ftrack.framework.premiere.panel"
 ```
+
+On Windows, this folder is located here: `C:\Program Files (x86)\Common Files\Adobe\CEP\extensions`
 
 You are now ready to do live changes to extension, remember to sync back changes to
 source folder before committing.
@@ -122,16 +127,11 @@ Create Adobe extension:
 
 ```bash
     cd integrations 
-    python tools/build.py build_cep projects/framework-photoshop
+    python tools/build.py build_cep projects/framework-premiere
 ```
+
 
 ## Installing
 
 ### Connect plugin
-Copy the resulting dist/ftrack-framework-photoshop-<version> folder to your connect plugin folder.
-
-### CEP plugin
-
-Use "Extension Manager" tool provided here: https://install.anastasiy.com/ to install 
-the built xzp plugin. Remember to remove previous ftrack extensions.
-
+Copy the resulting dist/ftrack-framework-premiere-<version> folder to your connect plugin folder.
