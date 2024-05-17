@@ -24,7 +24,9 @@ class HarmonySequenceExporterPlugin(BasePlugin):
         os.makedirs(sequence_path)
 
         prefix = "image"
-        extension = store['components'][component_name].get('export_type')
+        extension = (
+            store['components'][component_name].get('export_type') or "png"
+        )
 
         try:
             # Get existing RPC connection instance

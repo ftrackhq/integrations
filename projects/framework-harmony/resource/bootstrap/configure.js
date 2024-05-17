@@ -18,14 +18,28 @@ const REMOTE_INTEGRATION_RPC_TOPIC = _BASE_ + ".remote.integration.rpc";
 // Sent from standalone process to remote integration in order to run a function
 // within JS and return the result
 
-MessageLog.trace("[ftrack] Including utilities");
-include(__packageFolder__+"/ftrack/harmony-utils.js");
+/*MessageLog.trace("===========================================================");
+for (var property in this) {
+    try {
+        MessageLog.trace(property + ": " + this[property]);
+    } catch (error) {
+        MessageLog.trace(error.stack+"");
+    }
+}*/
 
-info("Including base extensions");
-include(__packageFolder__+"/ftrack/harmony-extensions.js");
+if (this['__packageFolder__']) {
+    MessageLog.trace("[ftrack] Including utilities");
+    include(__packageFolder__+"/ftrack/harmony-utils.js");
 
-info("Including user extensions");
-include(__packageFolder__+"/ftrack/harmony-user-extensions.js");
+    info("Including base extensions");
+    include(__packageFolder__+"/ftrack/harmony-extensions.js");
+
+    info("Including user extensions");
+    include(__packageFolder__+"/ftrack/harmony-user-extensions.js");
+} else {
+    // Menu launch, create launchers
+    QCoreApplication.instance().integration.createLaunchers(this);
+}
 
 
 /*
@@ -35,13 +49,7 @@ var args = "'Hello'";
 eval(funcName + "(" + args + ")");
 */
 
-/*for (var property in this) {
-    try {
-        MessageLog.trace(property + ": " + this[property]);
-    } catch (error) {
-        warning(error.stack+"");
-    }
-}*/
+
 
 
 // Event commands
@@ -106,12 +114,12 @@ function TCPServer(host, port, integration) {
                 this.connection.readyRead.connect(this, this.handleEvent);
 
                 //this.connection.error.connect(this, this.onError);
- 
+
                 this.connection.disconnected.connect(this, this.onDisconnect);
 
                 info("Client connected: " + this.connection.toString()+ " (state: "+state+")");
 
-                this.connected = true; 
+                this.connected = true;
 
             }
             else
@@ -195,7 +203,7 @@ function TCPServer(host, port, integration) {
                 if (this.blocksize > 0 && this.connection.bytesAvailable() >= this.blocksize)
                 {
                     var data = this.connection.read(this.blocksize);
-                    
+
                     // create the event
                     var raw_event = "";
                     for ( var j = 0; j < data.size(); j++)
@@ -206,7 +214,7 @@ function TCPServer(host, port, integration) {
                         }
                     }
                     this.decodeAndProcessEvent(raw_event);
-                    this.blocksize = 0; 
+                    this.blocksize = 0;
                     i+=1;
                 }
             }
@@ -249,13 +257,14 @@ function TCPServer(host, port, integration) {
         this.socket.close()
     }
 
-    
+
 }
 
 
-function HarmonyIntegration() {
+function HarmonyIntegration(temp_path) {
     // The ftrack Harmony integration handler
 
+    this.temp_path = temp_path;
     this.harmony_session_id = null;
 
     this._tcp_server = null;
@@ -313,12 +322,44 @@ function HarmonyIntegration() {
     this.handleIntegrationContextDataCallback = function(topic, data, id) {
         info("Got context data from standalone integration, building menus.");
         this.launchers = data["panel_launchers"];
+
         for (var idx = 0; idx < this.launchers.length; idx++) {
             var launcher = this.launchers[idx];
             var name = launcher["name"];
             var label = launcher["label"];
             var dialog_name = launcher["dialog_name"];
             var tool_config = launcher["options"]["tool_configs"][0];
+
+            // Create a launcher
+
+            /*
+            // Create a new file object
+            var path = this.temp_path+"/launch_"+name+".js";
+            var file = new File(path);
+
+            // Open the file in write mode
+            if (file.open(FileAccess.WriteOnly)) {
+                // Write to the file
+                file.writeText("function launchTool() {");
+                file.writeText("    MessageLog.trace('[ftrack] Launching publisher!')");
+                file.writeText("}");
+
+                // Close the file
+                file.close();
+            } else {
+                error("Could not open file '"+path+"' for writing");
+            }
+
+            createLauncher("launch_"+name, function() {
+                MessageLog.trace("[ftrack] Locating integration and launching tool: " + name);
+                var app = QCoreApplication.instance();
+                if (app.integration != undefined) {
+                    app.integration.launchTool(name);
+                } else {
+                    MessageLog.trace("[ftrack] Can't open tool - integration not initialised yet!");
+                }
+            });*/
+            // Add menu item, and create shortcut if it is the publish tool
             this.addMenuItem(name, label, dialog_name, tool_config, name == "publish");
         }
     }
@@ -327,7 +368,8 @@ function HarmonyIntegration() {
         //---------------------------
         //Create Menu item
 
-        action = "launchTool('"+name+"') in ./actions.js";
+        //action = "launchTool('"+name+"') in ./actions.js";
+        action = "launch_"+name+" in ./configure.js";
         payload = {
             targetMenuId : "Windows",
             id           : "ftrackMenu"+name+"ID",
@@ -363,6 +405,27 @@ function HarmonyIntegration() {
             ScriptManager.addToolbar(ftrackToolbar);
         }
         ScriptManager.addMenuItem( payload );
+    }
+
+    this.createLaunchers = function(this_) {
+        for (var idx = 0; idx < this.launchers.length; idx++) {
+            var launcher = this.launchers[idx];
+            var name = launcher["name"];
+            var label = launcher["label"];
+            var dialog_name = launcher["dialog_name"];
+            var tool_configs = launcher["options"]["tool_configs"];
+
+            this_["launch_"+name] = function() {
+                var app = QCoreApplication.instance();
+                app.integration.sendEvent(
+                    REMOTE_INTEGRATION_RUN_DIALOG_TOPIC,
+                    {
+                        "dialog_name": dialog_name,
+                        "tool_configs": tool_configs
+                    }
+                )
+            }
+        }
     }
 
     this.launchTool = function(tool_name) {
@@ -406,29 +469,28 @@ function HarmonyIntegration() {
                     value = '"' + value + '"';
                 s_args += (s_args.length>0?",":"") + value;
             }
-    
-            eval(function_name+'('+s_args+')', function (result) {
-                try {
-                    // String is the evalScript type, decode
-                    if (result.startsWith("{"))
-                        result = JSON.parse(result);
-                    else if (result === "true")
-                        result = true;
-                    else if (result === "false")
-                        result = false;
-                    event_manager.publish_reply(event, prepareEventData(
-                        {
-                            "result": result
-                        }
-                    ));
-                } catch (e) {
-                    error_message = "[INTERNAL ERROR] Failed to convert RPC call result '"+result+"'! "+e+" Details: "+e.stack;
-                    this.send(topic, {
-                        "error_message": error_message
-                    }, id);
-                    error(error_message);
-                }
-            });
+
+            info("Running RPC call: "+function_name+"("+s_args+")");
+            var result = eval(function_name+'('+s_args+')');
+
+            try {
+                // String is the evalScript type, decode
+                if (result.startsWith("{"))
+                    result = JSON.parse(result);
+                else if (result === "true")
+                    result = true;
+                else if (result === "false")
+                    result = false;
+                this.sendEvent(topic, {
+                    "result": result
+                }, id);
+            } catch (e) {
+                error_message = "[INTERNAL ERROR] Failed to convert RPC call result '"+result+"'! "+e+" Details: "+e.stack;
+                this.send(topic, {
+                    "error_message": error_message
+                }, id);
+                error(error_message);
+            }
         } catch (e) {
             error_message = "[INTERNAL ERROR] Failed to run RPC call! "+e+" Details: "+e.stack;
             this.send(topic, {
@@ -469,7 +531,7 @@ function configure(packageFolder, packageName)
 
     var app = QCoreApplication.instance();
 
-    app.integration = new HarmonyIntegration();
+    app.integration = new HarmonyIntegration(System.getenv("TMPDIR"));
     app.integration.bootstrap();
 }
 
@@ -477,7 +539,6 @@ function init()
 {
     info("ftrack Framework Harmony integration INIT");
 }
-
 
 exports.configure = configure;
 exports.init = init;

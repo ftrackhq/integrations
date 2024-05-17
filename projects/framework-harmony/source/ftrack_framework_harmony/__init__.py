@@ -63,15 +63,10 @@ if not app:
     app.setAttribute(QtCore.Qt.AA_PluginApplication)
 
 
-def on_run_dialog_callback(
-    client_instance, dialog_name, tool_config_names, docked, harmony_args
-):
+def on_run_dialog_callback(client_instance, dialog_name, tool_config_names):
     client_instance.run_dialog(
         dialog_name,
-        dialog_options={
-            'tool_config_names': tool_config_names,
-            'docked': docked,
-        },
+        dialog_options={'tool_config_names': tool_config_names},
     )
 
 

@@ -443,7 +443,7 @@ class TCPRPCClient(QtCore.QObject):
 
         event_topic = constants.event.REMOTE_INTEGRATION_RPC_TOPIC
 
-        result = self.send(event_topic, data)['result']
+        result = self.send(event_topic, data, None, True)['result']
 
         self.logger.debug(
             f'Got {self.dcc_name.title()} RPC response: {result}'
