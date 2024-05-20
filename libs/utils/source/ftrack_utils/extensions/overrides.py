@@ -24,7 +24,9 @@ def set_overrides(current_extensions, new_extensions):
             ):
                 existing_extension = discovered_extension
                 break
-            elif not new_extension['extension_type'].endswith('_config'):
+            elif not new_extension['extension_type'].endswith(
+                '_config'
+            ) and not new_extension['extension_type'].startswith('js_'):
                 # Handle corner cases of dialogs plugins and widgets when name
                 # is not the same but class name is the same, then we need to
                 # override as well.

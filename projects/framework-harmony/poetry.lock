@@ -234,9 +234,6 @@ files = [
     {file = "ftrack_qt-2.2.1.tar.gz", hash = "sha256:cf27a6d1f1a98cb12d816ab398d994b840bc5909762a8e2f1dee6e9d96011a02"},
 ]
 
-[package.dependencies]
-PySide2 = {version = ">=5.13.2,<6.0.0", optional = true, markers = "extra == \"pyside2\""}
-
 [package.extras]
 ftrack-libs = ["ftrack-constants (>=2.0.0,<3.0.0)", "ftrack-qt-style (>=2.0.0,<3.0.0)", "ftrack-utils (>=2.0.0,<3.0.0)"]
 pyside2 = ["PySide2 (>=5.13.2,<6.0.0)"]
@@ -312,6 +309,22 @@ docs = ["furo (>=2023.7.26)", "proselint (>=0.13)", "sphinx (>=7.1.1)", "sphinx-
 test = ["appdirs (==1.4.4)", "covdefaults (>=2.3)", "pytest (>=7.4)", "pytest-cov (>=4.1)", "pytest-mock (>=3.11.1)"]
 
 [[package]]
+name = "pyffmpeg"
+version = "2.4.2.18.1"
+description = "FFmpeg wrapper for python"
+optional = false
+python-versions = "*"
+files = [
+    {file = "pyffmpeg-2.4.2.18.1-py3-none-macosx_10_9_universal2.whl", hash = "sha256:c6b5148ee7aca95fb6756919b54d59fe4d417a6b0d5acfa92bc7f5a97cd15973"},
+    {file = "pyffmpeg-2.4.2.18.1-py3-none-macosx_10_9_x86_64.whl", hash = "sha256:9347a1ae00225b4561dcb7543b91bc9ee3d36cbdfcefa7897e3672af0d299362"},
+    {file = "pyffmpeg-2.4.2.18.1-py3-none-macosx_11_0_arm64.whl", hash = "sha256:72c720ef7ae24866de810160f45ddbcef2e43e5c2eae64cff1515c65f07d4312"},
+    {file = "pyffmpeg-2.4.2.18.1-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:4a2b98be15f442150cd33decea53e94e2b279fe69de30c3d94715b76bfbdc696"},
+    {file = "pyffmpeg-2.4.2.18.1-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:d613a38ed716e33c67c851382061ef1ae5cbaa8b010db73adac7745f885b0b99"},
+    {file = "pyffmpeg-2.4.2.18.1-py3-none-win32.whl", hash = "sha256:ce40aedc88ebdc2095afe44fa95ebb0221d57696a943373962bfb20532a48ea6"},
+    {file = "pyffmpeg-2.4.2.18.1-py3-none-win_amd64.whl", hash = "sha256:0f04fa1c3f730442eaccf9fe09341fb463419a5ec6b8f8c854c10eeadd082dd5"},
+]
+
+[[package]]
 name = "pyparsing"
 version = "2.4.7"
 description = "Python parsing module"
@@ -321,24 +334,6 @@ files = [
     {file = "pyparsing-2.4.7-py2.py3-none-any.whl", hash = "sha256:ef9d7589ef3c200abe66653d3f1ab1033c3c419ae9b9bdb1240a85b024efc88b"},
     {file = "pyparsing-2.4.7.tar.gz", hash = "sha256:c203ec8783bf771a155b207279b9bccb8dea02d8f0c9e5f8ead507bc3246ecc1"},
 ]
-
-[[package]]
-name = "pyside2"
-version = "5.13.2"
-description = "Python bindings for the Qt cross-platform application and UI framework"
-optional = true
-python-versions = "*"
-files = [
-    {file = "PySide2-5.13.2-5.13.2-cp27-cp27m-macosx_10_12_intel.whl", hash = "sha256:ede8ed6e7021232184829d16614eb153f188ea250862304eac35e04b2bd0120c"},
-    {file = "PySide2-5.13.2-5.13.2-cp27-cp27mu-manylinux1_x86_64.whl", hash = "sha256:63cc845434388b398b79b65f7b5312b9b5348fbc772d84092c9245efbf341197"},
-    {file = "PySide2-5.13.2-5.13.2-cp35.cp36.cp37-abi3-macosx_10_12_intel.whl", hash = "sha256:ed6d22c7a3a99f480d4c9348bcced97ef7bc0c9d353ad3665ae705e8eb61feb5"},
-    {file = "PySide2-5.13.2-5.13.2-cp35.cp36.cp37-abi3-manylinux1_x86_64.whl", hash = "sha256:7c57fe60ed57a3a8b95d9163abca9caa803a1470f29b40bff8ef4103b97a96c8"},
-    {file = "PySide2-5.13.2-5.13.2-cp35.cp36.cp37-none-win32.whl", hash = "sha256:7c61a6883f3474939097b9dabc80f028887046be003ce416da1b3565a08d1f92"},
-    {file = "PySide2-5.13.2-5.13.2-cp35.cp36.cp37-none-win_amd64.whl", hash = "sha256:589b90944c24046d31bf76694590a600d59d20130015086491b793a81753629a"},
-]
-
-[package.dependencies]
-shiboken2 = "5.13.2"
 
 [[package]]
 name = "python-dateutil"
@@ -436,21 +431,6 @@ socks = ["PySocks (>=1.5.6,!=1.5.7)"]
 use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
 
 [[package]]
-name = "shiboken2"
-version = "5.13.2"
-description = "Python / C++ bindings helper module"
-optional = true
-python-versions = "*"
-files = [
-    {file = "shiboken2-5.13.2-5.13.2-cp27-cp27m-macosx_10_12_intel.whl", hash = "sha256:7c766c4160636a238e0e4430e2f40b504b13bcc4951902eb78cd5c971f26c898"},
-    {file = "shiboken2-5.13.2-5.13.2-cp27-cp27mu-manylinux1_x86_64.whl", hash = "sha256:e6543506cb353d417961b9ec3c6fc726ec2f72eeab609dc88943c2e5cb6d6408"},
-    {file = "shiboken2-5.13.2-5.13.2-cp35.cp36.cp37-abi3-macosx_10_12_intel.whl", hash = "sha256:ca08a3c95b1b20ac2b243b7b06379609bd73929dbc27b28c01415feffe3bcea1"},
-    {file = "shiboken2-5.13.2-5.13.2-cp35.cp36.cp37-abi3-manylinux1_x86_64.whl", hash = "sha256:81fa9b288c6c4b4c91220fcca2002eadb48fc5c3238e8bd88e982e00ffa77c53"},
-    {file = "shiboken2-5.13.2-5.13.2-cp35.cp36.cp37-none-win32.whl", hash = "sha256:e2f72b5cfdb8b48bdb55bda4b42ec7d36d1bce0be73d6d7d4a358225d6fb5f25"},
-    {file = "shiboken2-5.13.2-5.13.2-cp35.cp36.cp37-none-win_amd64.whl", hash = "sha256:5e84a4b4e7ab08bb5db0a8168e5d0316fbf3c25b788012701a82079faadfb19b"},
-]
-
-[[package]]
 name = "six"
 version = "1.16.0"
 description = "Python 2 and 3 compatibility utilities"
@@ -521,4 +501,4 @@ ftrack-libs = ["ftrack-constants", "ftrack-qt", "ftrack-qt-style", "ftrack-utils
 [metadata]
 lock-version = "2.0"
 python-versions = ">= 3.7, < 3.12"
-content-hash = "4bc8d3de1541247875c2e3f4726aa0a3acf293f35ba2b1b48b16507321d86731"
+content-hash = "5a9979026787a186b995dba3ae8cf132d2d5e6baf241d98e8c66b223a052362a"
