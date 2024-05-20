@@ -215,7 +215,7 @@ function TCPServer(host, port, integration) {
                     }
                     this.decodeAndProcessEvent(raw_event);
                     this.blocksize = 0;
-                    i+=1;
+                    i += 1;
                 }
             }
         } catch(err)
@@ -327,44 +327,13 @@ function HarmonyIntegration(temp_path) {
             var launcher = this.launchers[idx];
             var name = launcher["name"];
             var label = launcher["label"];
-            var dialog_name = launcher["dialog_name"];
-            var tool_config = launcher["options"]["tool_configs"][0];
 
-            // Create a launcher
-
-            /*
-            // Create a new file object
-            var path = this.temp_path+"/launch_"+name+".js";
-            var file = new File(path);
-
-            // Open the file in write mode
-            if (file.open(FileAccess.WriteOnly)) {
-                // Write to the file
-                file.writeText("function launchTool() {");
-                file.writeText("    MessageLog.trace('[ftrack] Launching publisher!')");
-                file.writeText("}");
-
-                // Close the file
-                file.close();
-            } else {
-                error("Could not open file '"+path+"' for writing");
-            }
-
-            createLauncher("launch_"+name, function() {
-                MessageLog.trace("[ftrack] Locating integration and launching tool: " + name);
-                var app = QCoreApplication.instance();
-                if (app.integration != undefined) {
-                    app.integration.launchTool(name);
-                } else {
-                    MessageLog.trace("[ftrack] Can't open tool - integration not initialised yet!");
-                }
-            });*/
             // Add menu item, and create shortcut if it is the publish tool
-            this.addMenuItem(name, label, dialog_name, tool_config, name == "publish");
+            this.addMenuItem(name, label, name == "publish");
         }
     }
 
-    this.addMenuItem = function(name, label, dialog_name, tool_config, add_shortcut) {
+    this.addMenuItem = function(name, label, add_shortcut) {
         //---------------------------
         //Create Menu item
 
@@ -429,7 +398,7 @@ function HarmonyIntegration(temp_path) {
     }
 
     this.launchTool = function(tool_name) {
-        // Find dialog name
+        // Find dialog by *tool_name* and launch it
         var dialog_name = undefined, tool_configs = undefined;
         for (var idx = 0; idx < this.launchers.length; idx++) {
             var launcher = this.launchers[idx];
@@ -456,7 +425,7 @@ function HarmonyIntegration(temp_path) {
             var function_name = data.function_name;
 
             if (function_name === undefined || function_name.length === 0) {
-                this.send(topic, {
+                this.sendEvent(topic, {
                     "error_message": "No RCP function name given!"
                 }, id);
                 return;
@@ -474,19 +443,20 @@ function HarmonyIntegration(temp_path) {
             var result = eval(function_name+'('+s_args+')');
 
             try {
+                // String is the evalScript type, decode
                 this.sendEvent(topic, {
                     "result": result
                 }, id);
             } catch (e) {
                 error_message = "[INTERNAL ERROR] Failed to convert RPC call result '"+result+"'! "+e+" Details: "+e.stack;
-                this.send(topic, {
+                this.sendEvent(topic, {
                     "error_message": error_message
                 }, id);
                 error(error_message);
             }
         } catch (e) {
             error_message = "[INTERNAL ERROR] Failed to run RPC call! "+e+" Details: "+e.stack;
-            this.send(topic, {
+            this.sendEvent(topic, {
                 "error_message": error_message
             }, id);
             error(error_message);

@@ -10,7 +10,7 @@ const EXTENSION_NAME="framework-harmony"
 
 
 function processEvent(integration, topic, data, id) {
-	info("(Extension) Processing incoming '"+topic+"' event: "+JSON.stringify(data));
+	info("(Extensions) Processing incoming '"+topic+"' event: "+JSON.stringify(data));
 }
 
 function renderSequence(destination_path, prefix, extension) {
@@ -28,16 +28,18 @@ function renderSequence(destination_path, prefix, extension) {
     start = integration.getStartFrame()
     //if (data.start_frame != undefined)
     //    start_frame = data.start_frame;
-    end = this.getEndFrame()
+    end = integration.getEndFrame()
     //if (data.end_frame != undefined)
     //    end_frame = data.end_frame;
-    info("(render) Rendering '"+this.get_scene_path()+"', frames: "+start+"-"+end+" > "+destination_path)
+    info("(Extensions) Rendering '"+integration.getScenePath()+"', frames: "+start+"-"+end+" > "+destination_path)
 
     function frameReady(frame, celImage)
     {
-        info("(render) Frame " + frame + " Ready.");
+        var imagePath = destination_path + "/" + prefix + "." + frame + "." + extension;
         // Save the image here.
-        celImage.imageFile(destination_path + prefix + "." + frame + extension);
+        celImage.imageFile(imagePath);
+
+        info("Frame " + frame + " ready @ "+imagePath);
     }
     function renderFinished()
     {
@@ -50,8 +52,9 @@ function renderSequence(destination_path, prefix, extension) {
     render.renderFinished.disconnect(renderFinished);
     render.frameReady.disconnect(frameReady);
 
-    info("(render)  Render finished");
+    info("Render finished");
 
-    // Send reply back
-    integration.send(topic, {}, id)
+    return true;
 }
+
+info("(Extensions) Loaded");
