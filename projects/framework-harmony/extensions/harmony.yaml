@@ -7,5 +7,5 @@ tools:
     icon: publish
     options:
       tool_configs:
-        - harmony-scene-publisher
+        - harmony-image-sequence-publisher
       docked: false

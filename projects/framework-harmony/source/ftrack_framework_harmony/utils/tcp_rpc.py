@@ -337,7 +337,7 @@ class TCPRPCClient(QtCore.QObject):
             self.logger.warning(f'Ignoring event, not for us. {raw_event}')
             return None
 
-        # Is someone waiting for a reply
+        # Is someone waiting for a reply?
         if self._handle_reply_event_callback:
             if event.get('in_reply_to_event') == self._reply_id:
                 self.logger.info(f'Got reply for event: {self._reply_id}')
@@ -379,14 +379,14 @@ class TCPRPCClient(QtCore.QObject):
         )
 
         if synchronous:
-            self.reply_event = None
+            self.reply_event_data = None
 
             def handle_reply_event(topic, event_data, id):
                 self.logger.info(
                     f'Registering incoming reply event: {topic} ({id}), '
                     f'data: {event_data}'
                 )
-                self.reply_event = event
+                self.reply_event_data = event_data
 
             self._reply_id = event['id']
             self._handle_reply_event_callback = handle_reply_event
@@ -412,8 +412,8 @@ class TCPRPCClient(QtCore.QObject):
                             f'Waited {int(waited / 1000)}s for reply...'
                         )
 
-                    if self.reply_event:
-                        return self.reply_event
+                    if self.reply_event_data:
+                        return self.reply_event_data
 
             finally:
                 self._handle_reply_event_callback = None
@@ -443,13 +443,18 @@ class TCPRPCClient(QtCore.QObject):
 
         event_topic = constants.event.REMOTE_INTEGRATION_RPC_TOPIC
 
-        result = self.send(event_topic, data, None, True)['result']
+        response = self.send(event_topic, data, None, True)
 
         self.logger.debug(
-            f'Got {self.dcc_name.title()} RPC response: {result}'
+            f'Got {self.dcc_name.title()} RPC response: {response}'
         )
 
-        return result
+        if not isinstance(response, dict):
+            raise Exception(
+                f'Internal error, response is not an dictionary: {response}'
+            )
+
+        return response
 
     def error(self, socketError):
         if (

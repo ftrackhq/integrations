@@ -474,13 +474,6 @@ function HarmonyIntegration(temp_path) {
             var result = eval(function_name+'('+s_args+')');
 
             try {
-                // String is the evalScript type, decode
-                if (result.startsWith("{"))
-                    result = JSON.parse(result);
-                else if (result === "true")
-                    result = true;
-                else if (result === "false")
-                    result = false;
                 this.sendEvent(topic, {
                     "result": result
                 }, id);

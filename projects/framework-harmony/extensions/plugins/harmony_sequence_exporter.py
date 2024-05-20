@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2024 ftrack
 import os
 
-from ftrack_utils.paths import get_temp_path
+from ftrack_utils.paths import get_temp_path, find_image_sequence
 
 from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
@@ -20,8 +20,8 @@ class HarmonySequenceExporterPlugin(BasePlugin):
         '''
         component_name = self.options.get('component')
 
-        sequence_path = get_temp_path()
-        os.makedirs(sequence_path)
+        temp_folder = get_temp_path()
+        os.makedirs(temp_folder)
 
         prefix = "image"
         extension = (
@@ -33,13 +33,13 @@ class HarmonySequenceExporterPlugin(BasePlugin):
             harmony_connection = TCPRPCClient.instance()
 
             self.logger.debug(
-                f'Exporting Harmony image sequence to {sequence_path}'
+                f'Exporting Harmony image sequence to {temp_folder}'
             )
 
-            export_result = harmony_connection.rpc(
+            render_response = harmony_connection.rpc(
                 'renderSequence',
                 [
-                    "{}{}".format(sequence_path, os.sep),
+                    "{}{}".format(temp_folder, os.sep),
                     prefix,
                     extension.replace('.', ''),
                 ],
@@ -50,9 +50,17 @@ class HarmonySequenceExporterPlugin(BasePlugin):
                 f'Exception exporting the image sequence: {e}'
             )
 
-        if not export_result or isinstance(export_result, str):
+        if 'result' not in render_response:
             raise PluginExecutionError(
-                f'Error exporting the image sequence: {export_result}'
+                f'Error exporting the image sequence: {render_response["error_message"]}'
+            )
+
+        # Collect the result
+        sequence_path = find_image_sequence(temp_folder)
+
+        if not sequence_path:
+            raise PluginExecutionError(
+                f'Could not locate rendered image sequence: {temp_folder}'
             )
 
         store['components'][component_name]['exported_path'] = sequence_path

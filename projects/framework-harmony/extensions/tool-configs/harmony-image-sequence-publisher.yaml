@@ -1,5 +1,5 @@
 type: tool_config
-name: harmony-scene-publisher
+name: harmony-image-sequence-publisher
 config_type: publisher
 engine:
   - type: plugin
@@ -7,7 +7,7 @@ engine:
       - context
     plugin: store_asset_context
     options:
-      asset_type_name: scene
+      asset_type_name: img
     ui: publisher_asset_version_selector
 
   # Export image sequence
