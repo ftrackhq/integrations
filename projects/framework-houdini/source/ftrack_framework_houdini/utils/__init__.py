@@ -39,7 +39,7 @@ def dock_houdini_right(widget):
 
     try:
         for interface, value in hou.pypanel.interfaces().items():
-            if interface == "WindowTitle":
+            if interface == "ftrack Publish panel":
                 panel_interface = value
                 break
     except hou.OperationFailed as e:
@@ -81,8 +81,8 @@ def _generate_pypanel_xml(widget_name):
 
     root = ET.Element("pythonPanelDocument")
     interface = ET.SubElement(root, "interface")
-    interface.set("name", "WindowTitle")
-    interface.set("label", "WindowTitle")
+    interface.set("name", "ftrack Publish panel")
+    interface.set("label", "ftrack Publish panel")
     interface.set("icon", "MISC_python")
     interface.set("help_url", "")
     script = ET.SubElement(interface, "script")
