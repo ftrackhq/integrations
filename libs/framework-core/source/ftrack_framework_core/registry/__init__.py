@@ -73,7 +73,7 @@ class Registry(object):
     @property
     def js_functions(self):
         '''
-        Returns the registered dcc configs`
+        Returns the registered Javascript functions`
         '''
         return self.__registry.get('js_functions')
 

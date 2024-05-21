@@ -68,7 +68,7 @@ def register_yaml_files(file_list):
 def register_js_files(file_list):
     '''
     Generate data registry files for all extension compatible javascript files in
-    the given *file_list*. Support environment variable substitution in the yaml file.
+    the given *file_list*.
     '''
 
     registered_files = []
@@ -87,9 +87,9 @@ def register_js_files(file_list):
                     extension_name = line.split("=")[1].strip().strip('"')
                 content += line
         if not (extension_type and extension_name):
-            # Log warning if yaml file doesn't contain type key.
             logger.warning(
-                "No extension compatible .js file, missing 'EXTENSION_TYPE'."
+                "No extension compatible .js file, missing 'EXTENSION_TYPE' and"
+                " 'EXTENSION_NAME' definitions."
                 "\nFile: {}".format(_file)
             )
             continue
