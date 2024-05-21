@@ -86,15 +86,12 @@ function TCPServer(host, port, integration) {
         this.connection = null;
         this.blocksize = 0;
 
-        if (this.socket.listen(this.host, this.port))
-        {
+        if (this.socket.listen(this.host, this.port)) {
             info("Local event hub server started @ " + this.address + ":" + this.port);
             this.listening  = true;
             this.socket.newConnection.connect(this, this.handleIncomingConnection);
             return true;
-        }
-        else
-        {
+        } else {
             this.listening = false;
             warning("Local Server could not start! " + this.host.toString() + ":" + this.port);
             return false;
@@ -103,31 +100,20 @@ function TCPServer(host, port, integration) {
 
     this.handleIncomingConnection = function() {
         info("New incoming connection");
-        try
-        {
+        try {
             if (this.socket.hasPendingConnections())
             {
                 this.connection = this.socket.nextPendingConnection();
-
                 var state = this.connection.state();
-
                 this.connection.readyRead.connect(this, this.handleEvent);
-
                 //this.connection.error.connect(this, this.onError);
-
                 this.connection.disconnected.connect(this, this.onDisconnect);
-
                 info("Client connected: " + this.connection.toString()+ " (state: "+state+")");
-
                 this.connected = true;
-
-            }
-            else
-            {
+            } else {
                 warning("No pending connections! %s" % this.connection.toString());
             }
-        } catch(err)
-        {
+        } catch(err) {
             warning("Failed to accept new connection! "+err);
         }
     }
@@ -147,9 +133,8 @@ function TCPServer(host, port, integration) {
     }
 
     this.send = function(topic, event_data, in_reply_to_event) {
-        try
-        {
-            event = this.prepareEvent(topic, event_data, "harmony", in_reply_to_event);
+        try {
+            var event = this.prepareEvent(topic, event_data, "harmony", in_reply_to_event);
             debug("Sending event: "+JSON.stringify(event));
             if (this.connected) {
                 raw_event = JSON.stringify(event);
@@ -173,8 +158,7 @@ function TCPServer(host, port, integration) {
                 warning("Event hub not connected!");
                 return false;
             }
-        } catch(err)
-        {
+        } catch(err) {
             warning("Failed to send event! "+err);
         }
     }
@@ -190,18 +174,15 @@ function TCPServer(host, port, integration) {
 
             debug("Available bytes: " + this.connection.bytesAvailable());
             var i = 0;
-            while (this.connection.bytesAvailable() > 0)
-            {
+            while (this.connection.bytesAvailable() > 0) {
                 debug("Receiving event: " + i);
 
-                if ( (this.blocksize == 0 && this.connection.bytesAvailable() >= INT32_SIZE) || (this.blocksize > 0 && this.connection.bytesAvailable() >= this.blocksize) )
-                {
+                if ( (this.blocksize == 0 && this.connection.bytesAvailable() >= INT32_SIZE) || (this.blocksize > 0 && this.connection.bytesAvailable() >= this.blocksize) ) {
                     this.blocksize = stream.readInt();
                     debug("Event number: " + i + ", block size: " + this.blocksize);
                 }
 
-                if (this.blocksize > 0 && this.connection.bytesAvailable() >= this.blocksize)
-                {
+                if (this.blocksize > 0 && this.connection.bytesAvailable() >= this.blocksize) {
                     var data = this.connection.read(this.blocksize);
 
                     // create the event
@@ -218,8 +199,7 @@ function TCPServer(host, port, integration) {
                     i += 1;
                 }
             }
-        } catch(err)
-        {
+        } catch(err) {
             warning("Failed to handle incoming event! "+err);
         }
     }
@@ -236,20 +216,17 @@ function TCPServer(host, port, integration) {
         }
     }
 
-    this.onError = function(socket_error)
-    {
+    this.onError = function(socket_error) {
         warning("An error occurred with the event hub connection: " + socket_error.toString());
     }
 
-    this.onDisconnect = function(socket_error)
-    {
+    this.onDisconnect = function(socket_error) {
         info("Client disconnected.");
         this.connection = null;
         this.connected = false;
     }
 
-    this.close = function()
-    {
+    this.close = function() {
         this.listening = false;
         this.socket.close()
     }
@@ -277,7 +254,7 @@ function HarmonyIntegration(temp_path) {
         try {
             ftrackInitialiseExtension(this);
         } catch (err) {
-            warning("Failed to initialise ftrack user extensions! "+err;
+            warning("Failed to initialise ftrack user extensions! "+err);
         }
     }
 
@@ -317,7 +294,7 @@ function HarmonyIntegration(temp_path) {
         } else {
             // Have user extension process event
             try {
-                processUserEvent(integration, topic, data, id):
+                processUserEvent(integration, topic, data, id)
             } catch (e) {
                 warning("Could not have user extensions process event, details: "+e);
             }
@@ -479,14 +456,12 @@ function HarmonyIntegration(temp_path) {
         return scene_path;
     }
 
-    this.getStartFrame = function(data)
-    {
+    this.getStartFrame = function(data) {
         var start_frame = scene.getStartFrame();
         return start_frame;
     }
 
-    this.getEndFrame = function(data)
-    {
+    this.getEndFrame = function(data) {
         var end_frame = scene.getStopFrame();
         return end_frame;
     }

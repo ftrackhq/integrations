@@ -158,32 +158,23 @@ def sync_js_plugin(app_path, framework_extensions_paths):
             if variant:
                 break
     logger.info(
-        "Deploying scripts, variant: "
-        + str(variant)
-        + "version: "
-        + str(version_nr)
-        + ", app_path: "
-        + str(app_path)
+        f'Deploying scripts, variant: {variant}, version: {version_nr}, app_path: {app_path}'
     )
 
     assert (
         variant
-    ), "Could not determine Harmony variant from executable path: {}".format(
-        app_path
-    )
+    ), f'Could not determine Harmony variant from executable path: {app_path}'
     assert (
         version_nr
-    ), "Could not determine Harmony version from executable path: {}".format(
-        app_path
-    )
+    ), f'Could not determine Harmony version from executable path: {app_path}'
 
     path_scripts = None
-    if sys.platform == "win32":
-        path_scripts = os.path.expandvars("%APPDATA%")
-    elif sys.platform == "linux":
-        path_scripts = os.path.expandvars("$HOME")
-    elif sys.platform == "darwin":
-        path_scripts = os.path.expandvars("$HOME/Library/Preferences")
+    if sys.platform == 'win32':
+        path_scripts = os.path.expandvars('%APPDATA%')
+    elif sys.platform == 'linux':
+        path_scripts = os.path.expandvars('$HOME')
+    elif sys.platform == 'darwin':
+        path_scripts = os.path.expandvars('$HOME/Library/Preferences')
 
     if not path_scripts:
         raise Exception('Could not determine user prefs folder!')
@@ -221,7 +212,7 @@ def sync_js_plugin(app_path, framework_extensions_paths):
                 logger.error(f'Failed to delete {file_path}. Reason: {e}')
 
     bootstrap_folder = os.path.join(
-        connect_plugin_path, "resource", "bootstrap"
+        connect_plugin_path, 'resource', 'bootstrap'
     )
 
     # Copy the library and bootstrap

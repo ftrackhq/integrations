@@ -1,15 +1,43 @@
 /**
  * Harmony ftrack integration
  * 
- * User extensions, exists as a template and is intended to be overridden by the user.
+ * Base extensions
  */
 "use strict";
 
 const EXTENSION_TYPE="js_functions"
 const EXTENSION_NAME="framework-harmony-user"
 
-function processUserEvent(integration, topic, data, id) {
-	info("(User extension) Processing incoming '"+topic+"' event: "+JSON.stringify(data));
+/**
+* Perform additional optional extension bootstrap
+*
+* @param {Integration} integration
+*/
+function ftrackInitialiseExtension(integration) {
+    info("(User extension) Initialising extension");
 }
 
-info("(Template user extensions) Loaded");
+/**
+* Optionally act upon integration connected
+*
+* @param {Integration} integration
+*/
+function ftrackIntegrationConnected(integration) {
+    info("(User extension) Integration connected");
+}
+
+/**
+* Optionally act an incoming event
+*
+* @param {Integration} integration
+* @param {string} event topic
+* @param {object} event data
+* @param {string} event id
+*/
+function processUserEvent(integration, topic, data, id) {
+	info("(User extension) Processing incoming '"+topic+"' event: "+JSON.stringify(data));
+	return false;
+}
+
+
+
