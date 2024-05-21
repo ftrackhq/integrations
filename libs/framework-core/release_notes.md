@@ -1,5 +1,9 @@
 # ftrack Framework Core library release Notes
 
+## upcoming
+* [new] Registry; Support for JS extensions.
+
+
 ## v2.2.1
 2024-05-06
 
