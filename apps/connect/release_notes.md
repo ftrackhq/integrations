@@ -1,5 +1,10 @@
 # ftrack Connect release Notes
 
+## 24.5.3
+2024-05-21
+
+* [fix] Fix open_component_directory.py hook not discovering correctly.
+
 ## 24.5.2
 2024-05-14
 
