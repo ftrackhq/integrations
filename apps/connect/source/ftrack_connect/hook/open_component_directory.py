@@ -109,6 +109,7 @@ class OpenComponentDirectoryAction(object):
 
     def register(self):
         '''Register to event hub.'''
+        self.logger.warning("subscribing")
         self.session.event_hub.subscribe(
             u'topic=ftrack.action.discover and '
             u'source.user.username="{0}"'.format(self.session.api_user),
@@ -130,6 +131,7 @@ def register(session, **kw):
     '''Register hooks.'''
 
     logger = logging.getLogger('ftrack_connect:open-component-directory')
+    logger.warning("Registring")
 
     # Validate that session is an instance of ftrack_api.session.Session. If
     # not, assume that register is being called from an old or incompatible API
