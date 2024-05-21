@@ -111,7 +111,7 @@ class OpenComponentDirectoryAction(object):
         '''Register to event hub.'''
         self.session.event_hub.subscribe(
             u'topic=ftrack.action.discover and '
-            u'source.user.username="{0}" and '.format(self.session.api_user),
+            u'source.user.username="{0}"'.format(self.session.api_user),
             self.discover,
         )
 
