@@ -10,7 +10,7 @@ bootstrap:
   # Bootstrap tool config with UI
   - name: camera-creator
     label: "Camera Creator"
-    dialog_name: framework_camera_creator_dialog
+    dialog_name: framework_standard_publisher_dialog
     options:
       tool_configs:
         - maya-camera-creator-bootstrap

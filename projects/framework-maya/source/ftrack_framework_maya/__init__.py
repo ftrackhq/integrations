@@ -111,7 +111,7 @@ def on_run_tool_callback(
         # TODO move this to the client run_tool_config and get it out from here and from the dialog
         for tool_config_name in tool_config_names:
             tool_config = get_tool_config_by_name(
-                client_instance.tool_configs, tool_config_name
+                client_instance.tool_configs['publisher'], tool_config_name
             )
             if not tool_config:
                 logger.error(
@@ -142,8 +142,10 @@ def run_bootstrap(client_instance, bootstrap_config):
     else:
         # TODO move this to the client run_tool_config and get it out from here and from the dialog
         for tool_config_name in tool_config_names:
+            print(client_instance.tool_configs)
+            # TODO: fix tool configs to not be categorized by publisher or opener also be plain, and also in case contain all types
             tool_config = get_tool_config_by_name(
-                client_instance.tool_configs, tool_config_name
+                client_instance.tool_configs['publisher'], tool_config_name
             )
             if not tool_config:
                 logger.error(

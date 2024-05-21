@@ -1,5 +1,5 @@
 type: tool_config
-name: maya-camera-creator
+name: maya-camera-creator-bootstrap
 config_type: publisher
 engine:
   - type: plugin
