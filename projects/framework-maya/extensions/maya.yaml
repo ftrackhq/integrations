@@ -1,5 +1,20 @@
 type: dcc_config
 name: framework-maya
+bootstrap:
+  # Bootstrap tool config without UI
+  - name: setup-scene
+    label: "Setup Scene"
+    options:
+      tool_configs:
+        - setup-scene
+  # Bootstrap tool config with UI
+  - name: camera-creator
+    label: "Camera Creator"
+    dialog_name: framework_camera_creator_dialog
+    options:
+      tool_configs:
+        - camera-creator-bootstrap
+      docked: true
 tools:
   - name: publish
     label: "Publish"
@@ -12,6 +27,14 @@ tools:
   - name: open
     label: "Open"
     dialog_name: framework_standard_opener_dialog
+    icon: open
+    options:
+      tool_configs:
+        - maya-scene-opener
+      docked: false
+  # Execute tool config without UI
+  - name: scripts
+    label: "Non_UI_Scripts"
     icon: open
     options:
       tool_configs:
