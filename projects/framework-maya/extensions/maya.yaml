@@ -6,14 +6,14 @@ bootstrap:
     label: "Setup Scene"
     options:
       tool_configs:
-        - setup-scene
+        - maya-setup-scene
   # Bootstrap tool config with UI
   - name: camera-creator
     label: "Camera Creator"
     dialog_name: framework_camera_creator_dialog
     options:
       tool_configs:
-        - camera-creator-bootstrap
+        - maya-camera-creator-bootstrap
       docked: true
 tools:
   - name: publish
@@ -38,5 +38,4 @@ tools:
     icon: open
     options:
       tool_configs:
-        - maya-scene-opener
-      docked: false
+        - maya-setup-scene

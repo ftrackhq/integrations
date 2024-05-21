@@ -123,12 +123,9 @@ def on_run_tool_callback(
 
 @run_in_main_thread
 def run_bootstrap(client_instance, bootstrap_config):
-    bootstrap_config.get('dialog_name')
-    bootstrap_config['options']['tool_configs']
-    bootstrap_config['options'].get('docked')
-
     name = bootstrap_config.get('name')
     label = bootstrap_config.get('label')
+    tool_config_names = bootstrap_config['options']['tool_configs']
     if bootstrap_config.get('dialog_name'):
         dialog_name = bootstrap_config.get('dialog_name')
         logger.info(
@@ -137,9 +134,7 @@ def run_bootstrap(client_instance, bootstrap_config):
         client_instance.run_dialog(
             dialog_name,
             dialog_options={
-                'tool_config_names': bootstrap_config['options'][
-                    'tool_configs'
-                ],
+                'tool_config_names': tool_config_names,
                 'docked': bootstrap_config['options'].get('docked', False),
             },
             dock_func=dock_maya_right,
