@@ -1,5 +1,9 @@
 # ftrack Utils library release Notes
 
+## upcoming
+* [new] Registry; Support for JS extensions.
+
+
 ## v2.2.0
 2024-05-02
 
