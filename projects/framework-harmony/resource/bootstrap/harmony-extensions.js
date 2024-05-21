@@ -8,11 +8,15 @@
 const EXTENSION_TYPE="js_functions"
 const EXTENSION_NAME="framework-harmony"
 
+// RPC functions
 
-function processEvent(integration, topic, data, id) {
-	info("(Extensions) Processing incoming '"+topic+"' event: "+JSON.stringify(data));
-}
-
+/**
+* Render current project to an image sequence
+*
+* @param {string} destination_path
+* @param {string} prefix
+* @param {string} extension
+*/
 function renderSequence(destination_path, prefix, extension) {
     if (destination_path === undefined) {
         warning("Cannot render, no destination path given!");

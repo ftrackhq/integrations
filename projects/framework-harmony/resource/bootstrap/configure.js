@@ -156,14 +156,14 @@ function TCPServer(host, port, integration) {
 
                 var data = new QByteArray();
 
-                outstr = new QDataStream(data, QIODevice.WriteOnly);
-                outstr.setVersion(QDataStream.Qt_4_6);
-                outstr.writeInt(0);
+                out = new QDataStream(data, QIODevice.WriteOnly);
+                out.setVersion(QDataStream.Qt_4_6);
+                out.writeInt(0);
 
                 data.append(raw_event);
 
-                outstr.device().seek(0);
-                outstr.writeInt(data.size() - 4);
+                out.device().seek(0);
+                out.writeInt(data.size() - 4);
 
                 var written = this.connection.write(data);
                 debug("Sent event "+JSON.stringify(raw_event)+" (length: " + written + ")");
@@ -226,15 +226,12 @@ function TCPServer(host, port, integration) {
 
     this.decodeAndProcessEvent = function(raw_event) {
         debug("Decoding event: " + raw_event)
-        try
-        {
+        try {
             var event = JSON.parse(raw_event)
             // Call event process in base extension
             this.integration.processEvent(event["topic"], event["data"], event["id"]);
-        }
-        catch(err)
-        {
-            warning("Failed to parse and process event! "+err);
+        } catch (err) {
+            warning("Failed to parse and have integration process event! "+err);
             return;
         }
     }
@@ -256,8 +253,6 @@ function TCPServer(host, port, integration) {
         this.listening = false;
         this.socket.close()
     }
-
-
 }
 
 
@@ -278,6 +273,12 @@ function HarmonyIntegration(temp_path) {
         this.spawnIntegration();
         var app = QCoreApplication.instance();
         app.aboutToQuit.connect(app, this.shutdown);
+        // Enable user extension to do additional setup
+        try {
+            ftrackInitialiseExtension(this);
+        } catch (err) {
+            warning("Failed to initialise ftrack user extensions! "+err;
+        }
     }
 
     this.spawnIntegration = function() {
@@ -314,8 +315,12 @@ function HarmonyIntegration(temp_path) {
         } else if (topic === REMOTE_INTEGRATION_RPC_TOPIC) {
             this.handleRemoteIntegrationRPCCallback(topic, data, id);
         } else {
-            // Have extension process event
-            processEvent(integration, topic, data, id);
+            // Have user extension process event
+            try {
+                processUserEvent(integration, topic, data, id):
+            } catch (e) {
+                warning("Could not have user extensions process event, details: "+e);
+            }
         }
     }
 
@@ -330,6 +335,12 @@ function HarmonyIntegration(temp_path) {
 
             // Add menu item, and create shortcut if it is the publish tool
             this.addMenuItem(name, label, name == "publish");
+        }
+
+        try {
+            ftrackIntegrationConnected(this);
+        } catch (err) {
+            warning("Failed to tell user extension we are connected! "+err);
         }
     }
 

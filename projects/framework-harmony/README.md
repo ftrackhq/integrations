@@ -37,9 +37,7 @@ or:
     poetry version major
 ```
 
-7. Bump the connect plugin version in integrations/projects/framework-harmony/connect-plugin/__version__.py
-
-8. Tag and push to SCM
+7. Tag and push to SCM
 
 
 ### CI build

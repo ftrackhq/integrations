@@ -26,19 +26,36 @@ engine:
         options:
           export_type: png
 
-#  # Export Thumbnail
-#  - type: group
-#    tags:
-#      - component
-#    options:
-#      component: thumbnail
-#    plugins:
-#      - type: plugin
-#        plugin: store_component
-#      - type: plugin
-#        tags:
-#          - exporter
-#        plugin: harmony_thumbnail_exporter
+  # Export the reviewable component.
+  - type: group
+    tags:
+      - component
+    options:
+      component: reviewable
+    optional: true
+    #enabled: True by default so is no need
+    plugins:
+      - type: plugin
+        plugin: store_component
+      # Rely on the sequence previously published
+      - type: plugin
+        tags:
+          - exporter
+        plugin: harmony_movie_exporter
+
+  # Export Thumbnail
+  - type: group
+    tags:
+      - component
+    options:
+      component: thumbnail
+    plugins:
+      - type: plugin
+        plugin: store_component
+      - type: plugin
+        tags:
+          - exporter
+        plugin: harmony_thumbnail_exporter
 
   # Common validator check all exported paths exists.
   - type: plugin

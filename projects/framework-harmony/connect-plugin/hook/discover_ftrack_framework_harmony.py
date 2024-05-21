@@ -146,6 +146,115 @@ function TB_sceneOpened()
     return script_folder
 
 
+def sync_js_plugin(app_path, framework_extensions_paths):
+    version_nr = None
+    variant = None
+    for part in app_path.split(os.sep):
+        if part.lower().startswith('toon boom'):
+            for s in re.findall(r'\d+', part):
+                version_nr = s
+                variant = part.split(' ')[-1]
+                break
+            if variant:
+                break
+    logger.info(
+        "Deploying scripts, variant: "
+        + str(variant)
+        + "version: "
+        + str(version_nr)
+        + ", app_path: "
+        + str(app_path)
+    )
+
+    assert (
+        variant
+    ), "Could not determine Harmony variant from executable path: {}".format(
+        app_path
+    )
+    assert (
+        version_nr
+    ), "Could not determine Harmony version from executable path: {}".format(
+        app_path
+    )
+
+    path_scripts = None
+    if sys.platform == "win32":
+        path_scripts = os.path.expandvars("%APPDATA%")
+    elif sys.platform == "linux":
+        path_scripts = os.path.expandvars("$HOME")
+    elif sys.platform == "darwin":
+        path_scripts = os.path.expandvars("$HOME/Library/Preferences")
+
+    if not path_scripts:
+        raise Exception('Could not determine user prefs folder!')
+
+    path_scripts = os.path.realpath(path_scripts)
+
+    path_scripts = os.path.join(
+        path_scripts,
+        'Toon Boom Animation',
+        'Toon Boom Harmony {}'.format(variant),
+    )
+
+    if not path_scripts:
+        raise Exception('Could not determine Harmony prefs folder!')
+
+    path_scripts = os.path.join(
+        path_scripts, '{}00-scripts'.format(version_nr), 'packages', 'ftrack'
+    )
+
+    if not os.path.exists(path_scripts):
+        logger.warning('Creating: {}'.format(path_scripts))
+        os.makedirs(path_scripts)
+    else:
+        # Clean up the folder
+        logger.debug('Removing files at: {}'.format(path_scripts))
+        for fn in os.listdir(path_scripts):
+            file_path = os.path.join(path_scripts, fn)
+            try:
+                if os.path.isfile(file_path):
+                    os.unlink(file_path)
+                elif os.path.isdir(file_path):
+                    shutil.rmtree(file_path)
+                logger.debug(f'Removed: {fn}')
+            except Exception as e:
+                logger.error(f'Failed to delete {file_path}. Reason: {e}')
+
+    bootstrap_folder = os.path.join(
+        connect_plugin_path, "resource", "bootstrap"
+    )
+
+    # Copy the library and bootstrap
+    for fn in ['harmony-utils.js', 'configure.js']:
+        src = os.path.join(bootstrap_folder, fn)
+        dst = os.path.join(path_scripts, fn)
+        shutil.copy(src, dst)
+        logger.debug(f'Copied: {fn}')
+
+    # Copy icons folder
+    src = os.path.join(bootstrap_folder, 'icons')
+    dst = os.path.join(path_scripts, 'icons')
+    shutil.copytree(src, dst)
+    logger.debug(f'Copied: icons')
+
+    # Collect extensions
+
+    registry_instance = registry.Registry()
+    registry_instance.scan_extensions(
+        paths=framework_extensions_paths, extension_types=['js_functions']
+    )
+
+    logger.debug(
+        f'JS functions extensions found: {len(registry_instance.js_functions or [])}'
+    )
+    for js_functions in registry_instance.js_functions or []:
+        fn = os.path.basename(js_functions['path'])
+        src = js_functions['path']
+        dst = os.path.join(path_scripts, fn)
+        shutil.copy(src, dst)
+        logger.debug(f'Copied: {fn}')
+
+
 def on_launch_integration(session, event):
     '''Handle application launch and add environment to *event*.'''
 
@@ -178,17 +287,13 @@ def on_launch_integration(session, event):
                 f'Port {port} is already in use, trying another one.'
             )
 
-    # Create a Harmony plugin loader script
-    script_path = build_harmony_plugin_loader(
+    # Create/sync the Harmony plugin
+    sync_js_plugin(
+        event['data']['application']['path'],
         event['data']['application']['environment_variables'][
             'FTRACK_FRAMEWORK_EXTENSIONS_PATH'
         ].split(os.pathsep),
-        os.environ.get('TOONBOOM_GLOBAL_SCRIPT_LOCATION'),
     )
-
-    launch_data['integration']['env'][
-        'TOONBOOM_GLOBAL_SCRIPT_LOCATION.set'
-    ] = script_path
 
     launch_data['integration']['env'][
         'FTRACK_INTEGRATION_LISTEN_PORT.set'
