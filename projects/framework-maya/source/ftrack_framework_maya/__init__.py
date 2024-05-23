@@ -23,10 +23,6 @@ from ftrack_utils.extensions.environment import (
     get_extensions_path_from_environment,
 )
 from ftrack_utils.usage import set_usage_tracker, UsageTracker
-from ftrack_utils.framework.config.tool import (
-    get_tool_config_by_name,
-    get_plugins,
-)
 
 from ftrack_framework_maya.utils import dock_maya_right, run_in_main_thread
 
@@ -96,63 +92,14 @@ def get_ftrack_menu(menu_name='ftrack', submenu_name=None):
 # mechanisms directly.
 @run_in_main_thread
 def on_run_tool_callback(
-    client_instance, dialog_name, tool_config_names, docked, maya_args
+    client_instance, tool_name, dialog_name=None, options=dict, maya_args=None
 ):
-    if dialog_name:
-        client_instance.run_dialog(
-            dialog_name,
-            dialog_options={
-                'tool_config_names': tool_config_names,
-                'docked': docked or False,
-            },
-            dock_func=dock_maya_right,
-        )
-    else:
-        # TODO move this to the client run_tool_config and get it out from here and from the dialog
-        for tool_config_name in tool_config_names:
-            tool_config = get_tool_config_by_name(
-                client_instance.tool_configs['publisher'], tool_config_name
-            )
-            if not tool_config:
-                logger.error(
-                    f"Couldn't find any tool config matching the name {tool_config_name}"
-                )
-                continue
-            client_instance.run_tool_config(tool_config['reference'])
-
-
-@run_in_main_thread
-def run_bootstrap_tool(client_instance, bootstrap_tool):
-    name = bootstrap_tool.get('name')
-    label = bootstrap_tool.get('label')
-    tool_config_names = bootstrap_tool['options']['tool_configs']
-    if bootstrap_tool.get('dialog_name'):
-        dialog_name = bootstrap_tool.get('dialog_name')
-        logger.info(
-            f"Executing {dialog_name} for bootstrap {name}, with label {label}."
-        )
-        client_instance.run_dialog(
-            dialog_name,
-            dialog_options={
-                'tool_config_names': tool_config_names,
-                'docked': bootstrap_tool['options'].get('docked', False),
-            },
-            dock_func=dock_maya_right,
-        )
-    else:
-        # TODO move this to the client run_tool_config and get it out from here and from the dialog
-        for tool_config_name in tool_config_names:
-            print(client_instance.tool_configs)
-            # TODO: fix tool configs to not be categorized by publisher or opener also be plain, and also in case contain all types
-            tool_config = get_tool_config_by_name(
-                client_instance.tool_configs['publisher'], tool_config_name
-            )
-            if not tool_config:
-                logger.error(
-                    f"Couldn't find any tool config matching the name {tool_config_name}"
-                )
-                continue
-            client_instance.run_tool_config(tool_config['reference'])
+    client_instance.run_tool(
+        tool_name,
+        dialog_name,
+        options,
+        dock_func=dock_maya_right if dialog_name else None,
+    )
 
 
 def bootstrap_integration(framework_extensions_path):
@@ -234,7 +181,7 @@ def bootstrap_integration(framework_extensions_path):
 
     # Register tools into ftrack menu
     for tool in dcc_config['tools']:
-        execute_on = tool.get("on", "menu")
+        execute_on = tool.get("execute_on", "menu")
         if execute_on == "menu":
             cmds.menuItem(
                 parent=ftrack_menu,
@@ -243,21 +190,27 @@ def bootstrap_integration(framework_extensions_path):
                     functools.partial(
                         on_run_tool_callback,
                         client_instance,
+                        tool.get('name'),
                         tool.get('dialog_name'),
-                        tool['options']['tool_configs'],
-                        tool['options'].get('docked'),
+                        tool['options'],
                     )
                 ),
                 image=":/{}.png".format(tool['icon']),
             )
-        elif execute_on == "bootstrap":
-            # Execute bootstrap tool-configs
-            run_bootstrap_tool(client_instance, tool)
+        elif execute_on == "start":
+            # Execute start tool-configs
+            on_run_tool_callback(
+                client_instance,
+                tool.get('name'),
+                tool.get('dialog_name'),
+                tool['options'],
+            )
         else:
             logger.error(
                 f"Unsuported execute on: {execute_on} tool section of the "
                 f"tool {tool.get('name')} on the tool config file: "
-                f"{dcc_config['name']}"
+                f"{dcc_config['name']}. \n Currently supported values:"
+                f" [start, menu]"
             )
 
     return client_instance

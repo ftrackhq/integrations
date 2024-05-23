@@ -2,6 +2,7 @@ type: dcc_config
 name: framework-maya
 tools:
   - name: publish
+    execute_on: menu
     label: "Publish"
     dialog_name: framework_standard_publisher_dialog
     icon: publish
@@ -9,8 +10,8 @@ tools:
       tool_configs:
         - maya-scene-publisher
       docked: true
-    on: menu
   - name: open
+    execute_on: menu
     label: "Open"
     dialog_name: framework_standard_opener_dialog
     icon: open
@@ -18,12 +19,11 @@ tools:
       tool_configs:
         - maya-scene-opener
       docked: false
-    on: menu
   # Execute tool config without UI
   - name: scripts
-    label: "Non_UI_Scripts"
+    execute_on: start # menu is also allowed for now
+    label: "My New ui"
     icon: open
     options:
       tool_configs:
         - maya-setup-scene
-    on: bootstrap # menu is also allowed for now
