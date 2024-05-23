@@ -122,12 +122,12 @@ def on_run_tool_callback(
 
 
 @run_in_main_thread
-def run_bootstrap(client_instance, bootstrap_config):
-    name = bootstrap_config.get('name')
-    label = bootstrap_config.get('label')
-    tool_config_names = bootstrap_config['options']['tool_configs']
-    if bootstrap_config.get('dialog_name'):
-        dialog_name = bootstrap_config.get('dialog_name')
+def run_bootstrap_tool(client_instance, bootstrap_tool):
+    name = bootstrap_tool.get('name')
+    label = bootstrap_tool.get('label')
+    tool_config_names = bootstrap_tool['options']['tool_configs']
+    if bootstrap_tool.get('dialog_name'):
+        dialog_name = bootstrap_tool.get('dialog_name')
         logger.info(
             f"Executing {dialog_name} for bootstrap {name}, with label {label}."
         )
@@ -135,7 +135,7 @@ def run_bootstrap(client_instance, bootstrap_config):
             dialog_name,
             dialog_options={
                 'tool_config_names': tool_config_names,
-                'docked': bootstrap_config['options'].get('docked', False),
+                'docked': bootstrap_tool['options'].get('docked', False),
             },
             dock_func=dock_maya_right,
         )
@@ -234,23 +234,31 @@ def bootstrap_integration(framework_extensions_path):
 
     # Register tools into ftrack menu
     for tool in dcc_config['tools']:
-        cmds.menuItem(
-            parent=ftrack_menu,
-            label=tool['label'],
-            command=(
-                functools.partial(
-                    on_run_tool_callback,
-                    client_instance,
-                    tool.get('dialog_name'),
-                    tool['options']['tool_configs'],
-                    tool['options'].get('docked'),
-                )
-            ),
-            image=":/{}.png".format(tool['icon']),
-        )
-    # Execute bootstrap tool-configs
-    for bootstrap in dcc_config['bootstrap']:
-        run_bootstrap(client_instance, bootstrap)
+        execute_on = tool.get("on", "menu")
+        if execute_on == "menu":
+            cmds.menuItem(
+                parent=ftrack_menu,
+                label=tool['label'],
+                command=(
+                    functools.partial(
+                        on_run_tool_callback,
+                        client_instance,
+                        tool.get('dialog_name'),
+                        tool['options']['tool_configs'],
+                        tool['options'].get('docked'),
+                    )
+                ),
+                image=":/{}.png".format(tool['icon']),
+            )
+        elif execute_on == "bootstrap":
+            # Execute bootstrap tool-configs
+            run_bootstrap_tool(client_instance, tool)
+        else:
+            logger.error(
+                f"Unsuported execute on: {execute_on} tool section of the "
+                f"tool {tool.get('name')} on the tool config file: "
+                f"{dcc_config['name']}"
+            )
 
     return client_instance
 
