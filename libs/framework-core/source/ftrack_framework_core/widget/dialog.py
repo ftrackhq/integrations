@@ -2,6 +2,7 @@
 # :copyright: Copyright (c) 2024 ftrack
 
 import logging
+import traceback
 import uuid
 from functools import partial
 
@@ -336,19 +337,27 @@ class FrameworkDialog(BaseUI):
             )
             self.logger.error(error_message)
             raise Exception(error_message)
-        widget = widget_class(
-            self.event_manager,
-            self.client_id,
-            self.context_id,
-            plugin_config,
-            group_config,
-            on_set_plugin_option=partial(
-                self._on_set_plugin_option_callback, plugin_config['reference']
-            ),
-            on_run_ui_hook=partial(
-                self._on_run_ui_hook_callback, plugin_config['reference']
-            ),
-        )
+        try:
+            widget = widget_class(
+                self.event_manager,
+                self.client_id,
+                self.context_id,
+                plugin_config,
+                group_config,
+                on_set_plugin_option=partial(
+                    self._on_set_plugin_option_callback,
+                    plugin_config['reference'],
+                ),
+                on_run_ui_hook=partial(
+                    self._on_run_ui_hook_callback, plugin_config['reference']
+                ),
+            )
+        except:
+            # Log the exception and raise it
+            self.logger.exception(
+                msg='Error while loading widget : {}'.format(widget_class)
+            )
+            raise
         # TODO: widgets can't really run any plugin (like fetch) before it gets
         #  registered, so In case someone automatically fetches during the init
         #  of the widget it will fail because its not registered yet. Task is to
