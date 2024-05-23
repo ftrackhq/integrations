@@ -12,16 +12,12 @@ from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 class HarmonyThumbnailExporterPlugin(BasePlugin):
     name = 'harmony_thumbnail_exporter'
 
+    SUPPORTED_FORMATS = ['bmp', 'gif', 'jpeg', 'jpg', 'png', 'tif', 'tiff']
+
     def run(self, store):
         '''
-        Create a screenshot from the selected camera given in the *store*.
-        Save it to a temp file and this one will be published as thumbnail.
-        '''
-        component_name = self.options.get('component')
-
-        '''
-        Pick up previously rendered image sequence and transcode it to a movie file, storing the path
-        in the *store* under the component name.
+        Pick up previously rendered image sequence and pick the middle image
+        for use as thumbnail if possible.
         '''
         component_name = self.options.get('component')
         sequence_expression = (
@@ -38,12 +34,19 @@ class HarmonyThumbnailExporterPlugin(BasePlugin):
                 message=f"Could not parse image sequence from: {sequence_expression}"
             )
 
+        # Check if the format is supported
+        extension = collection.format('{tail}')
+        if extension not in self.SUPPORTED_FORMATS:
+            self.logger.warning(
+                f'Unsupported thumbnail format: {extension}, skipping'
+            )
+            return
+
         # Pick the middle frame
         middle_frame = list(collection.indexes)[
             int(len(collection.indexes) / 2)
         ]
 
-        extension = collection.format('{tail}')
         image_path = get_temp_path(filename_extension=extension)
 
         # Copy the frame to the temp path

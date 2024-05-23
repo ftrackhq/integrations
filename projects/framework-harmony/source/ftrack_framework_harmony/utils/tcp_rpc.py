@@ -154,7 +154,7 @@ class TCPRPCClient(QtCore.QObject):
     def is_connected(self):
         return self.socket and (
             self.connection_status()
-            == QtNetwork.QAbstractSocket.ConnectedState
+            == QtNetwork.QAbstractSocket.SocketState.ConnectedState
         )
 
     def _check_connection(self):
@@ -163,7 +163,7 @@ class TCPRPCClient(QtCore.QObject):
         self.logger.debug(f'Connection status: {self.connection_status()}')
         if (
             self.connection_status()
-            == QtNetwork.QAbstractSocket.ConnectedState
+            == QtNetwork.QAbstractSocket.SocketState.ConnectedState
         ):
             result = self.connection_status()
             self.logger.debug(
@@ -187,12 +187,12 @@ class TCPRPCClient(QtCore.QObject):
             self._connected_callback()
         elif (
             self.connection_status()
-            != QtNetwork.QAbstractSocket.ConnectingState
+            != QtNetwork.QAbstractSocket.SocketState.ConnectingState
         ):
             # Connection refused, DCC not up yet
             self._connection_attempts -= 1
             if self._connection_attempts == 0:
-                self.logger.error(f'DCC never launcher, giving up...')
+                self.logger.error(f'DCC never launched, giving up.')
                 self._failure_callback()
             else:
                 self.logger.warning('DCC not up yet, reconnecting in 2s')
@@ -208,8 +208,8 @@ class TCPRPCClient(QtCore.QObject):
                 self._failure_callback()
             else:
                 self.logger.warning(
-                    f'Could not connect to the DCC event hub (waited: {elapsed}s), retrying...'
-                    f' Details: {self.socket.error()}'
+                    f'Could not connect to the DCC event hub (waited: {elapsed}s), '
+                    f'retrying. Details: {self.socket.error()}'
                 )
 
     def connect_dcc(self, connected_callback, failure_callback):
@@ -221,7 +221,7 @@ class TCPRPCClient(QtCore.QObject):
 
         self._connected_callback = connected_callback
         self._failure_callback = failure_callback
-        self._connection_attempts = 30
+        self._connection_attempts = 60  # Wait 2mins for DCC to start
 
         self.logger.info(
             f'Connecting to DCC event hub @ {self.host}:{self.port} '
@@ -265,12 +265,14 @@ class TCPRPCClient(QtCore.QObject):
         if self.socket.state() in (
             QtNetwork.QAbstractSocket.SocketState.UnconnectedState,
         ):
-            self.connect()
+            raise Exception('Not connected to Harmony')
 
         block = QtCore.QByteArray()
 
-        outstr = QtCore.QDataStream(block, QtCore.QIODevice.WriteOnly)
-        outstr.setVersion(QtCore.QDataStream.Qt_4_6)
+        outstr = QtCore.QDataStream(
+            block, QtCore.QIODevice.OpenModeFlag.WriteOnly
+        )
+        outstr.setVersion(QtCore.QDataStream.Version.Qt_4_6)
 
         outstr.writeString(str(data))
 
@@ -288,10 +290,10 @@ class TCPRPCClient(QtCore.QObject):
             self._receive()
 
     def _receive(self):
-        self.logger.debug('Receiving data ... ')
+        self.logger.debug('Receiving data')
 
         stream = QtCore.QDataStream(self.socket)
-        stream.setVersion(QtCore.QDataStream.Qt_4_6)
+        stream.setVersion(QtCore.QDataStream.Version.Qt_4_6)
 
         i = 0
         while self.socket.bytesAvailable() > 0:
@@ -357,7 +359,12 @@ class TCPRPCClient(QtCore.QObject):
             self.send_reply(event, {})
 
     def send(
-        self, topic, event_data, in_reply_to_event=None, synchronous=False
+        self,
+        topic,
+        event_data,
+        in_reply_to_event=None,
+        synchronous=False,
+        timeout=None,
     ):
         '''Send an event to the DCC'''
         event_data[
@@ -391,7 +398,7 @@ class TCPRPCClient(QtCore.QObject):
             self._reply_id = event['id']
             self._handle_reply_event_callback = handle_reply_event
 
-            timeout = self.REPLY_WAIT_TIMEOUT
+            wait = timeout or self.REPLY_WAIT_TIMEOUT
             waited = 0
             try:
                 self.logger.info(
@@ -403,7 +410,7 @@ class TCPRPCClient(QtCore.QObject):
                     time.sleep(0.1)
                     waited += 100
 
-                    if timeout <= waited:
+                    if -1 < wait <= waited:
                         raise Exception(
                             f'Timeout waiting for reply for event: {event["id"]}'
                         )
@@ -423,13 +430,14 @@ class TCPRPCClient(QtCore.QObject):
         '''Send a reply to an event back to DCC'''
         self.send(event['topic'], data, in_reply_to_event=event['id'])
 
-    def rpc(self, function_name, args=None):
+    def rpc(self, function_name, args=None, timeout=None):
         '''
         Send a remote procedure call to the DCC and return the result.
 
         :param function_name: The function to execute
         :param args: The arguments to pass
         execute async.
+        :param timeout: The timeout in seconds to wait for a response, -1 and it will wait forever.
         :return: The result return from DCC.
         '''
 
@@ -443,7 +451,7 @@ class TCPRPCClient(QtCore.QObject):
 
         event_topic = constants.event.REMOTE_INTEGRATION_RPC_TOPIC
 
-        response = self.send(event_topic, data, None, True)
+        response = self.send(event_topic, data, None, True, timeout=timeout)
 
         self.logger.debug(
             f'Got {self.dcc_name.title()} RPC response: {response}'
@@ -461,7 +469,7 @@ class TCPRPCClient(QtCore.QObject):
             socketError
             == QtNetwork.QAbstractSocket.SocketError.RemoteHostClosedError
         ):
-            self.logger.error('Host closed the connection...')
+            self.logger.error('Host closed the connection.')
         elif (
             socketError
             == QtNetwork.QAbstractSocket.SocketError.HostNotFoundError

@@ -23,8 +23,10 @@ engine:
         tags:
           - exporter
         plugin: harmony_sequence_exporter
+        ui: harmony_image_options_selector
         options:
           export_type: png
+          export_format: ""
 
   # Export the reviewable component.
   - type: group

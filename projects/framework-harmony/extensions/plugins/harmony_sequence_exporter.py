@@ -19,14 +19,13 @@ class HarmonySequenceExporterPlugin(BasePlugin):
         in *store* under the component name.
         '''
         component_name = self.options.get('component')
+        extension = self.options.get('export_type') or 'png'
+        export_format = self.options.get('export_format') or ''
 
         temp_folder = get_temp_path()
         os.makedirs(temp_folder)
 
         prefix = "image"
-        extension = (
-            store['components'][component_name].get('export_type') or "png"
-        )
 
         try:
             # Get existing RPC connection instance
@@ -39,10 +38,12 @@ class HarmonySequenceExporterPlugin(BasePlugin):
             render_response = harmony_connection.rpc(
                 'renderSequence',
                 [
-                    "{}{}".format(temp_folder, os.sep),
+                    '{}{}'.format(temp_folder, os.sep),
                     prefix,
                     extension.replace('.', ''),
+                    export_format,
                 ],
+                timeout=-1,  # Wait indefinitely, we don't know how long the render will take
             )
         except Exception as e:
             self.logger.exception(e)

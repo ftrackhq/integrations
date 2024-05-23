@@ -17,7 +17,7 @@ const EXTENSION_NAME="framework-harmony"
 * @param {string} prefix
 * @param {string} extension
 */
-function renderSequence(destination_path, prefix, extension) {
+function renderSequence(destination_path, prefix, extension, format_option) {
     if (destination_path === undefined) {
         warning("Cannot render, no destination path given!");
         return;
@@ -35,18 +35,18 @@ function renderSequence(destination_path, prefix, extension) {
     end = integration.getEndFrame()
     //if (data.end_frame != undefined)
     //    end_frame = data.end_frame;
-    info("(Extensions) Rendering '"+integration.getScenePath()+"', frames: "+start+"-"+end+" > "+destination_path)
+    info("(Extensions) Rendering '"+integration.getScenePath()+"', frames: "+start+"-"+end+" > "+destination_path+" using format/extension: "+extension+" with option: "+format_option);
 
-    function frameReady(frame, celImage)
-    {
+    function frameReady(frame, celImage) {
         var imagePath = destination_path + "/" + prefix + "." + frame + "." + extension;
         // Save the image here.
-        celImage.imageFile(imagePath);
-
+        if (format_option !== undefined && format_option.length > 0) {
+            celImage.imageFile(imagePath, extension, format_option);
+        } else
+            celImage.imageFile(imagePath, extension);
         info("Frame " + frame + " ready @ "+imagePath);
     }
-    function renderFinished()
-    {
+    function renderFinished() {
         info("Render Finished");
     }
     render.renderFinished.connect(renderFinished);
