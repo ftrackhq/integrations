@@ -1,0 +1,43 @@
+type: launch_config
+name: framework-houdini-core
+priority: 100
+context:
+  - Task
+identifier: ftrack-framework-launch-houdini-core
+applicationIdentifier: houdini_{variant}
+integrations:
+  framework:
+    - framework-houdini
+label: Houdini
+icon: houdini
+variant: "Core {version}"
+search_path:
+  linux:
+    prefix:
+      - "/"
+      - opt
+    expression:
+      - hfs.*
+      - bin
+      - houdinicore-bin$
+    version_expression: (?P<version>[\\d.+]{4})
+  windows:
+    prefix:
+      - C:\
+      - Program Files.*
+    expression:    
+      - Side Effects Software
+      - Houdini.*
+      - bin
+      - houdinicore.exe
+  darwin:
+    prefix:
+      - "/"
+      - Applications
+    expression:
+      - Houdini
+      - Houdini*
+      - Houdini Core \d.+.app
+extensions_path:
+  - extensions/common
+  - extensions/houdini

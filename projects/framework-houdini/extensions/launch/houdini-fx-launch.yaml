@@ -1,26 +1,26 @@
 type: launch_config
-name: framework-houdini
+name: framework-houdini-fx
 priority: 100
 context:
   - Task
-identifier: ftrack-framework-launch-houdini
+identifier: ftrack-framework-launch-houdini-fx
 applicationIdentifier: houdini_{variant}
 integrations:
   framework:
     - framework-houdini
 label: Houdini
 icon: houdini
-variant: "{version}"
+variant: "FX {version}"
 search_path:
   linux:
     prefix:
       - "/"
-      - usr
-      - local
-      - Houdini.*
+      - opt
     expression:
-      - Houdini\d.+
-    version_expression: Houdini(?P<version>.*)\/.+$
+      - hfs.*
+      - bin
+      - houdinifx-bin$
+    version_expression: (?P<version>[\\d.+]{4})
   windows:
     prefix:
       - C:\
@@ -29,7 +29,7 @@ search_path:
       - Side Effects Software
       - Houdini.*
       - bin
-      - happrentice.exe
+      - houdinifx.exe
   darwin:
     prefix:
       - "/"
@@ -37,7 +37,7 @@ search_path:
     expression:
       - Houdini
       - Houdini*
-      - Houdini\s[a-zA-Z]+\s\d.+.app
+      - Houdini FX \d.+.app
 extensions_path:
   - extensions/common
   - extensions/houdini
