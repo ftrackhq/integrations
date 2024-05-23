@@ -1,7 +1,9 @@
 /**
  * Harmony ftrack integration
  * 
- * Base extensions
+ * Base extension
+ *
+ * Copyright (c) 2024 ftrack
  */
 "use strict";
 
@@ -13,14 +15,16 @@ const EXTENSION_NAME="framework-harmony"
 /**
 * Render current project to an image sequence
 *
-* @param {string} destination_path
-* @param {string} prefix
+* @param {string} destination_path The folder to render to
+* @param {string} prefix The prefix for the image files
 * @param {string} extension
+* @param {string} format_option
+* @returns {boolean} True if successful
 */
 function renderSequence(destination_path, prefix, extension, format_option) {
     if (destination_path === undefined) {
         warning("Cannot render, no destination path given!");
-        return;
+        return false;
     }
     var integration = getIntegration();
     if (prefix === undefined) {
@@ -61,4 +65,4 @@ function renderSequence(destination_path, prefix, extension, format_option) {
     return true;
 }
 
-info("(Extensions) Loaded");
+info("(Base extension) Loaded");

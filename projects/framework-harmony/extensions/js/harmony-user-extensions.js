@@ -1,7 +1,9 @@
 /**
  * Harmony ftrack integration
+ *
+ * User extension
  * 
- * Base extensions
+ * Copyright (c) 2024 ftrack
  */
 "use strict";
 
@@ -39,5 +41,9 @@ function processUserEvent(integration, topic, data, id) {
 	return false;
 }
 
+// Add RPC functions here
+
+
+info("(User extension) Loaded");
 
 

@@ -47,12 +47,9 @@ def check_port(port, host='localhost'):
     """
     Check if a port is free to use or not.
 
-    Parameters:
-    port (int): The port number to check.
-    host (str): The host IP address or hostname. Default is 'localhost'.
-
-    Returns:
-    bool: True if the port is free, False otherwise.
+    :param port: The port to check.
+    :param host: The host to check the port on.
+    :return: True if the port is in use, False if it is free.
     """
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.settimeout(2)  # Timeout in case the socket server does not respond
@@ -65,88 +62,14 @@ def check_port(port, host='localhost'):
         return True
 
 
-def build_harmony_plugin_loader(framework_extensions_paths, script_folder):
-    if not script_folder:
-        script_folder = get_temp_path()
-        os.makedirs(script_folder)
-
-    script_path = os.path.join(script_folder, "TB_sceneOpened.js")
-
-    bootstrap_folder = os.path.join(
-        connect_plugin_path, "resource", "bootstrap-test"
-    )
-
-    with open(script_path, "w") as f:
-        f.write(
-            """
-/**
- * Harmony ftrack integration
- * 
- * Main JS entry point
- */
-"use strict";
-
-try {
-        """
-        )
-
-        utils_path = os.path.join(bootstrap_folder, "utils.js").replace(
-            '\\', '/'
-        )
-        f.write(
-            f"""
-    MessageLog.trace("[ftrack] Including utilities");
-    include("{utils_path}");
-        """
-        )
-
-        # Collect extensions
-
-        registry_instance = registry.Registry()
-        registry_instance.scan_extensions(
-            paths=framework_extensions_paths, extension_types=['js_functions']
-        )
-
-        logger.debug(
-            f'Extensions found: {len(registry_instance.js_functions or [])}'
-        )
-        for js_functions in registry_instance.js_functions or []:
-            f.write(
-                f"""
-    MessageLog.trace("[ftrack] Including extension: {js_functions['name']}");
-    include("{js_functions['path']}");
-            """
-            )
-
-        bootstrap_path = os.path.join(
-            bootstrap_folder, "bootstrap.js"
-        ).replace('\\', '/')
-        f.write(
-            f"""
-    MessageLog.trace("[ftrack] Including bootstrap");
-    include("{bootstrap_path}");
-        """
-        )
-
-        f.write(
-            """
-
-} catch (err) {
-    MessageLog.trace("[ftrack] FAILED to include resources: "+err);       
-}
-
-function TB_sceneOpened()
-{
-  MessageLog.trace("[ftrack] Bootstrapped");
-  bootstrapIntegration();
-}
-        """
-        )
-
-    return script_folder
-
-
 def sync_js_plugin(app_path, framework_extensions_paths):
+    '''
+    Sync the JS plugin to the user's Harmony scripts folder, removing any existing files.
+
+    :param app_path: The full path to DCC executable.
+    :param framework_extensions_paths: List of paths to scan for extensions.
+    :return:
+    '''
     version_nr = None
     variant = None
     for part in app_path.split(os.sep):
@@ -216,7 +139,7 @@ def sync_js_plugin(app_path, framework_extensions_paths):
     )
 
     # Copy the library and bootstrap
-    for fn in ['harmony-utils.js', 'configure.js']:
+    for fn in ['utils.js', 'configure.js']:
         src = os.path.join(bootstrap_folder, fn)
         dst = os.path.join(path_scripts, fn)
         shutil.copy(src, dst)
@@ -278,7 +201,7 @@ def on_launch_integration(session, event):
                 f'Port {port} is already in use, trying another one.'
             )
 
-    # Create/sync the Harmony plugin
+    # Re-create the Harmony plugin taking extension into account
     sync_js_plugin(
         event['data']['application']['path'],
         event['data']['application']['environment_variables'][

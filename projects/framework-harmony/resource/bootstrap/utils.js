@@ -2,6 +2,8 @@
  * Harmony ftrack integration
  * 
  * Utilities and helper classes
+ *
+ * Copyright (c) 2024 ftrack
  */
 "use strict";
 

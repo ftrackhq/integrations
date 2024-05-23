@@ -27,7 +27,7 @@ class ExportedPathsValidatorPlugin(BasePlugin):
                 continue
             # Check if image sequence
             dirname, basename = os.path.split(exported_path)
-            if basename.find("%d") > -1 or basename.find("#") > -1:
+            if basename.find("%d") > -1:
                 collection = clique.parse(exported_path)
                 if not collection:
                     raise PluginValidationError(

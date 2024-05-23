@@ -1,7 +1,9 @@
 /**
  * Harmony ftrack integration
  * 
- * Main JS entry point
+ * Main JS plugin entry point
+ *
+ * Copyright (c) 2024 ftrack
  */
 "use strict";
 
@@ -18,18 +20,10 @@ const REMOTE_INTEGRATION_RPC_TOPIC = _BASE_ + ".remote.integration.rpc";
 // Sent from standalone process to remote integration in order to run a function
 // within JS and return the result
 
-/*MessageLog.trace("===========================================================");
-for (var property in this) {
-    try {
-        MessageLog.trace(property + ": " + this[property]);
-    } catch (error) {
-        MessageLog.trace(error.stack+"");
-    }
-}*/
 
 if (this['__packageFolder__']) {
     MessageLog.trace("[ftrack] Including utilities");
-    include(__packageFolder__+"/ftrack/harmony-utils.js");
+    include(__packageFolder__+"/ftrack/utils.js");
 
     info("Including base extensions");
     include(__packageFolder__+"/ftrack/harmony-extensions.js");
@@ -40,29 +34,6 @@ if (this['__packageFolder__']) {
     // Menu launch, create launchers
     QCoreApplication.instance().integration.createLaunchers(this);
 }
-
-
-/*
-var funcName = "testFunc";
-var args = "'Hello'";
-
-eval(funcName + "(" + args + ")");
-*/
-
-
-
-
-// Event commands
-
-
-/*const TOPIC_CLIENT_LAUNCH = "ftrack.pipeline.client.launch";
-const TOPIC_PING = "ftrack.pipeline.ping";
-const TOPIC_RENDER_DO = "ftrack.pipeline.render.do";
-const TOPIC_RENDER_FINISHED = "ftrack.pipeline.render.finished";
-
-const TOPIC_SHUTDOWN = "ftrack.pipeline.shutdown";*/
-
-
 
 /*
 * TCP server implementation acting as a scaled down event hub, that
@@ -233,34 +204,24 @@ function TCPServer(host, port, integration) {
 }
 
 
-function HarmonyIntegration(temp_path) {
+function HarmonyIntegration() {
     // The ftrack Harmony integration handler
 
-    this.temp_path = temp_path;
     this.harmony_session_id = null;
 
-    this._tcp_server = null;
+    this.tcp_server = null;
 
     this.initialized = false;
     this.session = null;
 
     this.launchers = [];
 
-    this.bootstrap = function() {
-        this.spawnIntegration();
-        var app = QCoreApplication.instance();
-        app.aboutToQuit.connect(app, this.shutdown);
-        // Enable user extension to do additional setup
-        try {
-            ftrackInitialiseExtension(this);
-        } catch (err) {
-            warning("Failed to initialise ftrack user extensions! "+err);
-        }
-    }
+    /**
+    * Initialize the integration, start TCP server and listen for incoming events
+    */
+    this.initializeIntegration = function() {
 
-    this.spawnIntegration = function() {
-
-        debug("spawnIntegration()");
+        debug("Initializing integration");
 
         this.harmony_session_id = System.getenv("FTRACK_REMOTE_INTEGRATION_SESSION_ID");
         if (!this.harmony_session_id) {
@@ -268,21 +229,37 @@ function HarmonyIntegration(temp_path) {
             return;
         }
 
-        info('Session ID: '+this.harmony_session_id);
+        info('DCC session ID: '+this.harmony_session_id);
 
         // Spawn TCP server and start listening to events
 
         var port = parseInt(System.getenv("FTRACK_INTEGRATION_LISTEN_PORT"));
-        this._tcp_server = new TCPServer("localhost", port, this);
-        this._tcp_server.start();
+        this.tcp_server = new TCPServer("localhost", port, this);
+        this.tcp_server.start();
+
+        var app = QCoreApplication.instance();
+        app.aboutToQuit.connect(app, this.shutdown);
+
+        // Enable user extension to do additional setup
+        try {
+            ftrackInitialiseExtension(this);
+        } catch (err) {
+            warning("Failed to initialise ftrack user extensions! "+err);
+        }
 
         this.initialized = true;
     }
 
+    /**
+    * Send event to standalone integration
+    */
     this.sendEvent = function(topic, data, in_reply_to_event) {
-        this._tcp_server.send(topic, data, in_reply_to_event);
+        this.tcp_server.send(topic, data, in_reply_to_event);
     }
 
+    /**
+    * Process incoming event from standalone integration.
+    */
     this.processEvent = function(topic, data, id) {
         info("Processing incoming '"+topic+"' event: "+JSON.stringify(data));
         if (topic === REMOTE_INTEGRATION_CONTEXT_DATA_TOPIC) {
@@ -301,6 +278,10 @@ function HarmonyIntegration(temp_path) {
         }
     }
 
+    /**
+    * Handle context data from standalone integration, build menus and notify
+    * user extension of connection.
+    */
     this.handleIntegrationContextDataCallback = function(topic, data, id) {
         info("Got context data from standalone integration, building menus.");
         this.launchers = data["panel_launchers"];
@@ -310,7 +291,7 @@ function HarmonyIntegration(temp_path) {
             var name = launcher["name"];
             var label = launcher["label"];
 
-            // Add menu item, and create shortcut if it is the publish tool
+            // Add menu item, and create shortcut if it is the primary publish tool
             this.addMenuItem(name, label, name == "publish");
         }
 
@@ -321,11 +302,13 @@ function HarmonyIntegration(temp_path) {
         }
     }
 
+    /**
+    * Add a menu item to the Harmony 'Windows' main menu
+    */
     this.addMenuItem = function(name, label, add_shortcut) {
         //---------------------------
         //Create Menu item
 
-        //action = "launchTool('"+name+"') in ./actions.js";
         action = "launch_"+name+" in ./configure.js";
         payload = {
             targetMenuId : "Windows",
@@ -364,6 +347,10 @@ function HarmonyIntegration(temp_path) {
         ScriptManager.addMenuItem( payload );
     }
 
+    /**
+    * Create launchers for each tool in the integration, bind it to the global
+    * script this context to facilitate menu callbacks.
+    */
     this.createLaunchers = function(this_) {
         for (var idx = 0; idx < this.launchers.length; idx++) {
             var launcher = this.launchers[idx];
@@ -385,30 +372,12 @@ function HarmonyIntegration(temp_path) {
         }
     }
 
-    this.launchTool = function(tool_name) {
-        // Find dialog by *tool_name* and launch it
-        var dialog_name = undefined, tool_configs = undefined;
-        for (var idx = 0; idx < this.launchers.length; idx++) {
-            var launcher = this.launchers[idx];
-            if (launcher.name == tool_name) {
-                dialog_name = launcher["dialog_name"];
-                tool_configs = launcher["options"]["tool_configs"];
-                break;
-            }
-        }
-
-        this.sendEvent(
-            REMOTE_INTEGRATION_RUN_DIALOG_TOPIC,
-            {
-                "dialog_name": dialog_name,
-                "tool_configs": tool_configs
-            }
-        )
-    }
-
+    /**
+    * Handle RPC calls from standalone process - run function with arguments
+    * supplied in event and return the result
+    */
     this.handleRemoteIntegrationRPCCallback = function(topic, data, id) {
-        /* Handle RPC calls from standalone process - run function with arguments
-            supplied in event and return the result.*/
+        /* .*/
         try {
             var function_name = data.function_name;
 
@@ -451,25 +420,37 @@ function HarmonyIntegration(temp_path) {
         }
     }
 
+    /**
+    * Get the current scene path
+    */
     this.getScenePath = function() {
         var scene_path = scene.currentProjectPath();
         return scene_path;
     }
 
+    /**
+    * Get the current start frame
+    */
     this.getStartFrame = function(data) {
         var start_frame = scene.getStartFrame();
         return start_frame;
     }
 
+    /**
+    * Get the current end frame
+    */
     this.getEndFrame = function(data) {
         var end_frame = scene.getStopFrame();
         return end_frame;
     }
 
+    /**
+    * Run on shutdown - tear down TCP server
+    */
     this.shutdown = function() {
         warning("Shutting down ftrack integration.")
         // terminate tcp server
-        this._tcp_server.close();
+        this.tcp_server.close();
     }
 }
 
@@ -480,8 +461,8 @@ function configure(packageFolder, packageName)
 
     var app = QCoreApplication.instance();
 
-    app.integration = new HarmonyIntegration(System.getenv("TMPDIR"));
-    app.integration.bootstrap();
+    app.integration = new HarmonyIntegration();
+    app.integration.initializeIntegration();
 }
 
 function init()
