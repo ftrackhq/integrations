@@ -1,11 +1,12 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2024 ftrack
+# :copyright: Copyright (c) 2024 ftrack
 
 from ftrack_utils.paths import get_temp_path
 from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
 import hou
+
 
 class HoudiniSaveToTempPlugin(BasePlugin):
     name = 'houdini_save_to_temp_finalizer'
@@ -22,9 +23,7 @@ class HoudiniSaveToTempPlugin(BasePlugin):
             save_path = get_temp_path(filename_extension=scene_type)
             # Save Houdini scene to this path
             hou.hipFile.save(save_path, False)
-            self.logger.debug(
-                f"Houdini scene saved to temp path: {save_path}"
-            )
+            self.logger.debug(f"Houdini scene saved to temp path: {save_path}")
         except Exception as error:
             raise PluginExecutionError(
                 message=f"Error attempting to save the current scene to a "

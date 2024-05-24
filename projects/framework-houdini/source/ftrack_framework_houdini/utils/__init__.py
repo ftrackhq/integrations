@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2024 ftrack
+# :copyright: Copyright (c) 2024 ftrack
 
 import threading
 import xml.etree.ElementTree as ET
@@ -10,6 +10,7 @@ import tempfile
 import hou
 
 created_widgets = dict()
+
 
 # Dock widget in Houdini
 def dock_houdini_right(widget):
@@ -24,15 +25,20 @@ def dock_houdini_right(widget):
     panel_xml = _generate_pypanel_xml(class_name)
     xml = unescape(ET.tostring(panel_xml).decode())
 
-    xml_path = os.path.join(tempfile.gettempdir(), 'ftrack', 'connect', '{}.pypanel'.format("Title 1"))
+    xml_path = os.path.join(
+        tempfile.gettempdir(),
+        'ftrack',
+        'connect',
+        '{}.pypanel'.format("Title 1"),
+    )
 
     if not os.path.exists(os.path.dirname(xml_path)):
         os.makedirs(os.path.dirname(xml_path))
-    
+
     with open(xml_path, "w") as xml_file_handle:
         xml_file_handle.write(xml)
         xml_file_handle.close()
-    
+
     hou.pypanel.installFile(xml_path)
 
     panel_interface = None
@@ -44,19 +50,15 @@ def dock_houdini_right(widget):
                 break
     except hou.OperationFailed as e:
         hou.ui.displayMessage("Something wrong with Python Panel")
-    
+
     main_tab = hou.ui.curDesktop().findPaneTab("Ftrack_ID")
     if main_tab:
-        panel = main_tab.pane().createTab(
-            hou.paneTabType.PythonPanel
-        )
+        panel = main_tab.pane().createTab(hou.paneTabType.PythonPanel)
         panel.showToolbar(True)
         panel.setActiveInterface(panel_interface)
     else:
         if panel_interface:
-            hou.hscript(
-                'pane -S -m pythonpanel -o -n {}'.format("Ftrack_ID")
-            )
+            hou.hscript('pane -S -m pythonpanel -o -n {}'.format("Ftrack_ID"))
             panel = hou.ui.curDesktop().findPaneTab("Ftrack_ID")
             panel.showToolbar(True)
             panel.setActiveInterface(panel_interface)
@@ -75,6 +77,7 @@ def run_in_main_thread(f):
             return f(*args, **kwargs)
 
     return decorated
+
 
 def _generate_pypanel_xml(widget_name):
     '''Write temporary xml file for pypanel'''
@@ -99,7 +102,9 @@ def onCreateInterface():
     widget.setLayout(layout)
     return widget
 ]]>
-""".format(widget_name)
+""".format(
+        widget_name
+    )
     help = ET.SubElement(interface, "help")
     help.text = "<![CDATA[]]>"
 

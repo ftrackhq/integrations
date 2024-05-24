@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2024 ftrack
+# :copyright: Copyright (c) 2024 ftrack
 
 import logging
 import os
@@ -21,7 +21,10 @@ from ftrack_utils.extensions.environment import (
     get_extensions_path_from_environment,
 )
 
-from ftrack_framework_houdini.utils import dock_houdini_right, run_in_main_thread
+from ftrack_framework_houdini.utils import (
+    dock_houdini_right,
+    run_in_main_thread,
+)
 
 
 # Evaluate version and log package version
@@ -44,15 +47,14 @@ configure_logging(
 logger = logging.getLogger(__name__)
 logger.debug('v{}'.format(__version__))
 
+
 @run_in_main_thread
-def on_run_dialog_callback(
-    dialog_name, tool_config_names, docked
-):
+def on_run_dialog_callback(dialog_name, tool_config_names, docked):
     client_instance.run_dialog(
         dialog_name,
         dialog_options={
             'tool_config_names': tool_config_names,
-            'docked': docked
+            'docked': docked,
         },
         dock_func=dock_houdini_right,
     )
@@ -67,6 +69,7 @@ def get_ftrack_menu():
     insert_before = ET.SubElement(ftrack_menu, "insertBefore")
     insert_before.text = "help_menu"
     return (root, ftrack_menu)
+
 
 def bootstrap_integration(framework_extensions_path):
     '''
@@ -129,8 +132,9 @@ def bootstrap_integration(framework_extensions_path):
 
     return client_instance
 
+
 def _get_menu_item_script(tool):
-    ''' Return script for ftrack menu item '''
+    '''Return script for ftrack menu item'''
     return f"""
 <![CDATA[
 import functools
@@ -145,6 +149,7 @@ callable = functools.partial(
 hdefereval.executeDeferred(callable)
 ]]>
 """
+
 
 # Find and read DCC config
 try:

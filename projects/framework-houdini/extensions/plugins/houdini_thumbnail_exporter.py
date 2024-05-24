@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2023 ftrack
+# :copyright: Copyright (c) 2024 ftrack
 
 import os
 import tempfile
@@ -32,7 +32,7 @@ class HoudiniThumbnailExporterPlugin(BasePlugin):
             )
             if os.name == "nt":
                 thumbnail_path = thumbnail_path.replace("\\", "\\\\")
-            
+
             desktop = hou.ui.curDesktop()
             scene_view = toolutils.sceneViewer()
 
@@ -40,7 +40,7 @@ class HoudiniThumbnailExporterPlugin(BasePlugin):
                 scene_view.type() != hou.paneTabType.SceneViewer
             ):
                 raise hou.Error('No scene view available to flipbook')
-            
+
             viewport = scene_view.curViewport()
 
             if viewport.camera() is not None:
@@ -48,7 +48,7 @@ class HoudiniThumbnailExporterPlugin(BasePlugin):
                     viewport.camera().parm('resx').eval(),
                     viewport.camera().parm('resy').eval(),
                 ]
-            
+
             view = '{}.{}.world.{}'.format(
                 desktop.name(),
                 scene_view.name(),
@@ -56,7 +56,9 @@ class HoudiniThumbnailExporterPlugin(BasePlugin):
             )
 
             self.logger.debug(
-                'Creating thumbnail from view {} to {}.'.format(view, thumbnail_path)
+                'Creating thumbnail from view {} to {}.'.format(
+                    view, thumbnail_path
+                )
             )
 
             executeCommand = 'viewwrite -c -f 0 1 -r {} {} {} {}'.format(
@@ -64,8 +66,10 @@ class HoudiniThumbnailExporterPlugin(BasePlugin):
             )
 
             hou.hscript(executeCommand)
-            
-            self.logger.debug(f"Thumbnail has been saved to: {thumbnail_path}.")
+
+            self.logger.debug(
+                f"Thumbnail has been saved to: {thumbnail_path}."
+            )
         except Exception as error:
             raise PluginExecutionError(message=error)
 
