@@ -11,7 +11,7 @@ class MayaSetupFrameRangeStartupPlugin(BasePlugin):
 
     def run(self, store):
         '''
-        Set the selected camera name to the *store*
+        Set the maya frame range and frame rate from the ftrack custom attributes
         '''
         context_id = self.context_id
         task = self.session.get('Context', context_id)
