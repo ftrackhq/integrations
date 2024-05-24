@@ -222,7 +222,6 @@ class Host(object):
 
         tool_config_reference = event['data']['tool_config_reference']
         client_options = event['data']['client_options']
-        client_options
 
         for typed_configs in self.tool_configs.values():
             tool_config = None
