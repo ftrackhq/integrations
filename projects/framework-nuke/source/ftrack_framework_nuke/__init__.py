@@ -72,17 +72,15 @@ client_instance = None
 
 
 @run_in_main_thread
-def on_run_dialog_callback(dialog_name, tool_config_names, docked):
-    client_instance.run_dialog(
+def on_run_tool_callback(tool_name, dialog_name=None, options=dict):
+    client_instance.run_tool(
+        tool_name,
         dialog_name,
-        dialog_options={
-            'tool_config_names': tool_config_names,
-            'docked': docked,
-        },
-        dock_func=partial(dock_nuke_right),
+        options,
+        dock_func=partial(dock_nuke_right) if dialog_name else None,
     )
     # Prevent bug in Nuke were curve editor is activated on docking a panel
-    if docked:
+    if options.get("docked"):
         find_nodegraph_viewer(activate=True)
 
 
@@ -159,26 +157,37 @@ def bootstrap_integration(framework_extensions_path):
 
     logger.debug(f'Read DCC config: {dcc_config}')
 
-    globals()['onRunDialogCallback'] = on_run_dialog_callback
+    globals()['onRunToolCallback'] = on_run_tool_callback
 
     ftrack_menu = get_ftrack_menu(submenu_name=None)
 
     for tool in dcc_config['tools']:
+        execute_on = tool.get("execute_on", "menu")
         name = tool['name']
-        dialog_name = tool['dialog_name']
-        tool_config_names = tool.get('options', {}).get('tool_configs')
-        label = tool.get('label')
-        docked = tool.get('options', {}).get('docked')
-
-        if name == 'separator':
-            ftrack_menu.addSeparator()
-        else:
-            ftrack_menu.addCommand(
-                label,
-                f'{__name__}.onRunDialogCallback("{dialog_name}",{str(tool_config_names)}, {docked})',
+        dialog_name = tool.get('dialog_name')
+        options = tool.get('options')
+        if execute_on == "menu":
+            if tool['name'] == 'separator':
+                ftrack_menu.addSeparator()
+            else:
+                ftrack_menu.addCommand(
+                    tool['label'],
+                    f'{__name__}.onRunToolCallback("{name}","{dialog_name}", {options})',
+                )
+        elif execute_on == "startup":
+            # Execute startup tool-configs
+            on_run_tool_callback(
+                name,
+                dialog_name,
+                options,
             )
-
-    # TODO: setup animation timeline - frame rate, start and end frame
+        else:
+            logger.error(
+                f"Unsuported execute on: {execute_on} tool section of the "
+                f"tool {tool.get('name')} on the tool config file: "
+                f"{dcc_config['name']}. \n Currently supported values:"
+                f" [startup, menu]"
+            )
 
 
 # Find and read DCC config

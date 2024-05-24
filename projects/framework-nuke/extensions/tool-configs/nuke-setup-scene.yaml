@@ -1,0 +1,5 @@
+type: tool_config
+name: nuke-setup-scene
+config_type: setup
+engine:
+  - nuke_setup_frame_range
