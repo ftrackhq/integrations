@@ -25,7 +25,7 @@ class HoudiniSceneExporterPlugin(BasePlugin):
 
         export_type = store['components'][component_name].get('export_type')
 
-        scene_name = store['components'][component_name].get('scene_name')
+        scene_path = store['components'][component_name].get('scene_path')
 
         if export_type == 'selection':
             try:
@@ -38,16 +38,16 @@ class HoudiniSceneExporterPlugin(BasePlugin):
                 for obj in selected_objects:
                     if obj in geometry_objects:
                         collected_objects.append(obj.path())
-                
+
                 hou.copyNodesToClipboard(
                     [hou.node(obj_path) for obj_path in collected_objects]
                 )
 
                 command = "hou.pasteNodesFromClipboard(hou.node('/obj'));\
                     hou.hipFile.save('{}')".format(
-                        save_path.replace("\\", "\\\\")
-                    )
-                
+                    save_path.replace("\\", "\\\\")
+                )
+
                 cmd = [
                     os.path.join(os.getenv('HFS'), 'bin', 'hython'),
                     '-c',
@@ -57,7 +57,7 @@ class HoudiniSceneExporterPlugin(BasePlugin):
                 my_env = os.environ.copy()
                 if 'HOUDINI_PATH' in my_env:
                     del my_env['HOUDINI_PATH']
-                
+
                 if subprocess.Popen(cmd, env=my_env).wait() != 0:
                     return False, {'message': 'Node export failed!'}
 
@@ -68,6 +68,6 @@ class HoudiniSceneExporterPlugin(BasePlugin):
                 )
 
         else:
-            exported_path = scene_name
+            exported_path = scene_path
 
         store['components'][component_name]['exported_path'] = exported_path

@@ -14,10 +14,10 @@ class HoudiniSceneCollectorPlugin(BasePlugin):
         '''
         Set the desired export_type for the current scene and the desired
         extension format to be published to the *store*. Also collect the
-        scene_name and collect if scene is saved.
+        scene_path and collect if scene is saved.
         '''
         try:
-            scene_name = hou.hipFile.path()
+            scene_path = hou.hipFile.path()
         except Exception as error:
             raise PluginExecutionError(
                 f"Error retrieving the scene name: {error}"
@@ -29,10 +29,10 @@ class HoudiniSceneCollectorPlugin(BasePlugin):
                 f"Error Checking if the scene is saved: {error}"
             )
 
-        self.logger.debug(f"Current scene name is: {scene_name}.")
+        self.logger.debug(f"Current scene path is: {scene_path}.")
         self.logger.debug(f"Is current scene saved?: {scene_saved}.")
 
         component_name = self.options.get('component', 'main')
 
-        store['components'][component_name]['scene_name'] = scene_name
+        store['components'][component_name]['scene_path'] = scene_path
         store['components'][component_name]['scene_saved'] = scene_saved

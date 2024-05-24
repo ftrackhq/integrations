@@ -33,7 +33,7 @@ class HoudiniSceneSavedValidatorPlugin(BasePlugin):
             raise PluginExecutionError(message=error)
 
         component_name = self.options.get('component', 'main')
-        store['components'][component_name]['scene_name'] = save_path
+        store['components'][component_name]['scene_path'] = save_path
         store['components'][component_name]['scene_saved'] = True
         store['components'][component_name]['valid_file'] = True
 
@@ -59,10 +59,10 @@ class HoudiniSceneSavedValidatorPlugin(BasePlugin):
         '''
         component_name = self.options.get('component', 'main')
 
-        scene_name = store['components'][component_name].get('scene_name')
+        scene_path = store['components'][component_name].get('scene_path')
         scene_saved = store['components'][component_name].get('scene_saved')
 
-        if not scene_name:
+        if not scene_path:
             # Scene is not saved, save it first.
             self.logger.warning('Houdini scene has never been saved.')
             raise PluginValidationError(
