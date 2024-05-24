@@ -9,15 +9,17 @@ Community owned Houdini integration for ftrack.
 ### Preparations
 
 
-Install Poetry
+1. Install Poetry
 
-Create a Python >=3.7, <3.12 virtual environment. If you're using an Apple Silicon chip, follow the instructions in the [How to install compatible PySide2 on Silicon based Mac](../../README.md#how-to-install-compatible-pyside2-on-silicon-based-mac) section. 
+2. Create a Python >=3.7, <3.12 virtual environment. If you're using an Apple Silicon chip, follow the instructions in the [How to install compatible PySide2 on Silicon based Mac](../../README.md#how-to-install-compatible-pyside2-on-silicon-based-mac) section. 
 
-Activate the virtual environment. 
+3. Activate the virtual environment. 
 
-Update release notes.
+4. If any dependent libraries updated, make sure to release them to PyPi prior to building the plugin.
 
-Set or bump version in pyproject.toml:
+5. Update release notes.
+
+6. Set or bump version in pyproject.toml:
 
 ```bash
     poetry version prerelease
@@ -35,9 +37,14 @@ or:
     poetry version major
 ```
 
-Bump the connect plugin version in integrations/projects/framework-houdini/connect-plugin/__version__.py
+7. If dependencies updated, update the Poetry lock file. Remember to properly validate/test the change of dependencies.
 
-Tag and push to SCM
+```bash
+    $ poetry update
+```
+
+8. Tag and push to SCM
+
 
 
 ### CI build
@@ -58,7 +65,7 @@ Build Connect plugin:
 
 ```bash
     cd integrations
-    python tools/build.py  --include_resources resource/bootstrap --from_source build_connect_plugin projects/framework-houdini
+    python tools/build.py  --include_resources resource/bootstrap build_connect_plugin projects/framework-houdini
 ```
 
 If the build fails and Houdini is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 
@@ -66,21 +73,6 @@ to build the plugin.
 
 To build from source, not involving PyPi, use the `--from_source` flag.
 
-
-### Build documentation
-
-
-Install documentation dependencies:
-
-```bash
-    poetry install --only documentation
-```
-
-Build documentation:
-
-```bash
-    poetry run sphinx-build -b html doc dist/doc
-```
 
 ## Installing
 
