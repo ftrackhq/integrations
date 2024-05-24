@@ -340,9 +340,9 @@ class Client(object):
         self.host_connection.reset_all_tool_configs()
 
     @track_framework_usage(
-        'FRAMEWORK_RUN_DIALOG',
+        'FRAMEWORK_RUN_TOOL',
         {'module': 'client'},
-        ['dialog_name', 'dialog_options'],
+        ['name'],
     )
     def run_tool(self, name, dialog_name=None, options=dict, dock_func=False):
         ''' '''
@@ -357,10 +357,15 @@ class Client(object):
                 dock_func=dock_func,
             )
         else:
+            # TODO: temporal hack solution to get all self.tool_configs on a plain list.
+            tool_configs = [
+                config
+                for sublist in self.tool_configs.values()
+                for config in sublist
+            ]
             for tool_config_name in options.get('tool_configs'):
-                # I need to check over all tool configs not just publisher
                 tool_config = get_tool_config_by_name(
-                    self.tool_configs['publisher'], tool_config_name
+                    tool_configs, tool_config_name
                 )
                 if not tool_config:
                     self.logger.error(

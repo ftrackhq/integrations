@@ -1,8 +1,0 @@
-type: tool_config
-name: maya-setup-scene
-config_type: publisher
-engine:
-  - type: plugin
-    tags:
-      - bootstrap
-    plugin: maya_hello_world

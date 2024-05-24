@@ -222,6 +222,7 @@ class Host(object):
 
         tool_config_reference = event['data']['tool_config_reference']
         client_options = event['data']['client_options']
+        client_options
 
         for typed_configs in self.tool_configs.values():
             tool_config = None
@@ -247,6 +248,7 @@ class Host(object):
             engine_instance = engine_registry['extension'](
                 self.registry,
                 session,
+                self.context_id,
                 on_plugin_executed=self.on_plugin_executed_callback,
             )
         except Exception:

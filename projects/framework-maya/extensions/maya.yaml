@@ -20,10 +20,8 @@ tools:
         - maya-scene-opener
       docked: false
   # Execute tool config without UI
-  - name: scripts
-    execute_on: start # menu is also allowed for now
-    label: "My New ui"
-    icon: open
+  - name: set_frame_range
+    execute_on: startup # menu is also allowed for now
     options:
       tool_configs:
         - maya-setup-scene

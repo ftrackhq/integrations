@@ -197,8 +197,8 @@ def bootstrap_integration(framework_extensions_path):
                 ),
                 image=":/{}.png".format(tool['icon']),
             )
-        elif execute_on == "start":
-            # Execute start tool-configs
+        elif execute_on == "startup":
+            # Execute startup tool-configs
             on_run_tool_callback(
                 client_instance,
                 tool.get('name'),
@@ -210,7 +210,7 @@ def bootstrap_integration(framework_extensions_path):
                 f"Unsuported execute on: {execute_on} tool section of the "
                 f"tool {tool.get('name')} on the tool config file: "
                 f"{dcc_config['name']}. \n Currently supported values:"
-                f" [start, menu]"
+                f" [startup, menu]"
             )
 
     return client_instance
