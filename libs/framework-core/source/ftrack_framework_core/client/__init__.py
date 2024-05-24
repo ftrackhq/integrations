@@ -15,8 +15,6 @@ from ftrack_framework_core.client.host_connection import HostConnection
 
 from ftrack_utils.decorators import track_framework_usage
 
-from ftrack_utils.framework.config.tool import get_tool_config_by_name
-
 
 class Client(object):
     '''
@@ -338,41 +336,6 @@ class Client(object):
         Ask host connection to reset values of all tool_configs
         '''
         self.host_connection.reset_all_tool_configs()
-
-    @track_framework_usage(
-        'FRAMEWORK_RUN_TOOL',
-        {'module': 'client'},
-        ['name'],
-    )
-    def run_tool(self, name, dialog_name=None, options=dict, dock_func=False):
-        ''' '''
-        self.logger.info(f"Running{name} tool")
-        if dialog_name:
-            self.run_dialog(
-                dialog_name,
-                dialog_options={
-                    'tool_config_names': options.get('tool_configs'),
-                    'docked': options.get('docked', False),
-                },
-                dock_func=dock_func,
-            )
-        else:
-            # TODO: temporal hack solution to get all self.tool_configs on a plain list.
-            tool_configs = [
-                config
-                for sublist in self.tool_configs.values()
-                for config in sublist
-            ]
-            for tool_config_name in options.get('tool_configs'):
-                tool_config = get_tool_config_by_name(
-                    tool_configs, tool_config_name
-                )
-                if not tool_config:
-                    self.logger.error(
-                        f"Couldn't find any tool config matching the name {tool_config_name}"
-                    )
-                    continue
-                self.run_tool_config(tool_config['reference'])
 
     # UI
     @track_framework_usage(

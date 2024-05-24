@@ -21,18 +21,11 @@ class BasePlugin(ABC):
         return self._session
 
     @property
-    def context_id(self):
-        '''
-        Returns the context_id where the plugin it's been executed on
-        '''
-        return self._context_id
-
-    @property
     def options(self):
         '''Return the context options of the plugin'''
         return self._options
 
-    def __init__(self, options, session, context_id=None):
+    def __init__(self, options, session):
         '''
         Initialise BasePlugin with instance of
         :class:`ftrack_api.session.Session`
@@ -44,7 +37,6 @@ class BasePlugin(ABC):
 
         self._options = options
         self._session = session
-        self._context_id = context_id
 
     def ui_hook(self, payload):
         '''
