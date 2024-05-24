@@ -1,5 +1,0 @@
-type: tool_config
-name: maya-setup-scene
-config_type: setup
-engine:
-  - maya_setup_frame_range

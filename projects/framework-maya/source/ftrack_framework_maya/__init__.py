@@ -91,14 +91,16 @@ def get_ftrack_menu(menu_name='ftrack', submenu_name=None):
 # functionalities, which might not be guaranteed if you use Qt’s threading
 # mechanisms directly.
 @run_in_main_thread
-def on_run_tool_callback(
-    client_instance, tool_name, dialog_name=None, options=dict, maya_args=None
+def on_run_dialog_callback(
+    client_instance, dialog_name, tool_config_names, docked, maya_args
 ):
-    client_instance.run_tool(
-        tool_name,
+    client_instance.run_dialog(
         dialog_name,
-        options,
-        dock_func=dock_maya_right if dialog_name else None,
+        dialog_options={
+            'tool_config_names': tool_config_names,
+            'docked': docked,
+        },
+        dock_func=dock_maya_right,
     )
 
 
@@ -181,38 +183,20 @@ def bootstrap_integration(framework_extensions_path):
 
     # Register tools into ftrack menu
     for tool in dcc_config['tools']:
-        execute_on = tool.get("execute_on", "menu")
-        if execute_on == "menu":
-            cmds.menuItem(
-                parent=ftrack_menu,
-                label=tool['label'],
-                command=(
-                    functools.partial(
-                        on_run_tool_callback,
-                        client_instance,
-                        tool.get('name'),
-                        tool.get('dialog_name'),
-                        tool['options'],
-                    )
-                ),
-                image=":/{}.png".format(tool['icon']),
-            )
-        elif execute_on == "startup":
-            # Execute startup tool-configs
-            on_run_tool_callback(
-                client_instance,
-                tool.get('name'),
-                tool.get('dialog_name'),
-                tool['options'],
-            )
-        else:
-            logger.error(
-                f"Unsuported execute on: {execute_on} tool section of the "
-                f"tool {tool.get('name')} on the tool config file: "
-                f"{dcc_config['name']}. \n Currently supported values:"
-                f" [startup, menu]"
-            )
-
+        cmds.menuItem(
+            parent=ftrack_menu,
+            label=tool['label'],
+            command=(
+                functools.partial(
+                    on_run_dialog_callback,
+                    client_instance,
+                    tool['dialog_name'],
+                    tool['options']['tool_configs'],
+                    tool['options']['docked'],
+                )
+            ),
+            image=":/{}.png".format(tool['icon']),
+        )
     return client_instance
 
 
