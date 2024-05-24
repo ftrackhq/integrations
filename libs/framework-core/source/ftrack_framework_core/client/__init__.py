@@ -345,8 +345,11 @@ class Client(object):
         ['name'],
     )
     def run_tool(self, name, dialog_name=None, options=dict, dock_func=False):
-        ''' '''
-        self.logger.info(f"Running{name} tool")
+        '''
+        Client runs the tool passed from the DCC config, can run run_dialog
+        if the tool has UI or directly run_tool_config if it doesn't.
+        '''
+        self.logger.info(f"Running {name} tool")
         if dialog_name:
             self.run_dialog(
                 dialog_name,
