@@ -63,8 +63,6 @@ def dock_houdini_right(widget):
             panel.showToolbar(True)
             panel.setActiveInterface(panel_interface)
 
-    # hou.ui.displayMessage(widget)
-
 
 def run_in_main_thread(f):
     '''Make sure a function runs in the main Houdini thread.'''
