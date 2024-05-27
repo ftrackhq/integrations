@@ -61,6 +61,7 @@ def on_run_dialog_callback(dialog_name, tool_config_names, docked):
 
 
 def get_ftrack_menu():
+    '''Construct the xml representation of the ftrack menu.'''
     root = ET.Element("mainMenu")
     menubar = ET.SubElement(root, "menuBar")
     ftrack_menu = ET.SubElement(menubar, "subMenu")
