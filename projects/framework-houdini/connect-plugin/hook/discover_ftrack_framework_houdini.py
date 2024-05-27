@@ -106,7 +106,7 @@ def register(session):
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.discover and '
         'data.application.identifier=houdini*'
-        ' and data.application.version >= 18',
+        ' and data.application.version >= 19',
         handle_discovery_event,
         priority=40,
     )
@@ -116,7 +116,7 @@ def register(session):
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.launch and '
         'data.application.identifier=houdini*'
-        ' and data.application.version >= 18',
+        ' and data.application.version >= 19',
         handle_launch_event,
         priority=40,
     )
