@@ -4,10 +4,12 @@
 import logging
 import os
 import functools
+import shutil
 
 import ftrack_api
 
 from ftrack_utils.version import get_connect_plugin_version
+from ftrack_utils.paths import get_temp_path
 
 # The name of the integration, should match name in launcher.
 NAME = 'framework-houdini'
@@ -49,6 +51,16 @@ def on_launch_integration(session, event):
 
     if not launch_data['integration'].get('env'):
         launch_data['integration']['env'] = {}
+    
+    ftrack_menu_xml_file = get_temp_path('xml')
+    logger.info(f'Creating temp menu file: {ftrack_menu_xml_file}')
+    ftrack_menu_xml_file_folder = os.path.dirname(os.path.abspath(ftrack_menu_xml_file))
+    new_menu_file_name = os.path.join(ftrack_menu_xml_file_folder, 'MainMenuCommon.xml')
+    try:
+        shutil.copy(ftrack_menu_xml_file, new_menu_file_name)
+        logger.info(f'Copied temp menu file to: {new_menu_file_name}')
+    except Exception as error:
+        logger.exception('Failed to copy menu file: ' + str(error))
 
     bootstrap_path = os.path.join(connect_plugin_path, 'resource', 'bootstrap')
     logger.info('Adding {} to PYTHONPATH'.format(bootstrap_path))
@@ -56,9 +68,9 @@ def on_launch_integration(session, event):
     current_houdini_path = os.environ.get('HOUDINI_PATH')
 
     houdini_path_append = (
-        os.path.pathsep.join(['&', bootstrap_path])
+        os.path.pathsep.join(['&', bootstrap_path, ftrack_menu_xml_file_folder])
         if current_houdini_path and not current_houdini_path.endswith('&')
-        else bootstrap_path
+        else os.path.pathsep.join([bootstrap_path, ftrack_menu_xml_file_folder])
     )
 
     launch_data['integration']['env'][
@@ -70,6 +82,9 @@ def on_launch_integration(session, event):
     launch_data['integration']['env']['FTRACK_HOUDINI_VERSION'] = str(
         integration_version
     )
+    launch_data['integration']['env'][
+        'FTRACK_HOUDINI_XML_MENU_FILE'
+    ] = ftrack_menu_xml_file_folder
 
     selection = event['data'].get('context', {}).get('selection', [])
 
