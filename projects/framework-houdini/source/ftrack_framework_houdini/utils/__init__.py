@@ -5,7 +5,8 @@ import threading
 import xml.etree.ElementTree as ET
 from xml.sax.saxutils import unescape
 import os
-import tempfile
+
+from ftrack_utils.paths import get_temp_path
 
 import hou
 
@@ -25,12 +26,7 @@ def dock_houdini_right(widget):
     panel_xml = _generate_pypanel_xml(class_name)
     xml = unescape(ET.tostring(panel_xml).decode())
 
-    xml_path = os.path.join(
-        tempfile.gettempdir(),
-        'ftrack',
-        'connect',
-        '{}.pypanel'.format("Title 1"),
-    )
+    xml_path = get_temp_path('pypanel')
 
     if not os.path.exists(os.path.dirname(xml_path)):
         os.makedirs(os.path.dirname(xml_path))
