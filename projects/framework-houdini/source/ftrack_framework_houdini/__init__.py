@@ -123,10 +123,9 @@ def bootstrap_integration(framework_extensions_path):
 
     # Write xml to file
     xml_path = os.path.join(xml_menu_file_folder, "MainMenuCommon.xml")
-    if not os.path.exists(xml_path):
-        with open(xml_path, "w") as xml_file_handle:
-            xml_file_handle.write(xml)
-            xml_file_handle.close()
+    with open(xml_path, "w") as xml_file_handle:
+        xml_file_handle.write(xml)
+        xml_file_handle.close()
 
     return client_instance
 
