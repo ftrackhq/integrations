@@ -181,8 +181,9 @@ def bootstrap_integration(framework_extensions_path):
 
     # Register tools into ftrack menu
     for tool in dcc_config['tools']:
-        execute_on = tool.get("execute_on", "menu")
-        if execute_on == "menu":
+        run_on = tool.get("run_on")
+        on_menu = tool.get("menu", True)
+        if on_menu:
             cmds.menuItem(
                 parent=ftrack_menu,
                 label=tool['label'],
@@ -197,7 +198,7 @@ def bootstrap_integration(framework_extensions_path):
                 ),
                 image=":/{}.png".format(tool['icon']),
             )
-        elif execute_on == "startup":
+        if run_on and run_on == "startup":
             # Execute startup tool-configs
             on_run_tool_callback(
                 client_instance,
@@ -207,10 +208,10 @@ def bootstrap_integration(framework_extensions_path):
             )
         else:
             logger.error(
-                f"Unsuported execute on: {execute_on} tool section of the "
+                f"Unsuported run_on value: {run_on} tool section of the "
                 f"tool {tool.get('name')} on the tool config file: "
                 f"{dcc_config['name']}. \n Currently supported values:"
-                f" [startup, menu]"
+                f" [startup]"
             )
 
     return client_instance

@@ -69,6 +69,7 @@ def get_ftrack_menu(menu_name='ftrack', submenu_name=None):
 
 
 client_instance = None
+startup_tools = []
 
 
 @run_in_main_thread
@@ -162,11 +163,14 @@ def bootstrap_integration(framework_extensions_path):
     ftrack_menu = get_ftrack_menu(submenu_name=None)
 
     for tool in dcc_config['tools']:
-        execute_on = tool.get("execute_on", "menu")
+        run_on = tool.get("run_on")
+        on_menu = tool.get("menu", True)
         name = tool['name']
         dialog_name = tool.get('dialog_name')
         options = tool.get('options')
-        if execute_on == "menu":
+        # TODO: In the future, we should probably emit an event so plugins can
+        #  subscribe to it. and run_on specific event.
+        if on_menu:
             if tool['name'] == 'separator':
                 ftrack_menu.addSeparator()
             else:
@@ -174,20 +178,29 @@ def bootstrap_integration(framework_extensions_path):
                     tool['label'],
                     f'{__name__}.onRunToolCallback("{name}","{dialog_name}", {options})',
                 )
-        elif execute_on == "startup":
-            # Execute startup tool-configs
-            on_run_tool_callback(
-                name,
-                dialog_name,
-                options,
+
+        if run_on and run_on == "startup":
+            # Add all tools on a global variable as they can't be executed until
+            # root node is created.
+            startup_tools.append(
+                [
+                    name,
+                    dialog_name,
+                    options,
+                ]
             )
         else:
             logger.error(
-                f"Unsuported execute on: {execute_on} tool section of the "
+                f"Unsuported run_on value: {run_on} tool section of the "
                 f"tool {tool.get('name')} on the tool config file: "
                 f"{dcc_config['name']}. \n Currently supported values:"
-                f" [startup, menu]"
+                f" [startup]"
             )
+
+
+def execute_startup_tools():
+    for tool in startup_tools:
+        on_run_tool_callback(*tool)
 
 
 # Find and read DCC config
