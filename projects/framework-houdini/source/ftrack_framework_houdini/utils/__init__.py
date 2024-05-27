@@ -9,6 +9,7 @@ import os
 from ftrack_utils.paths import get_temp_path
 
 import hou
+from hdefereval import executeInMainThreadWithResult
 
 created_widgets = dict()
 
@@ -65,8 +66,7 @@ def run_in_main_thread(f):
 
     def decorated(*args, **kwargs):
         if threading.currentThread().name != 'MainThread':
-            pass
-            # return houdini_utils.executeInMainThreadWithResult(f, *args, **kwargs)
+            return executeInMainThreadWithResult(f, *args, **kwargs)
         else:
             return f(*args, **kwargs)
 
