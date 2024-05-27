@@ -85,16 +85,20 @@ def _generate_pypanel_xml(widget_name):
     script = ET.SubElement(interface, "script")
     script.text = """
 <![CDATA[
-# import hou
-# hou.ui.displayMessage(globals())
 from PySide2.QtWidgets import QWidget, QVBoxLayout
 import __main__
 layout = QVBoxLayout()
 layout.addWidget(__main__.ftrack_framework_houdini.utils.created_widgets['{}'])
-def onCreateInterface():
+def get_widget():
     widget = QWidget()
     widget.setLayout(layout)
     return widget
+def onCreateInterface():
+    '''For Houdini >=20'''
+    return get_widget()
+def createInterface():
+    '''For Houdini <20'''
+    return get_widget()
 ]]>
 """.format(
         widget_name
