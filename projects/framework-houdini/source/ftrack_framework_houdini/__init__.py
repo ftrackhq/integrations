@@ -118,13 +118,11 @@ def bootstrap_integration(framework_extensions_path):
     # Unescaping and decoding to avoid ending up with encoded CDATA
     xml = unescape(ET.tostring(root).decode())
 
-    # Find the bootstrap folder where to save MainMenuCommon.xml
-    dirname = os.path.dirname(__file__)
-    framework_path = os.path.abspath(os.path.join(dirname, "..", ".."))
-    bootstrap_path = os.path.join(framework_path, "resource", "bootstrap")
+    # Find the temp file where to write xml for MainMenuCommon.xml
+    xml_menu_file_folder = os.environ['FTRACK_HOUDINI_XML_MENU_FILE']
 
     # Write xml to file
-    xml_path = os.path.join(bootstrap_path, "MainMenuCommon.xml")
+    xml_path = os.path.join(xml_menu_file_folder, "MainMenuCommon.xml")
     if not os.path.exists(xml_path):
         with open(xml_path, "w") as xml_file_handle:
             xml_file_handle.write(xml)
