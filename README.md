@@ -18,11 +18,11 @@
 | libs/constants/source/ftrack\_constants/status/\_\_init\_\_.py                |       10 |        0 |    100% |           |
 | libs/framework-core/source/ftrack\_framework\_core/\_\_init\_\_.py            |        8 |        2 |     75% |     13-14 |
 | libs/framework-core/source/ftrack\_framework\_core/configure\_logging.py      |       47 |        6 |     87% |31-35, 72-78 |
-| libs/framework-core/source/ftrack\_framework\_core/engine/\_\_init\_\_.py     |      111 |       37 |     67% |29, 58, 76-77, 85, 123-161, 170, 185, 198, 234-251 |
+| libs/framework-core/source/ftrack\_framework\_core/engine/\_\_init\_\_.py     |      115 |       37 |     68% |29, 72, 90-91, 99, 139-177, 186, 201, 214, 250-267 |
 | libs/framework-core/source/ftrack\_framework\_core/exceptions/\_\_init\_\_.py |        2 |        0 |    100% |           |
 | libs/framework-core/source/ftrack\_framework\_core/exceptions/engine.py       |        3 |        1 |     67% |        11 |
 | libs/framework-core/source/ftrack\_framework\_core/exceptions/plugin.py       |       21 |       12 |     43% |15, 25-27, 33-42, 51 |
-| libs/framework-core/source/ftrack\_framework\_core/plugin/\_\_init\_\_.py     |       28 |        9 |     68% |14, 21, 46, 54, 61-74 |
+| libs/framework-core/source/ftrack\_framework\_core/plugin/\_\_init\_\_.py     |       32 |       10 |     69% |14, 21, 28, 54, 62, 69-82 |
 | libs/framework-core/source/ftrack\_framework\_core/plugin/plugin\_info.py     |       24 |        2 |     92% |    10, 52 |
 | libs/framework-core/source/ftrack\_framework\_core/registry/\_\_init\_\_.py   |      112 |       50 |     55% |22, 29, 36, 43, 50, 57, 64, 71, 75, 102-118, 126, 143, 147, 149, 151, 162-163, 182-183, 190-191, 203-206, 213-244 |
 | libs/utils/source/ftrack\_utils/\_\_init\_\_.py                               |        6 |        2 |     67% |     13-14 |
@@ -45,7 +45,7 @@
 | libs/utils/source/ftrack\_utils/version/\_\_init\_\_.py                       |       31 |       22 |     29% |13-20, 24-31, 38-52 |
 | tests/framework/unit/\_\_init\_\_.py                                          |        0 |        0 |    100% |           |
 | tests/framework/unit/test\_engine.py                                          |       49 |        0 |    100% |           |
-|                                                                     **TOTAL** |  **805** |  **263** | **67%** |           |
+|                                                                     **TOTAL** |  **813** |  **264** | **68%** |           |
 
 
 ## Setup coverage badge
