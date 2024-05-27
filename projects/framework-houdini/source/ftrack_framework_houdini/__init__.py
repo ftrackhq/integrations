@@ -3,7 +3,6 @@
 
 import logging
 import os
-import traceback
 import xml.etree.ElementTree as ET
 from xml.sax.saxutils import unescape
 
@@ -155,7 +154,7 @@ hdefereval.executeDeferred(callable)
 # Find and read DCC config
 try:
     bootstrap_integration(get_extensions_path_from_environment())
-except:
+except Exception as error:
     # Make sure any exception that happens are logged as there is most likely no console
-    logger.error(traceback.format_exc())
+    logger.exception(error)
     raise
