@@ -1,6 +1,7 @@
 # ftrack Framework Core library release Notes
 
-## v2.3.0rc1
+## v2.3.0
+2024-05-27
 
 * [changed] Context id passed to the BaseEngine and BasePlugin to know the context where they are executed.
 * [new] Add run_tool method on client so can read configs coming from DCC-config file.
