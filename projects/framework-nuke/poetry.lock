@@ -167,13 +167,13 @@ ftrack-libs = ["ftrack-utils (>=2.0.0,<3.0.0)"]
 
 [[package]]
 name = "ftrack-framework-core"
-version = "2.3.0rc1"
+version = "2.3.0"
 description = "ftrack Framework Core library"
-optional = true
-python-versions = "<3.12,>=3.7"
+optional = false
+python-versions = ">=3.7,<3.12"
 files = [
-    {file = "ftrack_framework_core-2.3.0rc1-py3-none-any.whl", hash = "sha256:1d059425498a9887618255cbc3cff9855d67d094dbde1d7f4e57e8925a5e27e6"},
-    {file = "ftrack_framework_core-2.3.0rc1.tar.gz", hash = "sha256:a47ada5e9c09aac03474f5a5b0cdce71a57e33b52a930342e5b0ab5b6592282e"},
+    {file = "ftrack_framework_core-2.3.0-py3-none-any.whl", hash = "sha256:7ca6a903816fac1233c87349e1471b5a3cf523ce96f44c67fff528ff1fbbe193"},
+    {file = "ftrack_framework_core-2.3.0.tar.gz", hash = "sha256:e9ce5e4205c9f3a70ceb7c384509bdf9036e10cf1037de8d839bf4b04e83abd6"},
 ]
 
 [package.dependencies]
@@ -184,6 +184,11 @@ six = ">=1,<2"
 
 [package.extras]
 ftrack-libs = ["ftrack-constants (>=2.0.0,<3.0.0)", "ftrack-utils (>=2.0.0,<3.0.0)"]
+
+[package.source]
+type = "legacy"
+url = "https://test.pypi.org/simple"
+reference = "testpypi"
 
 [[package]]
 name = "ftrack-framework-qt"
@@ -331,7 +336,7 @@ testing = ["coverage", "pyyaml"]
 name = "platformdirs"
 version = "4.0.0"
 description = "A small Python package for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
-optional = true
+optional = false
 python-versions = ">=3.7"
 files = [
     {file = "platformdirs-4.0.0-py3-none-any.whl", hash = "sha256:118c954d7e949b35437270383a3f2531e99dd93cf7ce4dc8340d3356d30f173b"},
@@ -374,7 +379,7 @@ six = ">=1.5"
 name = "pyyaml"
 version = "6.0.1"
 description = "YAML parser and emitter for Python"
-optional = true
+optional = false
 python-versions = ">=3.6"
 files = [
     {file = "PyYAML-6.0.1-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:d858aa552c999bc8a8d57426ed01e40bef403cd8ccdd0fc5f6f04a00414cac2a"},
@@ -537,4 +542,4 @@ ftrack-libs = ["ftrack-constants", "ftrack-qt", "ftrack-qt-style", "ftrack-utils
 [metadata]
 lock-version = "2.0"
 python-versions = ">= 3.7, < 3.11"
-content-hash = "6ebf4e86ac36f42ab6f582df22d1169c503d8d6f26718c6bee80ffff6253ca10"
+content-hash = "cf56dde91860663c426fb3ad26fe147e5d623ed3153bc9af59c3387ffc675fe9"

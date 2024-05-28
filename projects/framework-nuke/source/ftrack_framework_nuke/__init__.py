@@ -179,23 +179,24 @@ def bootstrap_integration(framework_extensions_path):
                     f'{__name__}.onRunToolCallback("{name}","{dialog_name}", {options})',
                 )
 
-        if run_on and run_on == "startup":
-            # Add all tools on a global variable as they can't be executed until
-            # root node is created.
-            startup_tools.append(
-                [
-                    name,
-                    dialog_name,
-                    options,
-                ]
-            )
-        else:
-            logger.error(
-                f"Unsuported run_on value: {run_on} tool section of the "
-                f"tool {tool.get('name')} on the tool config file: "
-                f"{dcc_config['name']}. \n Currently supported values:"
-                f" [startup]"
-            )
+        if run_on:
+            if run_on == "startup":
+                # Add all tools on a global variable as they can't be executed until
+                # root node is created.
+                startup_tools.append(
+                    [
+                        name,
+                        dialog_name,
+                        options,
+                    ]
+                )
+            else:
+                logger.error(
+                    f"Unsuported run_on value: {run_on} tool section of the "
+                    f"tool {tool.get('name')} on the tool config file: "
+                    f"{dcc_config['name']}. \n Currently supported values:"
+                    f" [startup]"
+                )
 
 
 def execute_startup_tools():

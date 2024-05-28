@@ -198,21 +198,22 @@ def bootstrap_integration(framework_extensions_path):
                 ),
                 image=":/{}.png".format(tool['icon']),
             )
-        if run_on and run_on == "startup":
-            # Execute startup tool-configs
-            on_run_tool_callback(
-                client_instance,
-                tool.get('name'),
-                tool.get('dialog_name'),
-                tool['options'],
-            )
-        else:
-            logger.error(
-                f"Unsuported run_on value: {run_on} tool section of the "
-                f"tool {tool.get('name')} on the tool config file: "
-                f"{dcc_config['name']}. \n Currently supported values:"
-                f" [startup]"
-            )
+        if run_on:
+            if run_on == "startup":
+                # Execute startup tool-configs
+                on_run_tool_callback(
+                    client_instance,
+                    tool.get('name'),
+                    tool.get('dialog_name'),
+                    tool['options'],
+                )
+            else:
+                logger.error(
+                    f"Unsuported run_on value: {run_on} tool section of the "
+                    f"tool {tool.get('name')} on the tool config file: "
+                    f"{dcc_config['name']}. \n Currently supported values:"
+                    f" [startup]"
+                )
 
     return client_instance
 
