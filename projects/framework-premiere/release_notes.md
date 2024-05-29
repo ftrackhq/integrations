@@ -2,7 +2,7 @@
 
 ## upcoming
 
-* [feat] Added support for bootstrap tools run after Photoshop connection established.
+* [feat] Added support for bootstrap tools run after Premiere connection established.
 
 
 ## 24.5.0
