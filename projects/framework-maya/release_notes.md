@@ -1,5 +1,10 @@
 # ftrack Framework Maya integration release Notes
 
+## upcoming
+
+* [new] support run tool configs on startup.
+
+
 ## v24.5.0
 2024-05-03
 
