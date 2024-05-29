@@ -10,6 +10,7 @@ official CI/CD build implementation in place.
 
 Changelog:
 
+0.4.23 [24.05.20] Fixed bug when building qt-style from sources.
 0.4.22 [24.05.14] CEP build; Support for JS include folder, overriding extensions/js folder.
 0.4.21 [24.04.30] Support for building packages outside the monorepo.
 0.4.20 [24.04.26] Add PySide6/2 compatibility
@@ -50,7 +51,7 @@ from distutils.spawn import find_executable
 import fileinput
 import tempfile
 
-__version__ = '0.4.22'
+__version__ = '0.4.23'
 
 ZXPSIGN_CMD = 'ZXPSignCmd'
 
@@ -83,7 +84,7 @@ def build_package(invokation_path, pkg_path, args, command=None):
 
     if command is None:
         command = args.command
-    ROOT_PATH = pkg_path
+    ROOT_PATH = os.path.abspath(pkg_path)
     if not args.integrations_repo_path:
         MONOREPO_PATH = os.path.realpath(os.path.join(ROOT_PATH, '..', '..'))
 
@@ -201,7 +202,7 @@ def build_package(invokation_path, pkg_path, args, command=None):
 
     else:
         logging.warning(
-            'Missing "pyproject.toml" file, not able to identify target DCC!'
+            f'Missing TOML file @ {POETRY_CONFIG_PATH}, not able to identify target DCC!'
         )
 
         PROJECT_NAME = f'ftrack-{os.path.basename(ROOT_PATH)}'
@@ -393,8 +394,9 @@ def build_package(invokation_path, pkg_path, args, command=None):
                         not os.path.isdir(extension_source_path)
                         or extension
                         == 'launch'  # Launch deployed to root of Connect plugin
-                        or extension
-                        == 'js'  # Skip JS extensions, built to CEP plugin
+                        or (
+                            extension == 'js' and DCC_NAME == 'photoshop'
+                        )  # Skip JS extensions, built to CEP plugin
                     ):
                         continue
                     logging.info(
@@ -508,7 +510,7 @@ def build_package(invokation_path, pkg_path, args, command=None):
                     os.chdir(MONOREPO_PATH)
                     build_package(
                         invokation_path,
-                        'libs/qt-style',
+                        os.path.join(MONOREPO_PATH, 'libs/qt-style'),
                         args,
                         command='build_qt_resources',
                     )
