@@ -1,5 +1,10 @@
 # ftrack Utils library release Notes
 
+## upcoming
+
+* [feat] Aligned on_run_dialog_callback with DCC bootstrap implementation.
+
+
 ## v2.2.0
 2024-05-02
 
