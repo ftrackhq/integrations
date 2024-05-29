@@ -71,7 +71,7 @@ if not app:
 def on_run_tool_callback(
     client_instance, tool_name, dialog_name=None, options=dict
 ):
-    client_instance.run_dialog(tool_name, dialog_name, options)
+    client_instance.run_tool(tool_name, dialog_name, options)
 
 
 def rpc_process_events_callback():
