@@ -62,6 +62,11 @@ class JavascriptRPC(object):
         return self._on_run_tool_callback
 
     @property
+    def on_connected_callback(self):
+        '''Return callback to call upon a new connection.'''
+        return self._on_connected_callback
+
+    @property
     def process_events_callback(self):
         '''Return callback for processing events.'''
         return self._process_events_callback
@@ -85,8 +90,9 @@ class JavascriptRPC(object):
         dcc_name,
         session,
         client,
-        panel_launchers,
-        _on_run_tool_callback,
+        tools,
+        on_connected_callback,
+        on_run_tool_callback,
         process_events_callback,
     ):
         '''
@@ -95,8 +101,9 @@ class JavascriptRPC(object):
         :param dcc_name: The name of the DCC; 'photoshop', 'premiere', etc.
         :param session:
         :param client: The client instance
-        :param panel_launchers: List of panel launchers
-        :param _on_run_tool_callback: Callback for run dialog event
+        :param tools: List of tools that should be sent to DCC on connection
+        :param on_connected_callback: Callback for connected event
+        :param on_run_tool_callback: Callback for run dialog event
         :param process_events_callback: Callback for processing events while waiting for RCP event reply
         '''
         super(JavascriptRPC, self).__init__()
@@ -107,8 +114,10 @@ class JavascriptRPC(object):
         self._dcc_name = dcc_name
         self._session = session
         self._client = client
-        self._panel_launchers = panel_launchers
-        self._on_run_tool_callback = _on_run_tool_callback
+        self._tools = tools
+
+        self._on_connected_callback = on_connected_callback
+        self._on_run_tool_callback = on_run_tool_callback
         self._process_events_callback = process_events_callback
 
         self._remote_integration_session_id = None
@@ -255,10 +264,12 @@ class JavascriptRPC(object):
             self._append_context_data(
                 {
                     'remote_integration_session_id': self.remote_integration_session_id,
-                    'panel_launchers': self._panel_launchers,
+                    'panel_launchers': self._tools,
                 }
             ),
         )
+        if self.on_connected_callback:
+            self.on_connected_callback(event)
 
     # Lifecycle methods
 
