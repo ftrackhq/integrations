@@ -68,11 +68,10 @@ if not app:
 
 
 @invoke_in_qt_main_thread
-def on_run_dialog_callback(client_instance, dialog_name, tool_config_names):
-    client_instance.run_dialog(
-        dialog_name,
-        dialog_options={'tool_config_names': tool_config_names},
-    )
+def on_run_tool_callback(
+    client_instance, tool_name, dialog_name=None, options=dict
+):
+    client_instance.run_dialog(tool_name, dialog_name, options)
 
 
 def rpc_process_events_callback():
@@ -163,7 +162,7 @@ def bootstrap_integration(framework_extensions_path):
         remote_session,
         client_instance,
         dcc_config['tools'],
-        partial(on_run_dialog_callback, client_instance),
+        partial(on_run_tool_callback, client_instance),
         rpc_process_events_callback,
     )
 
