@@ -90,7 +90,7 @@ class JavascriptRPC(object):
         dcc_name,
         session,
         client,
-        tools,
+        panel_launchers,
         on_connected_callback,
         on_run_tool_callback,
         process_events_callback,
@@ -101,7 +101,7 @@ class JavascriptRPC(object):
         :param dcc_name: The name of the DCC; 'photoshop', 'premiere', etc.
         :param session:
         :param client: The client instance
-        :param tools: List of tools that should be sent to DCC on connection
+        :param panel_launchers: List of tools that should be sent to DCC on connection
         :param on_connected_callback: Callback for connected event
         :param on_run_tool_callback: Callback for run dialog event
         :param process_events_callback: Callback for processing events while waiting for RCP event reply
@@ -114,7 +114,7 @@ class JavascriptRPC(object):
         self._dcc_name = dcc_name
         self._session = session
         self._client = client
-        self._tools = tools
+        self._panel_launchers = panel_launchers
 
         self._on_connected_callback = on_connected_callback
         self._on_run_tool_callback = on_run_tool_callback
@@ -264,7 +264,7 @@ class JavascriptRPC(object):
             self._append_context_data(
                 {
                     'remote_integration_session_id': self.remote_integration_session_id,
-                    'panel_launchers': self._tools,
+                    'panel_launchers': self._panel_launchers,
                 }
             ),
         )
