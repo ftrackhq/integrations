@@ -2,6 +2,7 @@
 
 ## upcoming
 
+* [new] Run setup scene frame range plugin on startup.
 * [new] support run tool configs on startup.
 
 
