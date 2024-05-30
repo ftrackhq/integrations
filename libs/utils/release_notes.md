@@ -1,5 +1,11 @@
 # ftrack Utils library release Notes
 
+## upcoming
+
+* [feat] JS RPC; Added on connected callback.
+* [feat] JS RPC; Aligned on_run_dialog_callback with DCC bootstrap implementation.
+
+
 ## v2.2.0
 2024-05-02
 
