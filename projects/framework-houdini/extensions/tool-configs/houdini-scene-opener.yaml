@@ -7,7 +7,7 @@ engine:
       - context
     plugin: store_context_id
 
-  # Open the file component.
+  # Open the snapshot component.
   - type: group
     tags:
       - component
