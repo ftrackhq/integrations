@@ -127,7 +127,26 @@ class PluginProcessor(QtCore.QObject):
         logger.debug(f'Installing {source_path} to {destination_path}')
 
         with zipfile.ZipFile(source_path, 'r') as zip_ref:
+            name_list = zip_ref.namelist()
+            top_dir = name_list[0]
             zip_ref.extractall(destination_path)
+            # Check if the top_dir matches the destination path
+            if os.path.dirname(top_dir) == os.path.basename(destination_path):
+                # Remove the top dir from the extracted files so we avoid duplicated folders.
+                top_level_members = [
+                    item
+                    for item in name_list[1:]
+                    if item[:-1].count(os.path.sep) <= 1
+                ]
+                for item in top_level_members:
+                    shutil.move(
+                        os.path.join(destination_path, item),
+                        os.path.join(
+                            destination_path, item.replace(top_dir, "")
+                        ),
+                    )
+                # Remove the empty top directory
+                os.rmdir(os.path.join(destination_path, top_dir))
 
     def remove(self, plugin):
         '''Remove provided *plugin* item.'''
