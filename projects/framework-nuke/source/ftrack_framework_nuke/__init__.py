@@ -192,7 +192,7 @@ def bootstrap_integration(framework_extensions_path):
                 )
             else:
                 logger.error(
-                    f"Unsuported run_on value: {run_on} tool section of the "
+                    f"Unsupported run_on value: {run_on} tool section of the "
                     f"tool {tool.get('name')} on the tool config file: "
                     f"{dcc_config['name']}. \n Currently supported values:"
                     f" [startup]"

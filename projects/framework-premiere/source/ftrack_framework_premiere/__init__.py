@@ -174,6 +174,7 @@ def bootstrap_integration(framework_extensions_path):
     panel_launchers = []
     for tool in dcc_config['tools']:
         name = tool['name']
+        run_on = tool.get("run_on")
         on_menu = tool.get("menu", True)
         dialog_name = tool.get('dialog_name')
         options = tool.get('options')
@@ -181,13 +182,21 @@ def bootstrap_integration(framework_extensions_path):
         if on_menu:
             panel_launchers.append(tool)
         else:
-            startup_tools.append(
-                [
-                    name,
-                    dialog_name,
-                    options,
-                ]
-            )
+            if run_on == "startup":
+                startup_tools.append(
+                    [
+                        name,
+                        dialog_name,
+                        options,
+                    ]
+                )
+            else:
+                logger.error(
+                    f"Unsupported run_on value: {run_on} tool section of the "
+                    f"tool {tool.get('name')} on the tool config file: "
+                    f"{dcc_config['name']}. \n Currently supported values:"
+                    f" [startup]"
+                )
     premiere_rpc_connection = JavascriptRPC(
         'premiere',
         remote_session,
