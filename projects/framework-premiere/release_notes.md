@@ -1,5 +1,10 @@
 # ftrack Framework Premiere integration release Notes
 
+## upcoming
+
+* [feat] Added support for bootstrap tools run after Premiere connection established.
+
+
 ## 24.5.0
 2024-05-13
 

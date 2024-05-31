@@ -167,13 +167,13 @@ ftrack-libs = ["ftrack-utils (>=2.0.0,<3.0.0)"]
 
 [[package]]
 name = "ftrack-framework-core"
-version = "2.2.1"
+version = "2.3.0"
 description = "ftrack Framework Core library"
 optional = true
 python-versions = "<3.12,>=3.7"
 files = [
-    {file = "ftrack_framework_core-2.2.1-py3-none-any.whl", hash = "sha256:77b9b34e42da65cfb2d612c5962e7df679b038458e23e425fe4027e0e1c1a810"},
-    {file = "ftrack_framework_core-2.2.1.tar.gz", hash = "sha256:d032f13493dca2f4511e9f318d4ec33946728b553f73fd86b16a03f95ad63829"},
+    {file = "ftrack_framework_core-2.3.0-py3-none-any.whl", hash = "sha256:7ca6a903816fac1233c87349e1471b5a3cf523ce96f44c67fff528ff1fbbe193"},
+    {file = "ftrack_framework_core-2.3.0.tar.gz", hash = "sha256:e9ce5e4205c9f3a70ceb7c384509bdf9036e10cf1037de8d839bf4b04e83abd6"},
 ]
 
 [package.dependencies]

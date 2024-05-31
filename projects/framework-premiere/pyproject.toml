@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ftrack-framework-premiere"
-version = "24.5.0"
+version = "24.6.0rc1"
 description='ftrack Premiere integration'
 authors = ["ftrack Integrations Team <integrations@backlight.co>"]
 readme = "README.md"
