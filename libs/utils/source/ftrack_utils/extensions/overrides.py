@@ -11,6 +11,18 @@ def first_level_merge(root_extension_dict, override_dict):
     return root_extension_dict.update(override_dict)
 
 
+def is_python_extension(extension):
+    '''Return true if the extension is a python extension, false otherwise.'''
+    return not extension['extension_type'].endswith(
+        '_config'
+    ) and not extension['extension_type'].startswith('js_')
+
+
+def is_yaml_extension(extension):
+    '''Return true if the extension is a yaml extension, false otherwise.'''
+    return extension['extension_type'].endswith('_config')
+
+
 def set_overrides(current_extensions, new_extensions):
     '''If new extension from *new_extensions* found in *current_extensions* do a first level merge'''
     for new_extension in new_extensions:
@@ -24,9 +36,7 @@ def set_overrides(current_extensions, new_extensions):
             ):
                 existing_extension = discovered_extension
                 break
-            elif not new_extension['extension_type'].endswith(
-                '_config'
-            ) and not new_extension['extension_type'].startswith('js_'):
+            elif is_python_extension(new_extension):
                 # Handle corner cases of dialogs plugins and widgets when name
                 # is not the same but class name is the same, then we need to
                 # override as well.
@@ -43,7 +53,7 @@ def set_overrides(current_extensions, new_extensions):
             current_extensions.append(new_extension)
         else:
             # Can we merge?
-            if new_extension['extension_type'].endswith('_config'):
+            if is_yaml_extension(new_extension):
                 logging.info(
                     f'Merging extension {existing_extension["name"]}({existing_extension["extension_type"]} @'
                     f' {existing_extension["path"]}) on top of {new_extension["name"]}({new_extension["extension_type"]}'
