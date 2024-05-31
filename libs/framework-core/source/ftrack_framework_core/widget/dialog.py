@@ -2,7 +2,6 @@
 # :copyright: Copyright (c) 2024 ftrack
 
 import logging
-import traceback
 import uuid
 from functools import partial
 
