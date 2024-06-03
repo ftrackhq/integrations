@@ -52,7 +52,9 @@ configure_logging(
 logger = logging.getLogger(__name__)
 logger.debug('v{}'.format(__version__))
 
+client_instance = None
 harmony_tcp_connection = None
+startup_tools = []
 process_monitor = None
 
 # Create Qt application
@@ -63,15 +65,8 @@ if not app:
     app.setAttribute(QtCore.Qt.AA_PluginApplication)
 
 
-def on_run_dialog_callback(client_instance, dialog_name, tool_config_names):
-    client_instance.run_dialog(
-        dialog_name,
-        dialog_options={'tool_config_names': tool_config_names},
-    )
-
-
-def handle_event_callback(event):
-    pass
+def on_run_tool_callback(tool_name, dialog_name=None, options=dict):
+    client_instance.run_tool(tool_name, dialog_name, options)
 
 
 def rpc_process_events_callback():
@@ -79,8 +74,10 @@ def rpc_process_events_callback():
     app.processEvents()
 
 
-def on_connect_callback():
-    pass
+def on_connected_callback():
+    '''Harmony has connected, run bootstrap tools'''
+    for tool in startup_tools:
+        on_run_tool_callback(*tool)
 
 
 def on_connection_failure_callback():
@@ -93,7 +90,7 @@ def bootstrap_integration(framework_extensions_path):
     Initialise Harmony Framework integration
     '''
 
-    global harmony_tcp_connection, process_monitor
+    global client_instance, harmony_tcp_connection, startup_tools, process_monitor
 
     logger.debug(
         'Harmony standalone integration initialising, extensions path:'
@@ -150,8 +147,35 @@ def bootstrap_integration(framework_extensions_path):
 
     logger.debug(f'Read DCC config: {dcc_config}')
 
-    # Connect to DCC
+    # Filter tools, extract the ones that are marked as startup tools
+    launchers = []
+    for tool in dcc_config['tools']:
+        name = tool['name']
+        run_on = tool.get("run_on")
+        on_menu = tool.get("menu", True)
+        dialog_name = tool.get('dialog_name')
+        options = tool.get('options')
 
+        if on_menu:
+            launchers.append(tool)
+        else:
+            if run_on == "startup":
+                startup_tools.append(
+                    [
+                        name,
+                        dialog_name,
+                        options,
+                    ]
+                )
+            else:
+                logger.error(
+                    f"Unsupported run_on value: {run_on} tool section of the "
+                    f"tool {tool.get('name')} on the tool config file: "
+                    f"{dcc_config['name']}. \n Currently supported values:"
+                    f" [startup]"
+                )
+
+    # Connect to DCC
     port = int(os.environ.get('FTRACK_INTEGRATION_LISTEN_PORT'))
     assert port, 'FTRACK_INTEGRATION_LISTEN_PORT environment variable not set'
 
@@ -160,16 +184,15 @@ def bootstrap_integration(framework_extensions_path):
         "localhost",
         port,
         client_instance,
-        dcc_config['tools'],
-        partial(on_run_dialog_callback, client_instance),
+        launchers,
+        on_connected_callback,
+        on_run_tool_callback,
         rpc_process_events_callback,
     )
 
     time.sleep(2)  # Give DCC time to launch
 
-    harmony_tcp_connection.connect_dcc(
-        on_connect_callback, on_connection_failure_callback
-    )
+    harmony_tcp_connection.connect_dcc(on_connection_failure_callback)
 
     # Set mix panel event
     set_usage_tracker(

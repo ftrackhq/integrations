@@ -284,7 +284,7 @@ function HarmonyIntegration() {
     */
     this.handleIntegrationContextDataCallback = function(topic, data, id) {
         info("Got context data from standalone integration, building menus.");
-        this.launchers = data["panel_launchers"];
+        this.launchers = data["launchers"];
 
         for (var idx = 0; idx < this.launchers.length; idx++) {
             var launcher = this.launchers[idx];
@@ -357,15 +357,16 @@ function HarmonyIntegration() {
             var name = launcher["name"];
             var label = launcher["label"];
             var dialog_name = launcher["dialog_name"];
-            var tool_configs = launcher["options"]["tool_configs"];
+            var options = launcher["options"];
 
             this_["launch_"+name] = function() {
                 var app = QCoreApplication.instance();
                 app.integration.sendEvent(
                     REMOTE_INTEGRATION_RUN_DIALOG_TOPIC,
                     {
+                        "name": name,
                         "dialog_name": dialog_name,
-                        "tool_configs": tool_configs
+                        "options": options
                     }
                 )
             }

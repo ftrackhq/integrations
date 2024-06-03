@@ -33,8 +33,8 @@ class TCPRPCClient(QtCore.QObject):
         return self._dcc_name
 
     @property
-    def host(self):
-        return self._host
+    def address(self):
+        return self._address
 
     @property
     def port(self):
@@ -59,9 +59,14 @@ class TCPRPCClient(QtCore.QObject):
         return self._process_events_callback
 
     @property
-    def on_run_dialog_callback(self):
+    def on_connected_callback(self):
+        '''Return callback for connection establish.'''
+        return self._on_connected_callback
+
+    @property
+    def on_run_tool_callback(self):
         '''Return callback for run dialog event.'''
-        return self._on_run_dialog_callback
+        return self._on_run_tool_callback
 
     @property
     def connected(self):
@@ -75,7 +80,7 @@ class TCPRPCClient(QtCore.QObject):
         if self._connected:
             self.logger.info(
                 f'Successfully established connection to {self.dcc_name} '
-                f'v{self.dcc_version} @ {self.host}:{self.port}'
+                f'v{self.dcc_version} @ {self.address}:{self.port}'
             )
 
     @property
@@ -86,28 +91,46 @@ class TCPRPCClient(QtCore.QObject):
     def __init__(
         self,
         dcc_name,
-        host,
+        address,
         port,
         client,
-        panel_launchers,
-        on_run_dialog_callback,
+        launchers,
+        on_connected_callback,
+        on_run_tool_callback,
         process_events_callback,
         parent=None,
     ):
+        '''
+        Initialise the TCP RPC client
+
+        :param dcc_name: The name of the DCC; 'harmony', etc.
+        :param address: The hostname or IP to connect to
+        :param port: The port to connect to
+        :param client: Framework client
+        :param launchers: The launchers to send be created in the DCC menus
+        :param on_connected_callback: The callback to run when DCC is connected
+        :param on_run_tool_callback: The callback to run when a tool is requested to run
+        :param process_events_callback: The callback to run when holding up the main thread
+        :param parent:
+        '''
+
         super(TCPRPCClient, self).__init__(parent=parent)
 
         # Store reference to self in class variable
         TCPRPCClient._instance = self
 
         self._dcc_name = dcc_name
-        self._host = host
+        self._address = address
         self._port = port
         self._client = client
-        self._panel_launchers = panel_launchers
-        self._on_run_dialog_callback = on_run_dialog_callback
+        self._launchers = launchers
+        self._on_connected_callback = on_connected_callback
+        self._on_run_tool_callback = on_run_tool_callback
         self._process_events_callback = process_events_callback
         self._connected = False
 
+        self._failure_callback = None
+        self._connection_attempts = None
         self._handle_reply_event_callback = None
         self._blocksize = 0
         self._reply_event_data = None
@@ -174,13 +197,13 @@ class TCPRPCClient(QtCore.QObject):
                 constants.event.REMOTE_INTEGRATION_CONTEXT_DATA_TOPIC,
                 {
                     'context_id': self.client.context_id,
-                    'panel_launchers': self._panel_launchers,
+                    'launchers': self._launchers,
                 },
                 synchronous=True,
             )
 
             self._timer.stop()
-            self._connected_callback()
+            self.on_connected_callback()
         elif (
             self.connection_status
             != QtNetwork.QAbstractSocket.SocketState.ConnectingState
@@ -208,35 +231,34 @@ class TCPRPCClient(QtCore.QObject):
                     f'retrying. Details: {self.socket.error()}'
                 )
 
-    def connect_dcc(self, connected_callback, failure_callback):
+    def connect_dcc(self, failure_callback):
         '''Connect to the DCC event hub.'''
         if self.connected:
             self.logger.warning(
-                f'Connection already existed , removing connection to {self.host} {self.port} '
+                f'Connection already existed , removing connection to {self.address} {self.port} '
             )
             self.socket.abort()
 
-        self._connected_callback = connected_callback
         self._failure_callback = failure_callback
         self._connection_attempts = 60  # Wait 2mins for DCC to start
 
         self.logger.info(
-            f'Connecting to DCC event hub @ {self.host}:{self.port} '
+            f'Connecting to DCC event hub @ {self.address}:{self.port} '
         )
 
         self._connect_to_host()
 
     def _connect_to_host(self):
         self._start_time = time.time()
-        self.socket.connectToHost(self.host, self.port)
+        self.socket.connectToHost(self.address, self.port)
         self._timer.start(1000)
 
     def _on_bytes_written(self, bytes):
-        '''Callback on bytes written to the socket'''
+        '''Callback on *bytes* written to the socket'''
         self.logger.debug(f'Connection bytes written: {bytes}')
 
     def _on_state_changed(self, state):
-        '''Callback on state change of the socket'''
+        '''Callback on *state* change of the socket'''
         self.logger.debug(f'Connect state changed: {state}')
 
     def _on_ready_read(self):
@@ -344,9 +366,10 @@ class TCPRPCClient(QtCore.QObject):
             event['topic']
             == constants.event.REMOTE_INTEGRATION_RUN_DIALOG_TOPIC
         ):
-            self.on_run_dialog_callback(
+            self.on_run_tool_callback(
+                event['data']['name'],
                 event['data']['dialog_name'],
-                event['data']['tool_configs'],
+                event['data']['options'],
             )
             self.send_reply(event, {})
 
@@ -436,7 +459,6 @@ class TCPRPCClient(QtCore.QObject):
 
         :param function_name: The function to execute
         :param args: The arguments to pass
-        execute async.
         :param timeout: The timeout in seconds to wait for a response, -1 and it will wait forever.
         :return: The result return from DCC.
         '''
@@ -476,8 +498,7 @@ class TCPRPCClient(QtCore.QObject):
             == QtNetwork.QAbstractSocket.SocketError.HostNotFoundError
         ):
             self.logger.error(
-                'The host was not found. Please check the host name and '
-                'port settings.'
+                'The host was not found. Please check the address and ' 'port.'
             )
         elif (
             socketError
