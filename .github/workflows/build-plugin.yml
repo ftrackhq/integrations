@@ -134,7 +134,7 @@ jobs:
           name: dist
           path: ${{ needs.set-variables.outputs.folder }}/dist
 
-  build-package-3.9:
+  build-package-39:
     name: Build platform independent artifacts, and Linux specific artifacts
     needs: set-variables
     concurrency:
