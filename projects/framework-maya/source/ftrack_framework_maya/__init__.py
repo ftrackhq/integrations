@@ -91,16 +91,14 @@ def get_ftrack_menu(menu_name='ftrack', submenu_name=None):
 # functionalities, which might not be guaranteed if you use Qt’s threading
 # mechanisms directly.
 @run_in_main_thread
-def on_run_dialog_callback(
-    client_instance, dialog_name, tool_config_names, docked, maya_args
+def on_run_tool_callback(
+    client_instance, tool_name, dialog_name=None, options=dict, maya_args=None
 ):
-    client_instance.run_dialog(
+    client_instance.run_tool(
+        tool_name,
         dialog_name,
-        dialog_options={
-            'tool_config_names': tool_config_names,
-            'docked': docked,
-        },
-        dock_func=dock_maya_right,
+        options,
+        dock_func=dock_maya_right if dialog_name else None,
     )
 
 
@@ -183,20 +181,40 @@ def bootstrap_integration(framework_extensions_path):
 
     # Register tools into ftrack menu
     for tool in dcc_config['tools']:
-        cmds.menuItem(
-            parent=ftrack_menu,
-            label=tool['label'],
-            command=(
-                functools.partial(
-                    on_run_dialog_callback,
+        run_on = tool.get("run_on")
+        on_menu = tool.get("menu", True)
+        if on_menu:
+            cmds.menuItem(
+                parent=ftrack_menu,
+                label=tool['label'],
+                command=(
+                    functools.partial(
+                        on_run_tool_callback,
+                        client_instance,
+                        tool.get('name'),
+                        tool.get('dialog_name'),
+                        tool['options'],
+                    )
+                ),
+                image=":/{}.png".format(tool['icon']),
+            )
+        if run_on:
+            if run_on == "startup":
+                # Execute startup tool-configs
+                on_run_tool_callback(
                     client_instance,
-                    tool['dialog_name'],
-                    tool['options']['tool_configs'],
-                    tool['options']['docked'],
+                    tool.get('name'),
+                    tool.get('dialog_name'),
+                    tool['options'],
                 )
-            ),
-            image=":/{}.png".format(tool['icon']),
-        )
+            else:
+                logger.error(
+                    f"Unsupported run_on value: {run_on} tool section of the "
+                    f"tool {tool.get('name')} on the tool config file: "
+                    f"{dcc_config['name']}. \n Currently supported values:"
+                    f" [startup]"
+                )
+
     return client_instance
 
 

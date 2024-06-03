@@ -1,5 +1,9 @@
 # ftrack Connect release Notes
 
+## upcoming
+
+* [fix] Support uncompress files with internal top level directory.
+
 ## 24.5.3
 2024-05-21
 
