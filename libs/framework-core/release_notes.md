@@ -1,5 +1,11 @@
 # ftrack Framework Core library release Notes
 
+## upcoming
+
+* [fix] Dialog; Properly log exceptions in dialog.
+* [new] Registry; Support for JS extensions.
+
+
 ## v2.3.0
 2024-05-27
 
