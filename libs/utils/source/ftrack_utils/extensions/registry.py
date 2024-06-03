@@ -68,7 +68,7 @@ def register_yaml_files(file_list):
 def register_js_files(file_list):
     '''
     Generate data registry files for all extension compatible javascript files in
-    the given *file_list*. Support environment variable substitution in the yaml file.
+    the given *file_list*.
     '''
 
     registered_files = []
