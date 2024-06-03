@@ -7,7 +7,7 @@
  */
 "use strict";
 
-const EXTENSION_TYPE="js_functions"
+const EXTENSION_TYPE="functions_js"
 const EXTENSION_NAME="framework-harmony"
 
 // RPC functions

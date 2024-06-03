@@ -155,15 +155,15 @@ def sync_js_plugin(app_path, framework_extensions_paths):
 
     registry_instance = registry.Registry()
     registry_instance.scan_extensions(
-        paths=framework_extensions_paths, extension_types=['js_functions']
+        paths=framework_extensions_paths, extension_types=['functions_js']
     )
 
     logger.debug(
-        f'JS functions extensions found: {len(registry_instance.js_functions or [])}'
+        f'JS functions extensions found: {len(registry_instance.functions_js or [])}'
     )
-    for js_functions in registry_instance.js_functions or []:
-        fn = os.path.basename(js_functions['path'])
-        src = js_functions['path']
+    for functions_js in registry_instance.functions_js or []:
+        fn = os.path.basename(functions_js['path'])
+        src = functions_js['path']
         dst = os.path.join(path_scripts, fn)
         shutil.copy(src, dst)
         logger.debug(f'Copied: {fn}')
