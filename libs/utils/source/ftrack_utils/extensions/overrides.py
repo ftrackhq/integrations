@@ -11,20 +11,10 @@ def first_level_merge(root_extension_dict, override_dict):
     return root_extension_dict.update(override_dict)
 
 
-def is_python_extension(extension):
-    '''Return true if the extension is a python extension, false otherwise.'''
-    return not extension['extension_type'].endswith(
-        '_config'
-    ) and not extension['extension_type'].startswith('js_')
-
-
-def is_yaml_extension(extension):
-    '''Return true if the extension is a yaml extension, false otherwise.'''
-    return extension['extension_type'].endswith('_config')
-
-
 def set_overrides(current_extensions, new_extensions):
-    '''If new extension from *new_extensions* found in *current_extensions* do a first level merge'''
+    '''If new extension from *new_extensions* found in *current_extensions* do a first level merge
+    if YAML extensions'''
+    non_python_extensions = ['js', 'config']
     for new_extension in new_extensions:
         existing_extension = None
         idx = None
@@ -36,9 +26,12 @@ def set_overrides(current_extensions, new_extensions):
             ):
                 existing_extension = discovered_extension
                 break
-            elif is_python_extension(new_extension):
-                # Handle corner cases of dialogs plugins and widgets when name
-                # is not the same but class name is the same, then we need to
+            elif (
+                new_extension['extension_type'].split('_')[-1]
+                not in non_python_extensions
+            ):
+                # Python extension - handle corner cases of dialogs plugins and widgets
+                # when name is not the same but class name is the same, then we need to
                 # override as well.
                 if (
                     discovered_extension['extension_type']
@@ -53,11 +46,11 @@ def set_overrides(current_extensions, new_extensions):
             current_extensions.append(new_extension)
         else:
             # Can we merge?
-            if is_yaml_extension(new_extension):
+            if new_extension['extension_type'].endswith('_config'):
                 logging.info(
                     f'Merging extension {existing_extension["name"]}({existing_extension["extension_type"]} @'
-                    f' {existing_extension["path"]}) on top of {new_extension["name"]}({new_extension["extension_type"]}'
-                    f' @ {new_extension["path"]}).'
+                    f' {existing_extension["path"]}) on top of {new_extension["name"]}'
+                    f'({new_extension["extension_type"]} @ {new_extension["path"]}).'
                 )
                 # Have the latter extension be overridden by the former
                 first_level_merge(
