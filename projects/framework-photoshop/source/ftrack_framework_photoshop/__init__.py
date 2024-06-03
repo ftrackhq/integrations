@@ -55,7 +55,9 @@ configure_logging(
 logger = logging.getLogger(__name__)
 logger.debug('v{}'.format(__version__))
 
+client_instance = None
 photoshop_rpc_connection = None
+startup_tools = []
 remote_session = None
 process_monitor = None
 
@@ -68,11 +70,15 @@ if not app:
 
 
 @invoke_in_qt_main_thread
-def on_run_dialog_callback(client_instance, dialog_name, tool_config_names):
-    client_instance.run_dialog(
-        dialog_name,
-        dialog_options={'tool_config_names': tool_config_names},
-    )
+def on_run_tool_callback(tool_name, dialog_name=None, options=dict):
+    client_instance.run_tool(tool_name, dialog_name, options)
+
+
+@invoke_in_qt_main_thread
+def on_connected_callback(event):
+    '''Photoshop has connected, run bootstrap tools'''
+    for tool in startup_tools:
+        on_run_tool_callback(*tool)
 
 
 def rpc_process_events_callback():
@@ -128,7 +134,7 @@ def bootstrap_integration(framework_extensions_path):
     '''Initialise Photoshop Framework Python standalone part,
     with extensions defined @ *framework_extensions_path*'''
 
-    global photoshop_rpc_connection, remote_session, process_monitor
+    global client_instance, photoshop_rpc_connection, startup_tools, remote_session, process_monitor
 
     logger.debug(
         'Photoshop standalone integration initialising, extensions path:'
@@ -158,12 +164,40 @@ def bootstrap_integration(framework_extensions_path):
     # Init Photoshop connection
     remote_session = ftrack_api.Session(auto_connect_event_hub=True)
 
+    # Filter tools, extract the ones that are marked as startup tools
+    panel_launchers = []
+    for tool in dcc_config['tools']:
+        name = tool['name']
+        run_on = tool.get("run_on")
+        on_menu = tool.get("menu", True)
+        dialog_name = tool.get('dialog_name')
+        options = tool.get('options')
+
+        if on_menu:
+            panel_launchers.append(tool)
+        else:
+            if run_on == "startup":
+                startup_tools.append(
+                    [
+                        name,
+                        dialog_name,
+                        options,
+                    ]
+                )
+            else:
+                logger.error(
+                    f"Unsupported run_on value: {run_on} tool section of the "
+                    f"tool {tool.get('name')} on the tool config file: "
+                    f"{dcc_config['name']}. \n Currently supported values:"
+                    f" [startup]"
+                )
     photoshop_rpc_connection = JavascriptRPC(
         'photoshop',
         remote_session,
         client_instance,
-        dcc_config['tools'],
-        partial(on_run_dialog_callback, client_instance),
+        panel_launchers,
+        on_connected_callback,
+        on_run_tool_callback,
         rpc_process_events_callback,
     )
 

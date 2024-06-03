@@ -1,5 +1,11 @@
 # ftrack Framework Nuke integration release Notes
 
+## upcoming
+
+* [new] Run setup scene frame range plugin on startup.
+* [new] support run tool configs on startup.
+
+
 ## v24.5.0
 2024-05-03
 
