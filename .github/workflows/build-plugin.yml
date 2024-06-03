@@ -135,7 +135,7 @@ jobs:
           path: ${{ needs.set-variables.outputs.folder }}/dist
 
   build-package-39:
-    name: Build platform independent artifacts, and Linux specific artifacts
+    name: Build platform independent artifacts, and Linux specific artifacts (Python 3.9)
     needs: set-variables
     concurrency:
       group: ci-${{ github.ref }}
