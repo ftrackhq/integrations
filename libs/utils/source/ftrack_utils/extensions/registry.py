@@ -80,7 +80,7 @@ def register_js_files(file_list):
         with open(_file, 'r') as js_file:
             for line in js_file:
                 if line.startswith("const EXTENSION_TYPE="):
-                    # Expect: const EXTENSION_TYPE="js_functions", extract
+                    # Expect: const EXTENSION_TYPE="functions_js", extract
                     # the value of the variable
                     extension_type = line.split("=")[1].strip().strip('"')
                 elif line.startswith("const EXTENSION_NAME="):
