@@ -9,9 +9,9 @@ from ftrack_framework_connect_widget.connect_widget import (
 
 
 # Dock widget in Connect
-def dock_to_connect(session, widget):
+def dock_to_connect(connect_session, widget):
     '''Dock *widget* to the right side of Maya.'''
     connect_widget = ftrack_connect.ui.application.ConnectWidgetPlugin(
-        FrameworkConnectWidget(session, widget)
+        FrameworkConnectWidget, kwargs={'widget_instance': widget}
     )
-    connect_widget.register(session, priority=20)
+    connect_widget.register(connect_session, priority=20)

@@ -29,12 +29,42 @@ from ftrack_utils.extensions.environment import (
 )
 
 
-def on_discover_integration(session, event):
-    selection = event['data'].get('context', {}).get('selection', [])
+def get_latest_context_id(session):
+    user = session.query(
+        'User where username is "{0}"'.format(session.api_user)
+    ).one()
+    user_id = user['id']
+    print(f"user_id : {user_id}")
+    # Fetch the latest published context_id by the user
+    query = (
+        f'select context_id from AssetVersion where user_id is "{user_id}" '
+        'and is_published is True order by date desc'
+    )
+    latest_version = session.query(query).first()
+    print(f"latest_version : {latest_version}")
 
-    if selection:
-        task = session.get('Context', selection[0]['entityId'])
-        os.environ['FTRACK_CONTEXTID'] = task['id']
+    if latest_version:
+        return latest_version['context_id']
+
+    # If no published context_id is found, fetch a valid accessible context_id for the user
+    query = (
+        f'select id from Context where ancestors.any(object_type="Project") '
+        f'and tasks.responsible_users any (id="{user_id}") limit 1'
+    )
+    accessible_context = session.query(query).first()
+    print(f"accessible_context : {accessible_context}")
+
+    if accessible_context:
+        return accessible_context['id']
+
+    # If no context is found, raise an exception or handle as needed
+    raise ValueError(f"No accessible context found for user with ID {user_id}")
+
+
+def on_discover_integration(session):
+    # TODO: Set the latest published task from the user as the context or an
+    #  available one. With a function like the one above get_latest_context_id
+    os.environ['FTRACK_CONTEXTID'] = '439dc504-a904-11ec-bbac-be6e0a48ed73'
 
     extensions_path = get_extensions_path_from_environment()
     if not extensions_path:
@@ -51,13 +81,9 @@ def on_discover_integration(session, event):
 
     import ftrack_framework_connect_widget
 
-    data = {
-        'integration': {
-            'name': NAME,
-            'version': __version__,
-        }
-    }
-    return data
+    ftrack_framework_connect_widget.bootstrap_integration(
+        session, get_extensions_path_from_environment()
+    )
 
 
 def get_default_extensions_path():
@@ -98,15 +124,7 @@ def register(session, **kw):
         )
         return
 
-    handle_discovery_event = functools.partial(
-        on_discover_integration, session
-    )
-
-    session.event_hub.subscribe(
-        'topic=ftrack.connect.application.discover',
-        handle_discovery_event,
-        priority=20,
-    )
+    on_discover_integration(session)
 
     # Enable plugin info in Connect about dialog
     session.event_hub.subscribe(

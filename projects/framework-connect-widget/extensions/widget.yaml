@@ -18,5 +18,5 @@ tools:
     options:
       tool_configs:
         - standalone-file-opener
-      docked: false
+      docked: true
 

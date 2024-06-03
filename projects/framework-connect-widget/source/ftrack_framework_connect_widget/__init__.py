@@ -57,7 +57,7 @@ def on_run_tool_callback(
     )
 
 
-def bootstrap_integration(framework_extensions_path):
+def bootstrap_integration(connect_session, framework_extensions_path):
     # Create ftrack session and instantiate event manager
     session = ftrack_api.Session(auto_connect_event_hub=False)
     event_manager = EventManager(
@@ -111,7 +111,7 @@ def bootstrap_integration(framework_extensions_path):
             ),
         )
     )
-
+    # os.environ['FTRACK_CONTEXTID'] = '439dc504-a904-11ec-bbac-be6e0a48ed73'
     # Instantiate Host and Client
     Host(event_manager, registry=registry_instance)
     client_instance = Client(event_manager, registry=registry_instance)
@@ -124,7 +124,7 @@ def bootstrap_integration(framework_extensions_path):
     # Register tools into Connect
     for tool in dcc_config['tools']:
         on_run_tool_callback(
-            session,
+            connect_session,
             client_instance,
             tool.get('name'),
             tool.get('dialog_name'),
@@ -135,9 +135,9 @@ def bootstrap_integration(framework_extensions_path):
 
 
 # Find and read DCC config
-try:
-    bootstrap_integration(get_extensions_path_from_environment())
-except:
-    # Make sure any exception that happens are logged as there is most likely no console
-    logger.error(traceback.format_exc())
-    raise
+# try:
+#     bootstrap_integration(get_extensions_path_from_environment())
+# except:
+#     # Make sure any exception that happens are logged as there is most likely no console
+#     logger.error(traceback.format_exc())
+#     raise

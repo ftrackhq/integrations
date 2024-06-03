@@ -38,7 +38,7 @@ See Monorepo build CI
 Build with Poetry:
 
 ```bash
-  cd integrations/projects/connect-publisher-widget
+  cd integrations/projects/framework-connect-widget
   poetry build
 ```
 
@@ -46,7 +46,7 @@ Build Connect plugin:
 
 ```bash
   cd integrations
-  python tools/build.py build_connect_plugin projects/connect-publisher-widget
+  python tools/build.py build_connect_plugin projects/framework-connect-widget
 ```
 
 If the build fails and publisher widget is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 
