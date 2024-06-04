@@ -172,7 +172,6 @@ def bootstrap_integration(framework_extensions_path):
             if run_on == "startup":
                 # Execute startup tool-configs
                 on_run_tool_callback(
-                    client_instance,
                     tool.get('name'),
                     tool.get('dialog_name'),
                     tool['options'],
