@@ -55,7 +55,7 @@ client_instance = None
 
 @run_in_main_thread
 def on_run_tool_callback(
-    client_instance, tool_name, dialog_name=None, options=dict, maya_args=None
+    tool_name, dialog_name=None, options=dict, maya_args=None
 ):
     client_instance.run_tool(
         tool_name,
@@ -209,10 +209,10 @@ import functools
 import hdefereval
 import ftrack_framework_houdini
 callable = functools.partial(
-    ftrack_framework_houdini.on_run_dialog_callback,
+    ftrack_framework_houdini.on_run_tool_callback,
+    "{tool['name']}",
     "{tool['dialog_name']}",
-    {tool['options']['tool_configs']},
-    {tool['options']['docked']}
+    {tool['options']}
 )
 hdefereval.executeDeferred(callable)
 ]]>
