@@ -27,13 +27,13 @@ python-dateutil = ">=2.7.0"
 
 [[package]]
 name = "certifi"
-version = "2024.2.2"
+version = "2024.6.2"
 description = "Python package for providing Mozilla's CA Bundle."
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "certifi-2024.2.2-py3-none-any.whl", hash = "sha256:dc383c07b76109f368f6106eee2b593b04a011ea4d55f652c6ca24a754d1cdd1"},
-    {file = "certifi-2024.2.2.tar.gz", hash = "sha256:0569859f95fc761b18b45ef421b1290a0f65f147e92a1e5eb3e635f9a5e4e66f"},
+    {file = "certifi-2024.6.2-py3-none-any.whl", hash = "sha256:ddc6c8ce995e6987e7faf5e3f1b02b302836a0e5d98ece18392cb1a36c72ad56"},
+    {file = "certifi-2024.6.2.tar.gz", hash = "sha256:3cd43f1c6fa7dedc5899d69d3ad0398fd018ad1a17fba83ddaf78aa46c747516"},
 ]
 
 [[package]]
@@ -167,13 +167,13 @@ ftrack-libs = ["ftrack-utils (>=2.0.0,<3.0.0)"]
 
 [[package]]
 name = "ftrack-framework-core"
-version = "2.3.0"
+version = "2.4.0"
 description = "ftrack Framework Core library"
-optional = false
-python-versions = ">=3.7,<3.12"
+optional = true
+python-versions = "<3.12,>=3.7"
 files = [
-    {file = "ftrack_framework_core-2.3.0-py3-none-any.whl", hash = "sha256:7ca6a903816fac1233c87349e1471b5a3cf523ce96f44c67fff528ff1fbbe193"},
-    {file = "ftrack_framework_core-2.3.0.tar.gz", hash = "sha256:e9ce5e4205c9f3a70ceb7c384509bdf9036e10cf1037de8d839bf4b04e83abd6"},
+    {file = "ftrack_framework_core-2.4.0-py3-none-any.whl", hash = "sha256:7cd452e33a018164d3e6cf99ceb25d07f6ebd704f776ae12ee5b199653f439e8"},
+    {file = "ftrack_framework_core-2.4.0.tar.gz", hash = "sha256:ee94053a2f7d860f804266359a3cbdbcb0956952b16b88a977e061454ae84f9a"},
 ]
 
 [package.dependencies]
@@ -184,11 +184,6 @@ six = ">=1,<2"
 
 [package.extras]
 ftrack-libs = ["ftrack-constants (>=2.0.0,<3.0.0)", "ftrack-utils (>=2.0.0,<3.0.0)"]
-
-[package.source]
-type = "legacy"
-url = "https://test.pypi.org/simple"
-reference = "testpypi"
 
 [[package]]
 name = "ftrack-framework-qt"
@@ -260,13 +255,13 @@ ftrack-libs = ["ftrack-utils (>=2.0.0,<3.0.0)"]
 
 [[package]]
 name = "ftrack-utils"
-version = "2.2.0"
+version = "2.3.0"
 description = "ftrack utils library"
 optional = true
 python-versions = "<3.12,>=3.7"
 files = [
-    {file = "ftrack_utils-2.2.0-py3-none-any.whl", hash = "sha256:25ba6d2ddd17d66289506a6ac516a22923ca816378643c00d4b688c13da773f4"},
-    {file = "ftrack_utils-2.2.0.tar.gz", hash = "sha256:7fecd76fe36cc1bdf36431427d3fd90924b64b9de647f849e307d2e6e5dda911"},
+    {file = "ftrack_utils-2.3.0-py3-none-any.whl", hash = "sha256:3e7e89d30b799bcb711f88c9c207799b0f4e201ed6718645cf2ed7b8bca12f5f"},
+    {file = "ftrack_utils-2.3.0.tar.gz", hash = "sha256:bcd11e8aa8cf42a8f036ecd502b9e7aa12a9e26cf56d66ecf4595b31a79cbfca"},
 ]
 
 [package.dependencies]
@@ -336,7 +331,7 @@ testing = ["coverage", "pyyaml"]
 name = "platformdirs"
 version = "4.0.0"
 description = "A small Python package for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
-optional = false
+optional = true
 python-versions = ">=3.7"
 files = [
     {file = "platformdirs-4.0.0-py3-none-any.whl", hash = "sha256:118c954d7e949b35437270383a3f2531e99dd93cf7ce4dc8340d3356d30f173b"},
@@ -379,7 +374,7 @@ six = ">=1.5"
 name = "pyyaml"
 version = "6.0.1"
 description = "YAML parser and emitter for Python"
-optional = false
+optional = true
 python-versions = ">=3.6"
 files = [
     {file = "PyYAML-6.0.1-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:d858aa552c999bc8a8d57426ed01e40bef403cd8ccdd0fc5f6f04a00414cac2a"},
@@ -542,4 +537,4 @@ ftrack-libs = ["ftrack-constants", "ftrack-qt", "ftrack-qt-style", "ftrack-utils
 [metadata]
 lock-version = "2.0"
 python-versions = ">= 3.7, < 3.11"
-content-hash = "cf56dde91860663c426fb3ad26fe147e5d623ed3153bc9af59c3387ffc675fe9"
+content-hash = "3753654a259afd9a43d4fa839407d0da844d948ef833b96fe9b063d249775d2c"
