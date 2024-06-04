@@ -1,6 +1,8 @@
 # ftrack Utils library release Notes
 
-## upcoming
+## v2.3.0
+2024-06-04
+
 * [new] Registry; Support for JS extensions.
 * [feat] JS RPC; Added on connected callback.
 * [feat] JS RPC; Aligned on_run_dialog_callback with DCC bootstrap implementation.
