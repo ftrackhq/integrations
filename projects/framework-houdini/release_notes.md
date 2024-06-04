@@ -1,4 +1,4 @@
-# ftrack Framework Maya integration release Notes
+# ftrack Framework Houdini integration release Notes
 
 ## upcoming
 
