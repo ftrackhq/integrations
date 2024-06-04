@@ -101,7 +101,7 @@ jobs:
           # Use --testpypi or --from_source to change where the deps are picked from
           python tools/build.py --remove_intermediate_folder build_connect_plugin ${{ needs.set-variables.outputs.folder }}
       - name: build standard framework DCC integration plugin
-        if: ${{ needs.set-variables.outputs.package == 'framework-maya' || needs.set-variables.outputs.package == 'framework-nuke'  || needs.set-variables.outputs.package == 'framework-houdini' }}
+        if: ${{ needs.set-variables.outputs.package == 'framework-maya' || needs.set-variables.outputs.package == 'framework-nuke' }}
         shell: bash
         run: |
           pip install -r tools/requirements.txt
@@ -139,7 +139,7 @@ jobs:
     needs: set-variables
     concurrency:
       group: ci-${{ github.ref }}
-    if: ${{ needs.set-variables.outputs.package == 'framework-harmony' }}
+    if: ${{ needs.set-variables.outputs.package == 'framework-harmony' || needs.set-variables.outputs.package == 'framework-houdini'}}
     runs-on: ubuntu-latest
     outputs:
       package: ${{ needs.set-variables.outputs.package }}
@@ -158,7 +158,6 @@ jobs:
           cd ${{ needs.set-variables.outputs.folder }}
           poetry build
       - name: build standard framework DCC integration plugin
-        if: ${{ needs.set-variables.outputs.package == 'framework-harmony' }}
         shell: bash
         run: |
           pip install -r tools/requirements.txt

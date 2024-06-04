@@ -1,0 +1,5 @@
+type: tool_config
+name: houdini-setup-scene
+config_type: setup
+engine:
+  - houdini_setup_frame_range
