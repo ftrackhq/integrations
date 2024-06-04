@@ -1,11 +1,12 @@
 # ftrack Framework Premiere integration release Notes
 
-## upcoming
+## v24.6.0
+2024-06-04
 
 * [feat] Added support for bootstrap tools run after Premiere connection established.
 
 
-## 24.5.0
+## v24.5.0
 2024-05-13
 
 * [new] Initial implementation with support for publishing a .prproj snapshot with .mp4 reviewable, and opening the .prproj snapshot in Premiere.
