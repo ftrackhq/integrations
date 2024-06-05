@@ -55,7 +55,7 @@ client_instance = None
 
 @run_in_main_thread
 def on_run_tool_callback(
-    tool_name, dialog_name=None, options=dict, maya_args=None
+    tool_name, dialog_name=None, options=dict, houdini_args=None
 ):
     client_instance.run_tool(
         tool_name,

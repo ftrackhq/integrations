@@ -39,7 +39,7 @@ class HoudiniSetupFrameRangeStartupPlugin(BasePlugin):
                 hou.setFps(fps)
             except Exception as error:
                 raise PluginExecutionError(
-                    f"Error trying to setup frame range on maya, error: {error}"
+                    f"Error trying to setup frame range on houdini, error: {error}"
                 )
         else:
             self.logger.warning("Couldn't find a task to pick up frame range")
