@@ -82,8 +82,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
+        if: ${{ needs.set-variables.outputs.package != 'framework-harmony' && needs.set-variables.outputs.package != 'framework-houdini'}}
         with:
           python-version: '3.7'
+      - uses: actions/setup-python@v4
+        if: ${{ needs.set-variables.outputs.package == 'framework-harmony' || needs.set-variables.outputs.package == 'framework-houdini'}}
+        with:
+          python-version: '3.9'
       - name: install poetry
         shell: bash
         run: |
@@ -101,7 +106,7 @@ jobs:
           # Use --testpypi or --from_source to change where the deps are picked from
           python tools/build.py --remove_intermediate_folder build_connect_plugin ${{ needs.set-variables.outputs.folder }}
       - name: build standard framework DCC integration plugin
-        if: ${{ needs.set-variables.outputs.package == 'framework-maya' || needs.set-variables.outputs.package == 'framework-nuke' }}
+        if: ${{ needs.set-variables.outputs.package == 'framework-maya' || needs.set-variables.outputs.package == 'framework-nuke' || needs.set-variables.outputs.package == 'framework-harmony' || needs.set-variables.outputs.package == 'framework-houdini'}}
         shell: bash
         run: |
           pip install -r tools/requirements.txt
@@ -120,49 +125,6 @@ jobs:
           pip install -r tools/requirements.txt
           python tools/build.py --output_path /tmp build_rvpkg  projects/rv
           python tools/build.py --remove_intermediate_folder --include_assets $(find /tmp/ -type f -name "*.rvpkg") build_connect_plugin ${{ needs.set-variables.outputs.folder }}
-      - name: upload artifacts to release
-        shell: bash
-        run: |
-          cd ${{ needs.set-variables.outputs.folder }}
-          gh release upload ${{ needs.set-variables.outputs.tag }} dist/* --clobber
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Upload temp artifacts
-        uses: actions/upload-artifact@v2
-        if: ${{ needs.set-variables.outputs.to_pypi == 'true' }}
-        with:
-          name: dist
-          path: ${{ needs.set-variables.outputs.folder }}/dist
-
-  build-package-39:
-    name: Build platform independent artifacts, and Linux specific artifacts (Python 3.9)
-    needs: set-variables
-    concurrency:
-      group: ci-${{ github.ref }}
-    if: ${{ needs.set-variables.outputs.package == 'framework-harmony' || needs.set-variables.outputs.package == 'framework-houdini'}}
-    runs-on: ubuntu-latest
-    outputs:
-      package: ${{ needs.set-variables.outputs.package }}
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.9'
-      - name: install poetry
-        shell: bash
-        run: |
-          pip install poetry==1.5.1
-      - name: poetry build
-        shell: bash
-        run: |
-          cd ${{ needs.set-variables.outputs.folder }}
-          poetry build
-      - name: build standard framework DCC integration plugin
-        shell: bash
-        run: |
-          pip install -r tools/requirements.txt
-          # Use --testpypi or --from_source to change where the deps are picked from
-          python tools/build.py --from_source --remove_intermediate_folder --include_resources resource/bootstrap build_connect_plugin ${{ needs.set-variables.outputs.folder }}
       - name: upload artifacts to release
         shell: bash
         run: |

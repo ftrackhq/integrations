@@ -54,9 +54,7 @@ client_instance = None
 
 
 @run_in_main_thread
-def on_run_tool_callback(
-    tool_name, dialog_name=None, options=dict, houdini_args=None
-):
+def on_run_tool_callback(tool_name, dialog_name=None, options=dict):
     client_instance.run_tool(
         tool_name,
         dialog_name,
