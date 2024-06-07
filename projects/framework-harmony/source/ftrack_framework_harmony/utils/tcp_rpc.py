@@ -188,7 +188,7 @@ class TCPRPCClient(QtCore.QObject):
 
             self.connected = True
 
-            # Send context ID to DCC to establis connection, expect reply back as an
+            # Send context ID to DCC to establish connection, expect reply back as an
             # acknowledgment that DCC is ready
             self.send(
                 constants.event.REMOTE_INTEGRATION_CONTEXT_DATA_TOPIC,

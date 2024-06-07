@@ -75,7 +75,7 @@ jobs:
     needs: set-variables
     concurrency:
       group: ci-${{ github.ref }}
-    if: ${{ needs.set-variables.outputs.package != 'framework-photoshop' && needs.set-variables.outputs.package != 'framework-premiere' && needs.set-variables.outputs.package != 'framework-harmony' }}
+    if: ${{ needs.set-variables.outputs.package != 'framework-photoshop' && needs.set-variables.outputs.package != 'framework-premiere' }}
     runs-on: ubuntu-latest
     outputs:
       package: ${{ needs.set-variables.outputs.package }}
