@@ -151,12 +151,43 @@ def sync_js_plugin(app_path, framework_extensions_paths):
     shutil.copytree(src, dst)
     logger.debug(f'Copied: icons')
 
-    # Collect extensions
+    # Collect extensions and dcc config
 
     registry_instance = registry.Registry()
     registry_instance.scan_extensions(
-        paths=framework_extensions_paths, extension_types=['functions_js']
+        paths=framework_extensions_paths,
+        extension_types=['functions_js', 'dcc_config'],
     )
+
+    # Extract menu launchers
+    dcc_config = registry_instance.get_one(
+        name='framework-harmony', extension_type='dcc_config'
+    )['extension']
+
+    launchers = []
+    for tool in dcc_config['tools']:
+        on_menu = tool.get("menu", True)
+        if on_menu:
+            launchers.append(tool)
+
+    logger.debug(
+        f'Menu driven tools found: {launchers}, writing to JS plugin.'
+    )
+    launcher_path = os.path.join(path_scripts, 'launchers.js')
+    launchers = (
+        str(launchers)
+        .replace(': False', ': false')
+        .replace(': True', ': true')
+    )
+    with open(launcher_path, 'w') as f:
+        f.write(
+            '''
+function getLaunchers() {
+    return %s;
+}
+'''
+            % launchers
+        )
 
     logger.debug(
         f'JS functions extensions found: {len(registry_instance.functions_js or [])}'

@@ -27,13 +27,13 @@ python-dateutil = ">=2.7.0"
 
 [[package]]
 name = "certifi"
-version = "2024.2.2"
+version = "2024.6.2"
 description = "Python package for providing Mozilla's CA Bundle."
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "certifi-2024.2.2-py3-none-any.whl", hash = "sha256:dc383c07b76109f368f6106eee2b593b04a011ea4d55f652c6ca24a754d1cdd1"},
-    {file = "certifi-2024.2.2.tar.gz", hash = "sha256:0569859f95fc761b18b45ef421b1290a0f65f147e92a1e5eb3e635f9a5e4e66f"},
+    {file = "certifi-2024.6.2-py3-none-any.whl", hash = "sha256:ddc6c8ce995e6987e7faf5e3f1b02b302836a0e5d98ece18392cb1a36c72ad56"},
+    {file = "certifi-2024.6.2.tar.gz", hash = "sha256:3cd43f1c6fa7dedc5899d69d3ad0398fd018ad1a17fba83ddaf78aa46c747516"},
 ]
 
 [[package]]
@@ -167,13 +167,13 @@ ftrack-libs = ["ftrack-utils (>=2.0.0,<3.0.0)"]
 
 [[package]]
 name = "ftrack-framework-core"
-version = "2.2.1"
+version = "2.4.0"
 description = "ftrack Framework Core library"
 optional = true
 python-versions = "<3.12,>=3.7"
 files = [
-    {file = "ftrack_framework_core-2.2.1-py3-none-any.whl", hash = "sha256:77b9b34e42da65cfb2d612c5962e7df679b038458e23e425fe4027e0e1c1a810"},
-    {file = "ftrack_framework_core-2.2.1.tar.gz", hash = "sha256:d032f13493dca2f4511e9f318d4ec33946728b553f73fd86b16a03f95ad63829"},
+    {file = "ftrack_framework_core-2.4.0-py3-none-any.whl", hash = "sha256:7cd452e33a018164d3e6cf99ceb25d07f6ebd704f776ae12ee5b199653f439e8"},
+    {file = "ftrack_framework_core-2.4.0.tar.gz", hash = "sha256:ee94053a2f7d860f804266359a3cbdbcb0956952b16b88a977e061454ae84f9a"},
 ]
 
 [package.dependencies]
@@ -255,13 +255,13 @@ ftrack-libs = ["ftrack-utils (>=2.0.0,<3.0.0)"]
 
 [[package]]
 name = "ftrack-utils"
-version = "2.2.0"
+version = "2.3.0"
 description = "ftrack utils library"
 optional = true
 python-versions = "<3.12,>=3.7"
 files = [
-    {file = "ftrack_utils-2.2.0-py3-none-any.whl", hash = "sha256:25ba6d2ddd17d66289506a6ac516a22923ca816378643c00d4b688c13da773f4"},
-    {file = "ftrack_utils-2.2.0.tar.gz", hash = "sha256:7fecd76fe36cc1bdf36431427d3fd90924b64b9de647f849e307d2e6e5dda911"},
+    {file = "ftrack_utils-2.3.0-py3-none-any.whl", hash = "sha256:3e7e89d30b799bcb711f88c9c207799b0f4e201ed6718645cf2ed7b8bca12f5f"},
+    {file = "ftrack_utils-2.3.0.tar.gz", hash = "sha256:bcd11e8aa8cf42a8f036ecd502b9e7aa12a9e26cf56d66ecf4595b31a79cbfca"},
 ]
 
 [package.dependencies]
@@ -292,21 +292,19 @@ files = [
 
 [[package]]
 name = "platformdirs"
-version = "4.0.0"
-description = "A small Python package for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
+version = "4.2.2"
+description = "A small Python package for determining appropriate platform-specific dirs, e.g. a `user data dir`."
 optional = true
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "platformdirs-4.0.0-py3-none-any.whl", hash = "sha256:118c954d7e949b35437270383a3f2531e99dd93cf7ce4dc8340d3356d30f173b"},
-    {file = "platformdirs-4.0.0.tar.gz", hash = "sha256:cb633b2bcf10c51af60beb0ab06d2f1d69064b43abf4c185ca6b28865f3f9731"},
+    {file = "platformdirs-4.2.2-py3-none-any.whl", hash = "sha256:2d7a1657e36a80ea911db832a8a6ece5ee53d8de21edd5cc5879af6530b1bfee"},
+    {file = "platformdirs-4.2.2.tar.gz", hash = "sha256:38b7b51f512eed9e84a22788b4bce1de17c0adb134d6becb09836e37d8654cd3"},
 ]
 
-[package.dependencies]
-typing-extensions = {version = ">=4.7.1", markers = "python_version < \"3.8\""}
-
 [package.extras]
-docs = ["furo (>=2023.7.26)", "proselint (>=0.13)", "sphinx (>=7.1.1)", "sphinx-autodoc-typehints (>=1.24)"]
-test = ["appdirs (==1.4.4)", "covdefaults (>=2.3)", "pytest (>=7.4)", "pytest-cov (>=4.1)", "pytest-mock (>=3.11.1)"]
+docs = ["furo (>=2023.9.10)", "proselint (>=0.13)", "sphinx (>=7.2.6)", "sphinx-autodoc-typehints (>=1.25.2)"]
+test = ["appdirs (==1.4.4)", "covdefaults (>=2.3)", "pytest (>=7.4.3)", "pytest-cov (>=4.1)", "pytest-mock (>=3.12)"]
+type = ["mypy (>=1.8)"]
 
 [[package]]
 name = "pyffmpeg"
@@ -411,13 +409,13 @@ files = [
 
 [[package]]
 name = "requests"
-version = "2.31.0"
+version = "2.32.3"
 description = "Python HTTP for Humans."
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "requests-2.31.0-py3-none-any.whl", hash = "sha256:58cd2187c01e70e6e26505bca751777aa9f2ee0b7f4300988b709f44e013003f"},
-    {file = "requests-2.31.0.tar.gz", hash = "sha256:942c5a758f98d790eaed1a29cb6eefc7ffb0d1cf7af05c3d2791656dbd6ad1e1"},
+    {file = "requests-2.32.3-py3-none-any.whl", hash = "sha256:70761cfe03c773ceb22aa2f671b4757976145175cdfca038c02654d061d6dcc6"},
+    {file = "requests-2.32.3.tar.gz", hash = "sha256:55365417734eb18255590a9ff9eb97e9e1da868d4ccd6402399eaf68af20a760"},
 ]
 
 [package.dependencies]
@@ -453,30 +451,19 @@ files = [
 ]
 
 [[package]]
-name = "typing-extensions"
-version = "4.7.1"
-description = "Backported and Experimental Type Hints for Python 3.7+"
-optional = true
-python-versions = ">=3.7"
-files = [
-    {file = "typing_extensions-4.7.1-py3-none-any.whl", hash = "sha256:440d5dd3af93b060174bf433bccd69b0babc3b15b1a8dca43789fd7f61514b36"},
-    {file = "typing_extensions-4.7.1.tar.gz", hash = "sha256:b75ddc264f0ba5615db7ba217daeb99701ad295353c45f9e95963337ceeeffb2"},
-]
-
-[[package]]
 name = "urllib3"
-version = "2.0.7"
+version = "2.2.1"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "urllib3-2.0.7-py3-none-any.whl", hash = "sha256:fdb6d215c776278489906c2f8916e6e7d4f5a9b602ccbcfdf7f016fc8da0596e"},
-    {file = "urllib3-2.0.7.tar.gz", hash = "sha256:c97dfde1f7bd43a71c8d2a58e369e9b2bf692d1334ea9f9cae55add7d0dd0f84"},
+    {file = "urllib3-2.2.1-py3-none-any.whl", hash = "sha256:450b20ec296a467077128bff42b73080516e71b56ff59a60a02bef2232c4fa9d"},
+    {file = "urllib3-2.2.1.tar.gz", hash = "sha256:d0570876c61ab9e520d776c38acbbb5b05a776d3f9ff98a5c8fd5162a444cf19"},
 ]
 
 [package.extras]
 brotli = ["brotli (>=1.0.9)", "brotlicffi (>=0.8.0)"]
-secure = ["certifi", "cryptography (>=1.9)", "idna (>=2.0.0)", "pyopenssl (>=17.1.0)", "urllib3-secure-extra"]
+h2 = ["h2 (>=4,<5)"]
 socks = ["pysocks (>=1.5.6,!=1.5.7,<2.0)"]
 zstd = ["zstandard (>=0.18.0)"]
 
@@ -500,5 +487,5 @@ ftrack-libs = ["ftrack-constants", "ftrack-qt", "ftrack-qt-style", "ftrack-utils
 
 [metadata]
 lock-version = "2.0"
-python-versions = ">= 3.7, < 3.12"
-content-hash = "5a9979026787a186b995dba3ae8cf132d2d5e6baf241d98e8c66b223a052362a"
+python-versions = ">= 3.9, < 3.12"
+content-hash = "0c1510a2b075ccbfe308e988bc81b87c4a317efa340f63fba1163c6cb3249305"
