@@ -10,6 +10,7 @@ official CI/CD build implementation in place.
 
 Changelog:
 
+0.4.24 [24.06.07] Added platform_dependent argument, controls output ZIP artefact suffix.
 0.4.23 [24.05.20] Fixed bug when building qt-style from sources.
 0.4.22 [24.05.14] CEP build; Support for JS include folder, overriding extensions/js folder.
 0.4.21 [24.04.30] Support for building packages outside the monorepo.
@@ -51,7 +52,7 @@ from distutils.spawn import find_executable
 import fileinput
 import tempfile
 
-__version__ = '0.4.23'
+__version__ = '0.4.24'
 
 ZXPSIGN_CMD = 'ZXPSignCmd'
 
@@ -114,14 +115,13 @@ def build_package(invokation_path, pkg_path, args, command=None):
     EXTENSION_PATH = os.path.join(ROOT_PATH, 'extensions')
     USES_FRAMEWORK = False
     FTRACK_DEP_LIBS = {}
-    PLATFORM_DEPENDENT = False
 
     POETRY_CONFIG_PATH = os.path.join(ROOT_PATH, 'pyproject.toml')
     DCC_NAME = None
     VERSION = None
 
     def append_dependencies(toml_path):
-        nonlocal USES_FRAMEWORK, PLATFORM_DEPENDENT, FTRACK_DEP_LIBS
+        nonlocal USES_FRAMEWORK, FTRACK_DEP_LIBS
         section = None
         with open(toml_path) as f:
             for line in f.readlines():
@@ -606,7 +606,7 @@ def build_package(invokation_path, pkg_path, args, command=None):
 
         logging.info('Creating archive')
         archive_path = os.path.join(BUILD_PATH, os.path.basename(STAGING_PATH))
-        if PLATFORM_DEPENDENT:
+        if args.platform_dependent:
             if sys.platform.startswith('win'):
                 archive_path = '{}-windows'.format(archive_path)
             elif sys.platform.startswith('darwin'):
@@ -1087,6 +1087,12 @@ if __name__ == '__main__':
     parser.add_argument(
         '--testpypi',
         help='Pip install from TestPyPi instead of public.',
+        action='store_true',
+    )
+
+    parser.add_argument(
+        '--platform_dependent',
+        help='Denote the build to be platform dependent, adding suffix to the ZIP artefact.',
         action='store_true',
     )
 

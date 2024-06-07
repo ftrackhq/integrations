@@ -57,7 +57,7 @@ Build Connect plugin:
 
 ```bash
     cd integrations
-    python tools/build.py  --include_resources resource/bootstrap build_connect_plugin projects/framework-harmony
+    python tools/build.py  --include_resources resource/bootstrap --platform_dependent build_connect_plugin projects/framework-harmony
 ```
 
 If the build fails and Harmony is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 

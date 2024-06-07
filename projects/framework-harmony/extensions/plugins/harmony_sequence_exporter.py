@@ -38,7 +38,7 @@ class HarmonySequenceExporterPlugin(BasePlugin):
             render_response = harmony_connection.rpc(
                 'renderSequence',
                 [
-                    '{}{}'.format(temp_folder.replace('\\', '/'), os.sep),
+                    '{}{}'.format(temp_folder, os.sep).replace('\\', '/'),
                     prefix,
                     extension.replace('.', ''),
                     export_format,
