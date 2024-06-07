@@ -17,3 +17,9 @@ tools:
       tool_configs:
         - houdini-scene-opener
       docked: false
+  - name: set_up_scene
+    run_on: startup
+    menu: false # True by default
+    options:
+      tool_configs:
+        - houdini-setup-scene

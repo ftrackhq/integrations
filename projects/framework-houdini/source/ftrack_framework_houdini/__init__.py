@@ -50,16 +50,16 @@ configure_logging(
 logger = logging.getLogger(__name__)
 logger.debug('v{}'.format(__version__))
 
+client_instance = None
+
 
 @run_in_main_thread
-def on_run_dialog_callback(dialog_name, tool_config_names, docked):
-    client_instance.run_dialog(
+def on_run_tool_callback(tool_name, dialog_name=None, options=dict):
+    client_instance.run_tool(
+        tool_name,
         dialog_name,
-        dialog_options={
-            'tool_config_names': tool_config_names,
-            'docked': docked,
-        },
-        dock_func=dock_houdini_right,
+        options,
+        dock_func=dock_houdini_right if dialog_name else None,
     )
 
 
@@ -155,13 +155,32 @@ def bootstrap_integration(framework_extensions_path):
     # Generate ftrack menu
     root, ftrack_menu = get_ftrack_menu()
 
+    # Register tools into ftrack menu
     for tool in dcc_config['tools']:
-        menu_item = ET.SubElement(ftrack_menu, "scriptItem")
-        menu_item.set("id", tool['name'])
-        label = ET.SubElement(menu_item, "label")
-        label.text = tool['label']
-        menu_item_script = ET.SubElement(menu_item, "scriptCode")
-        menu_item_script.text = _get_menu_item_script(tool)
+        run_on = tool.get("run_on")
+        on_menu = tool.get("menu", True)
+        if on_menu:
+            menu_item = ET.SubElement(ftrack_menu, "scriptItem")
+            menu_item.set("id", tool['name'])
+            label = ET.SubElement(menu_item, "label")
+            label.text = tool['label']
+            menu_item_script = ET.SubElement(menu_item, "scriptCode")
+            menu_item_script.text = _get_menu_item_script(tool)
+        if run_on:
+            if run_on == "startup":
+                # Execute startup tool-configs
+                on_run_tool_callback(
+                    tool.get('name'),
+                    tool.get('dialog_name'),
+                    tool['options'],
+                )
+            else:
+                logger.error(
+                    f"Unsupported run_on value: {run_on} tool section of the "
+                    f"tool {tool.get('name')} on the tool config file: "
+                    f"{dcc_config['name']}. \n Currently supported values:"
+                    f" [startup]"
+                )
 
     # Convert xml to string
     # Unescaping and decoding to avoid ending up with encoded CDATA
@@ -187,10 +206,10 @@ import functools
 import hdefereval
 import ftrack_framework_houdini
 callable = functools.partial(
-    ftrack_framework_houdini.on_run_dialog_callback,
+    ftrack_framework_houdini.on_run_tool_callback,
+    "{tool['name']}",
     "{tool['dialog_name']}",
-    {tool['options']['tool_configs']},
-    {tool['options']['docked']}
+    {tool['options']}
 )
 hdefereval.executeDeferred(callable)
 ]]>
