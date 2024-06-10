@@ -92,10 +92,16 @@ def get_ftrack_menu(menu_name='ftrack', submenu_name=None):
 # mechanisms directly.
 @run_in_main_thread
 def on_run_tool_callback(
-    client_instance, tool_name, dialog_name=None, options=dict, maya_args=None
+    client_instance,
+    tool_name,
+    run_on,
+    dialog_name=None,
+    options=dict,
+    maya_args=None,
 ):
     client_instance.run_tool(
         tool_name,
+        run_on,
         dialog_name,
         options,
         dock_func=dock_maya_right if dialog_name else None,
@@ -191,6 +197,7 @@ def bootstrap_integration(framework_extensions_path):
                     functools.partial(
                         on_run_tool_callback,
                         client_instance,
+                        run_on,
                         tool.get('name'),
                         tool.get('dialog_name'),
                         tool['options'],
@@ -198,22 +205,14 @@ def bootstrap_integration(framework_extensions_path):
                 ),
                 image=":/{}.png".format(tool['icon']),
             )
-        if run_on:
-            if run_on == "startup":
-                # Execute startup tool-configs
-                on_run_tool_callback(
-                    client_instance,
-                    tool.get('name'),
-                    tool.get('dialog_name'),
-                    tool['options'],
-                )
-            else:
-                logger.error(
-                    f"Unsupported run_on value: {run_on} tool section of the "
-                    f"tool {tool.get('name')} on the tool config file: "
-                    f"{dcc_config['name']}. \n Currently supported values:"
-                    f" [startup]"
-                )
+        else:
+            on_run_tool_callback(
+                client_instance,
+                run_on,
+                tool.get('name'),
+                tool.get('dialog_name'),
+                tool['options'],
+            )
 
     return client_instance
 

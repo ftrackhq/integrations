@@ -21,8 +21,21 @@ tools:
       docked: false
   # Execute tool config without UI
   - name: set_up_scene
-    run_on: startup
+    run_on:
+      startup:
+        - tool_configs
     menu: false # True by default
     options:
       tool_configs:
         - maya-setup-scene
+  - name: loader
+    run_on: action
+    # run_on: ftrack-framework-action-launch # startup # [ftrck-action-discover, ftrck-action-launch]
+    menu: false # True by default
+    #action: studio
+    label: "Loader"
+    dialog_name: framework_standard_opener_dialog
+    icon: open
+    options:
+      tool_configs:
+        - maya-scene-opener
