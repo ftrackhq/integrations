@@ -5,6 +5,7 @@ import time
 import logging
 import uuid
 from collections import defaultdict
+from functools import partial
 
 from six import string_types
 
@@ -112,6 +113,12 @@ class Client(object):
         # Feed change of host and context to client
         self.on_host_changed(self.host_connection)
         self.on_context_changed(self.host_connection.context_id)
+
+        # Subscribing to the launch action event
+        self.event_manager.subscribe.framewor_action_launch(
+            self.host_connection.host_id,
+            callback=self.on_run_tool,
+        )
 
     @property
     def host_id(self):
@@ -339,23 +346,94 @@ class Client(object):
         '''
         self.host_connection.reset_all_tool_configs()
 
+    def _on_discover_action_callback(
+        self, name, dialog_name, options, dock_func, event
+    ):
+        '''Discover *event*.'''
+        selection = event['data'].get('selection', [])
+        if len(selection) == 1 and selection[0]['entityType'] == 'Component':
+            return {
+                'items': [
+                    {
+                        'label': name,
+                        #'actionIdentifier': self.identifier,
+                        'host_id': self.host_id,
+                        'dialog_name': dialog_name,
+                        'options': options,
+                        'dock_func': dock_func,
+                    }
+                ]
+            }
+
+    def _on_launch_action_callback(self, event):
+        '''Handle *event*.
+
+        event['data'] should contain:
+
+            *applicationIdentifier* to identify which application to start.
+
+        '''
+        selection = event['data']['selection']
+
+        name = event['data']['label']
+        dialog_name = event['data']['dialog_name']
+        options = event['data']['options']
+        options['event_data'] = {'selection': selection}
+        dock_func = event['data']['dock_func']
+
+        self.run_tool(name, None, dialog_name, options, dock_func)
+
     @track_framework_usage(
         'FRAMEWORK_RUN_TOOL',
         {'module': 'client'},
         ['name'],
     )
-    def run_tool(self, name, dialog_name=None, options=dict, dock_func=False):
+    def run_tool(
+        self,
+        name,
+        run_on=None,
+        dialog_name=None,
+        options=dict,
+        dock_func=False,
+    ):
         '''
         Client runs the tool passed from the DCC config, can run run_dialog
         if the tool has UI or directly run_tool_config if it doesn't.
         '''
+
         self.logger.info(f"Running {name} tool")
+
+        if run_on == 'action':
+            self.session.event_hub.subscribe(
+                u'topic=ftrack.action.discover and '
+                u'source.user.username="{0}"'.format(self.session.api_user),
+                partial(self._on_discover_action_callback, name, self.host_id),
+            )
+
+            self.session.event_hub.subscribe(
+                u'topic=ftrack.action.launch and '
+                # u'data.actionIdentifier={0} and '
+                u'data.name={0} and '
+                u'source.user.username="{1}" and '
+                u'data.host_id={2}'.format(
+                    name, self.session.api_user, self.host_id
+                ),
+                self._on_launch_action_callback,
+            )
+            # subscribe to ftrack.action.discover event and pass the label of the action
+            # subscribe to ftrack.action.launch event and pass the dialog_name, tool_configs, etc to run the run_tool...
+
+            return
+
+        # TODO: if run_on is not action, simply continue and execute the tool
+
         if dialog_name:
             self.run_dialog(
                 dialog_name,
                 dialog_options={
                     'tool_config_names': options.get('tool_configs'),
                     'docked': options.get('docked', False),
+                    'event_data': options.get('event_data'),
                 },
                 dock_func=dock_func,
             )
@@ -375,6 +453,11 @@ class Client(object):
                         f"Couldn't find any tool config matching the name {tool_config_name}"
                     )
                     continue
+                if options.get('event_data'):
+                    self._tool_config_options[
+                        tool_config['reference']
+                    ] = options.get('event_data')
+
                 self.run_tool_config(tool_config['reference'])
 
     # UI
@@ -502,6 +585,7 @@ class Client(object):
     def set_config_options(
         self, tool_config_reference, plugin_config_reference, plugin_options
     ):
+        # TODO_ mayabe we should rename this one to make sure this is just for plugins
         if not isinstance(plugin_options, dict):
             raise Exception(
                 "plugin_options should be a dictionary. "
