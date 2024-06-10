@@ -25,3 +25,14 @@ engine:
       - type: plugin
         plugin: nuke_image_loader
 
+  # Component variants we are able to load
+  - type: group
+    tags:
+      - component
+    options:
+      name: "Sequence loader"
+      component: sequence
+    plugins:
+      - type: plugin
+        plugin: nuke_sequence_loader
+

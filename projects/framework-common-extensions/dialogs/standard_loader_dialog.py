@@ -112,15 +112,16 @@ class StandardLoaderDialog(BaseDialog):
                             except Exception as error:
                                 tool_config_message = error
                                 break
-                            self._progress_widget = ProgressWidget(
-                                'load', build_progress_data(tool_config)
-                            )
-                            self.header.set_widget(
-                                self._progress_widget.status_widget
-                            )
-                            self.overlay_layout.addWidget(
-                                self._progress_widget.overlay_widget
-                            )
+                            if False:
+                                self._progress_widget = ProgressWidget(
+                                    'load', build_progress_data(tool_config)
+                                )
+                                self.header.set_widget(
+                                    self._progress_widget.status_widget
+                                )
+                                self.overlay_layout.addWidget(
+                                    self._progress_widget.overlay_widget
+                                )
                         break
                 if not self.tool_config and not tool_config_message:
                     tool_config_message = (
@@ -148,7 +149,7 @@ class StandardLoaderDialog(BaseDialog):
             self._show_error('Only components are supported!')
             return
 
-        ft_component = self.session.find(
+        ft_component = self.session.query(
             f'Component where id={entity_id}'
         ).first()
         if not ft_component:
@@ -203,7 +204,7 @@ class StandardLoaderDialog(BaseDialog):
                     continue
             if compatible:
                 # Get component path
-                component_path = ft_location.get_component_path(ft_component)
+                component_path = ft_location.get_filesystem_path(ft_component)
 
                 component_name = ft_component['name']
                 loader_name = options.get('name')
@@ -231,6 +232,8 @@ class StandardLoaderDialog(BaseDialog):
                 plugins = get_plugins(group_config)
                 for plugin_config in plugins:
                     # Store the path
+                    if 'options' not in plugin_config:
+                        plugin_config['options'] = {}
                     plugin_config['options']['path'] = component_path
                     if not plugin_config.get('ui'):
                         continue
@@ -252,28 +255,31 @@ class StandardLoaderDialog(BaseDialog):
         self.tool_widget.layout().addItem(spacer)
 
     def post_build_ui(self):
-        self._progress_widget.hide_overlay_signal.connect(
-            self.show_main_widget
-        )
-        self._progress_widget.show_overlay_signal.connect(
-            self.show_overlay_widget
-        )
+        if self._progress_widget:
+            self._progress_widget.hide_overlay_signal.connect(
+                self.show_main_widget
+            )
+            self._progress_widget.show_overlay_signal.connect(
+                self.show_overlay_widget
+            )
 
     def _on_run_button_clicked(self):
         '''(Override) Drive the progress widget'''
         self.show_overlay_widget()
-        self._progress_widget.run()
+        if self._progress_widget:
+            self._progress_widget.run()
         super(StandardLoaderDialog, self)._on_run_button_clicked()
 
     @invoke_in_qt_main_thread
     def plugin_run_callback(self, log_item):
         '''(Override) Pass framework log item to the progress widget'''
-        self._progress_widget.update_phase_status(
-            log_item.reference,
-            log_item.status,
-            log_message=log_item.message,
-            time=log_item.execution_time,
-        )
+        if self._progress_widget:
+            self._progress_widget.update_phase_status(
+                log_item.reference,
+                log_item.status,
+                log_message=log_item.message,
+                time=log_item.execution_time,
+            )
 
     def closeEvent(self, event):
         '''(Override) Close the context and progress widgets'''

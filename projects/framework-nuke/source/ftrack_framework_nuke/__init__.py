@@ -73,9 +73,10 @@ startup_tools = []
 
 
 @run_in_main_thread
-def on_run_tool_callback(tool_name, dialog_name=None, options=dict):
+def on_run_tool_callback(tool_name, run_on, dialog_name=None, options=None):
     client_instance.run_tool(
         tool_name,
+        run_on,
         dialog_name,
         options,
         dock_func=partial(dock_nuke_right) if dialog_name else None,
@@ -176,7 +177,7 @@ def bootstrap_integration(framework_extensions_path):
             else:
                 ftrack_menu.addCommand(
                     tool['label'],
-                    f'{__name__}.onRunToolCallback("{name}","{dialog_name}", {options})',
+                    f'{__name__}.onRunToolCallback("{name}","{run_on}","{dialog_name}", {options})',
                 )
 
         if run_on:
@@ -186,6 +187,7 @@ def bootstrap_integration(framework_extensions_path):
                 startup_tools.append(
                     [
                         name,
+                        run_on,
                         dialog_name,
                         options,
                     ]
