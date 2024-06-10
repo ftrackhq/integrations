@@ -197,8 +197,8 @@ def bootstrap_integration(framework_extensions_path):
                     functools.partial(
                         on_run_tool_callback,
                         client_instance,
-                        run_on,
                         tool.get('name'),
+                        run_on,
                         tool.get('dialog_name'),
                         tool['options'],
                     )
@@ -208,8 +208,8 @@ def bootstrap_integration(framework_extensions_path):
         else:
             on_run_tool_callback(
                 client_instance,
-                run_on,
                 tool.get('name'),
+                run_on,
                 tool.get('dialog_name'),
                 tool['options'],
             )

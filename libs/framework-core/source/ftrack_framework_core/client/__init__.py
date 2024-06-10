@@ -9,6 +9,8 @@ from functools import partial
 
 from six import string_types
 
+import ftrack_api
+
 from ftrack_framework_core.widget.dialog import FrameworkDialog
 import ftrack_constants.framework as constants
 
@@ -17,6 +19,8 @@ from ftrack_framework_core.client.host_connection import HostConnection
 from ftrack_utils.decorators import track_framework_usage
 
 from ftrack_utils.framework.config.tool import get_tool_config_by_name
+
+from ftrack_framework_core.event import _EventHubThread
 
 
 class Client(object):
@@ -180,6 +184,23 @@ class Client(object):
     def tool_config_options(self):
         return self._tool_config_options
 
+    @property
+    def remote_session(self):
+        # TODO: temporary hack for remote session
+        if self._remote_session:
+            return self._remote_session
+        else:
+            self._remote_session = ftrack_api.Session(
+                auto_connect_event_hub=True
+            )
+            # TODO: temporary solution to start the wait thread
+            _event_hub_thread = _EventHubThread(self._remote_session)
+
+            if not _event_hub_thread.is_alive():
+                # self.logger.debug('Starting new hub thread for {}'.format(self))
+                _event_hub_thread.start()
+            return self._remote_session
+
     def __init__(
         self,
         event_manager,
@@ -207,6 +228,7 @@ class Client(object):
         self.__instanced_dialogs = {}
         self._dialog = None
         self._tool_config_options = defaultdict(defaultdict)
+        self._remote_session = None
 
         self.logger.debug('Initialising Client {}'.format(self))
 
@@ -340,10 +362,15 @@ class Client(object):
         '''
         self.host_connection.reset_all_tool_configs()
 
-    def _on_discover_action_callback(
-        self, name, dialog_name, options, dock_func, event
-    ):
+    def _on_discover_action_callback(self, name, dialog_name, options, event):
         '''Discover *event*.'''
+        self.logger.warning(
+            f"on discover action: {name} {dialog_name} {options} {event}"
+        )
+        '''
+        on discover action: loader framework_standard_opener_dialog {'tool_configs': ['maya-scene-opener']} <function dock_maya_right at 0x7fec22f09cb0> <Event {'id': 'a3a19ad8-c0ac-472d-8374-e131206a45b4', 'data': {'selection': [{'entity_id': 'ca827e66-9938-4456-92da-6b50e14830c5', 'entityType': 'Component', 'entityId': 'ca827e66-9938-4456-92da-6b50e14830c5', 'entity_type': 'Component'}]}, 'topic': 'ftrack.action.discover', 'sent': None, 'source': {'applicationId': 'ftrack.web-adapter', 'id': '471fe772-5544-4888-ab40-b5b2ab136e2a', 'user': {'username': 'lluis.casals@ftrack.com', 'id': '7e27761c-a36d-11ec-a671-3af9d77ae1b2'}}, 'target': '', 'in_reply_to_event': None}> // 
+
+        '''
         selection = event['data'].get('selection', [])
         if len(selection) == 1 and selection[0]['entityType'] == 'Component':
             return {
@@ -354,7 +381,6 @@ class Client(object):
                         'host_id': self.host_id,
                         'dialog_name': dialog_name,
                         'options': options,
-                        'dock_func': dock_func,
                     }
                 ]
             }
@@ -367,15 +393,18 @@ class Client(object):
             *applicationIdentifier* to identify which application to start.
 
         '''
+        self.logger.warning(f"on _on_launch_action_callback: {event}")
         selection = event['data']['selection']
 
         name = event['data']['label']
         dialog_name = event['data']['dialog_name']
         options = event['data']['options']
         options['event_data'] = {'selection': selection}
-        dock_func = event['data']['dock_func']
 
-        self.run_tool(name, None, dialog_name, options, dock_func)
+        self.run_tool(name, None, dialog_name, options)
+
+    def _print_all(self, event):
+        self.logger.warning(f"all event: {event}")
 
     @track_framework_usage(
         'FRAMEWORK_RUN_TOOL',
@@ -396,15 +425,31 @@ class Client(object):
         '''
 
         self.logger.info(f"Running {name} tool")
+        self.logger.warning(
+            f"on run_tool: "
+            f"{name} {run_on} {dialog_name} {options} {dock_func}"
+        )
 
         if run_on == 'action':
-            self.session.event_hub.subscribe(
-                u'topic=ftrack.action.discover and '
-                u'source.user.username="{0}"'.format(self.session.api_user),
-                partial(self._on_discover_action_callback, name, self.host_id),
+            # TODO: we don't support dock_fn in here because is not serializable
+            self.logger.warning("run on action")
+
+            self.remote_session.event_hub.subscribe(
+                u'topic=ftrack.*', self._print_all
             )
 
-            self.session.event_hub.subscribe(
+            self.remote_session.event_hub.subscribe(
+                u'topic=ftrack.action.discover and '
+                u'source.user.username="{0}"'.format(self.session.api_user),
+                partial(
+                    self._on_discover_action_callback,
+                    name,
+                    dialog_name,
+                    options,
+                ),
+            )
+
+            self.remote_session.event_hub.subscribe(
                 u'topic=ftrack.action.launch and '
                 # u'data.actionIdentifier={0} and '
                 u'data.name={0} and '
