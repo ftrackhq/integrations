@@ -114,12 +114,6 @@ class Client(object):
         self.on_host_changed(self.host_connection)
         self.on_context_changed(self.host_connection.context_id)
 
-        # Subscribing to the launch action event
-        self.event_manager.subscribe.framewor_action_launch(
-            self.host_connection.host_id,
-            callback=self.on_run_tool,
-        )
-
     @property
     def host_id(self):
         '''returns the host id from the current host connection'''
