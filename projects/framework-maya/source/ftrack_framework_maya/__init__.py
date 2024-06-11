@@ -24,7 +24,11 @@ from ftrack_utils.extensions.environment import (
 )
 from ftrack_utils.usage import set_usage_tracker, UsageTracker
 
-from ftrack_framework_maya.utils import dock_maya_right, run_in_main_thread
+from ftrack_framework_maya.utils import (
+    dock_maya_right,
+    run_in_main_thread,
+    get_maya_session_identifier,
+)
 
 
 # Evaluate version and log package version
@@ -109,6 +113,7 @@ def on_run_tool_callback(
         dialog_name,
         options,
         dock_func=dock_maya_right if dialog_name else None,
+        session_identifier_func=get_maya_session_identifier,
     )
 
 

@@ -379,9 +379,12 @@ class Client(object):
 
     @run_in_main_thread
     def _on_discover_action_callback(
-        self, name, label, dialog_name, options, event
+        self, name, label, dialog_name, options, session_identifier_func, event
     ):
         '''Discover *event*.'''
+        if session_identifier_func:
+            session_id = session_identifier_func()
+            label = label + " @" + session_id
         selection = event['data'].get('selection', [])
         if len(selection) == 1 and selection[0]['entityType'] == 'Component':
             return {
@@ -429,6 +432,7 @@ class Client(object):
         dialog_name=None,
         options=None,
         dock_func=False,
+        session_identifier_func=None,
     ):
         '''
         Client runs the tool passed from the DCC config, can run run_dialog
@@ -438,6 +442,7 @@ class Client(object):
         self.logger.info(f"Running {name} tool")
         if not options:
             options = dict()
+
         if action:
             # TODO: we don't support dock_fn in here because is not serializable
             self.remote_session.event_hub.subscribe(
@@ -449,16 +454,16 @@ class Client(object):
                     label,
                     dialog_name,
                     options,
+                    session_identifier_func,
                 ),
             )
 
             self.remote_session.event_hub.subscribe(
                 u'topic=ftrack.action.launch and '
                 u'data.name={0} and '
-                u'data.label={1} and '
-                u'source.user.username="{2}" and '
-                u'data.host_id={3}'.format(
-                    name, label, self.session.api_user, self.host_id
+                u'source.user.username="{1}" and '
+                u'data.host_id={2}'.format(
+                    name, self.session.api_user, self.host_id
                 ),
                 self._on_launch_action_callback,
             )
