@@ -78,13 +78,17 @@ startup_tools = []
 
 
 @run_in_main_thread
-def on_run_tool_callback(tool_name, run_on, dialog_name=None, options=None):
+def on_run_tool_callback(
+    tool_name, label, run, action, dialog_name=None, options=dict
+):
     client_instance.run_tool(
         tool_name,
-        run_on,
+        label,
+        run,
+        action,
         dialog_name,
         options,
-        dock_func=partial(dock_nuke_right) if dialog_name else None,
+        dock_func=dock_nuke_right if dialog_name else None,
     )
     # Prevent bug in Nuke were curve editor is activated on docking a panel
     if options.get("docked"):
@@ -182,10 +186,12 @@ def bootstrap_integration(framework_extensions_path):
 
     for tool in dcc_config['tools']:
         run_on = tool.get("run_on")
+        action = tool.get("action")
         on_menu = tool.get("menu", True)
-        name = tool['name']
+        label = tool.get('label') or tool.get('name')
+        name = tool.get('name')
         dialog_name = tool.get('dialog_name')
-        options = tool.get('options')
+        options = tool.get('options', {})
         # TODO: In the future, we should probably emit an event so plugins can
         #  subscribe to it. and run_on specific event.
         if on_menu:
@@ -194,28 +200,18 @@ def bootstrap_integration(framework_extensions_path):
             else:
                 ftrack_menu.addCommand(
                     tool['label'],
-                    f'{__name__}.onRunToolCallback("{name}","{run_on}","{dialog_name}", {options})',
+                    f'{__name__}.onRunToolCallback("{name}","{label}",True,"{action}","{dialog_name}", {options})',
                 )
-
-        if run_on:
-            if run_on == "startup":
-                # Add all tools on a global variable as they can't be executed until
-                # root node is created.
-                startup_tools.append(
-                    [
-                        name,
-                        run_on,
-                        dialog_name,
-                        options,
-                    ]
-                )
-            else:
-                logger.error(
-                    f"Unsupported run_on value: {run_on} tool section of the "
-                    f"tool {tool.get('name')} on the tool config file: "
-                    f"{dcc_config['name']}. \n Currently supported values:"
-                    f" [startup]"
-                )
+        startup_tools.append(
+            [
+                name,
+                label,
+                run_on == "startup",
+                action,
+                dialog_name,
+                options,
+            ]
+        )
 
     # Add shutdown hook, for client to be properly closed when Nuke exists
     app = QtWidgets.QApplication.instance()
