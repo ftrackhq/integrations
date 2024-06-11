@@ -7,8 +7,9 @@ try:
 except ImportError:
     from PySide2 import QtWidgets, QtCore
 
-from ftrack_framework_qt.dialogs import BaseDialog
 from ftrack_utils.framework.config.tool import get_plugins, get_groups
+from ftrack_utils.string import str_version
+from ftrack_framework_qt.dialogs import BaseDialog
 from ftrack_qt.widgets.progress import ProgressWidget
 from ftrack_qt.utils.decorators import invoke_in_qt_main_thread
 from ftrack_qt.utils.widget import build_progress_data
@@ -81,7 +82,9 @@ class StandardLoaderDialog(BaseDialog):
     def _show_error(self, error_message):
         self.logger.warning(error_message)
         label_widget = QtWidgets.QLabel(f'{error_message}')
-        label_widget.setStyleSheet("font-style: italic; font-weight: bold;")
+        label_widget.setStyleSheet(
+            "font-style: italic; font-weight: bold; color: red;"
+        )
         self.tool_widget.layout().addWidget(label_widget)
 
     def build_ui(self):
@@ -134,12 +137,6 @@ class StandardLoaderDialog(BaseDialog):
             self._show_error(tool_config_message)
             return
 
-        # Build component widgets with loader options, based on what we can support
-        # and the entities provided
-        component_groups = get_groups(
-            self.tool_config, filters={'tags': ['component']}
-        )
-
         # Currently we support only one entity
         record = self.get_entities()[0]
         entity_id = record.get('entity_id')
@@ -156,7 +153,23 @@ class StandardLoaderDialog(BaseDialog):
             self._show_error(f'Component not found: {entity_id}!')
             return
 
+        label = QtWidgets.QLabel('Asset to load:')
+        label.setProperty('highlighted', True)
+        self.tool_widget.layout().addWidget(label)
+
+        asset_path_label = QtWidgets.QLabel(
+            f'{str_version(ft_component["version"])} / {ft_component["name"]}'
+        )
+        asset_path_label.setProperty('h3', True)
+        self.tool_widget.layout().addWidget(asset_path_label)
+
         ft_location = self.session.pick_location()
+
+        # Build component widgets with loader options, based on what we can support
+        # and the entities provided
+        component_groups = get_groups(
+            self.tool_config, filters={'tags': ['component']}
+        )
 
         # Find a loader that matches
         for group_config in component_groups:
@@ -208,33 +221,37 @@ class StandardLoaderDialog(BaseDialog):
 
                 component_name = ft_component['name']
                 loader_name = options.get('name')
-                component_label = QtWidgets.QLabel(
-                    f"Component: {component_name}, loader: {loader_name}"
+
+                label = QtWidgets.QLabel('Loader:')
+                label.setProperty('highlighted', True)
+                self.tool_widget.layout().addWidget(label)
+
+                loader_label = QtWidgets.QLabel(f'{loader_name}')
+                loader_label.setProperty('h3', True)
+                loader_label.setToolTip(
+                    f"The component to be loaded is {component_name}({ft_component['id']}) using loader {loader_name}: {component_path}"
                 )
-                component_label.setProperty('h3', True)
-                component_label.setToolTip(
-                    f"The component to be loader is {component_name}({ft_component['id']}) using loader {loader_name}: {component_path}"
-                )
-                self.tool_widget.layout().addWidget(component_label)
+                self.tool_widget.layout().addWidget(loader_label)
 
                 # Path exists?
                 if not os.path.exists(component_path):
-                    missing_path_widget = QtWidgets.QLabel(
-                        f'Path not found: {component_path}'
-                    )
-                    missing_path_widget.setStyleSheet(
-                        "font-style: italic; font-weight: bold; color: red;"
-                    )
-                    self.tool_widget.layout().addWidget(missing_path_widget)
+                    self._show_error(f'Path not found: {component_path}')
                     return
+
+                label = QtWidgets.QLabel('Path:')
+                label.setProperty('highlighted', True)
+                self.tool_widget.layout().addWidget(label)
+
+                path_label = QtWidgets.QLabel(f'{component_path}')
+                path_label.setProperty('h3', True)
+                path_label.setToolTip(
+                    f'Location: {ft_location["name"]} ({ft_location["id"]})'
+                )
+                self.tool_widget.layout().addWidget(path_label)
 
                 # Any UI:s?
                 plugins = get_plugins(group_config)
                 for plugin_config in plugins:
-                    # Store the path
-                    if 'options' not in plugin_config:
-                        plugin_config['options'] = {}
-                    plugin_config['options']['path'] = component_path
                     if not plugin_config.get('ui'):
                         continue
                     widget = self.init_framework_widget(

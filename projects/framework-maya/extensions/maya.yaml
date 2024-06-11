@@ -26,13 +26,21 @@ tools:
     options:
       tool_configs:
         - maya-setup-scene
+  - name: loader-discovery
+    run_start: startup
+    menu: false # True by default
+    #action: studio
+    options:
+      tool_configs:
+        - maya-loader-discovery
+
   - name: loader
     run_on: action
     # run_on: ftrack-framework-action-launch # startup # [ftrck-action-discover, ftrck-action-launch]
     menu: false # True by default
     #action: studio
     label: "Loader"
-    dialog_name: framework_standard_opener_dialog
+    dialog_name: framework_standard_opener_dialog_tool_config_selector
     icon: open
     options:
       tool_configs:

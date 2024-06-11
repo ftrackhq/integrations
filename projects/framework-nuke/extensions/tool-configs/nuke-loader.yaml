@@ -3,6 +3,11 @@ name: nuke-loader
 config_type: loader
 engine:
 
+  - type: plugin
+    tags:
+      - context
+    plugin: resolve_entity_paths
+
   # Component variants we are able to load
   - type: group
     tags:
@@ -24,15 +29,3 @@ engine:
     plugins:
       - type: plugin
         plugin: nuke_image_loader
-
-  # Component variants we are able to load
-  - type: group
-    tags:
-      - component
-    options:
-      name: "Sequence loader"
-      component: sequence
-    plugins:
-      - type: plugin
-        plugin: nuke_sequence_loader
-
