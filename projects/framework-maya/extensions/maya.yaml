@@ -26,14 +26,6 @@ tools:
     options:
       tool_configs:
         - maya-setup-scene
-  - name: loader-discovery
-    run_start: startup
-    menu: false # True by default
-    #action: studio
-    options:
-      tool_configs:
-        - maya-loader-discovery
-
   - name: loader
     action: true
     menu: false # True by default
