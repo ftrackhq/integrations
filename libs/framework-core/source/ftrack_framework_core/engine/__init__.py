@@ -239,7 +239,6 @@ class BaseEngine(object):
                     # Execute plugin only with its own options and tool_config
                     # options if plugin is defined outside the group
                     plugin_reference = item['reference']
-                    options = item.get("options", {})
                     options.update(user_options.get(plugin_reference) or {})
                     self.run_plugin(
                         item["plugin"], store, options, plugin_reference

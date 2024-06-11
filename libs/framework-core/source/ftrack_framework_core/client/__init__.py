@@ -378,22 +378,17 @@ class Client(object):
         self.host_connection.reset_all_tool_configs()
 
     @run_in_main_thread
-    def _on_discover_action_callback(self, name, dialog_name, options, event):
+    def _on_discover_action_callback(
+        self, name, label, dialog_name, options, event
+    ):
         '''Discover *event*.'''
-        self.logger.warning(
-            f"on discover action: {name} {dialog_name} {options} {event}"
-        )
-        '''
-        on discover action: loader framework_standard_opener_dialog {'tool_configs': ['maya-scene-opener']} <Event {'id': '2eaf07ae868d4ab8965aebd1121c4e01', 'data': {'selection': [{'entityId': 'fe0b1b3e-0788-4a62-b6be-537f0253c244', 'entityType': 'Component'}], 'groupers': [], 'filters': [], 'sorters': [{'direction': 'ASC', 'property': 'label', 'root': 'data'}]}, 'topic': 'ftrack.action.discover', 'sent': None, 'source': {'clientToken': '0e1e50b7-deb6-43f2-9273-c2d7b3e970b0-1718089829679', 'id': '7e4c3980021043ed81e9c06a7e0d60b8', 'user': {'username': 'lluis.casals@ftrack.com', 'id': '7e27761c-a36d-11ec-a671-3af9d77ae1b2'}}, 'target': '', 'in_reply_to_event': None}> // 
-
-        '''
         selection = event['data'].get('selection', [])
         if len(selection) == 1 and selection[0]['entityType'] == 'Component':
             return {
                 'items': [
                     {
-                        'label': name,
-                        #'actionIdentifier': self.identifier,
+                        'name': name,
+                        'label': label,
                         'host_id': self.host_id,
                         'dialog_name': dialog_name,
                         'options': options,
@@ -410,23 +405,15 @@ class Client(object):
             *applicationIdentifier* to identify which application to start.
 
         '''
-        '''
-        <Event {'id': '2e7337fd214741a398050d01ddf691c2', 'data': {'selection': [{'entityId': 'fe0b1b3e-0788-4a62-b6be-537f0253c244', 'entityType': 'Component'}], 'dialog_name': 'framework_standard_opener_dialog', 'label': 'loader', 'options': {'tool_configs': ['maya-scene-opener']}, 'host_id': 'e7864dad03ba4f19b069a3b99fb3307c'}, 'topic': 'ftrack.action.launch', 'sent': None, 'source': {'clientToken': '0e1e50b7-deb6-43f2-9273-c2d7b3e970b0-1718089829679', 'id': '7e4c3980021043ed81e9c06a7e0d60b8', 'user': {'username': 'lluis.casals@ftrack.com', 'id': '7e27761c-a36d-11ec-a671-3af9d77ae1b2'}}, 'target': '', 'in_reply_to_event': None}> // 
-        <Event {'id': '2e7337fd214741a398050d01ddf691c2', 'data': {'selection': [{'entityId': 'fe0b1b3e-0788-4a62-b6be-537f0253c244', 'entityType': 'Component'}], 'dialog_name': 'framework_standard_opener_dialog', 'label': 'loader', 'options': {'tool_configs': ['maya-scene-opener']}, 'host_id': 'e7864dad03ba4f19b069a3b99fb3307c'}, 'topic': 'ftrack.action.launch', 'sent': None, 'source': {'clientToken': '0e1e50b7-deb6-43f2-9273-c2d7b3e970b0-1718089829679', 'id': '7e4c3980021043ed81e9c06a7e0d60b8', 'user': {'username': 'lluis.casals@ftrack.com', 'id': '7e27761c-a36d-11ec-a671-3af9d77ae1b2'}}, 'target': '', 'in_reply_to_event': None}> // 
-
-        '''
-        self.logger.warning(f"on _on_launch_action_callback: {event}")
         selection = event['data']['selection']
 
-        name = event['data']['label']
+        name = event['data']['name']
+        label = event['data']['label']
         dialog_name = event['data']['dialog_name']
         options = event['data']['options']
         options['event_data'] = {'selection': selection}
 
-        self.run_tool(name, None, dialog_name, options)
-
-    def _print_all(self, event):
-        self.logger.warning(f"all event: {event}")
+        self.run_tool(name, label, True, False, dialog_name, options)
 
     @track_framework_usage(
         'FRAMEWORK_RUN_TOOL',
@@ -436,7 +423,9 @@ class Client(object):
     def run_tool(
         self,
         name,
-        run_on=None,
+        label=None,
+        run=False,
+        action=False,
         dialog_name=None,
         options=dict,
         dock_func=False,
@@ -447,28 +436,15 @@ class Client(object):
         '''
 
         self.logger.info(f"Running {name} tool")
-        self.logger.warning(
-            f"on run_tool: "
-            f"{name} {run_on} {dialog_name} {options} {dock_func}"
-        )
-        self.remote_session.event_hub.subscribe(
-            u'topic=ftrack.*', self._print_all
-        )
-        '''
-        on run_tool: loader action framework_standard_opener_dialog {'tool_configs': ['maya-scene-opener']} <function dock_maya_right at 0x7f8d817ea050> # 
-
-        '''
-
-        if run_on == 'action':
+        if action:
             # TODO: we don't support dock_fn in here because is not serializable
-            self.logger.warning("run on action")
-
             self.remote_session.event_hub.subscribe(
                 u'topic=ftrack.action.discover and '
                 u'source.user.username="{0}"'.format(self.session.api_user),
                 partial(
                     self._on_discover_action_callback,
                     name,
+                    label,
                     dialog_name,
                     options,
                 ),
@@ -476,19 +452,17 @@ class Client(object):
 
             self.remote_session.event_hub.subscribe(
                 u'topic=ftrack.action.launch and '
-                # u'data.actionIdentifier={0} and '
-                u'data.label={0} and '
-                u'source.user.username="{1}" and '
-                u'data.host_id={2}'.format(
-                    name, self.session.api_user, self.host_id
+                u'data.name={0} and '
+                u'data.label={1} and '
+                u'source.user.username="{2}" and '
+                u'data.host_id={3}'.format(
+                    name, label, self.session.api_user, self.host_id
                 ),
                 self._on_launch_action_callback,
             )
-            # subscribe to ftrack.action.discover event and pass the label of the action
-            # subscribe to ftrack.action.launch event and pass the dialog_name, tool_configs, etc to run the run_tool...
 
+        if not run:
             return
-
         # TODO: if run_on is not action, simply continue and execute the tool
 
         if dialog_name:
@@ -645,9 +619,6 @@ class Client(object):
     def set_config_options(
         self, tool_config_reference, plugin_config_reference=None, options=None
     ):
-        self.logger.warning(
-            f"set_config_options --> {tool_config_reference}, {plugin_config_reference}, {options}"
-        )
         if not options:
             options = dict()
         # TODO_ mayabe we should rename this one to make sure this is just for plugins
