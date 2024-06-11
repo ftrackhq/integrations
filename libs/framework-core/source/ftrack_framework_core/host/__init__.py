@@ -11,6 +11,7 @@ from ftrack_framework_core.log.log_item import LogItem
 from ftrack_framework_core.log import LogDB
 from ftrack_utils.framework.config.tool import get_plugins
 from ftrack_framework_core.exceptions.engine import EngineExecutionError
+from ftrack_framework_core.host.utils import run_in_main_thread
 
 from ftrack_utils.decorators import with_new_session
 
@@ -46,6 +47,8 @@ def provide_host_information(host_id, context_id, tool_configs, event):
 
 class Host(object):
     '''Base class to represent a Host of the framework'''
+
+    _static_properties = {}
 
     def __repr__(self):
         return '<Host:{0}>'.format(self.id)
@@ -139,12 +142,6 @@ class Host(object):
         '''Return registry object'''
         return self._registry
 
-    def run_in_main_thread(self, func):
-        '''Apply the run_in_main_thread decorator if available'''
-        if self._run_in_main_thread_wrapper:
-            return self._run_in_main_thread_wrapper(func)
-        return func
-
     def __init__(
         self, event_manager, registry, run_in_main_thread_wrapper=None
     ):
@@ -157,6 +154,12 @@ class Host(object):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
+
+        # Set up the run_in_main_thread decorator
+        self.run_in_main_thread_wrapper = run_in_main_thread_wrapper
+        Host._static_properties[
+            'run_in_main_thread_wrapper'
+        ] = self.run_in_main_thread_wrapper
 
         # Create the host id
         self._id = uuid.uuid4().hex
@@ -174,10 +177,12 @@ class Host(object):
         # Subscribe to events
         self._subscribe_events()
 
-        # Set up the run_in_main_thread decorator
-        self._run_in_main_thread_wrapper = run_in_main_thread_wrapper
-
         self.logger.debug('Host {} ready.'.format(self.id))
+
+    @staticmethod
+    def static_properties():
+        '''Return the singleton instance.'''
+        return Host._static_properties
 
     # Subscribe
     def _subscribe_events(self):
@@ -189,7 +194,7 @@ class Host(object):
         )
 
         # Reply to discover_host_callback to client to pass the host information
-        discover_host_callback_reply = self.run_in_main_thread(
+        discover_host_callback_reply = self.run_in_main_thread_wrapper(
             partial(
                 provide_host_information,
                 self.id,

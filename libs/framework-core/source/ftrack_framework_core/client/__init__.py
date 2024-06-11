@@ -21,12 +21,15 @@ from ftrack_utils.decorators import track_framework_usage
 from ftrack_utils.framework.config.tool import get_tool_config_by_name
 
 from ftrack_framework_core.event import _EventHubThread
+from ftrack_framework_core.client.utils import run_in_main_thread
 
 
 class Client(object):
     '''
     Base client class.
     '''
+
+    _static_properties = {}
 
     # tODO: evaluate if to use compatible UI types in here or directly add the list of ui types
     ui_types = constants.client.COMPATIBLE_UI_TYPES
@@ -201,12 +204,6 @@ class Client(object):
                 _event_hub_thread.start()
             return self._remote_session
 
-    def run_in_main_thread(self, func):
-        '''Apply the run_in_main_thread decorator if available'''
-        if self._run_in_main_thread_wrapper:
-            return self._run_in_main_thread_wrapper(func)
-        return func
-
     def __init__(
         self, event_manager, registry, run_in_main_thread_wrapper=None
     ):
@@ -235,11 +232,19 @@ class Client(object):
         self._remote_session = None
 
         # Set up the run_in_main_thread decorator
-        self._run_in_main_thread_wrapper = run_in_main_thread_wrapper
+        self.run_in_main_thread_wrapper = run_in_main_thread_wrapper
+        Client._static_properties[
+            'run_in_main_thread_wrapper'
+        ] = self.run_in_main_thread_wrapper
 
         self.logger.debug('Initialising Client {}'.format(self))
 
         self.discover_host()
+
+    @staticmethod
+    def static_properties():
+        '''Return the singleton instance.'''
+        return Client._static_properties
 
     # Host
     def discover_host(self, time_out=3):
@@ -640,6 +645,9 @@ class Client(object):
     def set_config_options(
         self, tool_config_reference, plugin_config_reference=None, options=None
     ):
+        self.logger.warning(
+            f"set_config_options --> {tool_config_reference}, {plugin_config_reference}, {options}"
+        )
         if not options:
             options = dict()
         # TODO_ mayabe we should rename this one to make sure this is just for plugins
