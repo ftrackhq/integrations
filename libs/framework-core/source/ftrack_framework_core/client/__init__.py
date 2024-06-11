@@ -368,7 +368,7 @@ class Client(object):
             f"on discover action: {name} {dialog_name} {options} {event}"
         )
         '''
-        on discover action: loader framework_standard_opener_dialog {'tool_configs': ['maya-scene-opener']} <function dock_maya_right at 0x7fec22f09cb0> <Event {'id': 'a3a19ad8-c0ac-472d-8374-e131206a45b4', 'data': {'selection': [{'entity_id': 'ca827e66-9938-4456-92da-6b50e14830c5', 'entityType': 'Component', 'entityId': 'ca827e66-9938-4456-92da-6b50e14830c5', 'entity_type': 'Component'}]}, 'topic': 'ftrack.action.discover', 'sent': None, 'source': {'applicationId': 'ftrack.web-adapter', 'id': '471fe772-5544-4888-ab40-b5b2ab136e2a', 'user': {'username': 'lluis.casals@ftrack.com', 'id': '7e27761c-a36d-11ec-a671-3af9d77ae1b2'}}, 'target': '', 'in_reply_to_event': None}> // 
+        on discover action: loader framework_standard_opener_dialog {'tool_configs': ['maya-scene-opener']} <Event {'id': '2eaf07ae868d4ab8965aebd1121c4e01', 'data': {'selection': [{'entityId': 'fe0b1b3e-0788-4a62-b6be-537f0253c244', 'entityType': 'Component'}], 'groupers': [], 'filters': [], 'sorters': [{'direction': 'ASC', 'property': 'label', 'root': 'data'}]}, 'topic': 'ftrack.action.discover', 'sent': None, 'source': {'clientToken': '0e1e50b7-deb6-43f2-9273-c2d7b3e970b0-1718089829679', 'id': '7e4c3980021043ed81e9c06a7e0d60b8', 'user': {'username': 'lluis.casals@ftrack.com', 'id': '7e27761c-a36d-11ec-a671-3af9d77ae1b2'}}, 'target': '', 'in_reply_to_event': None}> // 
 
         '''
         selection = event['data'].get('selection', [])
@@ -391,6 +391,11 @@ class Client(object):
         event['data'] should contain:
 
             *applicationIdentifier* to identify which application to start.
+
+        '''
+        '''
+        <Event {'id': '2e7337fd214741a398050d01ddf691c2', 'data': {'selection': [{'entityId': 'fe0b1b3e-0788-4a62-b6be-537f0253c244', 'entityType': 'Component'}], 'dialog_name': 'framework_standard_opener_dialog', 'label': 'loader', 'options': {'tool_configs': ['maya-scene-opener']}, 'host_id': 'e7864dad03ba4f19b069a3b99fb3307c'}, 'topic': 'ftrack.action.launch', 'sent': None, 'source': {'clientToken': '0e1e50b7-deb6-43f2-9273-c2d7b3e970b0-1718089829679', 'id': '7e4c3980021043ed81e9c06a7e0d60b8', 'user': {'username': 'lluis.casals@ftrack.com', 'id': '7e27761c-a36d-11ec-a671-3af9d77ae1b2'}}, 'target': '', 'in_reply_to_event': None}> // 
+        <Event {'id': '2e7337fd214741a398050d01ddf691c2', 'data': {'selection': [{'entityId': 'fe0b1b3e-0788-4a62-b6be-537f0253c244', 'entityType': 'Component'}], 'dialog_name': 'framework_standard_opener_dialog', 'label': 'loader', 'options': {'tool_configs': ['maya-scene-opener']}, 'host_id': 'e7864dad03ba4f19b069a3b99fb3307c'}, 'topic': 'ftrack.action.launch', 'sent': None, 'source': {'clientToken': '0e1e50b7-deb6-43f2-9273-c2d7b3e970b0-1718089829679', 'id': '7e4c3980021043ed81e9c06a7e0d60b8', 'user': {'username': 'lluis.casals@ftrack.com', 'id': '7e27761c-a36d-11ec-a671-3af9d77ae1b2'}}, 'target': '', 'in_reply_to_event': None}> // 
 
         '''
         self.logger.warning(f"on _on_launch_action_callback: {event}")
@@ -429,14 +434,17 @@ class Client(object):
             f"on run_tool: "
             f"{name} {run_on} {dialog_name} {options} {dock_func}"
         )
+        self.remote_session.event_hub.subscribe(
+            u'topic=ftrack.*', self._print_all
+        )
+        '''
+        on run_tool: loader action framework_standard_opener_dialog {'tool_configs': ['maya-scene-opener']} <function dock_maya_right at 0x7f8d817ea050> # 
+
+        '''
 
         if run_on == 'action':
             # TODO: we don't support dock_fn in here because is not serializable
             self.logger.warning("run on action")
-
-            self.remote_session.event_hub.subscribe(
-                u'topic=ftrack.*', self._print_all
-            )
 
             self.remote_session.event_hub.subscribe(
                 u'topic=ftrack.action.discover and '
@@ -452,7 +460,7 @@ class Client(object):
             self.remote_session.event_hub.subscribe(
                 u'topic=ftrack.action.launch and '
                 # u'data.actionIdentifier={0} and '
-                u'data.name={0} and '
+                u'data.label={0} and '
                 u'source.user.username="{1}" and '
                 u'data.host_id={2}'.format(
                     name, self.session.api_user, self.host_id
