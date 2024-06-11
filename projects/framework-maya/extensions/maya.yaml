@@ -30,7 +30,7 @@ tools:
     action: true
     menu: false # True by default
     label: "Loader"
-    dialog_name: framework_standard_opener_dialog_tool_config_selector
+    dialog_name: framework_standard_opener_dialog
     icon: open
     options:
       tool_configs:
