@@ -13,6 +13,9 @@ options:
     - ".bmp"
     - ".hdr"
     - ".dpx"
+    - ".cin"
+    - ".psd"
+    - ".tx"
 engine:
 
   - type: plugin
