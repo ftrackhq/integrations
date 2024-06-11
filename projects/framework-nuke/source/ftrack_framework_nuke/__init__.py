@@ -7,6 +7,11 @@ import traceback
 from functools import partial
 import platform
 
+try:
+    from PySide6 import QtWidgets, QtCore
+except ImportError:
+    from PySide2 import QtWidgets, QtCore
+
 import nuke, nukescripts
 
 import ftrack_api
@@ -84,6 +89,11 @@ def on_run_tool_callback(tool_name, run_on, dialog_name=None, options=None):
     # Prevent bug in Nuke were curve editor is activated on docking a panel
     if options.get("docked"):
         find_nodegraph_viewer(activate=True)
+
+
+def on_exit():
+    '''Nuke shutdown, tear down client'''
+    client_instance.close()
 
 
 def bootstrap_integration(framework_extensions_path):
@@ -199,6 +209,10 @@ def bootstrap_integration(framework_extensions_path):
                     f"{dcc_config['name']}. \n Currently supported values:"
                     f" [startup]"
                 )
+
+    # Add shutdown hook, for client to be properly closed when Nuke exists
+    app = QtWidgets.QApplication.instance()
+    app.aboutToQuit.connect(on_exit)
 
 
 def execute_startup_tools():

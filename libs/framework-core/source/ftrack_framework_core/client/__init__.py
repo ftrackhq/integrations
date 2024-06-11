@@ -6,6 +6,7 @@ import logging
 import uuid
 from collections import defaultdict
 from functools import partial
+import atexit
 
 from six import string_types
 
@@ -194,11 +195,17 @@ class Client(object):
                 auto_connect_event_hub=True
             )
             # TODO: temporary solution to start the wait thread
-            _event_hub_thread = _EventHubThread(self._remote_session)
+            self._event_hub_thread = _EventHubThread(self._remote_session)
 
-            if not _event_hub_thread.is_alive():
-                # self.logger.debug('Starting new hub thread for {}'.format(self))
-                _event_hub_thread.start()
+            if not self._event_hub_thread.is_alive():
+                self.logger.debug(
+                    'Starting new hub thread for {}'.format(self)
+                )
+                self._event_hub_thread.start()
+
+                # Make sure it is shutdown
+                atexit.register(self.close)
+
             return self._remote_session
 
     def __init__(
@@ -229,6 +236,7 @@ class Client(object):
         self._dialog = None
         self._tool_config_options = defaultdict(defaultdict)
         self._remote_session = None
+        self._event_hub_thread = None
 
         self.logger.debug('Initialising Client {}'.format(self))
 
@@ -670,3 +678,16 @@ class Client(object):
             self.host_id, plugin_names
         )[0]
         return unregistered_plugins
+
+    def close(self):
+        self.logger.debug('Shutting down client')
+        if (
+            self._remote_session
+            and self._event_hub_thread
+            and self._event_hub_thread.is_alive()
+        ):
+            self.logger.debug('Stopping event hub thread')
+            self._event_hub_thread.stop()
+            self._event_hub_thread = None
+            self._remote_session.close()
+            self._remote_session = None

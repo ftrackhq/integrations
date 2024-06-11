@@ -67,7 +67,9 @@ class StandardLoaderDialog(BaseDialog):
     def get_entities(self):
         '''Get the entities to load from dialog options'''
         result = []
-        for entry in self.dialog_options['event_data'].get('selection'):
+        for entry in self.dialog_options.get('event_data', {}).get(
+            'selection', []
+        ):
             result.append(
                 {
                     'entity_id': entry['entity_id'],
@@ -79,33 +81,70 @@ class StandardLoaderDialog(BaseDialog):
     def pre_build_ui(self):
         pass
 
-    def _show_error(self, error_message):
-        self.logger.warning(error_message)
-        label_widget = QtWidgets.QLabel(f'{error_message}')
-        label_widget.setStyleSheet(
-            "font-style: italic; font-weight: bold; color: red;"
-        )
-        self.tool_widget.layout().addWidget(label_widget)
-
     def build_ui(self):
         # Check entities
-        if not self.get_entities():
-            self._show_error('No entities provided!')
-            return
         # Select the desired tool_config
         tool_config_message = None
-        if self.filtered_tool_configs.get("loader"):
-            if len(self.tool_config_names or []) != 1:
-                tool_config_message = (
-                    'One(1) tool config name must be supplied to loader!'
-                )
+        if not self.get_entities():
+            tool_config_message = 'No entity provided to load!'
+        elif len(self.get_entities()) != 1:
+            tool_config_message = 'Only one entity supported!'
+        elif self.get_entities()[0]['entity_type'].lower() != 'component':
+            tool_config_message = 'Only components can be loaded'
+        elif self.filtered_tool_configs.get("loader"):
+            component_id = self.get_entities()[0]['entity_id']
+            component = self.session.query(
+                f'Component where id={component_id}'
+            ).first()
+
+            if not component:
+                tool_config_message = f'Component not found: {component_id}'
             else:
-                tool_config_name = self.tool_config_names[0]
+                # Loop through tool configs, find a one that can load the component in question
                 for tool_config in self.filtered_tool_configs["loader"]:
-                    if (
-                        tool_config.get('name', '').lower()
-                        == tool_config_name.lower()
-                    ):
+                    options = tool_config.get('options')
+                    if not options:
+                        tool_config_message = f'Tool config {tool_config} is missing required loader options!'
+                        break
+                    # Filter on combination of component name, asset_type and file extension
+                    compatible = False
+                    if 'component' in options:
+                        # Component name match?
+                        if (
+                            options['component'].lower()
+                            == component['name'].lower()
+                        ):
+                            compatible = True
+                        else:
+                            self.logger.debug(
+                                f"Component {options['component']} doesn't match {component['name']}"
+                            )
+                            continue
+                    if 'asset_type' in options:
+                        # Asset type match?
+                        asset = component['version']['asset']
+                        asset_type = asset['type']['name']
+                        if options['asset_type'].lower() == asset_type.lower():
+                            compatible = True
+                        else:
+                            self.logger.debug(
+                                f"Asset type {options['asset_type']} doesn't match {asset_type}"
+                            )
+                            continue
+                    if 'file_types' in options:
+                        # Any file extension match?
+                        file_extension = component['file_type']
+                        for file_type in options['file_types']:
+                            if file_type.lower() == file_extension.lower():
+                                compatible = True
+                                break
+                        if not compatible:
+                            self.logger.debug(
+                                f"File extensions {options['file_types']} doesn't match component: {file_extension}"
+                            )
+                            continue
+                    if compatible:
+                        tool_config_name = tool_config['name']
                         self.logger.debug(
                             f'Using tool config {tool_config_name}'
                         )
@@ -134,134 +173,52 @@ class StandardLoaderDialog(BaseDialog):
             tool_config_message = 'No loader tool configs available!'
 
         if not self.tool_config:
-            self._show_error(tool_config_message)
+            self.logger.warning(tool_config_message)
+            label_widget = QtWidgets.QLabel(f'{tool_config_message}')
+            label_widget.setStyleSheet(
+                "font-style: italic; font-weight: bold; color: red;"
+            )
+            self.tool_widget.layout().addWidget(label_widget)
             return
 
-        # Currently we support only one entity
-        record = self.get_entities()[0]
-        entity_id = record.get('entity_id')
-        entity_type = record.get('entity_type')
-
-        if entity_type != 'component':
-            self._show_error('Only components are supported!')
-            return
-
-        ft_component = self.session.query(
-            f'Component where id={entity_id}'
-        ).first()
-        if not ft_component:
-            self._show_error(f'Component not found: {entity_id}!')
-            return
-
-        label = QtWidgets.QLabel('Asset to load:')
-        label.setProperty('highlighted', True)
-        self.tool_widget.layout().addWidget(label)
-
-        asset_path_label = QtWidgets.QLabel(
-            f'{str_version(ft_component["version"])} / {ft_component["name"]}'
+        # Build context widgets
+        context_plugins = get_plugins(
+            self.tool_config, filters={'tags': ['context']}
         )
-        asset_path_label.setProperty('h3', True)
-        self.tool_widget.layout().addWidget(asset_path_label)
+        for context_plugin in context_plugins:
+            if not context_plugin.get('ui'):
+                continue
+            # Inject the entity data into the context plugin
+            if 'options' not in context_plugin:
+                context_plugin['options'] = {}
+            context_plugin['options'].update(self.dialog_options)
+            context_widget = self.init_framework_widget(context_plugin)
+            self.tool_widget.layout().addWidget(context_widget)
 
-        ft_location = self.session.pick_location()
-
-        # Build component widgets with loader options, based on what we can support
-        # and the entities provided
-        component_groups = get_groups(
-            self.tool_config, filters={'tags': ['component']}
+        # Add loader plugin(s)
+        loader_plugins = get_plugins(
+            self.tool_config, filters={'tags': ['loader']}
         )
-
-        # Find a loader that matches
-        for group_config in component_groups:
-            options = group_config.get('options')
-            if not options:
-                self.logger.warning(
-                    f'Component {group_config} are missing required loader options!'
-                )
-                return
-            compatible = False
-            if 'component' in options:
-                # Component name match?
-                if (
-                    options['component'].lower()
-                    == ft_component['name'].lower()
-                ):
-                    compatible = True
-                else:
-                    self.logger.debug(
-                        f"Component {options['component']} doesn't match {ft_component['name']}"
-                    )
-                    continue
-            if 'asset_type' in options:
-                # Asset type match?
-                asset = ft_component['version']['asset']
-                asset_type = asset['type']['name']
-                if options['asset_type'].lower() == asset_type.lower():
-                    compatible = True
-                else:
-                    self.logger.debug(
-                        f"Asset type {options['asset_type']} doesn't match {asset_type}"
-                    )
-                    continue
-            if 'file_types' in options:
-                # Any file extension match?
-                file_extension = ft_component['file_type']
-                for file_type in options['file_types']:
-                    if file_type.lower() == file_extension.lower():
-                        compatible = True
-                        break
-                if not compatible:
-                    self.logger.debug(
-                        f"File extensions {options['file_types']} doesn't match component: {file_extension}"
-                    )
-                    continue
-            if compatible:
-                # Get component path
-                component_path = ft_location.get_filesystem_path(ft_component)
-
-                component_name = ft_component['name']
-                loader_name = options.get('name')
+        for loader_plugin in loader_plugins:
+            options = loader_plugin.get('options', {})
+            if 'name' in options:
+                loader_name_widget = QtWidgets.QWidget()
+                loader_name_widget.setLayout(QtWidgets.QHBoxLayout())
 
                 label = QtWidgets.QLabel('Loader:')
-                label.setProperty('highlighted', True)
-                self.tool_widget.layout().addWidget(label)
+                label.setProperty('secondary', True)
+                loader_name_widget.layout().addWidget(label)
 
-                loader_label = QtWidgets.QLabel(f'{loader_name}')
-                loader_label.setProperty('h3', True)
-                loader_label.setToolTip(
-                    f"The component to be loaded is {component_name}({ft_component['id']}) using loader {loader_name}: {component_path}"
-                )
-                self.tool_widget.layout().addWidget(loader_label)
+                label = QtWidgets.QLabel(options['name'])
+                label.setProperty('h2', True)
+                loader_name_widget.layout().addWidget(label)
 
-                # Path exists?
-                if not os.path.exists(component_path):
-                    self._show_error(f'Path not found: {component_path}')
-                    return
+                self.tool_widget.layout().addWidget(loader_name_widget)
 
-                label = QtWidgets.QLabel('Path:')
-                label.setProperty('highlighted', True)
-                self.tool_widget.layout().addWidget(label)
-
-                path_label = QtWidgets.QLabel(f'{component_path}')
-                path_label.setProperty('h3', True)
-                path_label.setToolTip(
-                    f'Location: {ft_location["name"]} ({ft_location["id"]})'
-                )
-                self.tool_widget.layout().addWidget(path_label)
-
-                # Any UI:s?
-                plugins = get_plugins(group_config)
-                for plugin_config in plugins:
-                    if not plugin_config.get('ui'):
-                        continue
-                    widget = self.init_framework_widget(
-                        plugin_config, group_config
-                    )
-                    self.tool_widget.layout().addWidget(widget)
-            else:
-                self.logger.debug(
-                    f'Loader {group_config} is not compatible with component {ft_component["name"]}'
-                )
+            if not loader_plugin.get('ui'):
+                continue
+            loader_widget = self.init_framework_widget(loader_plugin)
+            self.tool_widget.layout().addWidget(loader_widget)
 
         spacer = QtWidgets.QSpacerItem(
             1,
@@ -300,8 +257,6 @@ class StandardLoaderDialog(BaseDialog):
 
     def closeEvent(self, event):
         '''(Override) Close the context and progress widgets'''
-        if self._context_selector:
-            self._context_selector.teardown()
         if self._progress_widget:
             self._progress_widget.teardown()
             self._progress_widget.deleteLater()

@@ -17,7 +17,9 @@ class NukeImageLoaderPlugin(BasePlugin):
         '''
         Expects the image to load in the :obj:`self.options`, loads the image
         '''
-        image_path = self.options.get('path')
+        image_path = store.get('component_path')
+        if not image_path:
+            raise PluginExecutionError(f'No image path provided in store!')
 
         n = nuke.nodes.Read()
         n['file'].fromUserText(image_path)

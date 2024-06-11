@@ -33,11 +33,11 @@ tools:
     icon: open
     options:
       tool_configs:
-        - nuke-loader
+        - nuke-image-loader
       docked: false
       event_data:
         selection:
-          - entity_id: 99872b19-7b44-4bc2-8275-8b6aa6e97a42
+          - entity_id: a66902b4-987c-4ca0-ba39-87be4798f227
             entity_type: component
 
 
