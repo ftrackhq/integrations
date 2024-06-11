@@ -94,14 +94,18 @@ def get_ftrack_menu(menu_name='ftrack', submenu_name=None):
 def on_run_tool_callback(
     client_instance,
     tool_name,
-    run_on,
+    label,
+    run,
+    action,
     dialog_name=None,
     options=dict,
     maya_args=None,
 ):
     client_instance.run_tool(
         tool_name,
-        run_on,
+        label,
+        run,
+        action,
         dialog_name,
         options,
         dock_func=dock_maya_right if dialog_name else None,
@@ -196,31 +200,36 @@ def bootstrap_integration(framework_extensions_path):
     # Register tools into ftrack menu
     for tool in dcc_config['tools']:
         run_on = tool.get("run_on")
+        action = tool.get("action")
         on_menu = tool.get("menu", True)
+        label = tool.get('label') or tool.get('name')
         if on_menu:
             cmds.menuItem(
                 parent=ftrack_menu,
-                label=tool['label'],
+                label=label,
                 command=(
                     functools.partial(
                         on_run_tool_callback,
                         client_instance,
                         tool.get('name'),
-                        run_on,
+                        label,
+                        True,
+                        action,
                         tool.get('dialog_name'),
                         tool['options'],
                     )
                 ),
                 image=":/{}.png".format(tool['icon']),
             )
-        else:
-            on_run_tool_callback(
-                client_instance,
-                tool.get('name'),
-                run_on,
-                tool.get('dialog_name'),
-                tool['options'],
-            )
+        on_run_tool_callback(
+            client_instance,
+            tool.get('name'),
+            label,
+            run_on == "startup",
+            action,
+            tool.get('dialog_name'),
+            tool['options'],
+        )
 
     return client_instance
 

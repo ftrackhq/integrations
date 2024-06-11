@@ -35,10 +35,8 @@ tools:
         - maya-loader-discovery
 
   - name: loader
-    run_on: action
-    # run_on: ftrack-framework-action-launch # startup # [ftrck-action-discover, ftrck-action-launch]
+    action: true
     menu: false # True by default
-    #action: studio
     label: "Loader"
     dialog_name: framework_standard_opener_dialog_tool_config_selector
     icon: open
