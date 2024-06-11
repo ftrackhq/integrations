@@ -154,16 +154,15 @@ class StandardLoaderDialog(BaseDialog):
                             except Exception as error:
                                 tool_config_message = error
                                 break
-                            if False:
-                                self._progress_widget = ProgressWidget(
-                                    'load', build_progress_data(tool_config)
-                                )
-                                self.header.set_widget(
-                                    self._progress_widget.status_widget
-                                )
-                                self.overlay_layout.addWidget(
-                                    self._progress_widget.overlay_widget
-                                )
+                            self._progress_widget = ProgressWidget(
+                                'load', build_progress_data(tool_config)
+                            )
+                            self.header.set_widget(
+                                self._progress_widget.status_widget
+                            )
+                            self.overlay_layout.addWidget(
+                                self._progress_widget.overlay_widget
+                            )
                         break
                 if not self.tool_config and not tool_config_message:
                     tool_config_message = (
@@ -211,7 +210,7 @@ class StandardLoaderDialog(BaseDialog):
 
                 label = QtWidgets.QLabel(options['name'])
                 label.setProperty('h2', True)
-                loader_name_widget.layout().addWidget(label)
+                loader_name_widget.layout().addWidget(label, 100)
 
                 self.tool_widget.layout().addWidget(loader_name_widget)
 
@@ -229,35 +228,31 @@ class StandardLoaderDialog(BaseDialog):
         self.tool_widget.layout().addItem(spacer)
 
     def post_build_ui(self):
-        if self._progress_widget:
-            self._progress_widget.hide_overlay_signal.connect(
-                self.show_main_widget
-            )
-            self._progress_widget.show_overlay_signal.connect(
-                self.show_overlay_widget
-            )
+        self._progress_widget.hide_overlay_signal.connect(
+            self.show_main_widget
+        )
+        self._progress_widget.show_overlay_signal.connect(
+            self.show_overlay_widget
+        )
 
     def _on_run_button_clicked(self):
         '''(Override) Drive the progress widget'''
         self.show_overlay_widget()
-        if self._progress_widget:
-            self._progress_widget.run()
+        self._progress_widget.run()
         super(StandardLoaderDialog, self)._on_run_button_clicked()
 
     @invoke_in_qt_main_thread
     def plugin_run_callback(self, log_item):
         '''(Override) Pass framework log item to the progress widget'''
-        if self._progress_widget:
-            self._progress_widget.update_phase_status(
-                log_item.reference,
-                log_item.status,
-                log_message=log_item.message,
-                time=log_item.execution_time,
-            )
+        self._progress_widget.update_phase_status(
+            log_item.reference,
+            log_item.status,
+            log_message=log_item.message,
+            time=log_item.execution_time,
+        )
 
     def closeEvent(self, event):
         '''(Override) Close the context and progress widgets'''
-        if self._progress_widget:
-            self._progress_widget.teardown()
-            self._progress_widget.deleteLater()
+        self._progress_widget.teardown()
+        self._progress_widget.deleteLater()
         super(StandardLoaderDialog, self).closeEvent(event)

@@ -34,6 +34,7 @@ class ShowComponentWidget(BaseWidget):
         self._error_message_label = None
         self._asset_path_label = None
         self._asset_info_label = None
+        self._component_path_label = None
 
         super(ShowComponentWidget, self).__init__(
             event_manager,
@@ -70,11 +71,21 @@ class ShowComponentWidget(BaseWidget):
 
         self._asset_info_label = QtWidgets.QLabel()
         self._asset_info_label.setProperty('h2', True)
-        asset_widget.layout().addWidget(self._asset_info_label)
+        asset_widget.layout().addWidget(self._asset_info_label, 100)
 
-        # TODO: show path
+        path_widget = QtWidgets.QWidget()
+        path_widget.setLayout(QtWidgets.QHBoxLayout())
+
+        label = QtWidgets.QLabel('Path:')
+        label.setProperty('secondary', True)
+        path_widget.layout().addWidget(label)
+
+        self._component_path_label = QtWidgets.QLabel()
+        self._component_path_label.setProperty('h2', True)
+        path_widget.layout().addWidget(self._component_path_label, 100)
 
         self.layout().addWidget(asset_widget)
+        self.layout().addWidget(path_widget)
 
     def post_build_ui(self):
         '''Perform post-construction operations.'''
@@ -98,3 +109,4 @@ class ShowComponentWidget(BaseWidget):
             self._error_message_label.setVisible(True)
             return
         self._asset_info_label.setText(ui_hook_result['context_path'])
+        self._component_path_label.setText(ui_hook_result['component_path'])

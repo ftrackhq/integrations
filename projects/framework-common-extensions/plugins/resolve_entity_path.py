@@ -14,7 +14,7 @@ class ResolveEntityPathsPlugin(BasePlugin):
         a single component and resolve path. Return as dictionary'''
         result = {}
         entities = options.get('event_data', {}).get('selection', [])
-        if not entities:
+        if not entities and False:
             # Mock for now
             entities = [
                 {
@@ -70,7 +70,7 @@ class ResolveEntityPathsPlugin(BasePlugin):
         '''
         Store entity data in the given *store*
         '''
-        result = self._resolve_entity_paths(store.get('options', {}))
+        result = self._resolve_entity_paths(self.options)
         keys = [
             'entity_id',
             'entity_type',
