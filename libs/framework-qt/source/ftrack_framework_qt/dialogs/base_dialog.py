@@ -100,6 +100,7 @@ class BaseDialog(FrameworkDialog, StyledDialog):
             dialog_options,
             parent,
         )
+
         self._stacked_widget = None
         self._main_widget = None
         self._overlay_widget = None
