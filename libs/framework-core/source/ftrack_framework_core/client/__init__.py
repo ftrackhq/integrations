@@ -435,7 +435,7 @@ class Client(object):
         run=False,
         action=False,
         dialog_name=None,
-        options=dict,
+        options=None,
         dock_func=False,
     ):
         '''
@@ -444,6 +444,8 @@ class Client(object):
         '''
 
         self.logger.info(f"Running {name} tool")
+        if not options:
+            options = dict()
         if action:
             # TODO: we don't support dock_fn in here because is not serializable
             self.remote_session.event_hub.subscribe(
