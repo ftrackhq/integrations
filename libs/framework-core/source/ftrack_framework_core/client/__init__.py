@@ -22,12 +22,15 @@ from ftrack_utils.decorators import track_framework_usage
 from ftrack_utils.framework.config.tool import get_tool_config_by_name
 
 from ftrack_framework_core.event import _EventHubThread
+from ftrack_framework_core.client.utils import run_in_main_thread
 
 
 class Client(object):
     '''
     Base client class.
     '''
+
+    _static_properties = {}
 
     # tODO: evaluate if to use compatible UI types in here or directly add the list of ui types
     ui_types = constants.client.COMPATIBLE_UI_TYPES
@@ -209,9 +212,7 @@ class Client(object):
             return self._remote_session
 
     def __init__(
-        self,
-        event_manager,
-        registry,
+        self, event_manager, registry, run_in_main_thread_wrapper=None
     ):
         '''
         Initialise Client with instance of
@@ -238,9 +239,20 @@ class Client(object):
         self._remote_session = None
         self._event_hub_thread = None
 
+        # Set up the run_in_main_thread decorator
+        self.run_in_main_thread_wrapper = run_in_main_thread_wrapper
+        Client._static_properties[
+            'run_in_main_thread_wrapper'
+        ] = self.run_in_main_thread_wrapper
+
         self.logger.debug('Initialising Client {}'.format(self))
 
         self.discover_host()
+
+    @staticmethod
+    def static_properties():
+        '''Return the singleton instance.'''
+        return Client._static_properties
 
     # Host
     def discover_host(self, time_out=3):
@@ -298,6 +310,7 @@ class Client(object):
         self.event_manager.publish.client_signal_host_changed(self.id)
 
     # Context
+    @run_in_main_thread
     def _host_context_changed_callback(self, event):
         '''Set the new context ID based on data provided in *event*'''
         # Feed the new context to the client
@@ -333,6 +346,7 @@ class Client(object):
         )
 
     # Plugin
+    @run_in_main_thread
     def on_log_item_added_callback(self, event):
         '''
         Called when a log item has added in the host.
@@ -352,6 +366,7 @@ class Client(object):
             self.id, event['data']['log_item']
         )
 
+    @run_in_main_thread
     def on_ui_hook_callback(self, event):
         '''
         Called ui_hook has been executed on host and needs to notify UI with
@@ -370,6 +385,7 @@ class Client(object):
         '''
         self.host_connection.reset_all_tool_configs()
 
+    @run_in_main_thread
     def _on_discover_action_callback(self, name, dialog_name, options, event):
         '''Discover *event*.'''
         self.logger.warning(
@@ -393,6 +409,7 @@ class Client(object):
                 ]
             }
 
+    @run_in_main_thread
     def _on_launch_action_callback(self, event):
         '''Handle *event*.
 
@@ -485,11 +502,7 @@ class Client(object):
         if dialog_name:
             self.run_dialog(
                 dialog_name,
-                dialog_options={
-                    'tool_config_names': options.get('tool_configs'),
-                    'docked': options.get('docked', False),
-                    'event_data': options.get('event_data'),
-                },
+                dialog_options=options,
                 dock_func=dock_func,
             )
         else:
@@ -508,10 +521,10 @@ class Client(object):
                         f"Couldn't find any tool config matching the name {tool_config_name}"
                     )
                     continue
-                if options.get('event_data'):
-                    self._tool_config_options[
-                        tool_config['reference']
-                    ] = options.get('event_data')
+
+                self.set_config_options(
+                    tool_config['reference'], options=options
+                )
 
                 self.run_tool_config(tool_config['reference'])
 
@@ -638,17 +651,27 @@ class Client(object):
         return self.__getattribute__(property_name)
 
     def set_config_options(
-        self, tool_config_reference, plugin_config_reference, plugin_options
+        self, tool_config_reference, plugin_config_reference=None, options=None
     ):
+        self.logger.warning(
+            f"set_config_options --> {tool_config_reference}, {plugin_config_reference}, {options}"
+        )
+        if not options:
+            options = dict()
         # TODO_ mayabe we should rename this one to make sure this is just for plugins
-        if not isinstance(plugin_options, dict):
+        if not isinstance(options, dict):
             raise Exception(
                 "plugin_options should be a dictionary. "
-                "Current given type: {}".format(plugin_options)
+                "Current given type: {}".format(options)
             )
-        self._tool_config_options[tool_config_reference][
-            plugin_config_reference
-        ] = plugin_options
+        if not plugin_config_reference:
+            self._tool_config_options[tool_config_reference][
+                'options'
+            ] = options
+        else:
+            self._tool_config_options[tool_config_reference][
+                plugin_config_reference
+            ] = options
 
     def run_ui_hook(
         self, tool_config_reference, plugin_config_reference, payload

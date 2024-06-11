@@ -56,7 +56,7 @@ class BaseDialog(FrameworkDialog, StyledDialog):
     @property
     def tool_config_names(self):
         '''Return tool config names if passed in the dialog options.'''
-        return self.dialog_options.get('tool_config_names')
+        return self.dialog_options.get('tool_configs')
 
     def __init__(
         self,
@@ -100,6 +100,7 @@ class BaseDialog(FrameworkDialog, StyledDialog):
             dialog_options,
             parent,
         )
+
         self._stacked_widget = None
         self._main_widget = None
         self._overlay_widget = None

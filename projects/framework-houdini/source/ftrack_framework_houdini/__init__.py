@@ -1,13 +1,11 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
+
 import logging
 import os
-import traceback
-import functools
+import xml.etree.ElementTree as ET
+from xml.sax.saxutils import unescape
 import platform
-
-import maya.cmds as cmds
-import maya.mel as mm
 
 import ftrack_api
 
@@ -24,7 +22,12 @@ from ftrack_utils.extensions.environment import (
 )
 from ftrack_utils.usage import set_usage_tracker, UsageTracker
 
-from ftrack_framework_maya.utils import dock_maya_right, run_in_main_thread
+from ftrack_framework_houdini.utils import (
+    dock_houdini_right,
+    run_in_main_thread,
+)
+
+import hou
 
 
 # Evaluate version and log package version
@@ -38,84 +41,51 @@ try:
 except Exception:
     __version__ = '0.0.0'
 
-extra_handlers = {
-    'maya': {
-        'class': 'maya.utils.MayaGuiLogHandler',
-        'level': 'INFO',
-        'formatter': 'file',
-    }
-}
-
 configure_logging(
-    'ftrack_framework_maya',
+    'ftrack_framework_houdini',
     extra_modules=['ftrack_qt'],
-    extra_handlers=extra_handlers,
     propagate=False,
 )
 
 logger = logging.getLogger(__name__)
 logger.debug('v{}'.format(__version__))
 
-
-def get_ftrack_menu(menu_name='ftrack', submenu_name=None):
-    '''Get the current ftrack menu, create it if does not exists.'''
-    # TODO: check why isn't this working with cmds
-    gMainWindow = mm.eval('$temp1=$gMainWindow')
-    logger.info(f"gMainWindow: {gMainWindow}")
-
-    if cmds.menu(menu_name, exists=True, parent=gMainWindow, label=menu_name):
-        menu = menu_name
-
-    else:
-        menu = cmds.menu(
-            menu_name, parent=gMainWindow, tearOff=True, label=menu_name
-        )
-
-    if submenu_name:
-        if cmds.menuItem(
-            submenu_name, exists=True, parent=menu, label=submenu_name
-        ):
-            submenu = submenu_name
-        else:
-            submenu = cmds.menuItem(
-                submenu_name, subMenu=True, label=submenu_name, parent=menu
-            )
-        return submenu
-    else:
-        return menu
+client_instance = None
 
 
-# We could use the ftrack @invoke_in_qt_main_thread utility which should act
-# the same way as the DCC specific one. But using this means it ensures
-# synchronization with Maya’s undo stack, event loop, and other core
-# functionalities, which might not be guaranteed if you use Qt’s threading
-# mechanisms directly.
 @run_in_main_thread
-def on_run_tool_callback(
-    client_instance,
-    tool_name,
-    run_on,
-    dialog_name=None,
-    options=dict,
-    maya_args=None,
-):
+def on_run_tool_callback(tool_name, dialog_name=None, options=dict):
     client_instance.run_tool(
         tool_name,
-        run_on,
         dialog_name,
         options,
-        dock_func=dock_maya_right if dialog_name else None,
+        dock_func=dock_houdini_right if dialog_name else None,
     )
+
+
+def get_ftrack_menu():
+    '''Construct the xml representation of the ftrack menu.'''
+    root = ET.Element("mainMenu")
+    menubar = ET.SubElement(root, "menuBar")
+    ftrack_menu = ET.SubElement(menubar, "subMenu")
+    label = ET.SubElement(ftrack_menu, "label")
+    label.text = "ftrack"
+    insert_before = ET.SubElement(ftrack_menu, "insertBefore")
+    insert_before.text = "help_menu"
+    return (root, ftrack_menu)
 
 
 def bootstrap_integration(framework_extensions_path):
     '''
-    Initialise Maya Framework integration
+    Initialise Houdini Framework integration
     '''
     logger.debug(
-        'Maya standalone integration initialising, extensions path:'
+        'Houdini standalone integration initialising, extensions path:'
         f' {framework_extensions_path}'
     )
+
+    global client_instance
+
     # Create ftrack session and instantiate event manager
     session = ftrack_api.Session(auto_connect_event_hub=False)
     event_manager = EventManager(
@@ -162,73 +132,94 @@ def bootstrap_integration(framework_extensions_path):
         UsageTracker(
             session=session,
             default_data=dict(
-                app="Maya",
+                app="Houdini",
                 registry=registry_info_dict,
                 version=__version__,
-                app_version=cmds.about(version=True),
+                app_version=hou.applicationVersionString(),
                 os=platform.platform(),
             ),
         )
     )
 
     # Instantiate Host and Client
-    Host(
-        event_manager,
-        registry=registry_instance,
-        run_in_main_thread_wrapper=run_in_main_thread,
-    )
-    client_instance = Client(
-        event_manager,
-        registry=registry_instance,
-        run_in_main_thread_wrapper=run_in_main_thread,
-    )
+    Host(event_manager, registry=registry_instance)
+    client_instance = Client(event_manager, registry=registry_instance)
 
     # Init tools
     dcc_config = registry_instance.get_one(
-        name='framework-maya', extension_type='dcc_config'
+        name='framework-houdini', extension_type='dcc_config'
     )['extension']
 
     logger.debug(f'Read DCC config: {dcc_config}')
 
-    # Create ftrack menu
-    ftrack_menu = get_ftrack_menu()
+    # Generate ftrack menu
+    root, ftrack_menu = get_ftrack_menu()
 
     # Register tools into ftrack menu
     for tool in dcc_config['tools']:
         run_on = tool.get("run_on")
         on_menu = tool.get("menu", True)
         if on_menu:
-            cmds.menuItem(
-                parent=ftrack_menu,
-                label=tool['label'],
-                command=(
-                    functools.partial(
-                        on_run_tool_callback,
-                        client_instance,
-                        tool.get('name'),
-                        run_on,
-                        tool.get('dialog_name'),
-                        tool['options'],
-                    )
-                ),
-                image=":/{}.png".format(tool['icon']),
-            )
-        else:
-            on_run_tool_callback(
-                client_instance,
-                tool.get('name'),
-                run_on,
-                tool.get('dialog_name'),
-                tool['options'],
-            )
+            menu_item = ET.SubElement(ftrack_menu, "scriptItem")
+            menu_item.set("id", tool['name'])
+            label = ET.SubElement(menu_item, "label")
+            label.text = tool['label']
+            menu_item_script = ET.SubElement(menu_item, "scriptCode")
+            menu_item_script.text = _get_menu_item_script(tool)
+        if run_on:
+            if run_on == "startup":
+                # Execute startup tool-configs
+                on_run_tool_callback(
+                    tool.get('name'),
+                    tool.get('dialog_name'),
+                    tool['options'],
+                )
+            else:
+                logger.error(
+                    f"Unsupported run_on value: {run_on} tool section of the "
+                    f"tool {tool.get('name')} on the tool config file: "
+                    f"{dcc_config['name']}. \n Currently supported values:"
+                    f" [startup]"
+                )
+
+    # Convert xml to string
+    # Unescaping and decoding to avoid ending up with encoded CDATA
+    xml = unescape(ET.tostring(root).decode())
+
+    # Find the temp file where to write xml for MainMenuCommon.xml
+    xml_menu_file_folder = os.environ['FTRACK_HOUDINI_XML_MENU_FILE']
+
+    # Write xml to file
+    xml_path = os.path.join(xml_menu_file_folder, "MainMenuCommon.xml")
+    with open(xml_path, "w") as xml_file_handle:
+        xml_file_handle.write(xml)
+        xml_file_handle.close()
 
     return client_instance
+
+
+def _get_menu_item_script(tool):
+    '''Return script for ftrack menu item'''
+    return f"""
+<![CDATA[
+import functools
+import hdefereval
+import ftrack_framework_houdini
+callable = functools.partial(
+    ftrack_framework_houdini.on_run_tool_callback,
+    "{tool['name']}",
+    "{tool['dialog_name']}",
+    {tool['options']}
+)
+hdefereval.executeDeferred(callable)
+]]>
+"""
 
 
 # Find and read DCC config
 try:
     bootstrap_integration(get_extensions_path_from_environment())
-except:
+except Exception as error:
     # Make sure any exception that happens are logged as there is most likely no console
-    logger.error(traceback.format_exc())
+    logger.exception(error)
     raise

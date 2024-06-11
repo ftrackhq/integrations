@@ -2,6 +2,7 @@
 
 ## Upcoming
 
+* [new] Exported paths validator to support image sequences.
 * [new] PySide6 support.
 * [new] PySide2 support.
 * [changed] Removed Qt.py dependency.
