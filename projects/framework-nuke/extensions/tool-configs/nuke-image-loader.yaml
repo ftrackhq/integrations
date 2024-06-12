@@ -1,7 +1,7 @@
 type: tool_config
 name: nuke-image-loader
 config_type: loader
-options:
+compatible:
   sequence: false
   file_types:
     - ".png"

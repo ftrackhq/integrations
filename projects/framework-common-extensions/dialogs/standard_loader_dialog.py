@@ -110,7 +110,6 @@ class StandardLoaderDialog(BaseDialog):
                     compatible = False
                     if 'component' in options:
                         # Component name match?
-                        compatible = False
                         if (
                             options['component'].lower()
                             == component['name'].lower()
@@ -123,7 +122,6 @@ class StandardLoaderDialog(BaseDialog):
                             continue
                     if 'asset_type' in options:
                         # Asset type match?
-                        compatible = False
                         asset = component['version']['asset']
                         asset_type = asset['type']['name']
                         if options['asset_type'].lower() == asset_type.lower():
