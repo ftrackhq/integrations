@@ -1,9 +1,10 @@
 type: tool_config
 name: nuke-sequence-loader
 config_type: loader
-options:
-  sequence: true
-  file_types:
+compatible:
+  entity_types:
+    - SequenceComponent
+  supported_file_extensions:
     - ".png"
     - ".jpg"
     - ".jpeg"

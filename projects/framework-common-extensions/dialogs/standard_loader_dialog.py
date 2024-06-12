@@ -78,6 +78,65 @@ class StandardLoaderDialog(BaseDialog):
             )
         return result
 
+    def is_compatible(self, tool_config, component):
+        '''Check if the *tool_config* is compatible with provided *component* entity,
+        returns True if compatible, False or error message as string otherwise
+        '''
+        compatible = tool_config.get('compatible')
+        if not compatible:
+            return f'Tool config {tool_config} is missing required loader "compatible" entry!'
+        # Filter on combination of component name, asset_type and file extension
+        result = False
+        if compatible.get('component'):
+            # Component name match?
+            if compatible['component'].lower() == component['name'].lower():
+                result = True
+            else:
+                self.logger.debug(
+                    f"Component {compatible['component']} doesn't match {component['name']}"
+                )
+                return False
+        if compatible.get('asset_type'):
+            # Asset type match?
+            asset = component['version']['asset']
+            asset_type = asset['type']['name']
+            if compatible['asset_type'].lower() == asset_type.lower():
+                result = True
+            else:
+                self.logger.debug(
+                    f"Asset type {compatible['asset_type']} doesn't match {asset_type}"
+                )
+                return False
+        if compatible.get('supported_file_extensions'):
+            # Any file extension match?
+            result = False
+            file_extension = component['file_type']
+            for file_type in compatible.get('supported_file_extensions'):
+                if file_type.lower() == file_extension.lower():
+                    result = True
+                    break
+            if not result:
+                self.logger.debug(
+                    f"File extensions {compatible['supported_file_extensions']} doesn't match component: {file_extension}"
+                )
+                return False
+        if compatible.get('entity_types'):
+            result = False
+            for entity_type in compatible['entity_types']:
+                if component.entity_type == entity_type:
+                    result = True
+                    break
+            if not result:
+                self.logger.debug(
+                    f"Component {component['name']} entity type {component.entity_type} doesn't match {compatible['entity_types']}"
+                )
+                return False
+        if not result:
+            self.logger.debug(
+                f'Tool config {tool_config} is not compatible with component'
+            )
+        return result
+
     def pre_build_ui(self):
         pass
 
@@ -102,65 +161,13 @@ class StandardLoaderDialog(BaseDialog):
             else:
                 # Loop through tool configs, find a one that can load the component in question
                 for tool_config in self.filtered_tool_configs["loader"]:
-                    options = tool_config.get('options')
-                    if not options:
-                        tool_config_message = f'Tool config {tool_config} is missing required loader options!'
-                        break
-                    # Filter on combination of component name, asset_type and file extension
-                    compatible = False
-                    if options.get('component'):
-                        # Component name match?
-                        if (
-                            options['component'].lower()
-                            == component['name'].lower()
-                        ):
-                            compatible = True
-                        else:
-                            self.logger.debug(
-                                f"Component {options['component']} doesn't match {component['name']}"
-                            )
-                            continue
-                    if options.get('asset_type'):
-                        # Asset type match?
-                        asset = component['version']['asset']
-                        asset_type = asset['type']['name']
-                        if options['asset_type'].lower() == asset_type.lower():
-                            compatible = True
-                        else:
-                            self.logger.debug(
-                                f"Asset type {options['asset_type']} doesn't match {asset_type}"
-                            )
-                            continue
-                    if options.get('file_types'):
-                        # Any file extension match?
-                        compatible = False
-                        file_extension = component['file_type']
-                        for file_type in options.get('file_types'):
-                            if file_type.lower() == file_extension.lower():
-                                compatible = True
-                                break
-                        if not compatible:
-                            self.logger.debug(
-                                f"File extensions {options['file_types']} doesn't match component: {file_extension}"
-                            )
-                            continue
-                    if 'sequence' in options:
-                        compatible = False
-                        is_sequence = isinstance(
-                            component, self.session.types['SequenceComponent']
-                        )
-                        if options['sequence'] and not is_sequence:
-                            self.logger.debug(
-                                f"Component {component['name']} is not a file sequence"
-                            )
-                            continue
-                        elif not options['sequence'] and is_sequence:
-                            self.logger.debug(
-                                f"Component {component['name']} is a file sequence"
-                            )
-                            continue
-                        compatible = True
-                    if compatible:
+                    result = self.is_compatible(tool_config, component)
+                    if result is not True:
+                        if isinstance(result, str):
+                            # Unrecoverable error
+                            tool_config_message = result
+                            break
+                    else:
                         tool_config_name = tool_config['name']
                         self.logger.debug(
                             f'Using tool config {tool_config_name}'

@@ -1,9 +1,10 @@
 type: tool_config
 name: nuke-movie-loader
 config_type: loader
-options:
-  sequence: false
-  file_types:
+compatible:
+  entity_types:
+    - FileComponent
+  supported_file_extensions:
     - ".mov"
     - ".mp4"
     - ".avi"
