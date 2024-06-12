@@ -108,7 +108,7 @@ class StandardLoaderDialog(BaseDialog):
                         break
                     # Filter on combination of component name, asset_type and file extension
                     compatible = False
-                    if 'component' in options:
+                    if options.get('component'):
                         # Component name match?
                         compatible = False
                         if (
