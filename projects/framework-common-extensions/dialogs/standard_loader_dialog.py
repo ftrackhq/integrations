@@ -133,7 +133,7 @@ class StandardLoaderDialog(BaseDialog):
                                 f"Asset type {options['asset_type']} doesn't match {asset_type}"
                             )
                             continue
-                    if 'file_types' in options:
+                    if options.get('file_types'):
                         # Any file extension match?
                         compatible = False
                         file_extension = component['file_type']
