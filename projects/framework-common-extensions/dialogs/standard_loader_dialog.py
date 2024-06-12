@@ -108,7 +108,7 @@ class StandardLoaderDialog(BaseDialog):
                         break
                     # Filter on combination of component name, asset_type and file extension
                     compatible = False
-                    if 'component' in options:
+                    if options.get('component'):
                         # Component name match?
                         if (
                             options['component'].lower()
@@ -120,7 +120,7 @@ class StandardLoaderDialog(BaseDialog):
                                 f"Component {options['component']} doesn't match {component['name']}"
                             )
                             continue
-                    if 'asset_type' in options:
+                    if options.get('asset_type'):
                         # Asset type match?
                         asset = component['version']['asset']
                         asset_type = asset['type']['name']
@@ -131,11 +131,11 @@ class StandardLoaderDialog(BaseDialog):
                                 f"Asset type {options['asset_type']} doesn't match {asset_type}"
                             )
                             continue
-                    if 'file_types' in options:
+                    if options.get('file_types'):
                         # Any file extension match?
                         compatible = False
                         file_extension = component['file_type']
-                        for file_type in options['file_types']:
+                        for file_type in options.get('file_types'):
                             if file_type.lower() == file_extension.lower():
                                 compatible = True
                                 break
@@ -217,7 +217,7 @@ class StandardLoaderDialog(BaseDialog):
         )
         for loader_plugin in loader_plugins:
             options = loader_plugin.get('options', {})
-            if 'name' in options:
+            if options.get('name'):
                 loader_name_widget = QtWidgets.QWidget()
                 loader_name_widget.setLayout(QtWidgets.QHBoxLayout())
 

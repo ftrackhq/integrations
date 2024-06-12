@@ -36,9 +36,5 @@ tools:
       tool_configs:
         - nuke-image-loader
       docked: false
-      #event_data:
-      #  selection:
-      #    - entity_id: a66902b4-987c-4ca0-ba39-87be4798f227
-      #      entity_type: component
 
 
