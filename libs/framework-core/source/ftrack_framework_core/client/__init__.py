@@ -17,20 +17,17 @@ import ftrack_constants.framework as constants
 
 from ftrack_framework_core.client.host_connection import HostConnection
 
-from ftrack_utils.decorators import track_framework_usage
+from ftrack_utils.decorators import track_framework_usage, run_in_main_thread
 
 from ftrack_utils.framework.config.tool import get_tool_config_by_name
 
 from ftrack_framework_core.event import _EventHubThread
-from ftrack_framework_core.client.utils import run_in_main_thread
 
 
 class Client(object):
     '''
     Base client class.
     '''
-
-    _static_properties = {}
 
     # tODO: evaluate if to use compatible UI types in here or directly add the list of ui types
     ui_types = constants.client.COMPATIBLE_UI_TYPES
@@ -241,18 +238,10 @@ class Client(object):
 
         # Set up the run_in_main_thread decorator
         self.run_in_main_thread_wrapper = run_in_main_thread_wrapper
-        Client._static_properties[
-            'run_in_main_thread_wrapper'
-        ] = self.run_in_main_thread_wrapper
 
         self.logger.debug('Initialising Client {}'.format(self))
 
         self.discover_host()
-
-    @staticmethod
-    def static_properties():
-        '''Return the singleton instance.'''
-        return Client._static_properties
 
     # Host
     def discover_host(self, time_out=3):
@@ -387,9 +376,12 @@ class Client(object):
 
     @run_in_main_thread
     def _on_discover_action_callback(
-        self, name, label, dialog_name, options, event
+        self, name, label, dialog_name, options, session_identifier_func, event
     ):
         '''Discover *event*.'''
+        if session_identifier_func:
+            session_id = session_identifier_func()
+            label = label + " @" + session_id
         selection = event['data'].get('selection', [])
         if len(selection) == 1 and selection[0]['entityType'] == 'Component':
             return {
@@ -421,7 +413,45 @@ class Client(object):
         options = event['data']['options']
         options['event_data'] = {'selection': selection}
 
-        self.run_tool(name, label, True, False, dialog_name, options)
+        self.run_tool(name, dialog_name, options)
+
+    def subscribe_action_tool(
+        self,
+        name,
+        label=None,
+        dialog_name=None,
+        options=None,
+        session_identifier_func=None,
+    ):
+        '''
+        Subscribe the given tool to the ftrack.action.discover and
+        ftrack.action.launch events.
+        '''
+        if not options:
+            options = dict()
+        # TODO: we don't support dock_fn in here because is not serializable
+        self.remote_session.event_hub.subscribe(
+            u'topic=ftrack.action.discover and '
+            u'source.user.username="{0}"'.format(self.session.api_user),
+            partial(
+                self._on_discover_action_callback,
+                name,
+                label,
+                dialog_name,
+                options,
+                session_identifier_func,
+            ),
+        )
+
+        self.remote_session.event_hub.subscribe(
+            u'topic=ftrack.action.launch and '
+            u'data.name={0} and '
+            u'source.user.username="{1}" and '
+            u'data.host_id={2}'.format(
+                name, self.session.api_user, self.host_id
+            ),
+            self._on_launch_action_callback,
+        )
 
     @track_framework_usage(
         'FRAMEWORK_RUN_TOOL',
@@ -431,9 +461,6 @@ class Client(object):
     def run_tool(
         self,
         name,
-        label=None,
-        run=False,
-        action=False,
         dialog_name=None,
         options=None,
         dock_func=False,
@@ -446,34 +473,6 @@ class Client(object):
         self.logger.info(f"Running {name} tool")
         if not options:
             options = dict()
-        if action:
-            # TODO: we don't support dock_fn in here because is not serializable
-            self.remote_session.event_hub.subscribe(
-                u'topic=ftrack.action.discover and '
-                u'source.user.username="{0}"'.format(self.session.api_user),
-                partial(
-                    self._on_discover_action_callback,
-                    name,
-                    label,
-                    dialog_name,
-                    options,
-                ),
-            )
-
-            self.remote_session.event_hub.subscribe(
-                u'topic=ftrack.action.launch and '
-                u'data.name={0} and '
-                u'data.label={1} and '
-                u'source.user.username="{2}" and '
-                u'data.host_id={3}'.format(
-                    name, label, self.session.api_user, self.host_id
-                ),
-                self._on_launch_action_callback,
-            )
-
-        if not run:
-            return
-        # TODO: if run_on is not action, simply continue and execute the tool
 
         if dialog_name:
             self.run_dialog(

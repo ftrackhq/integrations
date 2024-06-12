@@ -24,7 +24,11 @@ from ftrack_utils.extensions.environment import (
 )
 from ftrack_utils.usage import set_usage_tracker, UsageTracker
 
-from ftrack_framework_maya.utils import dock_maya_right, run_in_main_thread
+from ftrack_framework_maya.utils import (
+    dock_maya_right,
+    run_in_main_thread,
+    get_maya_session_identifier,
+)
 
 
 # Evaluate version and log package version
@@ -94,21 +98,32 @@ def get_ftrack_menu(menu_name='ftrack', submenu_name=None):
 def on_run_tool_callback(
     client_instance,
     tool_name,
-    label,
-    run,
-    action,
     dialog_name=None,
-    options=dict,
+    options=None,
     maya_args=None,
 ):
     client_instance.run_tool(
         tool_name,
-        label,
-        run,
-        action,
         dialog_name,
         options,
         dock_func=dock_maya_right if dialog_name else None,
+    )
+
+
+@run_in_main_thread
+def on_subscribe_action_tool_callback(
+    client_instance,
+    tool_name,
+    label,
+    dialog_name=None,
+    options=None,
+):
+    client_instance.subscribe_action_tool(
+        tool_name,
+        label,
+        dialog_name,
+        options,
+        session_identifier_func=get_maya_session_identifier,
     )
 
 
@@ -212,24 +227,27 @@ def bootstrap_integration(framework_extensions_path):
                         on_run_tool_callback,
                         client_instance,
                         tool.get('name'),
-                        label,
-                        True,
-                        action,
                         tool.get('dialog_name'),
                         tool['options'],
                     )
                 ),
                 image=":/{}.png".format(tool['icon']),
             )
-        on_run_tool_callback(
-            client_instance,
-            tool.get('name'),
-            label,
-            run_on == "startup",
-            action,
-            tool.get('dialog_name'),
-            tool['options'],
-        )
+        if run_on == "startup":
+            on_run_tool_callback(
+                client_instance,
+                tool.get('name'),
+                tool.get('dialog_name'),
+                tool['options'],
+            )
+        if action:
+            on_subscribe_action_tool_callback(
+                client_instance,
+                tool.get('name'),
+                label,
+                tool.get('dialog_name'),
+                tool['options'],
+            )
 
     return client_instance
 
