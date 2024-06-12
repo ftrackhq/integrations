@@ -137,7 +137,7 @@ class StandardLoaderDialog(BaseDialog):
                         # Any file extension match?
                         compatible = False
                         file_extension = component['file_type']
-                        for file_type in options['file_types']:
+                        for file_type in options.get('file_types'):
                             if file_type.lower() == file_extension.lower():
                                 compatible = True
                                 break
