@@ -219,7 +219,7 @@ class StandardLoaderDialog(BaseDialog):
         )
         for loader_plugin in loader_plugins:
             options = loader_plugin.get('options', {})
-            if 'name' in options:
+            if options.get('name'):
                 loader_name_widget = QtWidgets.QWidget()
                 loader_name_widget.setLayout(QtWidgets.QHBoxLayout())
 
