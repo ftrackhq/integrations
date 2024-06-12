@@ -405,7 +405,45 @@ class Client(object):
         options = event['data']['options']
         options['event_data'] = {'selection': selection}
 
-        self.run_tool(name, label, True, False, dialog_name, options)
+        self.run_tool(name, dialog_name, options)
+
+    def subscribe_action_tool(
+        self,
+        name,
+        label=None,
+        dialog_name=None,
+        options=None,
+        session_identifier_func=None,
+    ):
+        '''
+        Subscribe the given tool to the ftrack.action.discover and
+        ftrack.action.launch events.
+        '''
+        if not options:
+            options = dict()
+        # TODO: we don't support dock_fn in here because is not serializable
+        self.remote_session.event_hub.subscribe(
+            u'topic=ftrack.action.discover and '
+            u'source.user.username="{0}"'.format(self.session.api_user),
+            partial(
+                self._on_discover_action_callback,
+                name,
+                label,
+                dialog_name,
+                options,
+                session_identifier_func,
+            ),
+        )
+
+        self.remote_session.event_hub.subscribe(
+            u'topic=ftrack.action.launch and '
+            u'data.name={0} and '
+            u'source.user.username="{1}" and '
+            u'data.host_id={2}'.format(
+                name, self.session.api_user, self.host_id
+            ),
+            self._on_launch_action_callback,
+        )
 
     @track_framework_usage(
         'FRAMEWORK_RUN_TOOL',
@@ -415,13 +453,9 @@ class Client(object):
     def run_tool(
         self,
         name,
-        label=None,
-        run=False,
-        action=False,
         dialog_name=None,
         options=None,
         dock_func=False,
-        session_identifier_func=None,
     ):
         '''
         Client runs the tool passed from the DCC config, can run run_dialog
@@ -431,35 +465,6 @@ class Client(object):
         self.logger.info(f"Running {name} tool")
         if not options:
             options = dict()
-
-        if action:
-            # TODO: we don't support dock_fn in here because is not serializable
-            self.remote_session.event_hub.subscribe(
-                u'topic=ftrack.action.discover and '
-                u'source.user.username="{0}"'.format(self.session.api_user),
-                partial(
-                    self._on_discover_action_callback,
-                    name,
-                    label,
-                    dialog_name,
-                    options,
-                    session_identifier_func,
-                ),
-            )
-
-            self.remote_session.event_hub.subscribe(
-                u'topic=ftrack.action.launch and '
-                u'data.name={0} and '
-                u'source.user.username="{1}" and '
-                u'data.host_id={2}'.format(
-                    name, self.session.api_user, self.host_id
-                ),
-                self._on_launch_action_callback,
-            )
-
-        if not run:
-            return
-        # TODO: if run_on is not action, simply continue and execute the tool
 
         if dialog_name:
             self.run_dialog(
