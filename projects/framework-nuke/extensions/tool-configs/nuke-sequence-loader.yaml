@@ -1,8 +1,8 @@
 type: tool_config
-name: nuke-image-loader
+name: nuke-sequence-loader
 config_type: loader
 options:
-  sequence: false
+  sequence: true
   file_types:
     - ".png"
     - ".jpg"
@@ -17,7 +17,6 @@ options:
     - ".cin"
     - ".psd"
     - ".tx"
-
 engine:
   - type: plugin
     tags:
@@ -29,6 +28,6 @@ engine:
     tags:
       - loader
     options:
-      name: "Nuke image loader"
+      name: "Nuke image sequence loader"
     plugin: nuke_image_loader
 

@@ -1,5 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
+import sys
 
 from ftrack_utils.string import str_version
 from ftrack_framework_core.plugin import BasePlugin
@@ -14,23 +15,15 @@ class ResolveEntityPathsPlugin(BasePlugin):
         a single component and resolve path. Return as dictionary'''
         result = {}
         entities = options.get('event_data', {}).get('selection', [])
-        if not entities and False:
-            # Mock for now
-            entities = [
-                {
-                    'entity_id': 'a66902b4-987c-4ca0-ba39-87be4798f227',
-                    'entity_type': 'Component',
-                }
-            ]
         if not entities:
             raise PluginExecutionError('No entities selected!')
         if len(entities) != 1:
             raise PluginExecutionError('Only one single entity supported!')
         entity = entities[0]
-        if entity['entity_type'].lower() != 'component':
+        if entity['entityType'].lower() != 'component':
             raise PluginExecutionError('Only Component entity supported!')
 
-        component_id = entity['entity_id']
+        component_id = entity['entityId']
         component = self.session.query(
             f'Component where id={component_id}'
         ).first()
@@ -38,7 +31,7 @@ class ResolveEntityPathsPlugin(BasePlugin):
             raise PluginExecutionError(f'Component not found: {component_id}!')
 
         result['entity_id'] = component_id
-        result['entity_type'] = entity['entity_type']
+        result['entity_type'] = entity['entityType']
 
         # Check path
         location = self.session.pick_location()
@@ -51,7 +44,18 @@ class ResolveEntityPathsPlugin(BasePlugin):
             self.logger.exception(error_message)
             raise PluginExecutionError(error_message)
 
-        result['component_path'] = component_path
+        if isinstance(component, self.session.types['SequenceComponent']):
+            result['is_sequence'] = True
+            # Find start and end frame from members
+            start = sys.maxsize
+            end = -sys.maxsize
+            for member in component['members']:
+                number = int(member['name'])
+                start = min(start, number)
+                end = max(end, number)
+            result['component_path'] = f'{component_path} [{start}-{end}]'
+        else:
+            result['component_path'] = component_path
         result[
             'context_path'
         ] = f'{str_version(component["version"])} / {component["name"]}'
@@ -71,11 +75,7 @@ class ResolveEntityPathsPlugin(BasePlugin):
         Store entity data in the given *store*
         '''
         result = self._resolve_entity_paths(self.options)
-        keys = [
-            'entity_id',
-            'entity_type',
-            'component_path',
-        ]
+        keys = ['entity_id', 'entity_type', 'component_path', 'is_sequence']
         for k in keys:
             if result.get(k):
                 store[k] = result.get(k)

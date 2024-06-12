@@ -72,8 +72,8 @@ class StandardLoaderDialog(BaseDialog):
         ):
             result.append(
                 {
-                    'entity_id': entry['entity_id'],
-                    'entity_type': entry['entity_type'],
+                    'entity_id': entry['entityId'],
+                    'entity_type': entry['entityType'],
                 }
             )
         return result
@@ -110,6 +110,7 @@ class StandardLoaderDialog(BaseDialog):
                     compatible = False
                     if 'component' in options:
                         # Component name match?
+                        compatible = False
                         if (
                             options['component'].lower()
                             == component['name'].lower()
@@ -122,6 +123,7 @@ class StandardLoaderDialog(BaseDialog):
                             continue
                     if 'asset_type' in options:
                         # Asset type match?
+                        compatible = False
                         asset = component['version']['asset']
                         asset_type = asset['type']['name']
                         if options['asset_type'].lower() == asset_type.lower():
@@ -133,6 +135,7 @@ class StandardLoaderDialog(BaseDialog):
                             continue
                     if 'file_types' in options:
                         # Any file extension match?
+                        compatible = False
                         file_extension = component['file_type']
                         for file_type in options['file_types']:
                             if file_type.lower() == file_extension.lower():
@@ -143,6 +146,22 @@ class StandardLoaderDialog(BaseDialog):
                                 f"File extensions {options['file_types']} doesn't match component: {file_extension}"
                             )
                             continue
+                    if 'sequence' in options:
+                        compatible = False
+                        is_sequence = isinstance(
+                            component, self.session.types['SequenceComponent']
+                        )
+                        if options['sequence'] and not is_sequence:
+                            self.logger.debug(
+                                f"Component {component['name']} is not a file sequence"
+                            )
+                            continue
+                        elif not options['sequence'] and is_sequence:
+                            self.logger.debug(
+                                f"Component {component['name']} is a file sequence"
+                            )
+                            continue
+                        compatible = True
                     if compatible:
                         tool_config_name = tool_config['name']
                         self.logger.debug(

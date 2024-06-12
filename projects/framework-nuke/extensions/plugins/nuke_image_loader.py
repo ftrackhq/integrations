@@ -3,7 +3,7 @@
 
 import nuke
 
-from ftrack_utils.paths import get_temp_path
+from ftrack_utils.paths import check_image_sequence
 from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
@@ -22,9 +22,24 @@ class NukeImageLoaderPlugin(BasePlugin):
             raise PluginExecutionError(f'No image path provided in store!')
 
         n = nuke.nodes.Read()
+
+        sequence_metadata = None
+        if store.get('is_sequence'):
+            # Expect path to be on the form folder/plate.%d.exr [1-35], convert to Nuke loadable
+            # format
+            sequence_metadata = check_image_sequence(image_path)
+            image_path = image_path[: image_path.rfind(' ')].replace(
+                '%d', '%0{}d'.format(sequence_metadata['padding'])
+            )
+
         n['file'].fromUserText(image_path)
 
-        self.logger.debug(f'Created image read node: {n}')
+        self.logger.debug(f'Created image read node, reading: {image_path}')
 
-        if not image_path:
-            raise PluginExecutionError(message='No path provided to load!')
+        if store.get('is_sequence'):
+            n['first'].setValue(sequence_metadata['start'])
+            n['last'].setValue(sequence_metadata['end'])
+            self.logger.debug(
+                'Image sequence frame range set: '
+                f'{sequence_metadata["start"]}-{sequence_metadata["end"]}'
+            )

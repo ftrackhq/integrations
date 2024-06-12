@@ -1,0 +1,33 @@
+type: tool_config
+name: nuke-movie-loader
+config_type: loader
+options:
+  sequence: false
+  file_types:
+    - ".mov"
+    - ".mp4"
+    - ".avi"
+    - ".mpg"
+    - ".mpeg"
+    - ".m4v"
+    - ".mkv"
+    - ".webm"
+    - ".wmv"
+    - ".flv"
+    - ".vob"
+    - ".ogv"
+
+engine:
+  - type: plugin
+    tags:
+      - context
+    plugin: resolve_entity_path
+    ui: show_component
+
+  - type: plugin
+    tags:
+      - loader
+    options:
+      name: "Nuke movie loader"
+    plugin: nuke_movie_loader
+
