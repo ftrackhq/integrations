@@ -121,7 +121,7 @@ class StandardLoaderDialog(BaseDialog):
                                 f"Component {options['component']} doesn't match {component['name']}"
                             )
                             continue
-                    if 'asset_type' in options:
+                    if options.get('asset_type'):
                         # Asset type match?
                         compatible = False
                         asset = component['version']['asset']
