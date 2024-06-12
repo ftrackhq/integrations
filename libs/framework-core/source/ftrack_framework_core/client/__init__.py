@@ -16,20 +16,17 @@ import ftrack_constants.framework as constants
 
 from ftrack_framework_core.client.host_connection import HostConnection
 
-from ftrack_utils.decorators import track_framework_usage
+from ftrack_utils.decorators import track_framework_usage, run_in_main_thread
 
 from ftrack_utils.framework.config.tool import get_tool_config_by_name
 
 from ftrack_framework_core.event import _EventHubThread
-from ftrack_framework_core.client.utils import run_in_main_thread
 
 
 class Client(object):
     '''
     Base client class.
     '''
-
-    _static_properties = {}
 
     # tODO: evaluate if to use compatible UI types in here or directly add the list of ui types
     ui_types = constants.client.COMPATIBLE_UI_TYPES
@@ -233,18 +230,10 @@ class Client(object):
 
         # Set up the run_in_main_thread decorator
         self.run_in_main_thread_wrapper = run_in_main_thread_wrapper
-        Client._static_properties[
-            'run_in_main_thread_wrapper'
-        ] = self.run_in_main_thread_wrapper
 
         self.logger.debug('Initialising Client {}'.format(self))
 
         self.discover_host()
-
-    @staticmethod
-    def static_properties():
-        '''Return the singleton instance.'''
-        return Client._static_properties
 
     # Host
     def discover_host(self, time_out=3):
