@@ -6,6 +6,7 @@ import logging
 import uuid
 from collections import defaultdict
 from functools import partial
+import atexit
 
 from six import string_types
 
@@ -20,7 +21,7 @@ from ftrack_utils.decorators import track_framework_usage, run_in_main_thread
 
 from ftrack_utils.framework.config.tool import get_tool_config_by_name
 
-from ftrack_framework_core.event import _EventHubThread
+from ftrack_framework_core.event import EventManager
 
 
 class Client(object):
@@ -185,21 +186,18 @@ class Client(object):
         return self._tool_config_options
 
     @property
-    def remote_session(self):
-        # TODO: temporary hack for remote session
-        if self._remote_session:
-            return self._remote_session
+    def remote_event_manager(self):
+        # TODO: this is a temporal solution, 1 session should be able to act as local and remote at the same time
+        if self._remote_event_manager:
+            return self._remote_event_manager
         else:
-            self._remote_session = ftrack_api.Session(
-                auto_connect_event_hub=True
+            _remote_session = ftrack_api.Session(auto_connect_event_hub=False)
+            self._remote_event_manager = EventManager(
+                session=_remote_session, mode=constants.event.REMOTE_EVENT_MODE
             )
-            # TODO: temporary solution to start the wait thread
-            _event_hub_thread = _EventHubThread(self._remote_session)
-
-            if not _event_hub_thread.is_alive():
-                # self.logger.debug('Starting new hub thread for {}'.format(self))
-                _event_hub_thread.start()
-            return self._remote_session
+            # Make sure it is shutdown
+            atexit.register(self.close)
+            return self._remote_event_manager
 
     def __init__(
         self, event_manager, registry, run_in_main_thread_wrapper=None
@@ -226,7 +224,7 @@ class Client(object):
         self.__instanced_dialogs = {}
         self._dialog = None
         self._tool_config_options = defaultdict(defaultdict)
-        self._remote_session = None
+        self._remote_event_manager = None
 
         # Set up the run_in_main_thread decorator
         self.run_in_main_thread_wrapper = run_in_main_thread_wrapper
@@ -421,8 +419,9 @@ class Client(object):
         '''
         if not options:
             options = dict()
-        # TODO: we don't support dock_fn in here because is not serializable
-        self.remote_session.event_hub.subscribe(
+        # TODO: The event should be added to the event manager to be accesible
+        #  through subscribe and publish classes
+        self.remote_event_manager.session.event_hub.subscribe(
             u'topic=ftrack.action.discover and '
             u'source.user.username="{0}"'.format(self.session.api_user),
             partial(
@@ -435,7 +434,7 @@ class Client(object):
             ),
         )
 
-        self.remote_session.event_hub.subscribe(
+        self.remote_event_manager.session.event_hub.subscribe(
             u'topic=ftrack.action.launch and '
             u'data.name={0} and '
             u'source.user.username="{1}" and '
@@ -665,3 +664,10 @@ class Client(object):
             self.host_id, plugin_names
         )[0]
         return unregistered_plugins
+
+    def close(self):
+        self.logger.debug('Shutting down client')
+        if self._remote_event_manager:
+            self.logger.debug('Stopping remote_event_manager')
+            self.remote_event_manager.close()
+            self._remote_event_manager = None
