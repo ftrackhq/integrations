@@ -4,6 +4,9 @@
 import os
 import clique
 import tempfile
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def find_image_sequence(file_path):
@@ -56,3 +59,54 @@ def get_temp_path(filename_extension=None):
         os.makedirs(os.path.dirname(result))
 
     return result
+
+
+def check_image_sequence(path):
+    '''Check if the image sequence pointed out by *path* exists, returns metadata
+    about the sequence if it does, raises an exception otherwise.'''
+    directory, basename = os.path.split(path)
+
+    p_pos = basename.find('%')
+    d_pos = basename.find('d', p_pos)
+    exp = basename[p_pos : d_pos + 1]
+
+    padding = 0
+    if d_pos > p_pos + 2:
+        # %04d expression
+        padding = int(basename[p_pos + 1 : d_pos])
+
+    ws_pos = basename.rfind(' ')
+    dash_pos = basename.find('-', ws_pos)
+
+    prefix = basename[:p_pos]
+    suffix = basename[d_pos + 1 : ws_pos]
+
+    start = int(basename[ws_pos + 2 : dash_pos])
+    end = int(basename[dash_pos + 1 : -1])
+
+    if padding == 0:
+        # No padding, calculate padding from start and end
+        padding = len(str(end))
+
+    logger.debug(
+        f'Looking for frames {start}>{end} in directory {directory} starting '
+        f'with {prefix}, ending with {suffix} (padding: {padding})'
+    )
+
+    for frame in range(start, end + 1):
+        filename = f'{prefix}{exp % frame}{suffix}'
+        test_path = os.path.join(directory, filename)
+        if not os.path.exists(test_path):
+            raise Exception(
+                f'Image sequence member {frame} not ' f'found @ "{test_path}"!'
+            )
+        logger.debug(f'Frame {frame} verified: {filename}')
+
+    return {
+        'directory': directory,
+        'prefix': prefix,
+        'suffix': suffix,
+        'start': start,
+        'end': end,
+        'padding': padding,
+    }

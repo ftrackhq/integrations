@@ -195,9 +195,9 @@ class Client(object):
             self._remote_event_manager = EventManager(
                 session=_remote_session, mode=constants.event.REMOTE_EVENT_MODE
             )
-            # Make sure it is shutdown
-            atexit.register(self.close)
-            return self._remote_event_manager
+        # Make sure it is shutdown
+        atexit.register(self.close)
+        return self._remote_event_manager
 
     def __init__(
         self, event_manager, registry, run_in_main_thread_wrapper=None
@@ -667,6 +667,7 @@ class Client(object):
 
     def close(self):
         self.logger.debug('Shutting down client')
+
         if self._remote_event_manager:
             self.logger.debug('Stopping remote_event_manager')
             self.remote_event_manager.close()
