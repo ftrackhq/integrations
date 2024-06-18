@@ -285,6 +285,7 @@ class StandardLoaderDialog(BaseDialog):
 
     def closeEvent(self, event):
         '''(Override) Close the context and progress widgets'''
-        self._progress_widget.teardown()
-        self._progress_widget.deleteLater()
+        if self._progress_widget:
+            self._progress_widget.teardown()
+            self._progress_widget.deleteLater()
         super(StandardLoaderDialog, self).closeEvent(event)
