@@ -14,7 +14,7 @@ class ResolveEntityPathsPlugin(BasePlugin):
         '''Evaluáte list of entities passed on in 'options', ensure
         a single component and resolve path. Return as dictionary'''
         result = {}
-        entities = options.get('event_data', {}).get('selection', [])
+        entities = options.get('selection', [])
         if not entities:
             raise PluginExecutionError('No entities selected!')
         if len(entities) != 1:
@@ -66,7 +66,7 @@ class ResolveEntityPathsPlugin(BasePlugin):
         Suppy UI with entity data from options passed on in *payload*.
         '''
         try:
-            return self._resolve_entity_paths(payload)
+            return self._resolve_entity_paths(payload['event_data'])
         except PluginExecutionError as error:
             return {'error_message': str(error)}
 
@@ -74,7 +74,7 @@ class ResolveEntityPathsPlugin(BasePlugin):
         '''
         Store entity data in the given *store*
         '''
-        result = self._resolve_entity_paths(self.options)
+        result = self._resolve_entity_paths(self.options['event_data'])
         keys = ['entity_id', 'entity_type', 'component_path', 'is_sequence']
         for k in keys:
             if result.get(k):

@@ -144,7 +144,9 @@ class StandardLoaderDialog(BaseDialog):
         # Check entities
         # Select the desired tool_config
         tool_config_message = None
-        if not self.get_entities():
+        if 'event_data' not in self.dialog_options:
+            tool_config_message = 'No event data provided!'
+        elif not self.get_entities():
             tool_config_message = 'No entity provided to load!'
         elif len(self.get_entities()) != 1:
             tool_config_message = 'Only one entity supported!'
@@ -189,9 +191,7 @@ class StandardLoaderDialog(BaseDialog):
                             )
                         break
                 if not self.tool_config and not tool_config_message:
-                    tool_config_message = (
-                        f'Could not find tool config: "{tool_config_name}"'
-                    )
+                    tool_config_message = f'Could not find a tool config compatible with the component {component_id}!'
         else:
             tool_config_message = 'No loader tool configs available!'
 
