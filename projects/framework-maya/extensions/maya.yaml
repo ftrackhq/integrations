@@ -30,8 +30,7 @@ tools:
     action: true
     menu: false # True by default
     label: "Loader"
-    dialog_name: framework_standard_opener_dialog
-    icon: open
+    dialog_name: framework_standard_loader_dialog
     options:
       tool_configs:
-        - maya-scene-opener
+        - maya-scene-loader
