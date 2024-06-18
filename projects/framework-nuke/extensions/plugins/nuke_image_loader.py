@@ -1,5 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
+import os
 
 import nuke
 
@@ -31,6 +32,12 @@ class NukeImageLoaderPlugin(BasePlugin):
             image_path = image_path[: image_path.rfind(' ')].replace(
                 '%d', '%0{}d'.format(sequence_metadata['padding'])
             )
+        else:
+            # Check that file exists
+            if not os.path.exists(image_path):
+                raise PluginExecutionError(
+                    f'Image file does not exist: {image_path}'
+                )
 
         n['file'].fromUserText(image_path)
 

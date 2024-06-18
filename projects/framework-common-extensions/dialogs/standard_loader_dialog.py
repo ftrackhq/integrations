@@ -218,26 +218,32 @@ class StandardLoaderDialog(BaseDialog):
             context_widget = self.init_framework_widget(context_plugin)
             self.tool_widget.layout().addWidget(context_widget)
 
+        # Build human readable loader name from tool config name
+        loader_name_widget = QtWidgets.QWidget()
+        loader_name_widget.setLayout(QtWidgets.QHBoxLayout())
+
+        label = QtWidgets.QLabel('Loader:')
+        label.setProperty('secondary', True)
+        loader_name_widget.layout().addWidget(label)
+
+        label = QtWidgets.QLabel(
+            self.tool_config['name'].replace('-', ' ').title()
+        )
+        label.setProperty('h2', True)
+        loader_name_widget.layout().addWidget(label, 100)
+
+        self.tool_widget.layout().addWidget(loader_name_widget)
+
         # Add loader plugin(s)
         loader_plugins = get_plugins(
             self.tool_config, filters={'tags': ['loader']}
         )
+        # Expect only one for now
+        if len(loader_plugins) != 1:
+            raise Exception('Only one(1) loader plugin is supported!')
+
         for loader_plugin in loader_plugins:
             options = loader_plugin.get('options', {})
-            if options.get('name'):
-                loader_name_widget = QtWidgets.QWidget()
-                loader_name_widget.setLayout(QtWidgets.QHBoxLayout())
-
-                label = QtWidgets.QLabel('Loader:')
-                label.setProperty('secondary', True)
-                loader_name_widget.layout().addWidget(label)
-
-                label = QtWidgets.QLabel(options['name'])
-                label.setProperty('h2', True)
-                loader_name_widget.layout().addWidget(label, 100)
-
-                self.tool_widget.layout().addWidget(loader_name_widget)
-
             if not loader_plugin.get('ui'):
                 continue
             loader_widget = self.init_framework_widget(loader_plugin)

@@ -28,7 +28,5 @@ engine:
   - type: plugin
     tags:
       - loader
-    options:
-      name: "Nuke image sequence loader"
     plugin: nuke_image_loader
 

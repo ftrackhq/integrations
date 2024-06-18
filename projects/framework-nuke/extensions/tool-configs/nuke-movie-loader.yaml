@@ -28,7 +28,5 @@ engine:
   - type: plugin
     tags:
       - loader
-    options:
-      name: "Nuke movie loader"
     plugin: nuke_movie_loader
 
