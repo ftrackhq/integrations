@@ -116,6 +116,13 @@ class EventManager(object):
             # self.logger.debug('Starting new hub thread for {}'.format(self))
             self._event_hub_thread.start()
 
+    def close(self):
+        if self._event_hub_thread and self._event_hub_thread.is_alive():
+            self.logger.debug('Stopping event hub thread')
+            self._event_hub_thread.stop()
+            self._event_hub_thread = None
+            self.session.close()
+
     def __init__(self, session, mode=constants.event.LOCAL_EVENT_MODE):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
