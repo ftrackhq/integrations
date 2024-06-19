@@ -34,6 +34,7 @@ from ftrack_framework_core.client import Client
 from ftrack_framework_core.configure_logging import configure_logging
 from ftrack_framework_core import registry
 
+from ftrack_framework_photoshop.utils import get_photoshop_session_identifier
 
 # Evaluate version and log package version
 try:
@@ -70,8 +71,24 @@ if not app:
 
 
 @invoke_in_qt_main_thread
-def on_run_tool_callback(tool_name, dialog_name=None, options=dict):
-    client_instance.run_tool(tool_name, dialog_name, options)
+def on_run_tool_callback(tool_name, dialog_name=None, options=None):
+    client_instance.run_tool(
+        tool_name,
+        dialog_name,
+        options,
+    )
+
+
+def on_subscribe_action_tool_callback(
+    tool_name, label, dialog_name=None, options=None
+):
+    client_instance.subscribe_action_tool(
+        tool_name,
+        label,
+        dialog_name,
+        options,
+        session_identifier_func=get_photoshop_session_identifier,
+    )
 
 
 @invoke_in_qt_main_thread
@@ -169,6 +186,7 @@ def bootstrap_integration(framework_extensions_path):
     for tool in dcc_config['tools']:
         name = tool['name']
         run_on = tool.get("run_on")
+        action = tool.get("action")
         on_menu = tool.get("menu", True)
         dialog_name = tool.get('dialog_name')
         options = tool.get('options')
@@ -184,13 +202,9 @@ def bootstrap_integration(framework_extensions_path):
                         options,
                     ]
                 )
-            else:
-                logger.error(
-                    f"Unsupported run_on value: {run_on} tool section of the "
-                    f"tool {tool.get('name')} on the tool config file: "
-                    f"{dcc_config['name']}. \n Currently supported values:"
-                    f" [startup]"
-                )
+        if action:
+            on_subscribe_action_tool_callback(*tool)
+
     photoshop_rpc_connection = JavascriptRPC(
         'photoshop',
         remote_session,
