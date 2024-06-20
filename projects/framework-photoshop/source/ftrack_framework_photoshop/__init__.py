@@ -25,8 +25,10 @@ from ftrack_utils.extensions.environment import (
 from ftrack_utils.rpc import JavascriptRPC
 from ftrack_utils.process import MonitorProcess, terminate_current_process
 from ftrack_utils.usage import set_usage_tracker, UsageTracker
-from ftrack_qt.utils.decorators import invoke_in_qt_main_thread
-
+from ftrack_qt.utils.decorators import (
+    invoke_in_qt_main_thread as invoke_in_qt_main_thread_decorator,
+)
+from ftrack_qt.utils.threading import invoke_in_qt_main_thread
 
 from ftrack_framework_core.host import Host
 from ftrack_framework_core.event import EventManager
@@ -70,7 +72,7 @@ if not app:
     app.setAttribute(QtCore.Qt.AA_PluginApplication)
 
 
-@invoke_in_qt_main_thread
+@invoke_in_qt_main_thread_decorator
 def on_run_tool_callback(tool_name, dialog_name=None, options=None):
     client_instance.run_tool(
         tool_name,
@@ -91,7 +93,7 @@ def on_subscribe_action_tool_callback(
     )
 
 
-@invoke_in_qt_main_thread
+@invoke_in_qt_main_thread_decorator
 def on_connected_callback(event):
     '''Photoshop has connected, run bootstrap tools'''
     for tool in startup_tools:
@@ -167,9 +169,17 @@ def bootstrap_integration(framework_extensions_path):
     registry_instance = registry.Registry()
     registry_instance.scan_extensions(paths=framework_extensions_path)
 
-    Host(event_manager, registry=registry_instance)
+    Host(
+        event_manager,
+        registry=registry_instance,
+        run_in_main_thread_wrapper=invoke_in_qt_main_thread,
+    )
 
-    client_instance = Client(event_manager, registry=registry_instance)
+    client_instance = Client(
+        event_manager,
+        registry=registry_instance,
+        run_in_main_thread_wrapper=invoke_in_qt_main_thread,
+    )
 
     # Init tools
     dcc_config = registry_instance.get_one(
@@ -195,13 +205,7 @@ def bootstrap_integration(framework_extensions_path):
             panel_launchers.append(tool)
         else:
             if run_on == "startup":
-                startup_tools.append(
-                    [
-                        name,
-                        dialog_name,
-                        options,
-                    ]
-                )
+                startup_tools.append([name, dialog_name, options])
         if action:
             on_subscribe_action_tool_callback(*tool)
 

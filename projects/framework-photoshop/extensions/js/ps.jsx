@@ -192,3 +192,22 @@ function openDocument(path) {
         return "false";
     }
 }
+
+/*
+* Load image as a new layer in photoshop
+*/
+function loadImage(path) {
+    try {
+        var file = new File(importPath(path));
+        var doc = app.activeDocument;
+        doc.artLayers.add();
+        doc.activeLayer.name = file.name;
+        doc.activeLayer = doc.artLayers.getByName(file.name);
+        doc.activeLayer = doc.activeLayer.merge();
+        doc.activeLayer = doc.activeLayer.place(file);
+        return "true";
+    } catch (e) {
+        alert(e);
+        return "false";
+    }
+}
