@@ -1,8 +1,9 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
+import time
 
 try:
-    from PySide6 import QtCore
+    from PySide6 import QtCore, QtWidgets
 except ImportError:
     from PySide2 import QtCore, QtWidgets
 
@@ -18,6 +19,8 @@ class InvokeEvent(QtCore.QEvent):
         self.fn = fn
         self.args = args
         self.kwargs = kwargs
+        self.result = None
+        self.triggered = False
 
 
 class Invoker(QtCore.QObject):
@@ -25,8 +28,8 @@ class Invoker(QtCore.QObject):
 
     def event(self, event):
         '''Call function on *event*.'''
-        event.fn(*event.args, **event.kwargs)
-
+        event.result = event.fn(*event.args, **event.kwargs)
+        event.triggered = True
         return True
 
 
@@ -42,8 +45,12 @@ def invoke_in_qt_main_thread(fn, *args, **kwargs):
     or cause instabilities.
     '''
     if QtCore.QThread.currentThread() is _invoker.thread():
-        fn(*args, **kwargs)
+        return fn(*args, **kwargs)
     else:
-        QtCore.QCoreApplication.postEvent(
-            _invoker, InvokeEvent(fn, *args, **kwargs)
-        )
+        invoke_event = InvokeEvent(fn, *args, **kwargs)
+        QtCore.QCoreApplication.postEvent(_invoker, invoke_event)
+        # Wait for event to be run
+        while not invoke_event.triggered:
+            time.sleep(0.01)
+            QtWidgets.QApplication.processEvents()
+        return invoke_event.result
