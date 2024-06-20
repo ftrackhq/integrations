@@ -15,3 +15,13 @@ tools:
     options:
       tool_configs:
         - photoshop-document-opener
+  - name: load
+    action: true
+    menu: false # True by default
+    label: "Loader"
+    dialog_name: framework_standard_loader_dialog
+    icon: open
+    options:
+      tool_configs:
+        - photoshop-image-loader
+      docked: false

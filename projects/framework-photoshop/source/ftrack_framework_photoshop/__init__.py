@@ -204,7 +204,12 @@ def bootstrap_integration(framework_extensions_path):
             if run_on == "startup":
                 startup_tools.append([name, dialog_name, options])
         if action:
-            on_subscribe_action_tool_callback(*tool)
+            on_subscribe_action_tool_callback(
+                name,
+                tool.get('label'),
+                dialog_name,
+                options,
+            )
 
     photoshop_rpc_connection = JavascriptRPC(
         'photoshop',

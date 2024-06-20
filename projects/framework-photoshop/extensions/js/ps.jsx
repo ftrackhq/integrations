@@ -185,7 +185,8 @@ function exportDocument(output_path, format) {
 */
 function openDocument(path) {
     try {
-        app.open(new File(importPath(path)));
+        var file = new File(importPath(path));
+        app.open(file);
         return "true";
     } catch (e) {
         alert(e);
@@ -194,17 +195,12 @@ function openDocument(path) {
 }
 
 /*
-* Load image as a new layer in photoshop
+* Load image in photoshop
 */
 function loadImage(path) {
     try {
         var file = new File(importPath(path));
-        var doc = app.activeDocument;
-        doc.artLayers.add();
-        doc.activeLayer.name = file.name;
-        doc.activeLayer = doc.artLayers.getByName(file.name);
-        doc.activeLayer = doc.activeLayer.merge();
-        doc.activeLayer = doc.activeLayer.place(file);
+        var openedDoc = app.open(file); // Load the image file
         return "true";
     } catch (e) {
         alert(e);

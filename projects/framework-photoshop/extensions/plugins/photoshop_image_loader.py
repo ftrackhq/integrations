@@ -29,6 +29,12 @@ class PhotoshopImageLoaderPlugin(BasePlugin):
                 'loadImage',
                 [image_path.replace('\\', '/')],
             )
+
+            if not load_result:
+                raise PluginExecutionError(
+                    f'Failed to load image in Photoshop!'
+                )
+
         except Exception as e:
             self.logger.exception(e)
             raise PluginExecutionError(f'Exception loading the image: {e}')

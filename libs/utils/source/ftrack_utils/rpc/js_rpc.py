@@ -235,8 +235,13 @@ class JavascriptRPC(object):
                     self.logger.info(
                         f'Waited {waited / 1000}s for {event_topic} reply'
                     )
-            return reply_event['data']
-
+            retval = reply_event['data']
+            print(f"@@@ retval: {retval}")
+            if 'error_message' in retval:
+                raise Exception(
+                    f'An error occurred while publishing event {event_topic}: {retval["error_message"]}'
+                )
+            return retval
         return publish_result
 
     def _append_context_data(self, data):
