@@ -26,22 +26,28 @@ class MayaSceneLoaderPlugin(BasePlugin):
 
         if load_type == 'import':
             try:
-                cmds.file(
-                    component_path,
-                    i=True,
-                    namespace=self.options.get('namespace', ''),
-                )
+                if self.options.get('namespace'):
+                    cmds.file(
+                        component_path,
+                        i=True,
+                        namespace=self.options.get('namespace'),
+                    )
+                else:
+                    cmds.file(component_path, i=True)
             except RuntimeError as error:
                 raise PluginExecutionError(
                     f"Failed to import {component_path} to scene. Error: {error}"
                 )
         elif load_type == 'reference':
             try:
-                cmds.file(
-                    component_path,
-                    r=True,
-                    namespace=self.options.get('namespace', ''),
-                )
+                if self.options.get('namespace'):
+                    cmds.file(
+                        component_path,
+                        r=True,
+                        namespace=self.options.get('namespace', ''),
+                    )
+                else:
+                    cmds.file(component_path, r=True)
             except RuntimeError as error:
                 raise PluginExecutionError(
                     f"Failed to reference {component_path} to scene. Error: {error}"

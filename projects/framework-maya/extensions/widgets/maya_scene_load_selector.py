@@ -108,11 +108,20 @@ class MayaSceneLoadSelectorWidget(BaseWidget):
         # set Signals
         self._button_group.buttonClicked.connect(self._on_radio_button_clicked)
         self._custom_namespace_checkbox.stateChanged.connect(
-            self._custom_namespace_line_edit.setEnabled
+            self._on_checkbox_state_changed
         )
         self._custom_namespace_line_edit.textChanged.connect(
             self._on_namespace_changed
         )
+
+    def _on_checkbox_state_changed(self, state):
+        '''Enable or disable the custom namespace line edit based on checkbox state.'''
+        self._custom_namespace_line_edit.setEnabled(state)
+        self.set_plugin_option(
+            'namespace', self._custom_namespace_line_edit.text()
+        )
+        if not state:
+            self.set_plugin_option('namespace', None)
 
     def _on_namespace_changed(self, namespace):
         '''Updates the camera_name option with the provided *camera_name'''
