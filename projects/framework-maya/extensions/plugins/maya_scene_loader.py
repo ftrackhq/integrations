@@ -47,6 +47,6 @@ class MayaSceneLoaderPlugin(BasePlugin):
                     f"Failed to reference {component_path} to scene. Error: {error}"
                 )
 
-        self.logger.debugf(
+        self.logger.debug(
             f"Component {component_path} has been loaded to scene."
         )
