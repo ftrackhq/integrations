@@ -5,19 +5,20 @@ compatible:
   entity_types:
     - FileComponent
   supported_file_extensions:
-    - ".png"
+    - ".psd"
     - ".jpg"
     - ".jpeg"
-    - ".exr"
-    - ".tif"
+    - ".png"
+    - ".gif"
     - ".tiff"
-    - ".tga"
+    - ".tif"
     - ".bmp"
-    - ".hdr"
-    - ".dpx"
-    - ".cin"
-    - ".psd"
-    - ".tx"
+    - ".raw"
+    - ".pdf"
+    - ".eps"
+    - ".tga"
+    - ".svg"
+
 
 engine:
   - type: plugin

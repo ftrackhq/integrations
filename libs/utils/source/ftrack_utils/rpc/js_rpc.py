@@ -236,7 +236,6 @@ class JavascriptRPC(object):
                         f'Waited {waited / 1000}s for {event_topic} reply'
                     )
             retval = reply_event['data']
-            print(f"@@@ retval: {retval}")
             if 'error_message' in retval:
                 raise Exception(
                     f'An error occurred while publishing event {event_topic}: {retval["error_message"]}'
