@@ -1,7 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
-from ftrack_utils.paths import get_temp_path
 from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
