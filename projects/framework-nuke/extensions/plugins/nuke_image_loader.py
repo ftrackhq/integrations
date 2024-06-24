@@ -10,7 +10,7 @@ from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
 
 class NukeImageLoaderPlugin(BasePlugin):
-    '''Load an image into Nuke'''
+    '''Load an image or sequence into Nuke'''
 
     name = 'nuke_image_loader'
 
