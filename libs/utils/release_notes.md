@@ -2,7 +2,7 @@
 
 ## upcoming
 
-* [fix] Properly pick up and handle error messages from DCC.
+* [fix] JS RPC; Properly pick up and handle error messages from DCC.
 * [feat] JS RPC; Added on connected callback.
 
 
