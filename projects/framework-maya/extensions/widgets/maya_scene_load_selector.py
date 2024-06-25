@@ -10,7 +10,9 @@ from ftrack_framework_qt.widgets import BaseWidget
 
 
 class MayaSceneLoadSelectorWidget(BaseWidget):
-    '''Drop-down list to select the desired camera.'''
+    '''
+    Widget for selecting how to load a scene in Maya.
+    '''
 
     name = 'maya_scene_load_selector'
     ui_type = 'qt'
@@ -124,7 +126,7 @@ class MayaSceneLoadSelectorWidget(BaseWidget):
             self.set_plugin_option('namespace', None)
 
     def _on_namespace_changed(self, namespace):
-        '''Updates the camera_name option with the provided *camera_name'''
+        '''Update the namespace option based on the line edit text.'''
         if not namespace:
             return
         self.set_plugin_option('namespace', namespace)

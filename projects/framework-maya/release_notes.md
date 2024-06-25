@@ -2,8 +2,7 @@
 
 ## upcoming
 
-
-* [new] Scene loader tool added. Reference and import .ma and .mb scenes supported.
+[new] Studio asset load capability, covering reference and import .ma and .mb scenes.
 
 
 ## v24.6.0
@@ -18,6 +17,7 @@
 
 * [fix] Launcher; Properly escaped version expressions.
 * [changed] Replace Qt.py imports to PySide2 and PySide6 on widgets.
+
 
 ## v24.4.0
 2024-04-02

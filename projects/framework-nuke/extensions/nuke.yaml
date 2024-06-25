@@ -35,6 +35,8 @@ tools:
     options:
       tool_configs:
         - nuke-image-loader
+        - nuke-sequence-loader
+        - nuke-movie-loader
       docked: false
 
 

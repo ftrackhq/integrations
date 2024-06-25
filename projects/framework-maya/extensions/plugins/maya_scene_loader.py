@@ -11,7 +11,7 @@ class MayaSceneLoaderPlugin(BasePlugin):
 
     def run(self, store):
         '''
-        Set the selected camera name to the *store*
+        Load component to scene based on options.
         '''
         load_type = self.options.get('load_type')
         if not load_type:
