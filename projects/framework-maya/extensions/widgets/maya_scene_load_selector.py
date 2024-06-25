@@ -10,7 +10,9 @@ from ftrack_framework_qt.widgets import BaseWidget
 
 
 class MayaSceneLoadSelectorWidget(BaseWidget):
-    '''Drop-down list to select the desired camera.'''
+    '''
+    Widget for selecting how to load a scene in Maya.
+    '''
 
     name = 'maya_scene_load_selector'
     ui_type = 'qt'
