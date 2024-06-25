@@ -503,18 +503,18 @@ def build_package(invokation_path, pkg_path, args, command=None):
                         'Cleaning lib dist folder: {}'.format(dist_path)
                     )
                     shutil.rmtree(dist_path)
-                if filename == 'qt-style':
-                    # Need to build qt resources
-                    logging.info('Building style for {}'.format(filename))
-                    save_cwd = os.getcwd()
-                    os.chdir(MONOREPO_PATH)
-                    build_package(
-                        invokation_path,
-                        os.path.join(MONOREPO_PATH, 'libs/qt-style'),
-                        args,
-                        command='build_qt_resources',
-                    )
-                    os.chdir(save_cwd)
+                # if filename == 'qt-style':
+                #     # Need to build qt resources
+                #     logging.info('Building style for {}'.format(filename))
+                #     save_cwd = os.getcwd()
+                #     os.chdir(MONOREPO_PATH)
+                #     build_package(
+                #         invokation_path,
+                #         'libs/qt-style',
+                #         args,
+                #         command='build_qt_resources',
+                #     )
+                #     os.chdir(save_cwd)
                 # Build
                 logging.info('Building wheel for {}'.format(filename))
                 subprocess.check_call(['poetry', 'build'], cwd=lib_path)
