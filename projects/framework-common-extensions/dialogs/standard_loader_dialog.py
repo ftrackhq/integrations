@@ -202,6 +202,7 @@ class StandardLoaderDialog(BaseDialog):
                 "font-style: italic; font-weight: bold; color: red;"
             )
             self.tool_widget.layout().addWidget(label_widget)
+            self.run_button.setEnabled(False)
             return
 
         # Build context widgets
@@ -258,12 +259,13 @@ class StandardLoaderDialog(BaseDialog):
         self.tool_widget.layout().addItem(spacer)
 
     def post_build_ui(self):
-        self._progress_widget.hide_overlay_signal.connect(
-            self.show_main_widget
-        )
-        self._progress_widget.show_overlay_signal.connect(
-            self.show_overlay_widget
-        )
+        if self._progress_widget:
+            self._progress_widget.hide_overlay_signal.connect(
+                self.show_main_widget
+            )
+            self._progress_widget.show_overlay_signal.connect(
+                self.show_overlay_widget
+            )
 
     def _on_run_button_clicked(self):
         '''(Override) Drive the progress widget'''
@@ -283,6 +285,7 @@ class StandardLoaderDialog(BaseDialog):
 
     def closeEvent(self, event):
         '''(Override) Close the context and progress widgets'''
-        self._progress_widget.teardown()
-        self._progress_widget.deleteLater()
+        if self._progress_widget:
+            self._progress_widget.teardown()
+            self._progress_widget.deleteLater()
         super(StandardLoaderDialog, self).closeEvent(event)
