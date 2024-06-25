@@ -1,6 +1,5 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
-import threading
 import time
 import logging
 import uuid
