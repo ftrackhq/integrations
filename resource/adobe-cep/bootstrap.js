@@ -198,14 +198,14 @@ function handleRemoteIntegrationRPCCallback(event) {
     /* Handle RPC calls from standalone process - run function with arguments
      supplied in event and return the result.*/
     if (!FTRACK_RPC_FUNCTION_MAPPING) {
-        error_message = "[INTERNAL ERROR] No RPC function mapping defined, please "+
+        error_message = "[INTERNAL ERROR] No RPC function mappings defined, please "+
         "make sure to define FTRACK_RPC_FUNCTION_MAPPING in bootstrap-dcc.js!";
-        error(error_message);
         event_manager.publish_reply(event, prepareEventData(
             {
                 "error_message": error_message
             }
         ));
+        error(error_message);
         return;
     }
     try {
@@ -215,11 +215,13 @@ function handleRemoteIntegrationRPCCallback(event) {
         let function_name = FTRACK_RPC_FUNCTION_MAPPING[function_name_raw];
 
         if (function_name === undefined || function_name.length === 0) {
+            error_message = "[INTERNAL ERROR] No RPC function mapping defined for '"+function_name_raw+"'";
             event_manager.publish_reply(event, prepareEventData(
                 {
-                    "error_message": "Unknown RCP function '"+function_name+"'"
+                    "error_message": error_message
                 }
             ));
+            error(error_message);
             return;
         }
         // Build args, quote strings
