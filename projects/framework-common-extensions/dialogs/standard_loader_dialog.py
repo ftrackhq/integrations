@@ -7,8 +7,7 @@ try:
 except ImportError:
     from PySide2 import QtWidgets, QtCore
 
-from ftrack_utils.framework.config.tool import get_plugins, get_groups
-from ftrack_utils.string import str_version
+from ftrack_utils.framework.config.tool import get_plugins
 from ftrack_framework_qt.dialogs import BaseDialog
 from ftrack_qt.widgets.progress import ProgressWidget
 from ftrack_qt.utils.decorators import invoke_in_qt_main_thread

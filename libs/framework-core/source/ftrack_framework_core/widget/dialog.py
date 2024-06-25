@@ -89,7 +89,6 @@ class FrameworkDialog(BaseUI):
                 "plugin_config_reference": None,
                 "options": self.dialog_options,
             }
-            self.logger.warning(f"arguments --> {arguments} ")
             self.client_method_connection(
                 'set_config_options', arguments=arguments
             )
