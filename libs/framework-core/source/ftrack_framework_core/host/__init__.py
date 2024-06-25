@@ -182,15 +182,23 @@ class Host(object):
             self.id, self._client_context_change_callback
         )
 
-        # Reply to discover_host_callback to client to pass the host information
-        discover_host_callback_reply = self.run_in_main_thread_wrapper(
-            partial(
+        if self.run_in_main_thread_wrapper:
+            # Reply to discover_host_callback to client to pass the host information
+            discover_host_callback_reply = self.run_in_main_thread_wrapper(
+                partial(
+                    provide_host_information,
+                    self.id,
+                    self.context_id,
+                    self.tool_configs,
+                )
+            )
+        else:
+            discover_host_callback_reply = partial(
                 provide_host_information,
                 self.id,
                 self.context_id,
                 self.tool_configs,
             )
-        )
         self._discover_host_subscribe_id = (
             self.event_manager.subscribe.discover_host(
                 callback=discover_host_callback_reply
