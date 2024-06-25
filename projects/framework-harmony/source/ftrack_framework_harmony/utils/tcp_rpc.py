@@ -94,7 +94,6 @@ class TCPRPCClient(QtCore.QObject):
         address,
         port,
         client,
-        launchers,
         on_connected_callback,
         on_run_tool_callback,
         process_events_callback,
@@ -107,7 +106,6 @@ class TCPRPCClient(QtCore.QObject):
         :param address: The hostname or IP to connect to
         :param port: The port to connect to
         :param client: Framework client
-        :param launchers: The launchers to send be created in the DCC menus
         :param on_connected_callback: The callback to run when DCC is connected
         :param on_run_tool_callback: The callback to run when a tool is requested to run
         :param process_events_callback: The callback to run when holding up the main thread
@@ -123,7 +121,6 @@ class TCPRPCClient(QtCore.QObject):
         self._address = address
         self._port = port
         self._client = client
-        self._launchers = launchers
         self._on_connected_callback = on_connected_callback
         self._on_run_tool_callback = on_run_tool_callback
         self._process_events_callback = process_events_callback
@@ -191,13 +188,12 @@ class TCPRPCClient(QtCore.QObject):
 
             self.connected = True
 
-            # Send launchers for DCC to create menus, expect reply back as an
+            # Send context ID to DCC to establish connection, expect reply back as an
             # acknowledgment that DCC is ready
             self.send(
                 constants.event.REMOTE_INTEGRATION_CONTEXT_DATA_TOPIC,
                 {
                     'context_id': self.client.context_id,
-                    'launchers': self._launchers,
                 },
                 synchronous=True,
             )

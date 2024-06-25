@@ -148,7 +148,6 @@ def bootstrap_integration(framework_extensions_path):
     logger.debug(f'Read DCC config: {dcc_config}')
 
     # Filter tools, extract the ones that are marked as startup tools
-    launchers = []
     for tool in dcc_config['tools']:
         name = tool['name']
         run_on = tool.get("run_on")
@@ -156,9 +155,7 @@ def bootstrap_integration(framework_extensions_path):
         dialog_name = tool.get('dialog_name')
         options = tool.get('options')
 
-        if on_menu:
-            launchers.append(tool)
-        else:
+        if not on_menu:
             if run_on == "startup":
                 startup_tools.append(
                     [
@@ -184,7 +181,6 @@ def bootstrap_integration(framework_extensions_path):
         "localhost",
         port,
         client_instance,
-        launchers,
         on_connected_callback,
         on_run_tool_callback,
         rpc_process_events_callback,

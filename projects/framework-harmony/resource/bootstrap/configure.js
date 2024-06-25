@@ -25,6 +25,9 @@ if (this['__packageFolder__']) {
     MessageLog.trace("[ftrack] Including utilities");
     include(__packageFolder__+"/ftrack/utils.js");
 
+    info("[ftrack] Including predefined launchers");
+    include(__packageFolder__+"/ftrack/launchers.js");
+
     info("Including base extensions");
     include(__packageFolder__+"/ftrack/harmony-extensions.js");
 
@@ -232,10 +235,12 @@ function HarmonyIntegration() {
         info('DCC session ID: '+this.harmony_session_id);
 
         // Spawn TCP server and start listening to events
-
         var port = parseInt(System.getenv("FTRACK_INTEGRATION_LISTEN_PORT"));
         this.tcp_server = new TCPServer("localhost", port, this);
         this.tcp_server.start();
+
+        // Build menus
+        this.buildMenus();
 
         var app = QCoreApplication.instance();
         app.aboutToQuit.connect(app, this.shutdown);
@@ -284,7 +289,15 @@ function HarmonyIntegration() {
     */
     this.handleIntegrationContextDataCallback = function(topic, data, id) {
         info("Got context data from standalone integration, building menus.");
-        this.launchers = data["launchers"];
+        this.context_id = data["context_id"];
+    }
+
+    this.buildMenus = function() {
+
+        // Add menu items for each launcher defined in constant provided
+        // from launchers.js built by the hook. Menus cannot be created upon
+        // incoming event as this breaks in Windows.
+        this.launchers = getLaunchers();
 
         for (var idx = 0; idx < this.launchers.length; idx++) {
             var launcher = this.launchers[idx];
@@ -300,6 +313,7 @@ function HarmonyIntegration() {
         } catch (err) {
             warning("Failed to tell user extension we are connected! "+err);
         }
+
     }
 
     /**

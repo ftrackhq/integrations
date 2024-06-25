@@ -1,9 +1,5 @@
 # ftrack QT library release Notes
 
-## upcoming
-
-* [fix] Fix invoke_in_qt_main_thread so it properly returns the result of the function.
-
 
 ## v2.2.1
 2024-05-07

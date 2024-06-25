@@ -75,7 +75,7 @@ jobs:
     needs: set-variables
     concurrency:
       group: ci-${{ github.ref }}
-    if: ${{ needs.set-variables.outputs.package != 'framework-photoshop' && needs.set-variables.outputs.package != 'framework-premiere' && needs.set-variables.outputs.package != 'framework-harmony' }}
+    if: ${{ needs.set-variables.outputs.package != 'framework-photoshop' && needs.set-variables.outputs.package != 'framework-premiere' }}
     runs-on: ubuntu-latest
     outputs:
       package: ${{ needs.set-variables.outputs.package }}
@@ -86,9 +86,13 @@ jobs:
         with:
           python-version: '3.7'
       - uses: actions/setup-python@v4
-        if: ${{ needs.set-variables.outputs.package == 'framework-harmony' || needs.set-variables.outputs.package == 'framework-houdini'}}
+        if: ${{ needs.set-variables.outputs.package == 'framework-houdini'}}
         with:
           python-version: '3.9'
+      - uses: actions/setup-python@v4
+        if: ${{ needs.set-variables.outputs.package == 'framework-harmony' }}
+        with:
+          python-version: '3.10'
       - name: install poetry
         shell: bash
         run: |
@@ -106,12 +110,19 @@ jobs:
           # Use --testpypi or --from_source to change where the deps are picked from
           python tools/build.py --remove_intermediate_folder build_connect_plugin ${{ needs.set-variables.outputs.folder }}
       - name: build standard framework DCC integration plugin
-        if: ${{ needs.set-variables.outputs.package == 'framework-maya' || needs.set-variables.outputs.package == 'framework-nuke' || needs.set-variables.outputs.package == 'framework-harmony' || needs.set-variables.outputs.package == 'framework-houdini'}}
+        if: ${{ needs.set-variables.outputs.package == 'framework-maya' || needs.set-variables.outputs.package == 'framework-nuke' || needs.set-variables.outputs.package == 'framework-houdini'}}
         shell: bash
         run: |
           pip install -r tools/requirements.txt
           # Use --testpypi or --from_source to change where the deps are picked from
           python tools/build.py --remove_intermediate_folder --include_resources resource/bootstrap build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+      - name: build standard platform dependent framework DCC integration plugin
+        if: ${{ needs.set-variables.outputs.package == 'framework-harmony'}}
+        shell: bash
+        run: |
+          pip install -r tools/requirements.txt
+          # Use --testpypi or --from_source to change where the deps are picked from
+          python tools/build.py --remove_intermediate_folder --include_resources resource/bootstrap --platform_dependent build_connect_plugin ${{ needs.set-variables.outputs.folder }}
       - name: build nuke studio connect plugin
         if: ${{ needs.set-variables.outputs.package == 'nuke-studio' }}
         shell: bash
@@ -139,46 +150,54 @@ jobs:
           name: dist
           path: ${{ needs.set-variables.outputs.folder }}/dist
 
-#  build-windows:
-#    name: Build Windows platform dependent artifacts
-#    needs: set-variables
-#    concurrency:
-#      group: ci-${{ github.ref }}
-#    if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' }}
-#    runs-on: windows-latest
-#    steps:
-#      - uses: actions/checkout@v3
-#      - uses: actions/setup-python@v4
-#        with:
-#          python-version: '3.7'
-#      - name: install poetry
-#        shell: bash
-#        run: |
-#          pip install poetry==1.5.1
-#      - name: poetry build
-#        shell: bash
-#        run: |
-#          cd ${{ needs.set-variables.outputs.folder }}
-#          poetry build
-#      - name: build standard connect plugin
-#        shell: bash
-#        run: |
-#          pip install -r tools/requirements.txt
-#          python tools/build.py --remove_intermediate_folder build_connect_plugin ${{ needs.set-variables.outputs.folder }}
-#      - name: upload artifacts to release
-#        shell: bash
-#        run: |
-#          cd ${{ needs.set-variables.outputs.folder }}
-#          gh release upload ${{ needs.set-variables.outputs.tag }} dist/*  --clobber
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  build-windows:
+    name: Build Windows platform dependent artifacts
+    needs: set-variables
+    concurrency:
+      group: ci-${{ github.ref }}
+    if: ${{ needs.set-variables.outputs.package == 'framework-harmony' }}
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: install poetry
+        shell: bash
+        run: |
+          pip install poetry==1.5.1
+      - name: poetry build
+        shell: bash
+        run: |
+          cd ${{ needs.set-variables.outputs.folder }}
+          poetry build
+      - name: build standard platform dependent framework DCC integration plugin
+        if: ${{ needs.set-variables.outputs.package == 'framework-harmony'}}
+        shell: bash
+        run: |
+          pip install -r tools/requirements-connect.txt
+          # Use --testpypi or --from_source to change where the deps are picked from
+          python tools/build.py --remove_intermediate_folder --include_resources resource/bootstrap --platform_dependent build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+      - name: upload artifacts to release
+        shell: bash
+        run: |
+          cd ${{ needs.set-variables.outputs.folder }}
+          gh release upload ${{ needs.set-variables.outputs.tag }} dist/* --clobber
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload temp artifacts
+        uses: actions/upload-artifact@v2
+        if: ${{ needs.set-variables.outputs.to_pypi == 'true' }}
+        with:
+          name: dist
+          path: ${{ needs.set-variables.outputs.folder }}/dist
 
   build-mac:
     name: Build Mac platform dependent artifacts
     needs: set-variables
     concurrency:
       group: ci-${{ github.ref }}
-    if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' || needs.set-variables.outputs.package == 'framework-premiere' }}
+    if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' || needs.set-variables.outputs.package == 'framework-premiere' || needs.set-variables.outputs.package == 'framework-harmony' }}
     runs-on: macos-12
     steps:
       - uses: actions/checkout@v3
@@ -208,6 +227,13 @@ jobs:
           pip install -r tools/requirements.txt
           # Use --testpypi or --from_source to change where the deps are picked from
           python tools/build.py --remove_intermediate_folder --include_resources resource/presets build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+      - name: build platform dependent framework DCC integration plugin
+        if: ${{ needs.set-variables.outputs.package == 'framework-harmony'}}
+        shell: bash
+        run: |
+          pip install -r tools/requirements.txt
+          # Use --testpypi or --from_source to change where the deps are picked from
+          python tools/build.py --remove_intermediate_folder --include_resources resource/bootstrap --platform_dependent build_connect_plugin ${{ needs.set-variables.outputs.folder }}
       - name: Build CSS resources for CEP extension
         if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' || needs.set-variables.outputs.package == 'framework-premiere' }}
         shell: bash
