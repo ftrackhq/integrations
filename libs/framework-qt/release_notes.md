@@ -1,10 +1,5 @@
 # ftrack Framework QT library release Notes
 
-## upcoming
-
-* [new] Add event blocker widget on BaseDialog to prevent unexpected crashes.
-
-
 ## v2.2.0
 2024-05-02
 

@@ -26,15 +26,4 @@ tools:
     options:
       tool_configs:
         - nuke-setup-scene
-  - name: load
-    action: true
-    menu: false # True by default
-    label: "Loader"
-    dialog_name: framework_standard_loader_dialog
-    icon: open
-    options:
-      tool_configs:
-        - nuke-image-loader
-      docked: false
-
 

@@ -196,16 +196,14 @@ class BaseEngine(object):
 
         store = self.get_store()
         for item in engine:
-            tool_config_options = user_options.get('options') or {}
             # If plugin is just string execute plugin with no options
             if isinstance(item, str):
-                self.run_plugin(item, store, tool_config_options)
+                self.run_plugin(item, store, {})
 
             elif isinstance(item, dict):
                 # If it's a group, execute all plugins from the group
                 if item["type"] == "group":
-                    group_options = copy.deepcopy(tool_config_options)
-                    group_options.update(item.get("options") or {})
+                    group_options = item.get("options") or {}
                     group_reference = item['reference']
                     group_options.update(
                         user_options.get(group_reference) or {}
@@ -234,11 +232,10 @@ class BaseEngine(object):
                         #  group recursively execute plugins inside
 
                 elif item["type"] == "plugin":
-                    options = copy.deepcopy(tool_config_options)
-                    options.update(item.get("options") or {})
-                    # Execute plugin only with its own options and tool_config
-                    # options if plugin is defined outside the group
+                    # Execute plugin only with its own options if plugin is
+                    # defined outside the group
                     plugin_reference = item['reference']
+                    options = item.get("options", {})
                     options.update(user_options.get(plugin_reference) or {})
                     self.run_plugin(
                         item["plugin"], store, options, plugin_reference

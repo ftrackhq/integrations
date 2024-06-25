@@ -1,10 +1,5 @@
 # ftrack Framework Nuke integration release Notes
 
-# Upcoming
-
-* [new] Studio asset load capability, covering single file images, movies and image sequences.
-
-
 ## v24.6.0
 2024-06-04
 

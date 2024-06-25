@@ -1,11 +1,5 @@
 # ftrack Framework Maya integration release Notes
 
-## upcoming
-
-
-* [new] Scene loader tool added. Reference and import .ma and .mb scenes supported.
-
-
 ## v24.6.0
 2024-06-04
 
