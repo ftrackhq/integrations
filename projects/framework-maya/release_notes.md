@@ -1,5 +1,9 @@
 # ftrack Framework Maya integration release Notes
 
+## upcoming
+
+* [new] Studio asset load capability, covering reference and import .ma and .mb scenes.
+
 ## v24.6.0
 2024-06-04
 
