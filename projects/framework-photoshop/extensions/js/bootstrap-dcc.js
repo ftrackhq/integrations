@@ -35,6 +35,7 @@ window.FTRACK_RPC_FUNCTION_MAPPING = {
     saveDocument:"saveDocument",
     exportDocument:"exportDocument",
     openDocument:"openDocument",
+    loadImage:"loadImage",
 };
 
 window.ftrackInitialiseExtension = function(session, event_manager, remote_integration_session_id) {
