@@ -7,8 +7,7 @@ try:
 except ImportError:
     from PySide2 import QtWidgets, QtCore
 
-from ftrack_utils.framework.config.tool import get_plugins, get_groups
-from ftrack_utils.string import str_version
+from ftrack_utils.framework.config.tool import get_plugins
 from ftrack_framework_qt.dialogs import BaseDialog
 from ftrack_qt.widgets.progress import ProgressWidget
 from ftrack_qt.utils.decorators import invoke_in_qt_main_thread
@@ -202,6 +201,7 @@ class StandardLoaderDialog(BaseDialog):
                 "font-style: italic; font-weight: bold; color: red;"
             )
             self.tool_widget.layout().addWidget(label_widget)
+            self.run_button.setEnabled(False)
             return
 
         # Build context widgets
@@ -258,12 +258,13 @@ class StandardLoaderDialog(BaseDialog):
         self.tool_widget.layout().addItem(spacer)
 
     def post_build_ui(self):
-        self._progress_widget.hide_overlay_signal.connect(
-            self.show_main_widget
-        )
-        self._progress_widget.show_overlay_signal.connect(
-            self.show_overlay_widget
-        )
+        if self._progress_widget:
+            self._progress_widget.hide_overlay_signal.connect(
+                self.show_main_widget
+            )
+            self._progress_widget.show_overlay_signal.connect(
+                self.show_overlay_widget
+            )
 
     def _on_run_button_clicked(self):
         '''(Override) Drive the progress widget'''
@@ -283,6 +284,7 @@ class StandardLoaderDialog(BaseDialog):
 
     def closeEvent(self, event):
         '''(Override) Close the context and progress widgets'''
-        self._progress_widget.teardown()
-        self._progress_widget.deleteLater()
+        if self._progress_widget:
+            self._progress_widget.teardown()
+            self._progress_widget.deleteLater()
         super(StandardLoaderDialog, self).closeEvent(event)
