@@ -2,9 +2,7 @@
 
 ## upcoming
 
-
-* [new] Scene loader tool added. Reference and import .ma and .mb scenes supported.
-
+* [new] Studio asset load capability, covering reference and import .ma and .mb scenes.
 
 ## v24.6.0
 2024-06-04

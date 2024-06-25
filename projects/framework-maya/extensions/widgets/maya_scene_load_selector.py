@@ -124,7 +124,7 @@ class MayaSceneLoadSelectorWidget(BaseWidget):
             self.set_plugin_option('namespace', None)
 
     def _on_namespace_changed(self, namespace):
-        '''Updates the camera_name option with the provided *camera_name'''
+        '''Update the namespace option based on the line edit text.'''
         if not namespace:
             return
         self.set_plugin_option('namespace', namespace)
