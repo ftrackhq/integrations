@@ -1,0 +1,20 @@
+type: tool_config
+name: houdini-scene-loader
+config_type: loader
+compatible:
+  entity_types:
+    - FileComponent
+  supported_file_extensions:
+    - ".hip"
+    - ".hipnc"
+
+engine:
+  - type: plugin
+    tags:
+      - context
+    plugin: resolve_entity_path
+    ui: show_component
+  - type: plugin
+    tags:
+      - loader
+    plugin: houdini_scene_loader

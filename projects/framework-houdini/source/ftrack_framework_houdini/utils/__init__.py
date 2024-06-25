@@ -5,6 +5,7 @@ import threading
 import xml.etree.ElementTree as ET
 from xml.sax.saxutils import unescape
 import os
+import socket
 
 from ftrack_utils.paths import get_temp_path
 
@@ -12,6 +13,15 @@ import hou
 from hdefereval import executeInMainThreadWithResult
 
 created_widgets = dict()
+
+
+def get_houdini_session_identifier():
+    computer_name = socket.gethostname()
+    # Get the Houdini scene name
+    scene_name = os.path.basename(hou.hipFile.path())
+    identifier = f"{os.path.splitext(scene_name)[0]}_Houdini_{computer_name}"
+
+    return identifier
 
 
 # Dock widget in Houdini

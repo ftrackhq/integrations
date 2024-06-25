@@ -25,6 +25,7 @@ from ftrack_utils.usage import set_usage_tracker, UsageTracker
 from ftrack_framework_houdini.utils import (
     dock_houdini_right,
     run_in_main_thread,
+    get_houdini_session_identifier,
 )
 
 import hou
@@ -54,12 +55,29 @@ client_instance = None
 
 
 @run_in_main_thread
-def on_run_tool_callback(tool_name, dialog_name=None, options=dict):
+def on_run_tool_callback(tool_name, dialog_name=None, options=None):
     client_instance.run_tool(
         tool_name,
         dialog_name,
         options,
         dock_func=dock_houdini_right if dialog_name else None,
+    )
+
+
+@run_in_main_thread
+def on_subscribe_action_tool_callback(
+    client_instance,
+    tool_name,
+    label,
+    dialog_name=None,
+    options=None,
+):
+    client_instance.subscribe_action_tool(
+        tool_name,
+        label,
+        dialog_name,
+        options,
+        session_identifier_func=get_houdini_session_identifier,
     )
 
 
@@ -142,8 +160,16 @@ def bootstrap_integration(framework_extensions_path):
     )
 
     # Instantiate Host and Client
-    Host(event_manager, registry=registry_instance)
-    client_instance = Client(event_manager, registry=registry_instance)
+    Host(
+        event_manager,
+        registry=registry_instance,
+        run_in_main_thread_wrapper=run_in_main_thread,
+    )
+    client_instance = Client(
+        event_manager,
+        registry=registry_instance,
+        run_in_main_thread_wrapper=run_in_main_thread,
+    )
 
     # Init tools
     dcc_config = registry_instance.get_one(
