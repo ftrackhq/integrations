@@ -36,10 +36,23 @@ class BaseEngine(object):
         return self._session
 
     @property
+    def context_id(self):
+        '''
+        Returns the context_id where the engine is been executed
+        '''
+        return self._context_id
+
+    @property
     def plugin_registry(self):
         return self._plugin_registry
 
-    def __init__(self, plugin_registry, session, on_plugin_executed=None):
+    def __init__(
+        self,
+        plugin_registry,
+        session,
+        context_id=None,
+        on_plugin_executed=None,
+    ):
         '''
         Initialise BaseEngine with given *plugin_registry*, *session* and
         optional *on_plugin_executed* callback to communicate with the host.
@@ -52,6 +65,7 @@ class BaseEngine(object):
 
         self._plugin_registry = plugin_registry
         self._session = session
+        self._context_id = context_id
         self.on_plugin_executed = on_plugin_executed
 
     def get_store(self) -> dict:
@@ -105,7 +119,9 @@ class BaseEngine(object):
         '''
         registered_plugin = self.plugin_registry.get_one(name=plugin)
 
-        plugin_instance = registered_plugin['extension'](options, self.session)
+        plugin_instance = registered_plugin['extension'](
+            options, self.session, self.context_id
+        )
         self.logger.debug(
             f"Run {reference} with options {plugin_instance.options}"
         )

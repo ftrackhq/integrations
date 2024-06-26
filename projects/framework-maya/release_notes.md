@@ -1,5 +1,12 @@
 # ftrack Framework Maya integration release Notes
 
+## v24.6.0
+2024-06-04
+
+* [new] Run setup scene frame range plugin on startup. 
+* [new] support run tool configs on startup.
+
+
 ## v24.5.0
 2024-05-03
 

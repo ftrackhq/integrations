@@ -247,6 +247,7 @@ class Host(object):
             engine_instance = engine_registry['extension'](
                 self.registry,
                 session,
+                self.context_id,
                 on_plugin_executed=self.on_plugin_executed_callback,
             )
         except Exception:

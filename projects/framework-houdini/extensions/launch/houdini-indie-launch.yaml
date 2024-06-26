@@ -1,0 +1,43 @@
+type: launch_config
+name: framework-houdini-indie
+priority: 100
+context:
+  - Task
+identifier: ftrack-framework-launch-houdini-indie
+applicationIdentifier: houdini_{variant}
+integrations:
+  framework:
+    - framework-houdini
+label: Houdini
+icon: houdini
+variant: "Indie {version}"
+search_path:
+  linux:
+    prefix:
+      - "/"
+      - opt
+    expression:
+      - hfs.*
+      - bin
+      - hindie-bin$
+    version_expression: (?P<version>[\\d.+]{4})
+  windows:
+    prefix:
+      - C:\
+      - Program Files.*
+    expression:    
+      - Side Effects Software
+      - Houdini.*
+      - bin
+      - hindie.exe
+  darwin:
+    prefix:
+      - "/"
+      - Applications
+    expression:
+      - Houdini
+      - Houdini*
+      - Houdini Indie \d.+.app
+extensions_path:
+  - extensions/common
+  - extensions/houdini

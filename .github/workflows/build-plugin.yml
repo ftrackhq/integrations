@@ -21,7 +21,7 @@ jobs:
           echo "TAG_NAME=${TAG_NAME}"
           
           # Define an array of supported tag prefixes
-          SUPPORTED_TAG_PREFIXES=("connect-publisher-widget/" "connect-timetracker-widget/" "nuke-studio/" "rv/" "framework-photoshop/" "framework-maya/" "framework-nuke/" "framework-premiere/")
+          SUPPORTED_TAG_PREFIXES=("connect-publisher-widget/" "connect-timetracker-widget/" "nuke-studio/" "rv/" "framework-photoshop/" "framework-maya/" "framework-nuke/" "framework-premiere/" "framework-houdini/" "framework-harmony/")
   
           # Initialize match flag as false
           MATCH_FOUND=false
@@ -75,15 +75,20 @@ jobs:
     needs: set-variables
     concurrency:
       group: ci-${{ github.ref }}
-    if: ${{ needs.set-variables.outputs.package != 'framework-photoshop' && needs.set-variables.outputs.package != 'framework-premiere' }}
+    if: ${{ needs.set-variables.outputs.package != 'framework-photoshop' && needs.set-variables.outputs.package != 'framework-premiere' && needs.set-variables.outputs.package != 'framework-harmony' }}
     runs-on: ubuntu-latest
     outputs:
       package: ${{ needs.set-variables.outputs.package }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
+        if: ${{ needs.set-variables.outputs.package != 'framework-harmony' && needs.set-variables.outputs.package != 'framework-houdini'}}
         with:
           python-version: '3.7'
+      - uses: actions/setup-python@v4
+        if: ${{ needs.set-variables.outputs.package == 'framework-harmony' || needs.set-variables.outputs.package == 'framework-houdini'}}
+        with:
+          python-version: '3.9'
       - name: install poetry
         shell: bash
         run: |
@@ -101,7 +106,7 @@ jobs:
           # Use --testpypi or --from_source to change where the deps are picked from
           python tools/build.py --remove_intermediate_folder build_connect_plugin ${{ needs.set-variables.outputs.folder }}
       - name: build standard framework DCC integration plugin
-        if: ${{ needs.set-variables.outputs.package == 'framework-maya' || needs.set-variables.outputs.package == 'framework-nuke' }}
+        if: ${{ needs.set-variables.outputs.package == 'framework-maya' || needs.set-variables.outputs.package == 'framework-nuke' || needs.set-variables.outputs.package == 'framework-harmony' || needs.set-variables.outputs.package == 'framework-houdini'}}
         shell: bash
         run: |
           pip install -r tools/requirements.txt

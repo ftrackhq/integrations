@@ -12,7 +12,9 @@ def first_level_merge(root_extension_dict, override_dict):
 
 
 def set_overrides(current_extensions, new_extensions):
-    '''If new extension from *new_extensions* found in *current_extensions* do a first level merge'''
+    '''If new extension from *new_extensions* found in *current_extensions* do a first level merge
+    if YAML extensions'''
+    non_python_extensions = ['js', 'config']
     for new_extension in new_extensions:
         existing_extension = None
         idx = None
@@ -24,9 +26,12 @@ def set_overrides(current_extensions, new_extensions):
             ):
                 existing_extension = discovered_extension
                 break
-            elif not new_extension['extension_type'].endswith('_config'):
-                # Handle corner cases of dialogs plugins and widgets when name
-                # is not the same but class name is the same, then we need to
+            elif (
+                new_extension['extension_type'].split('_')[-1]
+                not in non_python_extensions
+            ):
+                # Python extension - handle corner cases of dialogs plugins and widgets
+                # when name is not the same but class name is the same, then we need to
                 # override as well.
                 if (
                     discovered_extension['extension_type']
@@ -44,8 +49,8 @@ def set_overrides(current_extensions, new_extensions):
             if new_extension['extension_type'].endswith('_config'):
                 logging.info(
                     f'Merging extension {existing_extension["name"]}({existing_extension["extension_type"]} @'
-                    f' {existing_extension["path"]}) on top of {new_extension["name"]}({new_extension["extension_type"]}'
-                    f' @ {new_extension["path"]}).'
+                    f' {existing_extension["path"]}) on top of {new_extension["name"]}'
+                    f'({new_extension["extension_type"]} @ {new_extension["path"]}).'
                 )
                 # Have the latter extension be overridden by the former
                 first_level_merge(

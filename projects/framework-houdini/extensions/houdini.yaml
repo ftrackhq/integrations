@@ -1,0 +1,25 @@
+type: dcc_config
+name: framework-houdini
+tools:
+  - name: publish
+    label: "Publish"
+    dialog_name: framework_standard_publisher_dialog
+    icon: publish
+    options:
+      tool_configs:
+        - houdini-scene-publisher
+      docked: true
+  - name: open_dialog
+    label: "Open"
+    dialog_name: framework_standard_opener_dialog
+    icon: open
+    options:
+      tool_configs:
+        - houdini-scene-opener
+      docked: false
+  - name: set_up_scene
+    run_on: startup
+    menu: false # True by default
+    options:
+      tool_configs:
+        - houdini-setup-scene

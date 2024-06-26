@@ -3,6 +3,7 @@ name: framework-nuke
 tools:
   - name: publish
     label: "Publish"
+    menu: true
     dialog_name: framework_standard_publisher_dialog
     icon: publish
     options:
@@ -10,6 +11,7 @@ tools:
         - nuke-script-publisher
       docked: true
   - name: open
+    menu: true
     label: "Open"
     dialog_name: framework_standard_opener_dialog
     icon: open
@@ -17,3 +19,11 @@ tools:
       tool_configs:
         - nuke-script-opener
       docked: false
+  # Execute tool config without UI
+  - name: set_up_scene
+    run_on: startup
+    menu: false # True by default
+    options:
+      tool_configs:
+        - nuke-setup-scene
+

@@ -1,5 +1,19 @@
 # ftrack Framework Core library release Notes
 
+## v2.4.0
+2024-06-04
+
+* [fix] Dialog; Properly log exceptions in dialog.
+* [new] Registry; Support for JS extensions.
+
+
+## v2.3.0
+2024-05-27
+
+* [changed] Context id passed to the BaseEngine and BasePlugin to know the context where they are executed.
+* [new] Add run_tool method on client so can read configs coming from DCC-config file.
+
+
 ## v2.2.1
 2024-05-06
 

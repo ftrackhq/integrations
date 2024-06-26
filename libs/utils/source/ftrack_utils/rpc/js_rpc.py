@@ -11,7 +11,8 @@ from ftrack_utils.framework.remote import get_remote_integration_session_id
 
 
 class JavascriptRPC(object):
-    '''Base remote connection for CEP based integrations.'''
+    '''Base RPC implementation for standalone integrations communicating
+    over the ftrack event hub with a Javascript DCC.'''
 
     # Connection should be a singleton accessible also during plugin execution
     _instance = None
@@ -56,9 +57,14 @@ class JavascriptRPC(object):
         self._remote_integration_session_id = value
 
     @property
-    def on_run_dialog_callback(self):
+    def on_run_tool_callback(self):
         '''Return callback for run dialog event.'''
-        return self._on_run_dialog_callback
+        return self._on_run_tool_callback
+
+    @property
+    def on_connected_callback(self):
+        '''Return callback to call upon a new connection.'''
+        return self._on_connected_callback
 
     @property
     def process_events_callback(self):
@@ -85,17 +91,19 @@ class JavascriptRPC(object):
         session,
         client,
         panel_launchers,
-        _on_run_dialog_callback,
+        on_connected_callback,
+        on_run_tool_callback,
         process_events_callback,
     ):
         '''
-        Initialise the javascript RPC connection
+        Initialise the event hub Javascript RPC connection
 
         :param dcc_name: The name of the DCC; 'photoshop', 'premiere', etc.
         :param session:
         :param client: The client instance
-        :param panel_launchers: List of panel launchers
-        :param _on_run_dialog_callback: Callback for run dialog event
+        :param panel_launchers: List of tools that should be sent to DCC on connection
+        :param on_connected_callback: Callback for connected event
+        :param on_run_tool_callback: Callback for run dialog event
         :param process_events_callback: Callback for processing events while waiting for RCP event reply
         '''
         super(JavascriptRPC, self).__init__()
@@ -107,7 +115,9 @@ class JavascriptRPC(object):
         self._session = session
         self._client = client
         self._panel_launchers = panel_launchers
-        self._on_run_dialog_callback = _on_run_dialog_callback
+
+        self._on_connected_callback = on_connected_callback
+        self._on_run_tool_callback = on_run_tool_callback
         self._process_events_callback = process_events_callback
 
         self._remote_integration_session_id = None
@@ -121,9 +131,7 @@ class JavascriptRPC(object):
     @staticmethod
     def instance():
         '''Return the singleton instance, checks if it is initialised and connected.'''
-        assert (
-            JavascriptRPC._instance
-        ), 'Javascript DCC RPC instance not created!'
+        assert JavascriptRPC._instance, 'Javascript RPC instance not created!'
         assert (
             JavascriptRPC._instance.connected
         ), 'DCC not connected, please keep panel open while integration is working!'
@@ -160,9 +168,10 @@ class JavascriptRPC(object):
         )
         self._subscribe_event(
             event_topic,
-            lambda event: self.on_run_dialog_callback(
+            lambda event: self.on_run_tool_callback(
+                event['data']['name'],
                 event['data']['dialog_name'],
-                event['data']['tool_configs'],
+                event['data']['options'],
             ),
         )
 
@@ -259,6 +268,8 @@ class JavascriptRPC(object):
                 }
             ),
         )
+        if self.on_connected_callback:
+            self.on_connected_callback(event)
 
     # Lifecycle methods
 

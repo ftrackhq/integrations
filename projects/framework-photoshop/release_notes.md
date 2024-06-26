@@ -1,6 +1,12 @@
 # ftrack Framework Photoshop integration release Notes
 
-## 24.5.0
+## v24.6.0
+2024-06-04
+
+* [feat] Added support for bootstrap tools run after Photoshop connection established.
+
+
+## v24.5.0
 2024-05-13
 
 * [fix] Fixed bug where document could not be opened on Windows.
