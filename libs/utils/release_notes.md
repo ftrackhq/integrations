@@ -2,6 +2,7 @@
 
 ## upcoming
 
+* [feat] paths/check_image_sequence; Support for providing back sequence member filenames.
 * [fix] JS RPC; Properly pick up and handle error messages from DCC.
 * [feat] JS RPC; Added on connected callback.
 

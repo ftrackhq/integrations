@@ -61,7 +61,7 @@ def get_temp_path(filename_extension=None):
     return result
 
 
-def check_image_sequence(path):
+def check_image_sequence(path, with_members=False):
     '''Check if the image sequence pointed out by *path* exists, returns metadata
     about the sequence if it does, raises an exception otherwise.'''
     directory, basename = os.path.split(path)
@@ -93,6 +93,7 @@ def check_image_sequence(path):
         f'with {prefix}, ending with {suffix} (padding: {padding})'
     )
 
+    members = []
     for frame in range(start, end + 1):
         filename = f'{prefix}{exp % frame}{suffix}'
         test_path = os.path.join(directory, filename)
@@ -101,8 +102,9 @@ def check_image_sequence(path):
                 f'Image sequence member {frame} not ' f'found @ "{test_path}"!'
             )
         logger.debug(f'Frame {frame} verified: {filename}')
-
-    return {
+        if with_members:
+            members.append(filename)
+    result = {
         'directory': directory,
         'prefix': prefix,
         'suffix': suffix,
@@ -110,3 +112,6 @@ def check_image_sequence(path):
         'end': end,
         'padding': padding,
     }
+    if with_members:
+        result['members'] = members
+    return result
