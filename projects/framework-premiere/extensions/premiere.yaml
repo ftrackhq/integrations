@@ -20,7 +20,6 @@ tools:
     menu: false # True by default
     label: "Loader"
     dialog_name: framework_standard_loader_dialog
-    icon: open
     options:
       tool_configs:
         - premiere-image-loader
