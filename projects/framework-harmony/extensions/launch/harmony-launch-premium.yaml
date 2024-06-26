@@ -1,0 +1,45 @@
+type: launch_config
+name: framework-harmony-premium
+priority: 100
+context:
+  - Task
+identifier: ftrack-framework-launch-harmony
+applicationIdentifier: harmony_{variant}
+integrations:
+  framework:
+    - framework-harmony
+label: Harmony
+icon: harmony
+variant: "premium {version}"
+search_path:
+  linux:
+    prefix:
+      - "/"
+      - usr
+      - local
+      - ToonBoomAnimation
+    expression:
+      - harmonyPremium.\d[\w.]
+      - lnx86_64
+      - harmonypremium
+  windows:
+    prefix:
+      - C:\
+      - Program Files.*
+    expression:
+      - Toon Boom Animation
+      - Toon Boom Harmony \d[\w.]+
+      - win64
+      - bin
+      - HarmonyPremium.exe
+  darwin:
+    prefix:
+      - "/"
+      - Applications
+    expression:
+      - Toon Boom Harmony*
+      - Harmony \d[\w.] Premium.app
+standalone_module: ftrack_framework_harmony
+extensions_path:
+  - extensions/common
+  - extensions/harmony

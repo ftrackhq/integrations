@@ -1,0 +1,46 @@
+[tool.poetry]
+name = "ftrack-framework-harmony"
+version = "24.6.0rc1"
+description='ftrack Harmony integration'
+authors = ["ftrack Integrations Team <integrations@backlight.co>"]
+readme = "README.md"
+packages = [{include = "ftrack_framework_harmony", from = "source"}]
+license = "Apache-2.0"
+homepage = "https://ftrack.com"
+repository = "https://github.com/ftrackhq/integrations/tree/main/projects/framework-harmony"
+
+[[tool.poetry.source]]
+name = "PyPI"
+priority = "primary"
+
+[[tool.poetry.source]]
+name = "testpypi"
+url = "https://test.pypi.org/simple/"
+priority = "explicit"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.dependencies]
+python = ">= 3.9, < 3.12"
+#ftrack
+ftrack-python-api = "^2.5.4"
+ftrack-constants = {  version = "^2.0.0", optional = true }
+ftrack-utils = {  version = "^2.0.0", optional = true }
+ftrack-qt = { version = "^2.0.0", optional = true }
+ftrack-qt-style = { version = "^2.0.0", optional = true }
+# framework dependencies
+ftrack-framework-core = {  version = "^2.0.0", optional = true }
+ftrack-framework-qt = {  version = "^2.0.0", optional = true }
+# other dependencies
+pyffmpeg = ">= 2.4"
+
+[tool.poetry.extras]
+ftrack-libs = ["ftrack-constants", "ftrack-utils", "ftrack-qt", "ftrack-qt-style"]
+framework-libs = ["ftrack-framework-core", "ftrack-framework-qt"]
+
+[tool.black]
+line-length = 79
+skip-string-normalization = true
+
