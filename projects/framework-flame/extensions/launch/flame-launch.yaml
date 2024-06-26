@@ -1,0 +1,30 @@
+type: launch_config
+name: framework-flame
+priority: 100
+context:
+  - Task
+identifier: ftrack-framework-launch-flame
+applicationIdentifier: flame_{variant}
+integrations:
+  framework:
+    - framework-flame
+label: Flame
+icon: flame
+variant: "{version}"
+search_path:
+  linux:
+    prefix:
+      - "/opt"
+      - Autodesk
+      - flame.*
+      - bin
+      - launchApplication
+    expression:
+      - Flame\d.+
+    version_expression: "Flame(?P<version>.*)\/.+$"
+    launch_arguments:
+    - "-s ../bootstrap.py"
+
+extensions_path:
+  - extensions/common
+  - extensions/flame

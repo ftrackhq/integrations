@@ -1,0 +1,40 @@
+type: tool_config
+name: flame-scene-opener
+config_type: opener
+engine:
+  - type: plugin
+    tags:
+      - context
+    plugin: store_context_id
+
+  # Open the file component.
+  - type: group
+    tags:
+      - component
+    options:
+      component: snapshot
+    plugins:
+      - type: plugin
+        plugin: store_component
+      - type: plugin
+        tags:
+          - collector
+        plugin: component_path_collector
+        ui: asset_version_selector
+        options:
+          asset_type_name: scene
+          file_extensions:
+            # TODO: set your file_extensions
+            #- mb
+            #- ma
+      - type: plugin
+        tags:
+          - validator
+        plugin: file_exists_validator
+      - type: plugin
+        tags:
+          - opener
+        plugin: flame_scene_opener
+      - type: plugin
+        plugin: flame_save_to_temp_finalizer
+
