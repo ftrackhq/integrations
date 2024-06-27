@@ -21,9 +21,6 @@ search_path:
       - flame_.*
       - bin
       - startApplication
-    launch_arguments:
-    - "-s ../../../resource/bootstrap/init.py"
-
 extensions_path:
   - extensions/common
   - extensions/flame

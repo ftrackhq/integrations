@@ -52,6 +52,10 @@ def on_launch_integration(session, event):
     bootstrap_path = os.path.join(connect_plugin_path, 'resource', 'bootstrap')
     logger.info('Adding {} to PYTHONPATH'.format(bootstrap_path))
 
+    # inject bootstrap path.
+    launch_data['integration']['launch_arguments'] = [f'-s "{bootstrap_path}/init.py"']
+    logger.info(f'Adding "{bootstrap_path}/init.py" to launch_arguments')
+
     launch_data['integration']['env'][
         'PYTHONPATH.prepend'
     ] = os.path.pathsep.join([python_dependencies, bootstrap_path])
@@ -82,7 +86,7 @@ def register(session):
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.discover and '
         'data.application.identifier=flame*'
-        ' and data.application.version >= 2021',
+        ' and data.application.version >= 2023',
         handle_discovery_event,
         priority=40,
     )
@@ -92,7 +96,7 @@ def register(session):
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.launch and '
         'data.application.identifier=flame*'
-        ' and data.application.version >= 2021',
+        ' and data.application.version >= 2023',
         handle_launch_event,
         priority=40,
     )
