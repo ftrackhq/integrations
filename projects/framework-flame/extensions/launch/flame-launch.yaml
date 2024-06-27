@@ -14,16 +14,15 @@ variant: "{version}"
 search_path:
   linux:
     prefix:
-      - "/opt"
-      - Autodesk
-      - flame.*
-      - bin
-      - launchApplication
+      - /
+      - opt
     expression:
-      - Flame\d.+
-    version_expression: "Flame(?P<version>.*)\/.+$"
+      - Autodesk
+      - flame_.*
+      - bin
+      - startApplication
     launch_arguments:
-    - "-s ../bootstrap.py"
+    - "-s ../../../resource/bootstrap/init.py"
 
 extensions_path:
   - extensions/common
