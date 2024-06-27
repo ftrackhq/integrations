@@ -62,17 +62,16 @@ class GenericFileExportOptionsWidget(BaseWidget):
             option_widget = QtWidgets.QLabel(option)
             value_widget = None
             editable = True
-            if option == 'rename':
+            if option == 'rename_component':
                 if value == 'auto':
                     editable = False
-                elif value == True:
-                    editable = True
-                    value = ''
-                else:
+                elif value == False:
                     editable = False
+                else:
+                    editable = True
 
             if type(value) == str:
-                value_widget = QtWidgets.QLineEdit(value)
+                value_widget = QtWidgets.QLineEdit(str(value))
                 value_widget.setAttribute(QtCore.Qt.WA_MacShowFocusRect, False)
                 value_widget.setReadOnly(not editable)
                 value_widget.setEnabled(editable)
@@ -102,5 +101,7 @@ class GenericFileExportOptionsWidget(BaseWidget):
 
     def _on_option_changed(self, option, value):
         self.set_plugin_option(option, value)
-        if option == 'rename':
+        if option == 'rename_component':
+            if value == 'auto':
+                self.rename_component.emit(False)
             self.rename_component.emit(value)

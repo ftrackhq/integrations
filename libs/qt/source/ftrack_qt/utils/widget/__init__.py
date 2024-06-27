@@ -126,7 +126,7 @@ def build_progress_data(tool_config):
         tags = plugin_config.get('tags') or []
         for group in plugin_config.get('parents') or []:
             if 'options' in group:
-                tags.extend(list(group['options'].values()))
+                tags.extend(list(str(group['options'].values())))
             if 'tags' in group:
                 tags.extend(group['tags'])
         phase_data['tags'] = reversed(tags)

@@ -49,7 +49,8 @@ engine:
       - multi
     options:
       component: generic
-      #renameable: true
+      button_label: Add component
+      editable_component_name: True
     optional: True # by default so is no need
     #enabled: True by default so is no need
     plugins:
@@ -74,7 +75,7 @@ engine:
         plugin: generic_file_exporter
         ui: generic_file_exporter_options
         options:
-          rename: auto # True means user choose or a string is a fixed not renamable with the name should be allowed
+          rename_component: auto # True means user choose or a string is a fixed not renamable with the name should be allowed
           export_destination: "~/Desktop/myPublishedFile.png"
 
   # Common validator check all exported paths exists.

@@ -30,6 +30,10 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
         return self._title
 
     @property
+    def editable_title(self):
+        return self._editable_title
+
+    @property
     def checkable(self):
         return self._checkable
 
@@ -56,6 +60,7 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
     def __init__(
         self,
         title=None,
+        editable_title=False,
         checkable=False,
         checked=True,
         show_checkbox=False,
@@ -72,6 +77,7 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
         super(AccordionHeaderWidget, self).__init__(parent=parent)
 
         self._title = title
+        self._editable_title = editable_title
         self._checkable = checkable
         self._checked = checked
         self._show_checkbox = show_checkbox
@@ -104,7 +110,13 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
         self._checkbox.setVisible(self.show_checkbox)
 
         # Create title
-        self._title_label = QtWidgets.QLabel(self.title or '')
+        # TODO: we should be able to double click in order to edit the label in
+        #  case the editable is true. (So it will look better)
+        self._title_label = QtWidgets.QLineEdit()
+        self._title_label.setText(self.title or '')
+        # Set the title line edit to be a label
+        self._title_label.setProperty('label', True)
+        self._title_label.setReadOnly(not self.editable_title)
         if not self.title:
             self._title_label.hide()
 

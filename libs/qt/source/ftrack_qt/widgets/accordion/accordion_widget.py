@@ -26,6 +26,11 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         return self._title
 
     @property
+    def editable_title(self):
+        '''Return the title text shown in header by default'''
+        return self._editable_title
+
+    @property
     def selectable(self):
         '''Return the current selection mode'''
         return self._selectable
@@ -73,6 +78,7 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         show_checkbox=False,
         checkable=False,
         title=None,
+        editable_title=False,
         selected=False,
         checked=True,
         collapsable=True,
@@ -102,6 +108,7 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         self._checkable = checkable
         self._show_checkbox = show_checkbox
         self._title = title
+        self._editable_title = editable_title
         self._collapsable = collapsable
 
         self._selected = selected
@@ -139,6 +146,7 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         # Create Header
         self._header_widget = AccordionHeaderWidget(
             title=self.title,
+            editable_title=self.editable_title,
             checkable=self.checkable,
             checked=self.checked,
             show_checkbox=self.show_checkbox,

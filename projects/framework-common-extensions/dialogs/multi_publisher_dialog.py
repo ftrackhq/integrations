@@ -1,5 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
+
+import os
 from functools import partial
 
 try:
@@ -164,14 +166,19 @@ class MultiPublisherDialog(BaseContextDialog):
         )
 
         multi_groups = get_groups(
-            self.tool_config, filters={'tags': ['component', 'multi']}
+            self.tool_config, filters={'tags': ['multi']}
         )
         self._accordion_widgets_registry = []
         for _group in component_groups:
             group_accordion_widget = self.add_acordion_group(_group)
             self.tool_widget.layout().addWidget(group_accordion_widget)
+
         for _multi_group in multi_groups:
-            add_button = QtWidgets.QPushButton("add component")
+            add_button = QtWidgets.QPushButton(
+                _multi_group.get('options').get(
+                    'button_label', 'Add Component'
+                )
+            )
             self.tool_widget.layout().addWidget(add_button)
             add_button.clicked.connect(
                 partial(
@@ -200,6 +207,9 @@ class MultiPublisherDialog(BaseContextDialog):
             show_checkbox=True,
             checkable=group.get('optional', False),
             title=group.get('options').get('component'),
+            editable_title=group.get('options', {}).get(
+                'editable_component_name', False
+            ),
             selected=False,
             checked=group.get('enabled', True),
             collapsable=True,
@@ -228,7 +238,13 @@ class MultiPublisherDialog(BaseContextDialog):
                 continue
             widget = self.init_framework_widget(plugin_config, group_config)
             accordion_widget.add_widget(widget)
-            # TODO: if the accordion widget is multi and rename is set to auto then connect the widget.path_cahnged to the on_rename_component_callback
+            if hasattr(widget, 'path_changed'):
+                if group_config.get('editable_component_name', False):
+                    widget.path_changed.connect(
+                        partial(
+                            self._on_path_changed_callback, accordion_widget
+                        )
+                    )
 
     def add_validator_widgets(
         self, validators, accordion_widget, group_config=None
@@ -266,9 +282,16 @@ class MultiPublisherDialog(BaseContextDialog):
             self.show_overlay_widget
         )
 
+    def _on_path_changed_callback(self, accordion_widget, new_name):
+        # TODO: always check if name already exists, and in that case we rename adding number
+        extension = new_name.split('.')[-1] or os.path.basename(new_name)
+        self._on_rename_component_callback(accordion_widget, extension)
+
     def _on_rename_component_callback(self, accordion_widget, new_name):
         # TODO: always check if name already exists, and in that case we rename adding number
         accordion_widget.set_title(new_name)
+
+        # TODO replace the tag component generic to the new name
 
     def show_options_widget(self, widget):
         '''Sets the given *widget* as the index 2 of the stacked widget and
