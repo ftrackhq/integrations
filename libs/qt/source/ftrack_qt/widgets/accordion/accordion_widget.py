@@ -19,6 +19,7 @@ class AccordionBaseWidget(QtWidgets.QFrame):
     )  # Emitted when accordion is double clicked
     show_options_overlay = QtCore.Signal(object)
     hide_options_overlay = QtCore.Signal()
+    title_changed = QtCore.Signal(object)
 
     @property
     def title(self):
@@ -183,6 +184,7 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         self._header_widget.hide_options_overlay.connect(
             self._on_hide_options_overlay_callback
         )
+        self._header_widget.title_changed.connect(self._on_title_changed)
         self._content_widget.setVisible(not self._collapsed)
         self._content_widget.setEnabled(self.checked)
 
@@ -191,6 +193,9 @@ class AccordionBaseWidget(QtWidgets.QFrame):
 
     def _on_hide_options_overlay_callback(self):
         self.hide_options_overlay.emit()
+
+    def _on_title_changed(self, title):
+        self.title_changed.emit(title)
 
     def add_option_widget(self, widget, section_name):
         self._header_widget.add_option_widget(widget, section_name)

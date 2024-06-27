@@ -1,5 +1,10 @@
 # ftrack Framework Core library release Notes
 
+## upcoming
+
+* [new] Add set options to the tool config from the client and dialog.
+
+
 ## v2.4.0
 2024-06-04
 

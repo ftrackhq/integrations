@@ -500,16 +500,24 @@ class Client(object):
         return self.__getattribute__(property_name)
 
     def set_config_options(
-        self, tool_config_reference, plugin_config_reference, plugin_options
+        self, tool_config_reference, plugin_config_reference=None, options=None
     ):
-        if not isinstance(plugin_options, dict):
+        if not options:
+            options = dict()
+        # TODO_ mayabe we should rename this one to make sure this is just for plugins
+        if not isinstance(options, dict):
             raise Exception(
                 "plugin_options should be a dictionary. "
-                "Current given type: {}".format(plugin_options)
+                "Current given type: {}".format(options)
             )
-        self._tool_config_options[tool_config_reference][
-            plugin_config_reference
-        ] = plugin_options
+        if not plugin_config_reference:
+            self._tool_config_options[tool_config_reference][
+                'options'
+            ] = options
+        else:
+            self._tool_config_options[tool_config_reference][
+                plugin_config_reference
+            ] = options
 
     def run_ui_hook(
         self, tool_config_reference, plugin_config_reference, payload

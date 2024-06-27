@@ -73,5 +73,4 @@ class FileBrowserWidget(BaseWidget):
             return
         self.set_plugin_option('folder_path', os.path.dirname(file_path))
         self.set_plugin_option('file_name', os.path.basename(file_path))
-        # if self.group_config.get('editable_component_name', False):
         self.path_changed.emit(file_path)

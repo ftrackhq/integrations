@@ -1,5 +1,10 @@
 # ftrack QT library release Notes
 
+## upcoming
+
+* [new] Editable label widget.
+
+
 ## v2.2.2
 2024-06-26
 

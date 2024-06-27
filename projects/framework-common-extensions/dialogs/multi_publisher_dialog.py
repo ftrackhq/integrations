@@ -227,6 +227,9 @@ class MultiPublisherDialog(BaseContextDialog):
         group_accordion_widget.show_options_overlay.connect(
             self.show_options_widget
         )
+        group_accordion_widget.title_changed.connect(
+            self._on_component_name_changed
+        )
         self._accordion_widgets_registry.append(group_accordion_widget)
         return group_accordion_widget
 
@@ -239,7 +242,9 @@ class MultiPublisherDialog(BaseContextDialog):
             widget = self.init_framework_widget(plugin_config, group_config)
             accordion_widget.add_widget(widget)
             if hasattr(widget, 'path_changed'):
-                if group_config.get('editable_component_name', False):
+                if group_config.get('options', {}).get(
+                    'editable_component_name', False
+                ):
                     widget.path_changed.connect(
                         partial(
                             self._on_path_changed_callback, accordion_widget
@@ -267,12 +272,6 @@ class MultiPublisherDialog(BaseContextDialog):
             accordion_widget.add_option_widget(
                 widget, section_name='Exporters'
             )
-            if hasattr(widget, 'rename_component'):
-                widget.rename_component.connect(
-                    partial(
-                        self._on_rename_component_callback, accordion_widget
-                    )
-                )
 
     def post_build_ui(self):
         self._progress_widget.hide_overlay_signal.connect(
@@ -283,15 +282,21 @@ class MultiPublisherDialog(BaseContextDialog):
         )
 
     def _on_path_changed_callback(self, accordion_widget, new_name):
-        # TODO: always check if name already exists, and in that case we rename adding number
+        '''
+        Callback to update the component name when the path is changed.
+        '''
         extension = new_name.split('.')[-1] or os.path.basename(new_name)
-        self._on_rename_component_callback(accordion_widget, extension)
+        accordion_widget.set_title(extension)
 
-    def _on_rename_component_callback(self, accordion_widget, new_name):
-        # TODO: always check if name already exists, and in that case we rename adding number
-        accordion_widget.set_title(new_name)
+    def _on_component_name_changed(self, new_name):
+        self.set_tool_config_option('component', new_name)
 
-        # TODO replace the tag component generic to the new name
+    def set_tool_config_option(self, key, value):
+        arguments = {
+            "tool_config_reference": self.tool_config['reference'],
+            "options": {key: value},
+        }
+        self.set_option_callback(arguments)
 
     def show_options_widget(self, widget):
         '''Sets the given *widget* as the index 2 of the stacked widget and

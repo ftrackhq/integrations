@@ -13,6 +13,7 @@ from ftrack_qt.widgets.icons import (
 )
 from ftrack_qt.widgets.lines import LineWidget
 from ftrack_qt.widgets.buttons import OptionsButton
+from ftrack_qt.widgets.labels import EditableLabel
 
 
 class AccordionHeaderWidget(QtWidgets.QFrame):
@@ -24,9 +25,12 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
     checkbox_status_changed = QtCore.Signal(object)
     show_options_overlay = QtCore.Signal(object)
     hide_options_overlay = QtCore.Signal()
+    title_changed = QtCore.Signal(object)
 
     @property
     def title(self):
+        if self._title_label:
+            return self._title_label.text()
         return self._title
 
     @property
@@ -112,11 +116,9 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
         # Create title
         # TODO: we should be able to double click in order to edit the label in
         #  case the editable is true. (So it will look better)
-        self._title_label = QtWidgets.QLineEdit()
-        self._title_label.setText(self.title or '')
-        # Set the title line edit to be a label
-        self._title_label.setProperty('label', True)
-        self._title_label.setReadOnly(not self.editable_title)
+        self._title_label = EditableLabel(
+            text=self.title, editable=self.editable_title
+        )
         if not self.title:
             self._title_label.hide()
 
@@ -162,6 +164,7 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
         self._options_button.hide_overlay_signal.connect(
             self.on_hide_options_callback
         )
+        self._title_label.editingFinished.connect(self._on_title_changed)
 
     def on_show_options_callback(self, widget):
         self.show_options_overlay.emit(widget)
@@ -199,9 +202,18 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
         '''Set status message within header, to be implemented by child'''
         pass
 
+    def _on_title_changed(self):
+        '''
+        Emit signal when title is changed
+        '''
+        self.title_changed.emit(self._title_label.text())
+
     def set_title(self, new_title):
-        self._title = new_title
-        self._title_label.setText(self.title)
+        '''
+        Set the title of the header to *new_title*
+        '''
+        self._title_label.setText(new_title)
+        self._on_title_changed()
 
     def teardown(self):
         '''Teardown the options button - properly cleanup the options overlay'''

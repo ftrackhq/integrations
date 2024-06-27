@@ -464,11 +464,15 @@ class FrameworkDialog(BaseUI):
         arguments = {
             "tool_config_reference": self.tool_config['reference'],
             "plugin_config_reference": plugin_reference,
-            "plugin_options": options,
+            "options": options,
         }
-        self.client_method_connection(
-            'set_config_options', arguments=arguments
-        )
+        self.set_option_callback(arguments)
+
+    def set_option_callback(self, args):
+        '''
+        Pass the given *args* to the client set_config_options method.
+        '''
+        self.client_method_connection('set_config_options', arguments=args)
 
     def _on_run_ui_hook_callback(self, plugin_reference, payload):
         arguments = {

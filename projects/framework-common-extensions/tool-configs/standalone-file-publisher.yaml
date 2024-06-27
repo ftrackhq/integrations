@@ -72,10 +72,9 @@ engine:
       - type: plugin
         tags:
           - exporter
-        plugin: generic_file_exporter
-        ui: generic_file_exporter_options
+        plugin: rename_file_exporter
+        ui: file_exporter_options
         options:
-          rename_component: auto # True means user choose or a string is a fixed not renamable with the name should be allowed
           export_destination: "~/Desktop/myPublishedFile.png"
 
   # Common validator check all exported paths exists.
