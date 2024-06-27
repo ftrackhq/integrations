@@ -20,7 +20,7 @@ search_path:
       - Autodesk
       - flame_.*
       - bin
-      - startApplication
+      - startFlame$
 extensions_path:
   - extensions/common
   - extensions/flame

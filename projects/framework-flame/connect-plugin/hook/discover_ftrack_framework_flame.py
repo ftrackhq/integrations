@@ -53,7 +53,7 @@ def on_launch_integration(session, event):
     logger.info('Adding {} to PYTHONPATH'.format(bootstrap_path))
 
     # inject bootstrap path.
-    launch_data['integration']['launch_arguments'] = [f'-s "{bootstrap_path}/init.py"']
+    launch_data['integration']['launch_arguments'] = ["-s", f"{bootstrap_path}/init.py"]
     logger.info(f'Adding "{bootstrap_path}/init.py" to launch_arguments')
 
     launch_data['integration']['env'][
