@@ -170,7 +170,7 @@ class MultiPublisherDialog(BaseContextDialog):
         )
         self._accordion_widgets_registry = []
         for _group in component_groups:
-            group_accordion_widget = self.add_acordion_group(_group)
+            group_accordion_widget = self.add_accordion_group(_group)
             self.tool_widget.layout().addWidget(group_accordion_widget)
 
         for _multi_group in multi_groups:
@@ -195,13 +195,23 @@ class MultiPublisherDialog(BaseContextDialog):
         self.tool_widget.layout().addItem(spacer)
 
     def _on_add_component_callback(self, _multi_group, add_button):
-        group_accordion_widget = self.add_acordion_group(_multi_group)
+        group_accordion_widget = self.add_accordion_group(_multi_group)
         add_button_idx = self.tool_widget.layout().indexOf(add_button)
         self.tool_widget.layout().insertWidget(
             add_button_idx, group_accordion_widget
         )
 
-    def add_acordion_group(self, group):
+    def add_accordion_group(self, group):
+        # TODO: we have to check if there is any group already created, maybe with a different reference
+        # component_name = group.get('options').get('component'),
+        # component_groups = get_groups(
+        #     self.tool_config, filters={'tags': ['component']}
+        # )
+        # for _group in component_groups:
+        #     if group.get("reference") == _group.get("reference"):
+        #         continue
+        #     if _group.get('options').get('component') == component_name:
+        #         # get all groups with the same component name and increase the latest number if there are others
         group_accordion_widget = AccordionBaseWidget(
             selectable=False,
             show_checkbox=True,
