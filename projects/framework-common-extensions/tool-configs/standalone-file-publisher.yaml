@@ -41,7 +41,8 @@ engine:
         ui: file_exporter_options
         options:
           export_destination: "~/Desktop/myPublishedFile.png"
-
+  # Plugin to check that there is no duplicated components
+  - unic_components_validator
   # Add a generic component.
   - type: group
     tags:
@@ -51,6 +52,41 @@ engine:
       component: generic
       button_label: Add component
       editable_component_name: True
+    optional: True # by default so is no need
+    #enabled: True by default so is no need
+    plugins:
+      - type: plugin
+        plugin: store_component
+      - type: plugin
+        tags:
+          - collector
+        plugin: file_collector
+        ui: file_browser_collector
+        options:
+          folder_path: null
+          file_name: null
+      - type: plugin
+        tags:
+          - validator
+        plugin: file_exists_validator
+        ui: validator_label
+      - type: plugin
+        tags:
+          - exporter
+        plugin: rename_file_exporter
+        ui: file_exporter_options
+        options:
+          export_destination: "~/Desktop/myPublishedFile.png"
+
+  # Add a static name generic component.
+  - type: group
+    tags:
+      - component
+      - multi
+    options:
+      component: generic_static
+      button_label: Add static component
+      editable_component_name: False
     optional: True # by default so is no need
     #enabled: True by default so is no need
     plugins:
