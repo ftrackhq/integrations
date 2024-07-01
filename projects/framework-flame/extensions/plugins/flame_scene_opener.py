@@ -6,7 +6,7 @@ from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
 
 class FlameSceneOpenerPlugin(BasePlugin):
-    name = 'Flame_scene_opener'
+    name = 'flame_scene_opener'
 
     def run(self, store):
         '''
