@@ -56,6 +56,13 @@ def on_launch_integration(session, event):
     launch_data['integration']['launch_arguments'] = ["-s", f"{bootstrap_path}/init.py"]
     logger.info(f'Adding "{bootstrap_path}/init.py" to launch_arguments')
 
+    # customise flame hook paths
+    flame_hook_paths = os.path.join(connect_plugin_path, 'resource')
+    # https://help.autodesk.com/view/FLAME/2022/ENU/?guid=Flame_API_Python_Hooks_Reference_Python_Hooks_Tips_html
+    launch_data['integration']['env']['DL_PYTHON_HOOK_PATH'] = flame_hook_paths
+    # enable hooks debug
+    launch_data['integration']['env']['DL_DEBUG_PYTHON_HOOKS'] = '1'
+
     launch_data['integration']['env'][
         'PYTHONPATH.prepend'
     ] = os.path.pathsep.join([python_dependencies, bootstrap_path])
