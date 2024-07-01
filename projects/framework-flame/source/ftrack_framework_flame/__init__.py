@@ -113,7 +113,7 @@ def bootstrap_integration(framework_extensions_path):
                 app="Flame",
                 registry=registry_info_dict,
                 version=__version__,
-                app_version="2024", # TODO: fetch DCC version through API
+                app_version="2023", # TODO: fetch DCC version through API
                 os=platform.platform(),
             ),
         )
@@ -124,25 +124,25 @@ def bootstrap_integration(framework_extensions_path):
     client_instance = Client(event_manager, registry=registry_instance)
 
     # Init tools
-    dcc_config = registry_instance.get_one(
-        name='framework-flame', extension_type='dcc_config'
-    )['extension']
-
-    logger.debug(f'Read DCC config: {dcc_config}')
+    # dcc_config = registry_instance.get_one(
+    #     name='framework-flame', extension_type='dcc_config'
+    # )['extension']
+    #
+    # logger.debug(f'Read DCC config: {dcc_config}')
 
     # Create ftrack menu
 
-    # Register tools into ftrack menu
-    for tool in dcc_config['tools']:
-        pass
+    # # Register tools into ftrack menu
+    # for tool in dcc_config['tools']:
+    #     pass
 
-    return client_instance
+    return client_instance, registry_instance
 
 
-# Find and read DCC config
-try:
-    bootstrap_integration(get_extensions_path_from_environment())
-except:
-    # Make sure any exception that happens are logged as there is most likely no console
-    logger.error(traceback.format_exc())
-    raise
+# # Find and read DCC config
+# try:
+#     bootstrap_integration(get_extensions_path_from_environment())
+# except:
+#     # Make sure any exception that happens are logged as there is most likely no console
+#     logger.error(traceback.format_exc())
+#     raise
