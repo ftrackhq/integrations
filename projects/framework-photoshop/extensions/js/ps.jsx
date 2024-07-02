@@ -185,7 +185,22 @@ function exportDocument(output_path, format) {
 */
 function openDocument(path) {
     try {
-        app.open(new File(importPath(path)));
+        var file = new File(importPath(path));
+        app.open(file);
+        return "true";
+    } catch (e) {
+        alert(e);
+        return "false";
+    }
+}
+
+/*
+* Load image in photoshop
+*/
+function loadImage(path) {
+    try {
+        var file = new File(importPath(path));
+        var openedDoc = app.open(file); // Load the image file
         return "true";
     } catch (e) {
         alert(e);

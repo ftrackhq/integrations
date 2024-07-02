@@ -2,6 +2,7 @@
 
 ## Upcoming
 
+* [fixed] Fix bug were dialog creation crashed if not tool configs. Also disabled run button.
 * [new] Exported paths validator to support image sequences.
 * [new] PySide6 support.
 * [new] PySide2 support.

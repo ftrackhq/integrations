@@ -1,0 +1,30 @@
+type: tool_config
+name: premiere-image-loader
+config_type: loader
+compatible:
+  entity_types:
+    - FileComponent
+  supported_file_extensions:
+    - ".bmp"
+    - ".gif"
+    - ".jpg"
+    - ".jpeg"
+    - ".psd"
+    - ".png"
+    - ".tiff"
+    - ".tif"
+    - ".tga"
+
+
+engine:
+  - type: plugin
+    tags:
+      - context
+    plugin: resolve_entity_path
+    ui: show_component
+
+  - type: plugin
+    tags:
+      - loader
+    plugin: premiere_image_loader
+

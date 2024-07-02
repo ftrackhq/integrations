@@ -113,6 +113,7 @@ class StandardOpenerDialog(BaseContextDialog):
                 "font-style: italic; font-weight: bold;"
             )
             self.tool_widget.layout().addWidget(label_widget)
+            self.run_button.setEnabled(False)
             return
 
         # Build context widgets
@@ -160,12 +161,13 @@ class StandardOpenerDialog(BaseContextDialog):
         self.tool_widget.layout().addItem(spacer)
 
     def post_build_ui(self):
-        self._progress_widget.hide_overlay_signal.connect(
-            self.show_main_widget
-        )
-        self._progress_widget.show_overlay_signal.connect(
-            self.show_overlay_widget
-        )
+        if self._progress_widget:
+            self._progress_widget.hide_overlay_signal.connect(
+                self.show_main_widget
+            )
+            self._progress_widget.show_overlay_signal.connect(
+                self.show_overlay_widget
+            )
 
     def _on_run_button_clicked(self):
         '''(Override) Drive the progress widget'''

@@ -15,12 +15,12 @@ function showElement(element_id, show) {
     document.getElementById(element_id).style.display = show?"block":"none";
 }
 
-function error(message, alert=true) {
+function error(message, show_alert=true) {
     /* Show error *message*, hiding connecting element. */
     showElement("connecting", false);
     document.getElementById("error").innerHTML = message;
     showElement("error", true);
-    if (alert) {
+    if (show_alert) {
         alert(message);
     }
 }

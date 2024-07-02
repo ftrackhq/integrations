@@ -33,6 +33,7 @@ window.FTRACK_RPC_FUNCTION_MAPPING = {
     saveProjectAs:"saveProjectAs",
     render:"render",
     openProject:"openProject",
+    loadAsset:"loadAsset",
 };
 
 window.ftrackInitialiseExtension = function(session, event_manager, remote_integration_session_id) {
