@@ -123,6 +123,10 @@ def get_groups(tool_config, filters=None, top_level_only=True):
                         if isinstance(obj.get(k), list):
                             if not any(x in obj[k] for x in v):
                                 candidate = False
+                        elif isinstance(obj.get(k), dict):
+                            for key, value in v.items():
+                                if obj[k].get(key) != value:
+                                    candidate = False
                         elif isinstance(obj.get(k), str):
                             if obj[k] != v:
                                 candidate = False

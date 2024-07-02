@@ -41,8 +41,7 @@ engine:
         ui: file_exporter_options
         options:
           export_destination: "~/Desktop/myPublishedFile.png"
-  # Plugin to check that there is no duplicated components
-  - unic_components_validator
+
   # Add a generic component.
   - type: group
     tags:

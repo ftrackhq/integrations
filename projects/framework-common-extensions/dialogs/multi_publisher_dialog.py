@@ -1,6 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
-
+import copy
 import os
 from functools import partial
 
@@ -25,6 +25,11 @@ class MultiPublisherDialog(BaseContextDialog):
     tool_config_type_filter = ['publisher']
     ui_type = 'qt'
     run_button_title = 'PUBLISH'
+
+    @property
+    def modified_tool_config(self):
+        '''Return the modified tool config'''
+        return self._modified_tool_config
 
     def __init__(
         self,
@@ -54,6 +59,7 @@ class MultiPublisherDialog(BaseContextDialog):
         self._scroll_area = None
         self._scroll_area_widget = None
         self._progress_widget = None
+        self._modified_tool_config = None
 
         super(MultiPublisherDialog, self).__init__(
             event_manager,
@@ -193,25 +199,96 @@ class MultiPublisherDialog(BaseContextDialog):
             QtWidgets.QSizePolicy.Expanding,
         )
         self.tool_widget.layout().addItem(spacer)
+        # Create a new tool_config
+        self._modified_tool_config = copy.deepcopy(self.tool_config)
+        # Make sure we generate new references
+        self.registry.create_unic_references(self._modified_tool_config)
+        print("ya")
 
     def _on_add_component_callback(self, _multi_group, add_button):
-        group_accordion_widget = self.add_accordion_group(_multi_group)
+        # Create a new unic group
+        new_group = copy.deepcopy(_multi_group)
+        # Make sure that we don't duplicate component names
+        available_name = self.get_available_component_name(
+            new_group.get('options').get('component')
+        )
+        new_group['options']['component'] = available_name
+        group_accordion_widget = self.add_accordion_group(new_group)
+        # Insert the new group before the add button
         add_button_idx = self.tool_widget.layout().indexOf(add_button)
         self.tool_widget.layout().insertWidget(
             add_button_idx, group_accordion_widget
         )
+        # generate references for the new group
+        self.registry.create_unic_references(new_group, skip_root=True)
+
+        # Insert the new group into the correct position in the tool_config
+        self.insert_group_in_tool_config(new_group, group_accordion_widget)
+
+        # Sync the tool_config with the host
+        args = {
+            'tool_config': self._modified_tool_config,
+        }
+        self.client_method_connection('sync_tool_config', arguments=args)
+
+        # # Add the new item into the tool config
+        # args = {
+        #     'tool_config_reference': self.tool_config['reference'],
+        #     'section': 'engine',
+        #     'new_item': _multi_group,
+        # }
+        # self.client_method_connection('augment_tool_config', arguments=args)
+
+    def insert_group_in_tool_config(self, new_group, group_accordion_widget):
+        '''
+        Insert the new group in the tool config in the right position.
+        '''
+        current_idx = self._accordion_widgets_registry.index(
+            group_accordion_widget
+        )
+        if current_idx > 0:
+            previous_widget = self._accordion_widgets_registry[current_idx - 1]
+            previous_group = get_groups(
+                self._modified_tool_config,
+                filters={
+                    'tags': ['component'],
+                    'options': {'component': previous_widget.title},
+                },
+            )
+            if previous_group:
+                previous_group = previous_group[0]
+                previous_group_idx = self._modified_tool_config[
+                    'engine'
+                ].index(previous_group)
+                self._modified_tool_config['engine'].insert(
+                    previous_group_idx + 1, new_group
+                )
+            else:
+                self._modified_tool_config['engine'].append(new_group)
+        else:
+            self._modified_tool_config['engine'].insert(0, new_group)
+
+    def get_available_component_name(self, name):
+        def increment_name(name):
+            if '_' in name and name.rsplit('_', 1)[-1].isdigit():
+                base, num = name.rsplit('_', 1)
+                return f'{base}_{int(num) + 1}'
+            else:
+                return f'{name}_1'
+
+        matching_components = get_groups(
+            self._modified_tool_config,
+            filters={'tags': ['component'], 'options': {'component': name}},
+        )
+        if matching_components:
+            for widget in self._accordion_widgets_registry:
+                if widget.title == name:
+                    return self.get_available_component_name(
+                        increment_name(name)
+                    )
+        return name
 
     def add_accordion_group(self, group):
-        # TODO: we have to check if there is any group already created, maybe with a different reference
-        # component_name = group.get('options').get('component'),
-        # component_groups = get_groups(
-        #     self.tool_config, filters={'tags': ['component']}
-        # )
-        # for _group in component_groups:
-        #     if group.get("reference") == _group.get("reference"):
-        #         continue
-        #     if _group.get('options').get('component') == component_name:
-        #         # get all groups with the same component name and increase the latest number if there are others
         group_accordion_widget = AccordionBaseWidget(
             selectable=False,
             show_checkbox=True,
@@ -238,7 +315,7 @@ class MultiPublisherDialog(BaseContextDialog):
             self.show_options_widget
         )
         group_accordion_widget.title_changed.connect(
-            self._on_component_name_changed
+            self._on_component_name_changed_callback
         )
         self._accordion_widgets_registry.append(group_accordion_widget)
         return group_accordion_widget
@@ -296,17 +373,11 @@ class MultiPublisherDialog(BaseContextDialog):
         Callback to update the component name when the path is changed.
         '''
         extension = new_name.split('.')[-1] or os.path.basename(new_name)
+        extension = self.get_available_component_name(extension)
         accordion_widget.set_title(extension)
 
-    def _on_component_name_changed(self, new_name):
+    def _on_component_name_changed_callback(self, new_name):
         self.set_tool_config_option('component', new_name)
-
-    def set_tool_config_option(self, key, value):
-        arguments = {
-            "tool_config_reference": self.tool_config['reference'],
-            "options": {key: value},
-        }
-        self.set_option_callback(arguments)
 
     def show_options_widget(self, widget):
         '''Sets the given *widget* as the index 2 of the stacked widget and

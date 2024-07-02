@@ -10,6 +10,8 @@ except ImportError:
 class EditableLabel(QtWidgets.QLineEdit):
     '''Editable label widget.'''
 
+    forbidden_keys = ['a']
+
     @property
     def editable(self):
         '''Return editable state.'''
@@ -32,4 +34,8 @@ class EditableLabel(QtWidgets.QLineEdit):
                 self.setReadOnly(False)
 
     def on_editing_finished(self):
+        if self.forbidden_keys:
+            for key in self.forbidden_keys:
+                if key in self.text():
+                    self.setText(self.text().replace(key, 'b'))
         self.setReadOnly(True)

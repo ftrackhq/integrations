@@ -468,6 +468,16 @@ class FrameworkDialog(BaseUI):
         }
         self.set_option_callback(arguments)
 
+    def set_tool_config_option(self, name, value):
+        '''
+        Set the given name and value as options for the current tool config.
+        '''
+        arguments = {
+            "tool_config_reference": self.tool_config['reference'],
+            "options": {name: value},
+        }
+        self.set_option_callback(arguments)
+
     def set_option_callback(self, args):
         '''
         Pass the given *args* to the client set_config_options method.

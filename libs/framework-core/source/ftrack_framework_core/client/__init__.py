@@ -519,6 +519,43 @@ class Client(object):
                 plugin_config_reference
             ] = options
 
+    def sync_tool_config(self, tool_config):
+        self.event_manager.publish.host_sync_tool_config(
+            self.host_id,
+            tool_config,
+        )
+
+    # def augment_tool_config(self, tool_config_reference,  section=None, new_item=None):
+    #     '''
+    #     Augment the given *tool_config* with the given *new_item* in the given *section*
+    #     '''
+    #     self.event_manager.publish.host_augment_tool_config(
+    #         self.host_id,
+    #         tool_config_reference,
+    #         section,
+    #         new_item,
+    #     )
+    #
+    #
+    #
+    #
+    #     if not new_item:
+    #         return
+    #     self.registry.augment_tool_config(
+    #         self.tool_configs[tool_config_reference],
+    #         section=section,
+    #         new_item=new_item
+    #     )
+    #
+    # def remove_from_tool_config_engine(self, tool_config_reference, plugin_config_reference):
+    #     '''
+    #     Remove the given *plugin_config_reference* from the tool config with the given
+    #     *tool_config_reference*
+    #     '''
+    #     if not plugin_config_reference:
+    #         return
+    #     self.tool_configs[tool_config_reference].pop(plugin_config_reference)
+
     def run_ui_hook(
         self, tool_config_reference, plugin_config_reference, payload
     ):

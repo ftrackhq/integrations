@@ -3,6 +3,7 @@
 ## upcoming
 
 * [new] Add set options to the tool config from the client and dialog.
+* [new] Add host_sync_tool_config on event manager to sync tool config from the client to the host.
 
 
 ## v2.4.0
