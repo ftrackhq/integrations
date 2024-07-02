@@ -203,7 +203,6 @@ class MultiPublisherDialog(BaseContextDialog):
         self._modified_tool_config = copy.deepcopy(self.tool_config)
         # Make sure we generate new references
         self.registry.create_unic_references(self._modified_tool_config)
-        print("ya")
 
     def _on_add_component_callback(self, _multi_group, add_button):
         # Create a new unic group
@@ -268,7 +267,7 @@ class MultiPublisherDialog(BaseContextDialog):
         else:
             self._modified_tool_config['engine'].insert(0, new_group)
 
-    def get_available_component_name(self, name):
+    def get_available_component_name(self, name, skip_widget=None):
         def increment_name(name):
             if '_' in name and name.rsplit('_', 1)[-1].isdigit():
                 base, num = name.rsplit('_', 1)
@@ -282,10 +281,11 @@ class MultiPublisherDialog(BaseContextDialog):
         )
         if matching_components:
             for widget in self._accordion_widgets_registry:
-                if widget.title == name:
-                    return self.get_available_component_name(
-                        increment_name(name)
-                    )
+                if widget != skip_widget:
+                    if widget.title == name:
+                        return self.get_available_component_name(
+                            increment_name(name), skip_widget
+                        )
         return name
 
     def add_accordion_group(self, group):
@@ -377,6 +377,10 @@ class MultiPublisherDialog(BaseContextDialog):
         accordion_widget.set_title(extension)
 
     def _on_component_name_changed_callback(self, new_name):
+        new_name = self.get_available_component_name(
+            new_name, skip_widget=self.sender()
+        )
+        self.sender().set_title(new_name)
         self.set_tool_config_option('component', new_name)
 
     def show_options_widget(self, widget):
