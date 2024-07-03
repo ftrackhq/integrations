@@ -275,17 +275,12 @@ class MultiPublisherDialog(BaseContextDialog):
             else:
                 return f'{name}_1'
 
-        matching_components = get_groups(
-            self._modified_tool_config,
-            filters={'tags': ['component'], 'options': {'component': name}},
-        )
-        if matching_components:
-            for widget in self._accordion_widgets_registry:
-                if widget != skip_widget:
-                    if widget.title == name:
-                        return self.get_available_component_name(
-                            increment_name(name), skip_widget
-                        )
+        for widget in self._accordion_widgets_registry:
+            if widget != skip_widget:
+                if widget.title == name:
+                    return self.get_available_component_name(
+                        increment_name(name), skip_widget
+                    )
         return name
 
     def add_accordion_group(self, group):
@@ -315,7 +310,10 @@ class MultiPublisherDialog(BaseContextDialog):
             self.show_options_widget
         )
         group_accordion_widget.title_changed.connect(
-            self._on_component_name_changed_callback
+            self._on_title_changed_callback
+        )
+        group_accordion_widget.title_edited.connect(
+            self._on_component_name_edited_callback
         )
         self._accordion_widgets_registry.append(group_accordion_widget)
         return group_accordion_widget
@@ -376,11 +374,13 @@ class MultiPublisherDialog(BaseContextDialog):
         extension = self.get_available_component_name(extension)
         accordion_widget.set_title(extension)
 
-    def _on_component_name_changed_callback(self, new_name):
+    def _on_component_name_edited_callback(self, new_name):
         new_name = self.get_available_component_name(
             new_name, skip_widget=self.sender()
         )
         self.sender().set_title(new_name)
+
+    def _on_title_changed_callback(self, new_name):
         self.set_tool_config_option('component', new_name)
 
     def show_options_widget(self, widget):

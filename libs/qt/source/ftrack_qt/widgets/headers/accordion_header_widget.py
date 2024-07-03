@@ -26,6 +26,7 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
     show_options_overlay = QtCore.Signal(object)
     hide_options_overlay = QtCore.Signal()
     title_changed = QtCore.Signal(object)
+    title_edited = QtCore.Signal(object)
 
     @property
     def title(self):
@@ -164,7 +165,7 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
         self._options_button.hide_overlay_signal.connect(
             self.on_hide_options_callback
         )
-        self._title_label.editingFinished.connect(self._on_title_changed)
+        self._title_label.editingFinished.connect(self._on_title_edited)
 
     def on_show_options_callback(self, widget):
         self.show_options_overlay.emit(widget)
@@ -207,6 +208,12 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
         Emit signal when title is changed
         '''
         self.title_changed.emit(self._title_label.text())
+
+    def _on_title_edited(self):
+        '''
+        Emit signal when title is changed
+        '''
+        self.title_edited.emit(self._title_label.text())
 
     def set_title(self, new_title):
         '''

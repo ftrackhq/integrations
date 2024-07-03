@@ -20,6 +20,7 @@ class AccordionBaseWidget(QtWidgets.QFrame):
     show_options_overlay = QtCore.Signal(object)
     hide_options_overlay = QtCore.Signal()
     title_changed = QtCore.Signal(object)
+    title_edited = QtCore.Signal(object)
 
     @property
     def title(self):
@@ -185,6 +186,7 @@ class AccordionBaseWidget(QtWidgets.QFrame):
             self._on_hide_options_overlay_callback
         )
         self._header_widget.title_changed.connect(self._on_title_changed)
+        self._header_widget.title_edited.connect(self._on_title_edited)
         self._content_widget.setVisible(not self._collapsed)
         self._content_widget.setEnabled(self.checked)
 
@@ -196,6 +198,9 @@ class AccordionBaseWidget(QtWidgets.QFrame):
 
     def _on_title_changed(self, title):
         self.title_changed.emit(title)
+
+    def _on_title_edited(self, title):
+        self.title_edited.emit(title)
 
     def add_option_widget(self, widget, section_name):
         self._header_widget.add_option_widget(widget, section_name)
