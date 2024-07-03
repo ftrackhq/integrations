@@ -51,6 +51,7 @@ engine:
       component: generic
       button_label: Add component
       editable_component_name: True
+      removable: True
     optional: True # by default so is no need
     #enabled: True by default so is no need
     plugins:
@@ -86,6 +87,7 @@ engine:
       component: generic_static
       button_label: Add static component
       editable_component_name: False
+      removable: False
     optional: True # by default so is no need
     #enabled: True by default so is no need
     plugins:

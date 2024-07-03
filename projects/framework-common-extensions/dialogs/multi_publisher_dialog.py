@@ -60,6 +60,7 @@ class MultiPublisherDialog(BaseContextDialog):
         self._scroll_area_widget = None
         self._progress_widget = None
         self._modified_tool_config = None
+        self._save_preset_button = None
 
         super(MultiPublisherDialog, self).__init__(
             event_manager,
@@ -164,8 +165,14 @@ class MultiPublisherDialog(BaseContextDialog):
             self.tool_widget.layout().addWidget(context_widget)
 
         # Build component widgets
-
-        self.tool_widget.layout().addWidget(QtWidgets.QLabel('Components'))
+        # Build top label layout
+        components_layout = QtWidgets.QHBoxLayout()
+        components_label = QtWidgets.QLabel('Components')
+        self._save_preset_button = QtWidgets.QPushButton('Save Preset')
+        components_layout.addWidget(components_label)
+        components_layout.addStretch()
+        components_layout.addWidget(self._save_preset_button)
+        self.tool_widget.layout().addLayout(components_layout)
 
         component_groups = get_groups(
             self.tool_config, filters={'tags': ['component']}
@@ -230,14 +237,6 @@ class MultiPublisherDialog(BaseContextDialog):
         }
         self.client_method_connection('sync_tool_config', arguments=args)
 
-        # # Add the new item into the tool config
-        # args = {
-        #     'tool_config_reference': self.tool_config['reference'],
-        #     'section': 'engine',
-        #     'new_item': _multi_group,
-        # }
-        # self.client_method_connection('augment_tool_config', arguments=args)
-
     def insert_group_in_tool_config(self, new_group, group_accordion_widget):
         '''
         Insert the new group in the tool config in the right position.
@@ -296,6 +295,7 @@ class MultiPublisherDialog(BaseContextDialog):
             checked=group.get('enabled', True),
             collapsable=True,
             collapsed=True,
+            removable=group.get('options', {}).get('removable', False),
         )
         collectors = get_plugins(group, filters={'tags': ['collector']})
         self.add_collector_widgets(collectors, group_accordion_widget, group)
@@ -309,11 +309,11 @@ class MultiPublisherDialog(BaseContextDialog):
         group_accordion_widget.show_options_overlay.connect(
             self.show_options_widget
         )
-        group_accordion_widget.title_changed.connect(
-            self._on_title_changed_callback
-        )
         group_accordion_widget.title_edited.connect(
             self._on_component_name_edited_callback
+        )
+        group_accordion_widget.bin_clicked.connect(
+            self._on_component_removed_callback
         )
         self._accordion_widgets_registry.append(group_accordion_widget)
         return group_accordion_widget
@@ -365,6 +365,9 @@ class MultiPublisherDialog(BaseContextDialog):
         self._progress_widget.show_overlay_signal.connect(
             self.show_overlay_widget
         )
+        self._save_preset_button.clicked.connect(
+            self._on_save_preset_button_clicked
+        )
 
     def _on_path_changed_callback(self, accordion_widget, new_name):
         '''
@@ -372,16 +375,60 @@ class MultiPublisherDialog(BaseContextDialog):
         '''
         extension = new_name.split('.')[-1] or os.path.basename(new_name)
         extension = self.get_available_component_name(extension)
+
+        group = get_groups(
+            self._modified_tool_config,
+            filters={
+                'tags': ['component'],
+                'options': {'component': accordion_widget.title},
+            },
+        )[0]
+        group['options']['component'] = extension
+
         accordion_widget.set_title(extension)
+
+        # Sync the tool_config with the host
+        self.sync_tool_config(self._modified_tool_config)
 
     def _on_component_name_edited_callback(self, new_name):
         new_name = self.get_available_component_name(
             new_name, skip_widget=self.sender()
         )
+        if self.sender().previous_title:
+            group = get_groups(
+                self._modified_tool_config,
+                filters={
+                    'tags': ['component'],
+                    'options': {'component': self.sender().previous_title},
+                },
+            )[0]
+            group['options']['component'] = new_name
+
         self.sender().set_title(new_name)
 
-    def _on_title_changed_callback(self, new_name):
-        self.set_tool_config_option('component', new_name)
+        # Sync the tool_config with the host
+        self.sync_tool_config(self._modified_tool_config)
+
+    def _on_component_removed_callback(self, event):
+        # Remove the group from the tool_config
+        group = get_groups(
+            self._modified_tool_config,
+            filters={
+                'tags': ['component'],
+                'options': {'component': self.sender().title},
+            },
+        )
+        if group:
+            group = group[0]
+            self._modified_tool_config['engine'].remove(group)
+        # Remove the widget from the registry
+        self._accordion_widgets_registry.remove(self.sender())
+        # Remove the widget from the layout
+        self.sender().teardown()
+        self.sender().deleteLater()
+
+        # Sync the tool_config with the host
+        self.sync_tool_config(self._modified_tool_config)
 
     def show_options_widget(self, widget):
         '''Sets the given *widget* as the index 2 of the stacked widget and
@@ -413,6 +460,20 @@ class MultiPublisherDialog(BaseContextDialog):
             log_item.status,
             log_message=log_item.message,
             time=log_item.execution_time,
+        )
+
+    def _on_save_preset_button_clicked(self):
+        '''Callback to save the current tool config as a preset'''
+        # Open a save dialog to get the destination
+        destination = QtWidgets.QFileDialog.getSaveFileName(
+            self, 'Save Tool Config Preset', '', 'YAML (*.yaml)'
+        )[0]
+        args = {
+            'tool_config': self._modified_tool_config,
+            'destination': destination,
+        }
+        self.client_method_connection(
+            'save_tool_config_in_destination', arguments=args
         )
 
     def closeEvent(self, event):

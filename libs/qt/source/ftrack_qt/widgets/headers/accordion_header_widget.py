@@ -22,6 +22,7 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
 
     clicked = QtCore.Signal(object)  # User header click
     arrow_clicked = QtCore.Signal(object)  # User header click
+    bin_clicked = QtCore.Signal(object)  # User header click
     checkbox_status_changed = QtCore.Signal(object)
     show_options_overlay = QtCore.Signal(object)
     hide_options_overlay = QtCore.Signal()
@@ -59,8 +60,16 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
         return self._collapsed
 
     @property
+    def removable(self):
+        return self._removable
+
+    @property
     def options_button(self):
         return self._options_button
+
+    @property
+    def previous_title(self):
+        return self._title_label.previous_text
 
     def __init__(
         self,
@@ -71,6 +80,7 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
         show_checkbox=False,
         collapsable=True,
         collapsed=True,
+        removable=False,
         parent=None,
     ):
         '''
@@ -88,6 +98,7 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
         self._show_checkbox = show_checkbox
         self._collapsable = collapsable
         self._collapsed = collapsed
+        self._removable = removable
 
         self._checkbox = None
         self._title_label = None
@@ -96,6 +107,7 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
         self._status = None
         self._options_button = None
         self._status_icon = None
+        self._bin = None
 
         self.pre_build()
         self.build()
@@ -149,16 +161,24 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
         self.update_arrow_icon(self.collapsed)
         self._arrow.setVisible(self.collapsable)
 
+        if self.removable:
+            # Create Bin
+            self._bin = StatusMaterialIconWidget(name='delete_outline')
+
         self.layout().addWidget(self._checkbox)
         self.layout().addWidget(self._title_label)
         self.layout().addWidget(self._header_content_widget, 10)
         self.layout().addWidget(self._options_button)
         self.layout().addWidget(self._status_icon)
         self.layout().addWidget(self._arrow)
+        if self._bin:
+            self.layout().addWidget(self._bin)
 
     def post_build(self):
         self._checkbox.stateChanged.connect(self._on_checkbox_status_changed)
         self._arrow.clicked.connect(self._on_arrow_clicked)
+        if self._bin:
+            self._bin.clicked.connect(self._on_bin_clicked)
         self._options_button.show_overlay_signal.connect(
             self.on_show_options_callback
         )
@@ -184,6 +204,9 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
 
     def _on_arrow_clicked(self, event):
         self.arrow_clicked.emit(event)
+
+    def _on_bin_clicked(self, event):
+        self.bin_clicked.emit(event)
 
     def update_arrow_icon(self, collapsed):
         '''Update the arrow icon based on collapse state'''

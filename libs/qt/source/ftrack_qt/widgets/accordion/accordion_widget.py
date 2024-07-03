@@ -17,6 +17,7 @@ class AccordionBaseWidget(QtWidgets.QFrame):
     doubleClicked = QtCore.Signal(
         object
     )  # Emitted when accordion is double clicked
+    bin_clicked = QtCore.Signal(object)  # Emitted when bin icon is clicked
     show_options_overlay = QtCore.Signal(object)
     hide_options_overlay = QtCore.Signal()
     title_changed = QtCore.Signal(object)
@@ -74,6 +75,17 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         '''(Checkable) Return True if checked'''
         return self._checked
 
+    @property
+    def removable(self):
+        '''
+        Return True if accordion is removable - can be deleted by user
+        '''
+        return self._removable
+
+    @property
+    def previous_title(self):
+        return self._header_widget.previous_title
+
     def __init__(
         self,
         selectable=False,
@@ -85,6 +97,7 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         checked=True,
         collapsable=True,
         collapsed=True,
+        removable=False,
         parent=None,
     ):
         '''
@@ -112,6 +125,7 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         self._title = title
         self._editable_title = editable_title
         self._collapsable = collapsable
+        self._removable = removable
 
         self._selected = selected
         self._checked = checked
@@ -154,6 +168,7 @@ class AccordionBaseWidget(QtWidgets.QFrame):
             show_checkbox=self.show_checkbox,
             collapsable=self.collapsable,
             collapsed=self.collapsed,
+            removable=self.removable,
         )
 
         # Add header to main widget
@@ -179,6 +194,7 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         self._header_widget.arrow_clicked.connect(
             self._on_header_arrow_clicked
         )
+        self._header_widget.bin_clicked.connect(self._on_header_bin_clicked)
         self._header_widget.show_options_overlay.connect(
             self._on_show_options_overlay_callback
         )
@@ -249,6 +265,10 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         if self.selectable:
             # This is the way to collapse
             self.toggle_collapsed()
+
+    def _on_header_bin_clicked(self, event):
+        '''Callback on header arrow user click'''
+        self.bin_clicked.emit(event)
 
     def toggle_collapsed(self):
         '''Toggle the accordion collapsed state'''

@@ -413,6 +413,12 @@ class FrameworkDialog(BaseUI):
         arguments = {"tool_config_reference": tool_config_reference}
         self.client_method_connection('run_tool_config', arguments=arguments)
 
+    def sync_tool_config(self, tool_config):
+        args = {
+            'tool_config': tool_config,
+        }
+        self.client_method_connection('sync_tool_config', arguments=args)
+
     def _on_client_notify_ui_log_item_added_callback(self, event):
         '''
         Client notify dialog that a new log item has been added.

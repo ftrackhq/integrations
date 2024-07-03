@@ -2,6 +2,7 @@
 
 ## upcoming
 
+* [changed] StatusMaterialIconWidget clickable.
 * [new] Editable label widget.
 
 
