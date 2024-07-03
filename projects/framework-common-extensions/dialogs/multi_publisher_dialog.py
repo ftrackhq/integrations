@@ -154,6 +154,18 @@ class MultiPublisherDialog(BaseContextDialog):
             self.tool_widget.layout().addWidget(label_widget)
             return
 
+        # Create a new tool_config
+        self._original_tool_config = self.tool_config
+        self._modified_tool_config = copy.deepcopy(self._original_tool_config)
+        # Make sure we generate new references
+        self.registry.create_unic_references(self._modified_tool_config)
+        self.tool_config = self._modified_tool_config
+        # Sync the tool_config with the host
+        args = {
+            'tool_config': self.tool_config,
+        }
+        self.client_method_connection('sync_tool_config', arguments=args)
+
         # Build context widgets
         context_plugins = get_plugins(
             self.tool_config, filters={'tags': ['context']}
@@ -179,7 +191,7 @@ class MultiPublisherDialog(BaseContextDialog):
         )
 
         multi_groups = get_groups(
-            self.tool_config, filters={'tags': ['multi']}
+            self._original_tool_config, filters={'tags': ['multi']}
         )
         self._accordion_widgets_registry = []
         for _group in component_groups:
@@ -206,10 +218,6 @@ class MultiPublisherDialog(BaseContextDialog):
             QtWidgets.QSizePolicy.Expanding,
         )
         self.tool_widget.layout().addItem(spacer)
-        # Create a new tool_config
-        self._modified_tool_config = copy.deepcopy(self.tool_config)
-        # Make sure we generate new references
-        self.registry.create_unic_references(self._modified_tool_config)
 
     def _on_add_component_callback(self, _multi_group, add_button):
         # Create a new unic group
@@ -219,21 +227,24 @@ class MultiPublisherDialog(BaseContextDialog):
             new_group.get('options').get('component')
         )
         new_group['options']['component'] = available_name
+
+        # generate references for the new group
+        self.registry.create_unic_references(new_group, skip_root=True)
+
         group_accordion_widget = self.add_accordion_group(new_group)
+
         # Insert the new group before the add button
         add_button_idx = self.tool_widget.layout().indexOf(add_button)
         self.tool_widget.layout().insertWidget(
             add_button_idx, group_accordion_widget
         )
-        # generate references for the new group
-        self.registry.create_unic_references(new_group, skip_root=True)
 
         # Insert the new group into the correct position in the tool_config
         self.insert_group_in_tool_config(new_group, group_accordion_widget)
 
         # Sync the tool_config with the host
         args = {
-            'tool_config': self._modified_tool_config,
+            'tool_config': self.tool_config,
         }
         self.client_method_connection('sync_tool_config', arguments=args)
 
@@ -247,7 +258,7 @@ class MultiPublisherDialog(BaseContextDialog):
         if current_idx > 0:
             previous_widget = self._accordion_widgets_registry[current_idx - 1]
             previous_group = get_groups(
-                self._modified_tool_config,
+                self.tool_config,
                 filters={
                     'tags': ['component'],
                     'options': {'component': previous_widget.title},
@@ -255,16 +266,16 @@ class MultiPublisherDialog(BaseContextDialog):
             )
             if previous_group:
                 previous_group = previous_group[0]
-                previous_group_idx = self._modified_tool_config[
-                    'engine'
-                ].index(previous_group)
-                self._modified_tool_config['engine'].insert(
+                previous_group_idx = self.tool_config['engine'].index(
+                    previous_group
+                )
+                self.tool_config['engine'].insert(
                     previous_group_idx + 1, new_group
                 )
             else:
-                self._modified_tool_config['engine'].append(new_group)
+                self.tool_config['engine'].append(new_group)
         else:
-            self._modified_tool_config['engine'].insert(0, new_group)
+            self.tool_config['engine'].insert(0, new_group)
 
     def get_available_component_name(self, name, skip_widget=None):
         def increment_name(name):
@@ -377,7 +388,7 @@ class MultiPublisherDialog(BaseContextDialog):
         extension = self.get_available_component_name(extension)
 
         group = get_groups(
-            self._modified_tool_config,
+            self.tool_config,
             filters={
                 'tags': ['component'],
                 'options': {'component': accordion_widget.title},
@@ -388,7 +399,7 @@ class MultiPublisherDialog(BaseContextDialog):
         accordion_widget.set_title(extension)
 
         # Sync the tool_config with the host
-        self.sync_tool_config(self._modified_tool_config)
+        self.sync_tool_config(self.tool_config)
 
     def _on_component_name_edited_callback(self, new_name):
         new_name = self.get_available_component_name(
@@ -396,7 +407,7 @@ class MultiPublisherDialog(BaseContextDialog):
         )
         if self.sender().previous_title:
             group = get_groups(
-                self._modified_tool_config,
+                self.tool_config,
                 filters={
                     'tags': ['component'],
                     'options': {'component': self.sender().previous_title},
@@ -407,12 +418,12 @@ class MultiPublisherDialog(BaseContextDialog):
         self.sender().set_title(new_name)
 
         # Sync the tool_config with the host
-        self.sync_tool_config(self._modified_tool_config)
+        self.sync_tool_config(self.tool_config)
 
     def _on_component_removed_callback(self, event):
         # Remove the group from the tool_config
         group = get_groups(
-            self._modified_tool_config,
+            self.tool_config,
             filters={
                 'tags': ['component'],
                 'options': {'component': self.sender().title},
@@ -420,7 +431,7 @@ class MultiPublisherDialog(BaseContextDialog):
         )
         if group:
             group = group[0]
-            self._modified_tool_config['engine'].remove(group)
+            self.tool_config['engine'].remove(group)
         # Remove the widget from the registry
         self._accordion_widgets_registry.remove(self.sender())
         # Remove the widget from the layout
@@ -428,7 +439,7 @@ class MultiPublisherDialog(BaseContextDialog):
         self.sender().deleteLater()
 
         # Sync the tool_config with the host
-        self.sync_tool_config(self._modified_tool_config)
+        self.sync_tool_config(self.tool_config)
 
     def show_options_widget(self, widget):
         '''Sets the given *widget* as the index 2 of the stacked widget and
@@ -469,7 +480,7 @@ class MultiPublisherDialog(BaseContextDialog):
             self, 'Save Tool Config Preset', '', 'YAML (*.yaml)'
         )[0]
         args = {
-            'tool_config': self._modified_tool_config,
+            'tool_config': self.tool_config,
             'destination': destination,
         }
         self.client_method_connection(
