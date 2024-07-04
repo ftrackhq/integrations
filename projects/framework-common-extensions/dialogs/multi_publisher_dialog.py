@@ -248,6 +248,8 @@ class MultiPublisherDialog(BaseContextDialog):
         }
         self.client_method_connection('sync_tool_config', arguments=args)
 
+        self._progress_widget.set_data(build_progress_data(self.tool_config))
+
     def insert_group_in_tool_config(self, new_group, group_accordion_widget):
         '''
         Insert the new group in the tool config in the right position.

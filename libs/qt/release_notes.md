@@ -2,6 +2,8 @@
 
 ## upcoming
 
+* [changed] Improved AccordionWidget and AcordionHeaderWidget to use EditableLabelWidget and possibility to add a remove button. Emits bin_clicked, title_changed, title_edited signals.
+* [fix] BuildProgressData utility, convert options to string.
 * [changed] StatusMaterialIconWidget clickable.
 * [new] Editable label widget.
 

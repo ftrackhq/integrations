@@ -385,51 +385,6 @@ class Host(object):
             )
         return unregistered_plugins
 
-    # def augment_tool_config_callback(self, event):
-    #     '''
-    #     Runs the data with the defined engine type of the given *event*
-    #
-    #     Returns result of the engine run.
-    #
-    #     *event* : Published from the client host connection at
-    #     :meth:`~ftrack_framework_core.client.HostConnection.run`
-    #     '''
-    #
-    #     tool_config_reference = event['data']['tool_config_reference']
-    #     section = event['data']['section']
-    #     new_item = event['data']['new_item']
-    #
-    #     if not new_item:
-    #         return
-    #
-    #     tool_config = self.registry.get_one(extension_type='tool_config', reference=tool_config_reference)
-    #
-    #     self.registry.augment_tool_config(
-    #         tool_config=tool_config,
-    #         section=section,
-    #         new_item=new_item
-    #     )
-    #     # TODO: we need now to sync the tool config to the host connection.
-    #
-    #     # Need to unsubscribe to make sure we subscribe again with the new
-    #     # context
-    #     self.event_manager.unsubscribe(self._discover_host_subscribe_id)
-    #     # Reply to discover_host_callback to clients to pass the host information, so we make sure that if a new connection is made, it receives the correct tool_config
-    #     discover_host_callback_reply = partial(
-    #         provide_host_information,
-    #         self.id,
-    #         self.context_id,
-    #         self.tool_configs,
-    #     )
-    #     self._discover_host_subscribe_id = (
-    #         self.event_manager.subscribe.discover_host(
-    #             callback=discover_host_callback_reply
-    #         )
-    #     )
-    #     self.event_manager.publish.host_context_changed(
-    #         self.id, self.context_id
-    #     )
-
     def _sync_tool_config_callback(self, event):
         '''
         Runs the data with the defined engine type of the given *event*

@@ -503,6 +503,9 @@ class Client(object):
     def set_config_options(
         self, tool_config_reference, plugin_config_reference=None, options=None
     ):
+        '''
+        Set the given *options* to the given *tool_config_reference* or to the given *plugin_config_reference* if provided.
+        '''
         if not options:
             options = dict()
         # TODO_ mayabe we should rename this one to make sure this is just for plugins
@@ -521,6 +524,9 @@ class Client(object):
             ] = options
 
     def sync_tool_config(self, tool_config):
+        '''
+        Sync the given *tool_config* with the host.
+        '''
         self.event_manager.publish.host_sync_tool_config(
             self.host_id,
             tool_config,

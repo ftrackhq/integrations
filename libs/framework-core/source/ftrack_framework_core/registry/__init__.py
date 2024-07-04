@@ -229,23 +229,6 @@ class Registry(object):
             return None
         return matching_extensions[0]
 
-    def augment_tool_config(self, tool_config, section=None, new_item=None):
-        '''
-        Augment the given *tool_config* with the given *new_item* in the given *section*
-        '''
-        if not new_item:
-            return
-        # Make sure the new item has unic references
-        self.create_unic_references(new_item)
-        # Section will usually be engine
-        if section:
-            if section in tool_config:
-                tool_config[section].append(new_item)
-            else:
-                tool_config[section] = [new_item]
-        else:
-            tool_config.append(new_item)
-
     def create_unic_references(self, tool_config, skip_root=False):
         '''
         Augment the given *tool_config* to add a reference id to it

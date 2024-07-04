@@ -2,6 +2,8 @@
 
 ## Upcoming
 
+* [changed] FileBrowserCollectorWidget emit signal when path changed.
+* [new] Generic publisher dialog added with a generic tool-config.
 * [new] Exported paths validator to support image sequences.
 * [new] PySide6 support.
 * [new] PySide2 support.

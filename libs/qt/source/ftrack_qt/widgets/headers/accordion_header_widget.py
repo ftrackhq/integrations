@@ -127,8 +127,6 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
         self._checkbox.setVisible(self.show_checkbox)
 
         # Create title
-        # TODO: we should be able to double click in order to edit the label in
-        #  case the editable is true. (So it will look better)
         self._title_label = EditableLabel(
             text=self.title, editable=self.editable_title
         )

@@ -2,8 +2,10 @@
 
 ## upcoming
 
+* [change] Registry; support get tool config extensions by reference.
+* [new] Add method save_tool_config_in_destination in Client; Save given tool config as yaml file in specific destination.
 * [new] Add set options to the tool config from the client and dialog.
-* [new] Add host_sync_tool_config on event manager to sync tool config from the client to the host.
+* [new] Add host_sync_tool_config on event manager to sync tool config from the client to the host.; add sync_tool_config method in the client.; _sync_tool_config_callback method added on Host.
 
 
 ## v2.4.0
