@@ -23,6 +23,35 @@ def on_run_tool_callback(
         options,
     )
 
+
+# https://help.autodesk.com/view/FLAME/2022/ENU/?guid=Flame_API_Python_Hooks_Reference_html
+
+def get_mediahub_files_custom_ui_actions():
+    # Adds custom actions in the MediaHub's Files browser. The path of the selection object can be obtained using .path .
+    return get_main_menu_custom_ui_actions()
+
+def get_mediahub_projects_custom_ui_actions():
+    #  Adds custom actions in the MediaHub's Projects browser. The path of the selection object can be obtained using .uid
+    return get_main_menu_custom_ui_actions()
+
+def get_mediahub_archives_custom_ui_actions():
+    # Adds custom actions in the MediaHub's Archives browser. There is no selection returned for an archive,
+    # so the hook can only be used to trigger an operation from the Archive panel. It cannot affect its content.
+    return get_main_menu_custom_ui_actions()
+
+def get_batch_custom_ui_actions():
+    # Adds custom actions to the contextual menu available in Batch.
+    return get_main_menu_custom_ui_actions()
+
+def get_timeline_custom_ui_actions():
+    #  Adds custom actions to the contextual menu available in the Timeline.
+    return get_main_menu_custom_ui_actions()
+
+def get_action_custom_ui_actions():
+    #  Adds custom actions to the contextual menu available in the Batch Action node.
+    return get_main_menu_custom_ui_actions()
+
+
 def get_main_menu_custom_ui_actions():
     client_instance, registry_instance = bootstrap_integration(get_extensions_path_from_environment())
 
@@ -47,7 +76,8 @@ def get_main_menu_custom_ui_actions():
                         tool.get('name'),
                         tool.get('dialog_name'),
                         tool['options'],
-                )
+                ),
+                'minimumVersion': '2023'
             }
             actions.append(new_action)
 

@@ -3,7 +3,7 @@
 
 from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
-
+import flame
 
 class FlameSceneOpenerPlugin(BasePlugin):
     name = 'flame_scene_opener'
@@ -25,7 +25,8 @@ class FlameSceneOpenerPlugin(BasePlugin):
 
         try:
             # TODO: Open file in DCC
-            pass
+            clips = flame.import_clips(collected_path)
+
         except Exception as error:
             raise PluginExecutionError(
                 f"Couldn't open the given path. Error: {error}"
