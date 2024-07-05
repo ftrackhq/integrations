@@ -1,5 +1,12 @@
 # ftrack Connect Publisher widget release Notes
 
+## v24.7.0rc1
+2024-07-05
+
+* [fix] Add entity in the assetOptions when in method setEntity. To prevent missing asset versions.
+* [changed] Adding logs to better debug errors.
+
+
 ## v24.5.0
 2024-05-03
 
