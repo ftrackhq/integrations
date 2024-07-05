@@ -95,6 +95,11 @@ class Publisher(QtWidgets.QWidget):
         # Add asset options.
         self.assetOptions = _asset_options.AssetOptions(session=self.session)
         # Make sure entity is set
+        self.logger.debug(
+            "self.entitySelector._entity on Publisher init: {0}".format(
+                self.entitySelector._entity
+            )
+        )
         self.assetOptions.setEntity(self.entitySelector._entity)
         self.entitySelector.entityChanged.connect(self.assetOptions.setEntity)
         self.assetCreated.connect(self.assetOptions.setAsset)
@@ -133,7 +138,9 @@ class Publisher(QtWidgets.QWidget):
 
     def setEntity(self, entity):
         '''Set current entity.'''
+        self.logger.debug("On setEntity: {0}".format(entity))
         self.entitySelector.setEntity(entity)
+        self.assetOptions.setEntity(self.entitySelector._entity)
 
     def _onComponentListItemsChanged(self):
         '''Callback for component changed signal.'''
@@ -149,6 +156,13 @@ class Publisher(QtWidgets.QWidget):
 
     def clear(self):
         '''Clear the publish view to it's initial state.'''
+        self.logger.debug("Cleaning the publisher")
+        self.logger.debug("Current self._entity: {0}".format(self._entity))
+        self.logger.debug(
+            "Current self.entitySelector._entity: {0}".format(
+                self.entitySelector._entity
+            )
+        )
         self.assetOptions.clear()
         self.versionDescription.clear()
         self.componentsList.clearItems()

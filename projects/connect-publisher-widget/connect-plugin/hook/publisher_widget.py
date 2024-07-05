@@ -16,7 +16,7 @@ import ftrack_connect.ui.application
 import ftrack_connect.ui.widget.overlay
 from ftrack_utils.server import send_usage_event
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('ftrack_connect.plugin.publisher_widget')
 
 cwd = os.path.dirname(__file__)
 connect_plugin_path = os.path.abspath(os.path.join(cwd, '..'))
@@ -59,6 +59,9 @@ class PublisherWidget(ftrack_connect.ui.application.ConnectWidget):
     def __init__(self, session, parent=None):
         '''Instantiate the publisher widget.'''
         super(PublisherWidget, self).__init__(session, parent=parent)
+
+        logger.debug('Initializing PublisherWidget')
+
         layout = QtWidgets.QVBoxLayout()
         self.setLayout(layout)
 
@@ -140,6 +143,7 @@ class PublisherWidget(ftrack_connect.ui.application.ConnectWidget):
         Clear state, set the *entity* and request to start the publisher.
 
         '''
+        logger.debug('Starting publisher with event: {0}'.format(event))
         entity = event['data']['entity']
 
         self.clear()
@@ -166,6 +170,10 @@ class PublisherWidget(ftrack_connect.ui.application.ConnectWidget):
             self.publishView.setManageData(True)
 
         entity = self.session.get('Task', entity.get('entityId'))
+        logger.debug('Setting entity: {0}'.format(entity))
+        if not entity:
+            logger.error('No entity found for id: {0}'.format(entity))
+            return
         self.setEntity(entity)
         self.requestApplicationFocus.emit(self)
 
