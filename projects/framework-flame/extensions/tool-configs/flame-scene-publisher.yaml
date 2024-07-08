@@ -16,6 +16,7 @@ engine:
       - component
     options:
       component: snapshot
+    optional: true
     plugins:
       - type: plugin
         plugin: store_component
