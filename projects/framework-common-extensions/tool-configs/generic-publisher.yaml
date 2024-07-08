@@ -1,5 +1,5 @@
 type: tool_config
-name: multi-publisher
+name: generic-publisher
 config_type: publisher
 engine:
   - type: plugin
@@ -46,7 +46,7 @@ engine:
   - type: group
     tags:
       - component
-      - multi
+      - generic
     options:
       component: generic
       button_label: Add component
@@ -82,7 +82,7 @@ engine:
   - type: group
     tags:
       - component
-      - multi
+      - generic
     options:
       component: generic_static
       button_label: Add static component

@@ -18,10 +18,10 @@ from ftrack_qt.utils.widget import build_progress_data
 from ftrack_qt.utils.decorators import invoke_in_qt_main_thread
 
 
-class MultiPublisherDialog(BaseContextDialog):
+class GenericPublisherDialog(BaseContextDialog):
     '''Default Framework Publisher dialog'''
 
-    name = 'framework_multi_publisher_dialog'
+    name = 'framework_generic_publisher_dialog'
     tool_config_type_filter = ['publisher']
     ui_type = 'qt'
     run_button_title = 'PUBLISH'
@@ -62,7 +62,7 @@ class MultiPublisherDialog(BaseContextDialog):
         self._modified_tool_config = None
         self._save_preset_button = None
 
-        super(MultiPublisherDialog, self).__init__(
+        super(GenericPublisherDialog, self).__init__(
             event_manager,
             client_id,
             connect_methods_callback,
@@ -190,24 +190,24 @@ class MultiPublisherDialog(BaseContextDialog):
             self.tool_config, filters={'tags': ['component']}
         )
 
-        multi_groups = get_groups(
-            self._original_tool_config, filters={'tags': ['multi']}
+        generic_groups = get_groups(
+            self._original_tool_config, filters={'tags': ['generic']}
         )
         self._accordion_widgets_registry = []
         for _group in component_groups:
             group_accordion_widget = self.add_accordion_group(_group)
             self.tool_widget.layout().addWidget(group_accordion_widget)
 
-        for _multi_group in multi_groups:
+        for _generic_group in generic_groups:
             add_button = QtWidgets.QPushButton(
-                _multi_group.get('options').get(
+                _generic_group.get('options').get(
                     'button_label', 'Add Component'
                 )
             )
             self.tool_widget.layout().addWidget(add_button)
             add_button.clicked.connect(
                 partial(
-                    self._on_add_component_callback, _multi_group, add_button
+                    self._on_add_component_callback, _generic_group, add_button
                 )
             )
 
@@ -219,9 +219,9 @@ class MultiPublisherDialog(BaseContextDialog):
         )
         self.tool_widget.layout().addItem(spacer)
 
-    def _on_add_component_callback(self, _multi_group, add_button):
+    def _on_add_component_callback(self, _generic_group, add_button):
         # Create a new unic group
-        new_group = copy.deepcopy(_multi_group)
+        new_group = copy.deepcopy(_generic_group)
         # Make sure that we don't duplicate component names
         available_name = self.get_available_component_name(
             new_group.get('options').get('component')
@@ -455,7 +455,7 @@ class MultiPublisherDialog(BaseContextDialog):
         '''(Override) Drive the progress widget'''
         self.show_overlay_widget()
         self._progress_widget.run()
-        super(MultiPublisherDialog, self)._on_run_button_clicked()
+        super(GenericPublisherDialog, self)._on_run_button_clicked()
         # TODO: This will not work in remote mode (async mode) as plugin events
         #  will arrive after this point of execution.
         if self._progress_widget.status == constants.status.SUCCESS_STATUS:
@@ -499,4 +499,4 @@ class MultiPublisherDialog(BaseContextDialog):
         if self._accordion_widgets_registry:
             for accordion in self._accordion_widgets_registry:
                 accordion.teardown()
-        super(MultiPublisherDialog, self).closeEvent(event)
+        super(GenericPublisherDialog, self).closeEvent(event)
