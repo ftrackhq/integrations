@@ -16,6 +16,8 @@ from ftrack_qt.widgets.accordion import AccordionBaseWidget
 from ftrack_qt.widgets.progress import ProgressWidget
 from ftrack_qt.utils.widget import build_progress_data
 from ftrack_qt.utils.decorators import invoke_in_qt_main_thread
+from ftrack_qt.widgets.buttons import CircularButton
+from ftrack_qt.widgets.buttons import MenuButton
 
 
 class GenericPublisherDialog(BaseContextDialog):
@@ -198,18 +200,17 @@ class GenericPublisherDialog(BaseContextDialog):
             group_accordion_widget = self.add_accordion_group(_group)
             self.tool_widget.layout().addWidget(group_accordion_widget)
 
+        circular_add_button = CircularButton('add', variant='outlined')
+        self.menu_button = MenuButton(circular_add_button)
+        self.tool_widget.layout().addWidget(self.menu_button)
         for _generic_group in generic_groups:
-            add_button = QtWidgets.QPushButton(
-                _generic_group.get('options').get(
+            self.menu_button.add_item(
+                item_data=_generic_group,
+                label=_generic_group.get('options').get(
                     'button_label', 'Add Component'
-                )
+                ),
             )
-            self.tool_widget.layout().addWidget(add_button)
-            add_button.clicked.connect(
-                partial(
-                    self._on_add_component_callback, _generic_group, add_button
-                )
-            )
+        self.menu_button.item_clicked.connect(self._on_add_component_callback)
 
         spacer = QtWidgets.QSpacerItem(
             1,
@@ -219,7 +220,21 @@ class GenericPublisherDialog(BaseContextDialog):
         )
         self.tool_widget.layout().addItem(spacer)
 
-    def _on_add_component_callback(self, _generic_group, add_button):
+    def _get_latest_component_index(self, idx=1):
+        # Get the number of items in the layout
+        count = self.tool_widget.layout().count()
+        if count > 0:
+            # Get the last item
+            item = self.tool_widget.layout().itemAt(count - idx)
+            if item:
+                if item.widget() in self._accordion_widgets_registry:
+                    # Return the widget associated with the item
+                    return self.tool_widget.layout().indexOf(item.widget())
+                else:
+                    return self._get_latest_component_index(idx + 1)
+        return 0
+
+    def _on_add_component_callback(self, _generic_group):
         # Create a new unic group
         new_group = copy.deepcopy(_generic_group)
         # Make sure that we don't duplicate component names
@@ -234,9 +249,9 @@ class GenericPublisherDialog(BaseContextDialog):
         group_accordion_widget = self.add_accordion_group(new_group)
 
         # Insert the new group before the add button
-        add_button_idx = self.tool_widget.layout().indexOf(add_button)
+        latest_idx = self._get_latest_component_index()
         self.tool_widget.layout().insertWidget(
-            add_button_idx, group_accordion_widget
+            latest_idx + 1, group_accordion_widget
         )
 
         # Insert the new group into the correct position in the tool_config
