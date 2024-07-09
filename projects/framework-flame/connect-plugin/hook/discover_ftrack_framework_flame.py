@@ -52,14 +52,14 @@ def on_launch_integration(session, event):
     # add hook path for flame
     flame_hook_paths = os.path.join(connect_plugin_path, 'resource', 'bootstrap')
     # https://help.autodesk.com/view/FLAME/2022/ENU/?guid=Flame_API_Python_Hooks_Reference_Python_Hooks_Tips_html
+    # and enable hooks debug
+
     launch_data['integration']['env']['DL_PYTHON_HOOK_PATH'] = flame_hook_paths
-    # enable hooks debug
     launch_data['integration']['env']['DL_DEBUG_PYTHON_HOOKS'] = '1'
 
     launch_data['integration']['env'][
         'PYTHONPATH.prepend'
     ] = os.path.pathsep.join([python_dependencies, flame_hook_paths])
-    # TODO: Set env var for DCC to find the bootstrap script
 
     launch_data['integration']['env']['FTRACK_FLAME_VERSION'] = str(
         integration_version

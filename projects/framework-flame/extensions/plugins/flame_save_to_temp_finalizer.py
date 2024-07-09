@@ -24,6 +24,7 @@ class FlameSaveToTempPlugin(BasePlugin):
             self.logger.debug(
                 f"Flame scene saved to temp path: {save_path}"
             )
+
         except Exception as error:
             raise PluginExecutionError(
                 message=f"Error attempting to save the current scene to a "

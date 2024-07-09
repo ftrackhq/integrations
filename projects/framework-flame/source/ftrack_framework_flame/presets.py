@@ -1,7 +1,8 @@
 import os
 import flame
 
-_PRESETS = {
+
+PRESETS={
     'JPG8': {
         "visibility": flame.PyExporter.PresetVisibility.Autodesk,
         "type": flame.PyExporter.PresetType.Image_Sequence,
@@ -19,12 +20,12 @@ _PRESETS = {
 
 
 def get_preset_path(preset_name):
-    preset = _PRESETS.get(preset_name)
+    preset = PRESETS.get(preset_name)
     if not preset:
         return
 
     preset_dir = flame.PyExporter.get_presets_dir(
-        preset["visib"], preset["type"]
+        preset["visibility"], preset["type"]
     )
 
     preset_path = os.path.join(

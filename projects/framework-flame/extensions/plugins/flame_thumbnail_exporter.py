@@ -1,6 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 
+import os
 import datetime
 from ftrack_utils.paths import get_temp_path
 
@@ -20,20 +21,19 @@ class FlameThumbnailExporterPlugin(BasePlugin):
         '''
         component_name = self.options.get('component')
 
-        thumbnail_path = None
+        exported_path = get_temp_path()
         try:
             # TODO: thumbnail_path = Export thumbnail
 
-            self.logger.debug(f"Thumbnail has been saved to: {thumbnail_path}.")
+            self.logger.debug(f"Thumbnail has been saved to: {exported_path}.")
         except Exception as error:
             raise PluginExecutionError(message=error)
 
         current_selection = flame.media_panel.selected_entries[0]
         if not isinstance(current_selection, (flame.PySequence, flame.PyClip)):
             return
-
+        self.logger.debug(f"Current selection: {current_selection}.")
         thumbnail_preset_path = presets.get_preset_path('JPG8')
-        exported_path = get_temp_path(filename_extension='jpg')
 
         exporter = flame.PyExporter()
 
@@ -49,28 +49,34 @@ class FlameThumbnailExporterPlugin(BasePlugin):
         # Duplicate the clip to avoid modifying the clip itself.
         #
         duplicate_clip = flame.duplicate(current_selection)
+        self.logger.debug(f"Extracted clip: {duplicate_clip}.")
+
         try:
             # Give the duplicate clip an unique name. We assume here that the preset
             # we will use have <name> in the destination path.
             #
-            duplicate_clip.name = current_selection.name + datetime.datetime.now().strftime(
+            new_name = current_selection.name + datetime.datetime.now().strftime(
                 "%Y_%m_%d__%H_%M_%S"
             )
+            duplicate_clip.name = new_name
 
-            # Set in mark to current_time and out_mark at current_time + 1 so
-            # only the current frame is exported
-            #
-            duplicate_clip.in_mark = current_selection.current_time.get_value()
-            duplicate_clip.out_mark = current_selection.current_time.get_value() + 1
+            # export first frame
+            duplicate_clip.in_mark = 1
+            duplicate_clip.out_mark = 2
 
             exporter.export(
-                current_selection, thumbnail_preset_path, exported_path
+                duplicate_clip, thumbnail_preset_path, exported_path
             )
+            framename = str(duplicate_clip.current_time.get_value().frame).zfill(8)
+            filename = f'{ duplicate_clip.name.get_value()}.{framename}.jpg'
+            destination_path = os.path.join(exported_path,filename)
+            print(f"Exported to {destination_path}")
+
+            store['components'][component_name]['exported_path'] = destination_path
 
         finally:
             # Be sure to clean up duplicated clip in case of error during the export
             #
             flame.delete(duplicate_clip)
 
-        store['components'][component_name]['exported_path'] = exported_path
 

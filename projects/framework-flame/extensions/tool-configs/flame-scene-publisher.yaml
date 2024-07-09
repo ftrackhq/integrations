@@ -17,6 +17,7 @@ engine:
     options:
       component: snapshot
     optional: true
+    enabled: False
     plugins:
       - type: plugin
         plugin: store_component
@@ -47,6 +48,20 @@ engine:
         tags:
           - exporter
         plugin: flame_thumbnail_exporter
+
+  # Export Reviewable
+  - type: group
+    tags:
+      - component
+    options:
+      component: reviewable
+    plugins:
+      - type: plugin
+        plugin: store_component
+      - type: plugin
+        tags:
+          - exporter
+        plugin: flame_reviewable_exporter
 
   # Common validator check all exported paths exists.
   - type: plugin
