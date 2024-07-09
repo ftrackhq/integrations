@@ -4,6 +4,8 @@ import copy
 import os
 from functools import partial
 
+import clique
+
 try:
     from PySide6 import QtWidgets, QtCore
 except ImportError:
@@ -401,8 +403,24 @@ class GenericPublisherDialog(BaseContextDialog):
         '''
         Callback to update the component name when the path is changed.
         '''
-        extension = new_name.split('.')[-1] or os.path.basename(new_name)
-        extension = self.get_available_component_name(extension)
+        file_extension = None
+        try:
+            collection = clique.parse(new_name)
+            if collection:
+                file_extension = collection.tail
+        except Exception as error:
+            self.logger.debug(
+                f"{new_name} is not a clique collection. Error {error}"
+            )
+
+        if not file_extension:
+            file_extension = os.path.splitext(new_name)[1] or os.path.basename(
+                new_name
+            )
+
+        file_extension = file_extension.lstrip('.')
+
+        extension = self.get_available_component_name(file_extension)
 
         group = get_groups(
             self.tool_config,

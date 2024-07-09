@@ -111,8 +111,6 @@ engine:
           - exporter
         plugin: rename_file_exporter
         ui: file_exporter_options
-        options:
-          export_destination: "~/Desktop/myPublishedFile.png"
 
   # Common validator check all exported paths exists.
   - type: plugin

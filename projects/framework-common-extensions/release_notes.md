@@ -2,6 +2,8 @@
 
 ## Upcoming
 
+* [changed] RenameFileExporterPlugin; Accept folder as destination.
+* [required] Add clique 1.6.1 as dependency.
 * [changed] FileBrowserCollectorWidget emit signal when path changed.
 * [new] Generic publisher dialog added with a generic tool-config.
 * [new] Exported paths validator to support image sequences.
