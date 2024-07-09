@@ -467,21 +467,18 @@ class FrameworkDialog(BaseUI):
         '''
         Pass the given *options* of the *plugin_reference* to the client.
         '''
-        arguments = {
-            "tool_config_reference": self.tool_config['reference'],
-            "plugin_config_reference": plugin_reference,
-            "options": options,
-        }
-        self.set_option_callback(arguments)
+        self.set_tool_config_option(options, plugin_reference)
 
-    def set_tool_config_option(self, name, value):
+    def set_tool_config_option(self, options, item_reference=None):
         '''
         Set the given name and value as options for the current tool config.
         '''
         arguments = {
             "tool_config_reference": self.tool_config['reference'],
-            "options": {name: value},
+            "options": options,
         }
+        if item_reference:
+            arguments['item_reference'] = item_reference
         self.set_option_callback(arguments)
 
     def set_option_callback(self, args):

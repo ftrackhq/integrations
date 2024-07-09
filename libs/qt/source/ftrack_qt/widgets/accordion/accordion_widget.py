@@ -22,6 +22,7 @@ class AccordionBaseWidget(QtWidgets.QFrame):
     hide_options_overlay = QtCore.Signal()
     title_changed = QtCore.Signal(object)
     title_edited = QtCore.Signal(object)
+    enabled_changed = QtCore.Signal(object)
 
     @property
     def title(self):
@@ -253,6 +254,7 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         '''Callback on enable checkbox user interaction'''
         self._checked = checked
         self._content_widget.setEnabled(self.checked)
+        self.enabled_changed.emit(self.checked)
 
     def _on_header_clicked(self, event):
         '''Callback on header user click'''

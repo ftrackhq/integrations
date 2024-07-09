@@ -119,16 +119,24 @@ def build_progress_data(tool_config):
     '''Build progress data from *tool_config*'''
     progress_data = []
     for plugin_config in get_plugins(tool_config, with_parents=True):
+        enabled = True
+        if plugin_config.get('enabled') == False:
+            enabled = False
+            continue
         phase_data = {
             'id': plugin_config['reference'],
             'label': plugin_config['plugin'].replace('_', ' ').title(),
         }
         tags = plugin_config.get('tags') or []
         for group in plugin_config.get('parents') or []:
+            if group.get('enabled') == False:
+                enabled = False
+                continue
             if 'options' in group:
                 tags.extend(list(str(group['options'].values())))
             if 'tags' in group:
                 tags.extend(group['tags'])
-        phase_data['tags'] = reversed(tags)
-        progress_data.append(phase_data)
+        if enabled:
+            phase_data['tags'] = reversed(tags)
+            progress_data.append(phase_data)
     return progress_data

@@ -164,11 +164,9 @@ class GenericPublisherDialog(BaseContextDialog):
         # Make sure we generate new references
         self.registry.create_unic_references(self._modified_tool_config)
         self.tool_config = self._modified_tool_config
+
         # Sync the tool_config with the host
-        args = {
-            'tool_config': self.tool_config,
-        }
-        self.client_method_connection('sync_tool_config', arguments=args)
+        self.sync_tool_config(self.tool_config)
 
         # Build context widgets
         context_plugins = get_plugins(
@@ -260,10 +258,7 @@ class GenericPublisherDialog(BaseContextDialog):
         self.insert_group_in_tool_config(new_group, group_accordion_widget)
 
         # Sync the tool_config with the host
-        args = {
-            'tool_config': self.tool_config,
-        }
-        self.client_method_connection('sync_tool_config', arguments=args)
+        self.sync_tool_config(self.tool_config)
 
         self._progress_widget.set_data(build_progress_data(self.tool_config))
 
@@ -345,6 +340,10 @@ class GenericPublisherDialog(BaseContextDialog):
         group_accordion_widget.bin_clicked.connect(
             self._on_component_removed_callback
         )
+        group_accordion_widget.enabled_changed.connect(
+            partial(self._on_enable_component_changed_callback, group)
+        )
+
         self._accordion_widgets_registry.append(group_accordion_widget)
         return group_accordion_widget
 
@@ -476,6 +475,8 @@ class GenericPublisherDialog(BaseContextDialog):
         # Sync the tool_config with the host
         self.sync_tool_config(self.tool_config)
 
+        self._progress_widget.set_data(build_progress_data(self.tool_config))
+
     def show_options_widget(self, widget):
         '''Sets the given *widget* as the index 2 of the stacked widget and
         remove the previous one if it exists'''
@@ -483,6 +484,17 @@ class GenericPublisherDialog(BaseContextDialog):
             self._stacked_widget.removeWidget(self._stacked_widget.widget(2))
         self._stacked_widget.addWidget(widget)
         self._stacked_widget.setCurrentIndex(2)
+
+    def _on_enable_component_changed_callback(self, group_config, enabled):
+        '''Callback for when the component is enabled/disabled'''
+        self.set_tool_config_option(
+            {'enabled': enabled}, group_config['reference']
+        )
+        group_config['enabled'] = enabled
+        # Sync the tool_config with the host
+        self.sync_tool_config(self.tool_config)
+
+        self._progress_widget.set_data(build_progress_data(self.tool_config))
 
     def _on_run_button_clicked(self):
         '''(Override) Drive the progress widget'''
