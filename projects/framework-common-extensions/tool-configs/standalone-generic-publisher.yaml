@@ -1,5 +1,5 @@
 type: tool_config
-name: generic-publisher
+name: standalone-generic-publisher
 config_type: publisher
 engine:
   - type: plugin

@@ -4,11 +4,11 @@ tools:
   - name: publish
     menu: true
     label: "Publish"
-    dialog_name: framework_standard_publisher_dialog
+    dialog_name: framework_generic_publisher_dialog
     icon: publish
     options:
       tool_configs:
-        - maya-scene-publisher
+        - maya-generic-publisher
       docked: true
   - name: open
     menu: true
