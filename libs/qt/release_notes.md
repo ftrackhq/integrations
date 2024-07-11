@@ -1,5 +1,12 @@
 # ftrack QT library release Notes
 
+
+## upcoming
+
+* [change] build_progress_data; Check enabled/disabled plugins.
+* [change] AccordionBaseWidget; Emit enabled event signal.
+
+
 ## v2.2.2
 2024-06-26
 
