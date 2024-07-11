@@ -2,6 +2,7 @@
 
 ## Upcoming
 
+* [fix] StandardPublisherDialog; Support enable and disable components.
 * [new] Exported paths validator to support image sequences.
 * [new] PySide6 support.
 * [new] PySide2 support.
