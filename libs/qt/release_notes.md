@@ -3,6 +3,10 @@
 
 ## upcoming
 
+* [changed] FileDialog; support selecting multiple files.
+* [changed] FileBrowser; support collection of multiple files.
+* [changed] Python clique 1.6.1 library as dependency.
+* [new] RadioButtonDialog; Dialog to return an item from a list of items represented by radio buttons.
 * [change] build_progress_data; Check enabled/disabled plugins.
 * [change] AccordionBaseWidget; Emit enabled event signal.
 
