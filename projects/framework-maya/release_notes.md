@@ -1,9 +1,5 @@
 # ftrack Framework Maya integration release Notes
 
-## upcoming
-
-* [new] Generic publisher tool.
-
 ## v24.6.0
 2024-06-04
 
