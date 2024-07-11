@@ -2,10 +2,11 @@
 
 ## Upcoming
 
+* [new] Generic publisher dialog added with a generic tool-config.
 * [changed] RenameFileExporterPlugin; Accept folder as destination.
 * [required] Add clique 1.6.1 as dependency.
 * [changed] FileBrowserCollectorWidget emit signal when path changed.
-* [new] Generic publisher dialog added with a generic tool-config.
+* [fix] StandardPublisherDialog; Support enable and disable components.
 * [new] Exported paths validator to support image sequences.
 * [new] PySide6 support.
 * [new] PySide2 support.
