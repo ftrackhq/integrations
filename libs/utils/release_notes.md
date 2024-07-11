@@ -1,9 +1,10 @@
 # ftrack Utils library release Notes
 
+
 ## upcoming
 
-* [changed] get_temp_path; Support temp directories.
 * [changed] framework tool configs; get_groups method dictionary support on filters argument..
+* [changed] get_temp_path; Support temp directories.
 
 ## v2.3.0
 2024-06-04

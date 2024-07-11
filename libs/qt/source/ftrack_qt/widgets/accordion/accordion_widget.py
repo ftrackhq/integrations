@@ -20,9 +20,9 @@ class AccordionBaseWidget(QtWidgets.QFrame):
     bin_clicked = QtCore.Signal(object)  # Emitted when bin icon is clicked
     show_options_overlay = QtCore.Signal(object)
     hide_options_overlay = QtCore.Signal()
+    enabled_changed = QtCore.Signal(object)
     title_changed = QtCore.Signal(object)
     title_edited = QtCore.Signal(object)
-    enabled_changed = QtCore.Signal(object)
 
     @property
     def title(self):
