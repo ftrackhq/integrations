@@ -2,6 +2,9 @@
 
 ## Upcoming
 
+* [changed] RenameFileExporterPlugin; Accept folder as destination.
+* [required] Add clique 1.6.1 as dependency.
+* [changed] FileBrowserCollectorWidget emit signal when path changed.
 * [fix] StandardPublisherDialog; Support enable and disable components.
 * [new] Exported paths validator to support image sequences.
 * [new] PySide6 support.
