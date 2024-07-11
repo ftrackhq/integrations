@@ -6,7 +6,7 @@ from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
 
 class {{ cookiecutter.integration_name.capitalize() }}SceneOpenerPlugin(BasePlugin):
-    name = '{{ cookiecutter.integration_name }}_scene_opener'
+    name = '{{ cookiecutter.integration_name.capitalize() }}_scene_opener'
 
     def run(self, store):
         '''
