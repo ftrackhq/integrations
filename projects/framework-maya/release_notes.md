@@ -3,6 +3,7 @@
 
 ## upcoming
 
+* [new] Generic publisher tool.
 * [fix] Init; Fix on_run_tool_callback options argument.
 
 

@@ -1,0 +1,141 @@
+type: tool_config
+name: maya-generic-publisher
+config_type: publisher
+engine:
+  - type: plugin
+    tags:
+      - context
+    plugin: store_asset_context
+    options:
+      asset_type_name: scene
+    ui: publisher_asset_version_selector
+
+  # Export the snapshot component.
+  - type: group
+    tags:
+      - component
+    options:
+      component: snapshot
+    #optional: False by default so is no need
+    #enabled: True by default so is no need
+    plugins:
+      - type: plugin
+        plugin: store_component
+      - type: plugin
+        tags:
+          - collector
+        plugin: maya_scene_collector
+        ui: maya_scene_options_selector
+        options:
+          export_type: scene # selection is also available
+          extension_format: mb # ma is also available
+      - type: plugin
+        tags:
+          - validator
+        plugin: maya_scene_saved_validator
+        ui: validator_label
+      - type: plugin
+        tags:
+          - exporter
+        plugin: maya_scene_exporter
+        ui: maya_export_options_selector
+
+  # Add a generic component.
+  - type: group
+    tags:
+      - component
+      - generic
+    options:
+      component: generic
+      button_label: Add component
+      editable_component_name: True
+      removable: True
+    optional: True # by default so is no need
+    #enabled: True by default so is no need
+    plugins:
+      - type: plugin
+        plugin: store_component
+      - type: plugin
+        tags:
+          - collector
+        plugin: file_collector
+        ui: file_browser_collector
+        options:
+          folder_path: null
+          file_name: null
+      - type: plugin
+        tags:
+          - validator
+        plugin: file_exists_validator
+        ui: validator_label
+      - type: plugin
+        tags:
+          - exporter
+        plugin: rename_file_exporter
+        ui: file_exporter_options
+
+  # Export Thumbnail
+  - type: group
+    tags:
+      - component
+    options:
+      component: thumbnail
+    #optional: False by default so is no need
+    #enabled: True by default so is no need
+    plugins:
+      - type: plugin
+        plugin: store_component
+      - type: plugin
+        tags:
+          - collector
+        plugin: maya_camera_collector
+        ui: maya_camera_selector
+        options:
+          camera_name: persp
+      - type: plugin
+        tags:
+          - validator
+        plugin: maya_camera_exists_validator
+        ui: validator_label
+      - type: plugin
+        tags:
+          - exporter
+        plugin: maya_thumbnail_exporter
+
+  # Export the reviewable component.
+  - type: group
+    tags:
+      - component
+    options:
+      component: reviewable
+    optional: true
+    #enabled: True by default so is no need
+    plugins:
+      - type: plugin
+        plugin: store_component
+      - type: plugin
+        tags:
+          - collector
+        plugin: maya_camera_collector
+        ui: maya_camera_selector
+        options:
+          camera_name: persp
+      - type: plugin
+        tags:
+          - validator
+        plugin: maya_camera_exists_validator
+        ui: validator_label
+      - type: plugin
+        tags:
+          - exporter
+        plugin: maya_playblast_exporter
+
+  # Common validator check all exported paths exists.
+  - type: plugin
+    tags:
+      - validator
+    plugin: exported_paths_validator
+    ui: validator_label
+
+  # Publish to ftrack.
+  - publish_to_ftrack
