@@ -229,6 +229,9 @@ class Client(object):
         # Set up the run_in_main_thread decorator
         self.run_in_main_thread_wrapper = run_in_main_thread_wrapper
 
+        # Set up the run_in_main_thread decorator
+        self.run_in_main_thread_wrapper = run_in_main_thread_wrapper
+
         self.logger.debug('Initialising Client {}'.format(self))
 
         self.discover_host()

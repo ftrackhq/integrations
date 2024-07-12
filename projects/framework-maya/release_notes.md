@@ -3,7 +3,8 @@
 
 ## upcoming
 
-[new] Studio asset load capability, covering reference and import .ma and .mb scenes.
+* [new] Studio asset load capability, covering reference and import .ma and .mb scenes.
+* [changed] Host, Client instance; Pass run_in_main_thread argument.
 * [fix] Init; Fix on_run_tool_callback options argument.
 
 
