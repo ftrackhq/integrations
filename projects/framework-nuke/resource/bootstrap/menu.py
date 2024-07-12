@@ -8,6 +8,7 @@ import ftrack_framework_nuke
 
 def deferred_execution():
     ftrack_framework_nuke.execute_startup_tools()
+    ftrack_framework_nuke.subscribe_action_tools()
 
 
 nuke.addOnCreate(deferred_execution, nodeClass='Root')
