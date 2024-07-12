@@ -4,7 +4,6 @@
 ## upcoming
 
 * [fix] JS RPC; Properly pick up and handle error messages from DCC.
-* [feat] JS RPC; Added on connected callback.
 * [changed] get_temp_path; Support temp directories.
 
 ## v2.3.0

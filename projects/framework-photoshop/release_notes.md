@@ -1,10 +1,11 @@
 # ftrack Framework Photoshop integration release Notes
 
 
-# Upcoming
+## upcoming
 
 * [fix] Fixed bug in CEP plugin where errors were not properly handled.
 * [new] Studio asset load capability, covering single file images, movies and image sequences.
+* [fix] Init; Fix on_run_tool_callback options argument.
 
 
 ## v24.6.0

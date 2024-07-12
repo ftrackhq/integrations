@@ -174,17 +174,9 @@ def bootstrap_integration(framework_extensions_path):
     registry_instance = registry.Registry()
     registry_instance.scan_extensions(paths=framework_extensions_path)
 
-    Host(
-        event_manager,
-        registry=registry_instance,
-        run_in_main_thread_wrapper=invoke_in_qt_main_thread,
-    )
+    Host(event_manager, registry=registry_instance)
 
-    client_instance = Client(
-        event_manager,
-        registry=registry_instance,
-        run_in_main_thread_wrapper=invoke_in_qt_main_thread,
-    )
+    client_instance = Client(event_manager, registry=registry_instance)
 
     # Init tools
     dcc_config = registry_instance.get_one(
@@ -323,7 +315,6 @@ def run_integration():
             if not process_monitor.check_running():
                 logger.warning('Premiere process gone, shutting ' 'down!')
                 terminate_current_process()
-                client_instance.close()
             else:
                 # Check if Premiere panel is alive
                 respond_result = premiere_rpc_connection.check_responding()

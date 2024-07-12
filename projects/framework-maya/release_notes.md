@@ -1,8 +1,10 @@
 # ftrack Framework Maya integration release Notes
 
+
 ## upcoming
 
 [new] Studio asset load capability, covering reference and import .ma and .mb scenes.
+* [fix] Init; Fix on_run_tool_callback options argument.
 
 
 ## v24.6.0
