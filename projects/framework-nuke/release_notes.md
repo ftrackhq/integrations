@@ -1,5 +1,11 @@
 # ftrack Framework Nuke integration release Notes
 
+
+# Upcoming
+
+* [changed] Host, Client instance; Pass run_in_main_thread argument.
+
+
 ## v24.6.0
 2024-06-04
 
