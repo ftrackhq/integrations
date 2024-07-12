@@ -86,7 +86,7 @@ class FrameworkDialog(BaseUI):
         if self._tool_config:
             arguments = {
                 "tool_config_reference": self._tool_config['reference'],
-                "plugin_config_reference": None,
+                "item_reference": None,
                 "options": self.dialog_options,
             }
             self.client_method_connection(
@@ -471,14 +471,25 @@ class FrameworkDialog(BaseUI):
         '''
         Pass the given *options* of the *plugin_reference* to the client.
         '''
+        self.set_tool_config_option(options, plugin_reference)
+
+    def set_tool_config_option(self, options, item_reference=None):
+        '''
+        Set the given name and value as options for the current tool config.
+        '''
         arguments = {
             "tool_config_reference": self.tool_config['reference'],
-            "plugin_config_reference": plugin_reference,
             "options": options,
         }
-        self.client_method_connection(
-            'set_config_options', arguments=arguments
-        )
+        if item_reference:
+            arguments['item_reference'] = item_reference
+        self.set_option_callback(arguments)
+
+    def set_option_callback(self, args):
+        '''
+        Pass the given *args* to the client set_config_options method.
+        '''
+        self.client_method_connection('set_config_options', arguments=args)
 
     def _on_run_ui_hook_callback(self, plugin_reference, payload):
         arguments = {

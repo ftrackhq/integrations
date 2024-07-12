@@ -6,6 +6,8 @@ import os
 from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginValidationError
 
+import clique
+
 
 class FileExistsValidatorPlugin(BasePlugin):
     name = 'file_exists_validator'
@@ -15,7 +17,17 @@ class FileExistsValidatorPlugin(BasePlugin):
         Return True if given *file_path* exists, False If not.
         '''
         if not os.path.exists(file_path):
-            raise PluginValidationError(message='File does not exist.')
+            try:
+                collection = clique.parse(file_path)
+                for file_path in collection:
+                    if not os.path.exists(file_path):
+                        raise PluginValidationError(
+                            message=f'File {file_path} does not exist.'
+                        )
+            except Exception as error:
+                raise PluginValidationError(
+                    message=f'File {file_path} does not exist, and is not a valid collection, error: {error}'
+                )
         self.logger.debug(f"{file_path} Exists.")
         return True
 

@@ -18,6 +18,8 @@ class FileBrowserWidget(BaseWidget):
     name = 'file_browser_collector'
     ui_type = 'qt'
 
+    path_changed = QtCore.Signal(object)
+
     def __init__(
         self,
         event_manager,
@@ -71,3 +73,4 @@ class FileBrowserWidget(BaseWidget):
             return
         self.set_plugin_option('folder_path', os.path.dirname(file_path))
         self.set_plugin_option('file_name', os.path.basename(file_path))
+        self.path_changed.emit(file_path)

@@ -1,6 +1,8 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
+from functools import partial
+
 try:
     from PySide6 import QtWidgets, QtCore
 except ImportError:
@@ -195,6 +197,9 @@ class StandardPublisherDialog(BaseContextDialog):
             group_accordion_widget.show_options_overlay.connect(
                 self.show_options_widget
             )
+            group_accordion_widget.enabled_changed.connect(
+                partial(self._on_enable_component_changed_callback, _group)
+            )
             self._accordion_widgets_registry.append(group_accordion_widget)
 
         spacer = QtWidgets.QSpacerItem(
@@ -252,6 +257,14 @@ class StandardPublisherDialog(BaseContextDialog):
             self._stacked_widget.removeWidget(self._stacked_widget.widget(2))
         self._stacked_widget.addWidget(widget)
         self._stacked_widget.setCurrentIndex(2)
+
+    def _on_enable_component_changed_callback(self, group_config, enabled):
+        '''Callback for when the component is enabled/disabled'''
+        self.set_tool_config_option(
+            {'enabled': enabled}, group_config['reference']
+        )
+        group_config['enabled'] = enabled
+        self._progress_widget.set_data(build_progress_data(self.tool_config))
 
     def _on_run_button_clicked(self):
         '''(Override) Drive the progress widget'''

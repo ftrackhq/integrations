@@ -40,23 +40,35 @@ def find_image_sequence(file_path):
     return None
 
 
-def get_temp_path(filename_extension=None):
+def get_temp_path(filename_extension=None, is_directory=False):
     '''Calculate and return a Connect temporary path,
     appending *filename_extension* if supplied.'''
 
-    result = os.path.join(
-        tempfile.gettempdir(),
-        'ftrack-connect',
-        'ftrack',
-        '{}{}'.format(
-            os.path.basename(tempfile.NamedTemporaryFile().name),
-            f'.{filename_extension.split(".")[-1]}'
-            if filename_extension
-            else '',
-        ),
+    base_temp_dir = os.path.join(
+        tempfile.gettempdir(), 'ftrack-connect', 'ftrack'
     )
-    if not os.path.exists(os.path.dirname(result)):
-        os.makedirs(os.path.dirname(result))
+
+    # Ensure the base temporary directory exists
+    if not os.path.exists(base_temp_dir):
+        os.makedirs(base_temp_dir)
+
+    if is_directory:
+        # Create a temporary directory
+        result = tempfile.mkdtemp(dir=base_temp_dir)
+    else:
+        # Create a temporary file and get its path
+        temp_file = tempfile.NamedTemporaryFile(
+            delete=False, dir=base_temp_dir
+        )
+        result = temp_file.name
+
+        # If a filename extension is provided, append it to the file name
+        if filename_extension:
+            result_with_extension = (
+                f'{result}.{filename_extension.split(".")[-1]}'
+            )
+            os.rename(result, result_with_extension)
+            result = result_with_extension
 
     return result
 

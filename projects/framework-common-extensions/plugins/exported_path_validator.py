@@ -2,9 +2,9 @@
 # :copyright: Copyright (c) 2024 ftrack
 
 import os
-import re
 
-from ftrack_utils.paths import check_image_sequence
+import clique
+
 from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginValidationError
 
@@ -12,8 +12,6 @@ from ftrack_framework_core.exceptions.plugin import PluginValidationError
 class ExportedPathsValidatorPlugin(BasePlugin):
     '''
     Plugin to validate if exported_paths of all components in the store exists.
-
-    Expected format: folder/image.%d.jpg [1-35]
     '''
 
     name = 'exported_paths_validator'
@@ -28,14 +26,16 @@ class ExportedPathsValidatorPlugin(BasePlugin):
             )
             if not exported_path:
                 continue
-            # Check if image sequence - having "%d" or padded "%NNd" in the path
-            if re.findall(r"%(\d{1,2}d|d)", exported_path):
-                # Check that all frames exist and
-                # TODO: use a 3rd party library here (not clique as it is not maintained)
-                check_image_sequence(exported_path)
-            else:
-                if not os.path.exists(exported_path):
+            if not os.path.exists(exported_path):
+                try:
+                    collection = clique.parse(exported_path)
+                    for file_path in collection:
+                        if not os.path.exists(file_path):
+                            raise PluginValidationError(
+                                message=f'File {file_path} does not exist.'
+                            )
+                except Exception as error:
                     raise PluginValidationError(
-                        message=f"The file {exported_path} doesn't exists"
+                        message=f'File {exported_path} does not exist, and is not a valid collection, error: {error}'
                     )
-                self.logger.debug(f"Exported path {exported_path} exists.")
+            self.logger.debug(f"Exported path {exported_path} exists.")

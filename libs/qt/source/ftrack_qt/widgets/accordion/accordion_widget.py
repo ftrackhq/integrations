@@ -19,6 +19,7 @@ class AccordionBaseWidget(QtWidgets.QFrame):
     )  # Emitted when accordion is double clicked
     show_options_overlay = QtCore.Signal(object)
     hide_options_overlay = QtCore.Signal()
+    enabled_changed = QtCore.Signal(object)
 
     @property
     def title(self):
@@ -219,6 +220,7 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         '''Callback on enable checkbox user interaction'''
         self._checked = checked
         self._content_widget.setEnabled(self.checked)
+        self.enabled_changed.emit(self.checked)
 
     def _on_header_clicked(self, event):
         '''Callback on header user click'''

@@ -1,5 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
+
 import time
 import logging
 import uuid
@@ -616,23 +617,26 @@ class Client(object):
         return self.__getattribute__(property_name)
 
     def set_config_options(
-        self, tool_config_reference, plugin_config_reference=None, options=None
+        self, tool_config_reference, item_reference=None, options=None
     ):
+        '''
+        Set the given *options* to the given *tool_config_reference* or to the given *item_reference*(meaning to plugin or group) if provided.
+        '''
         if not options:
             options = dict()
-        # TODO_ mayabe we should rename this one to make sure this is just for plugins
+
         if not isinstance(options, dict):
             raise Exception(
                 "plugin_options should be a dictionary. "
                 "Current given type: {}".format(options)
             )
-        if not plugin_config_reference:
+        if not item_reference:
             self._tool_config_options[tool_config_reference][
                 'options'
             ] = options
         else:
             self._tool_config_options[tool_config_reference][
-                plugin_config_reference
+                item_reference
             ] = options
 
     def run_ui_hook(

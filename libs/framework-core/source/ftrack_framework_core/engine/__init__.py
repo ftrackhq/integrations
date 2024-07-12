@@ -117,6 +117,12 @@ class BaseEngine(object):
         *options*: options to be passed to the plugin
         *reference*: reference id of the plugin
         '''
+        # Specifically checking if its False, as we want to skip the plugin in that case.
+        if options.get('enabled') == False:
+            self.logger.debug(
+                f"Plugin {plugin} is disabled, skipping execution."
+            )
+            return
         registered_plugin = self.plugin_registry.get_one(name=plugin)
 
         plugin_instance = registered_plugin['extension'](
@@ -202,6 +208,8 @@ class BaseEngine(object):
                 self.run_plugin(item, store, tool_config_options)
 
             elif isinstance(item, dict):
+                if item.get("enabled") == False:
+                    continue
                 # If it's a group, execute all plugins from the group
                 if item["type"] == "group":
                     group_options = copy.deepcopy(tool_config_options)

@@ -2,6 +2,7 @@
 # :copyright: Copyright (c) 2024 ftrack
 
 from pathlib import Path
+import clique
 
 try:
     from PySide6 import QtWidgets, QtCore
@@ -9,6 +10,7 @@ except ImportError:
     from PySide2 import QtWidgets, QtCore
 
 from ftrack_qt.widgets.dialogs import FileDialog
+from ftrack_qt.widgets.dialogs import RadioButtonDialog
 
 
 class FileBrowser(QtWidgets.QWidget):
@@ -65,8 +67,26 @@ class FileBrowser(QtWidgets.QWidget):
     def _browse_button_clicked(self):
         '''Browse button clicked signal'''
         start_dir = self._path_le.text() or Path.home()
-        choosen_file_path = FileDialog(
-            start_dir=str(start_dir), dialog_filter="*"
-        )
-        self.set_path(choosen_file_path.path)
-        self.path_changed.emit(choosen_file_path.path)
+        file_dialog = FileDialog(start_dir=str(start_dir), dialog_filter="*")
+        selected_path = None
+        if len(file_dialog.paths) > 1:
+            selected_path = self.process_files_with_clique(file_dialog.paths)
+        else:
+            selected_path = file_dialog.paths[0]
+        self.set_path(selected_path)
+        self.path_changed.emit(selected_path)
+
+    def process_files_with_clique(self, file_paths):
+        '''Process the selected files with the clique library'''
+        collections, remainder = clique.assemble(file_paths)
+        collections_list = [collection.format() for collection in collections]
+        collections_list.extend(remainder)
+        if len(collections_list) > 1:
+            radio_button_dialog = RadioButtonDialog(collections_list)
+            if radio_button_dialog.exec_():
+                selected_item = radio_button_dialog.selected_item()
+                return selected_item
+            else:
+                return None
+        else:
+            return collections_list[0]
