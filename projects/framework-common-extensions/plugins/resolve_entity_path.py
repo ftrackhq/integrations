@@ -63,7 +63,7 @@ class ResolveEntityPathsPlugin(BasePlugin):
 
     def ui_hook(self, payload):
         '''
-        Suppy UI with entity data from options passed on in *payload*.
+        Supply UI with entity data from options passed on in *payload*.
         '''
         try:
             return self._resolve_entity_paths(payload['event_data'])
