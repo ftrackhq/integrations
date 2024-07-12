@@ -1,5 +1,11 @@
 # ftrack Framework QT library release Notes
 
+
+## upcoming
+
+* [changed] BaseDialog; update tool_config_names property to get from options tool_configs key.
+
+
 ## v2.2.0
 2024-05-02
 
