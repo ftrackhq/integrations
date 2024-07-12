@@ -345,19 +345,26 @@ class Client(object):
         {'module': 'client'},
         ['name'],
     )
-    def run_tool(self, name, dialog_name=None, options=dict, dock_func=False):
+    def run_tool(
+        self,
+        name,
+        dialog_name=None,
+        options=None,
+        dock_func=False,
+    ):
         '''
         Client runs the tool passed from the DCC config, can run run_dialog
         if the tool has UI or directly run_tool_config if it doesn't.
         '''
+
         self.logger.info(f"Running {name} tool")
+        if not options:
+            options = dict()
+
         if dialog_name:
             self.run_dialog(
                 dialog_name,
-                dialog_options={
-                    'tool_config_names': options.get('tool_configs'),
-                    'docked': options.get('docked', False),
-                },
+                dialog_options=options,
                 dock_func=dock_func,
             )
         else:
@@ -376,6 +383,11 @@ class Client(object):
                         f"Couldn't find any tool config matching the name {tool_config_name}"
                     )
                     continue
+
+                self.set_config_options(
+                    tool_config['reference'], options=options
+                )
+
                 self.run_tool_config(tool_config['reference'])
 
     # UI

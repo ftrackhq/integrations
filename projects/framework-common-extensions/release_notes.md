@@ -3,6 +3,7 @@
 ## Upcoming
 
 * [new] Generic publisher dialog added with a generic tool-config.
+* [fixed] StandardOpenerDialog, StandardPublisherDialog; Fix bug were dialog creation crashed if not tool configs. Also disabled run button.
 * [changed] RenameFileExporterPlugin; Accept folder as destination.
 * [required] Add clique 1.6.1 as dependency.
 * [changed] FileBrowserCollectorWidget emit signal when path changed.
