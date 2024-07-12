@@ -4,6 +4,7 @@
 ## upcoming
 
 * [new] decorators; run_in_main_thread decorator added.
+* [fix] JS RPC; Properly pick up and handle error messages from DCC.
 * [changed] get_temp_path; Support temp directories.
 
 
