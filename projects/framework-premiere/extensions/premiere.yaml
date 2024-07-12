@@ -15,14 +15,3 @@ tools:
     options:
       tool_configs:
         - premiere-project-opener
-  - name: load
-    action: true
-    menu: false # True by default
-    label: "Loader"
-    dialog_name: framework_standard_loader_dialog
-    options:
-      tool_configs:
-        - premiere-image-loader
-        - premiere-movie-loader
-        - premiere-sequence-loader
-      docked: false

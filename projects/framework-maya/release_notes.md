@@ -3,7 +3,6 @@
 
 ## upcoming
 
-* [new] Studio asset load capability, covering reference and import .ma and .mb scenes.
 * [changed] Host, Client instance; Pass run_in_main_thread argument.
 * [fix] Init; Fix on_run_tool_callback options argument.
 
@@ -20,7 +19,6 @@
 
 * [fix] Launcher; Properly escaped version expressions.
 * [changed] Replace Qt.py imports to PySide2 and PySide6 on widgets.
-
 
 ## v24.4.0
 2024-04-02

@@ -2,7 +2,6 @@
 # :copyright: Copyright (c) 2024 ftrack
 from functools import wraps
 import threading
-import socket
 
 try:
     from PySide6 import QtWidgets
@@ -11,14 +10,6 @@ except ImportError:
 
 import nuke, nukescripts
 from nukescripts import panels
-
-
-def get_nuke_session_identifier():
-    computer_name = socket.gethostname()
-    # Get the Maya scene name
-    script_name = nuke.root().name().split('/')[-1]
-    identifier = f"{script_name}_Nuke_{computer_name}"
-    return identifier
 
 
 def dock_nuke_right(widget):
