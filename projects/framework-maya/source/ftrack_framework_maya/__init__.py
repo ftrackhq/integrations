@@ -92,7 +92,11 @@ def get_ftrack_menu(menu_name='ftrack', submenu_name=None):
 # mechanisms directly.
 @run_in_main_thread
 def on_run_tool_callback(
-    client_instance, tool_name, dialog_name=None, options=dict, maya_args=None
+    client_instance,
+    tool_name,
+    dialog_name=None,
+    options=None,
+    maya_args=None,
 ):
     client_instance.run_tool(
         tool_name,
