@@ -83,6 +83,16 @@ class FrameworkDialog(BaseUI):
 
         self._tool_config = value
 
+        if self._tool_config:
+            arguments = {
+                "tool_config_reference": self._tool_config['reference'],
+                "item_reference": None,
+                "options": self.dialog_options,
+            }
+            self.client_method_connection(
+                'set_config_options', arguments=arguments
+            )
+
         # Call _on_tool_config_changed_callback to let the UI know that a new
         # tool_config has been set.
         self._on_tool_config_changed_callback()
