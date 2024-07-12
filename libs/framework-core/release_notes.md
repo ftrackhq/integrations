@@ -1,10 +1,13 @@
 # ftrack Framework Core library release Notes
 
+
 ## upcoming
 
+* [new] Client, Host; Run in main thread decorator used to run methods in the main thread.
 * [feature] Client, Engine, Dialog; Support tool config top level options.
 * [fix] Engine; Check enabled/disabled plugins.
 * [change] Client, Dialog; Support set_tool_config_option for any item in the tool_conifg.
+
 
 ## v2.4.0
 2024-06-04
