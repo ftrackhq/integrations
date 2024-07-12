@@ -142,8 +142,16 @@ def bootstrap_integration(framework_extensions_path):
     )
 
     # Instantiate Host and Client
-    Host(event_manager, registry=registry_instance)
-    client_instance = Client(event_manager, registry=registry_instance)
+    Host(
+        event_manager,
+        registry=registry_instance,
+        run_in_main_thread_wrapper=run_in_main_thread,
+    )
+    client_instance = Client(
+        event_manager,
+        registry=registry_instance,
+        run_in_main_thread_wrapper=run_in_main_thread,
+    )
 
     # Init tools
     dcc_config = registry_instance.get_one(
