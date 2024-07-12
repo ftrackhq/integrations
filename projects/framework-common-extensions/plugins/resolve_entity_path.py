@@ -11,7 +11,7 @@ class ResolveEntityPathsPlugin(BasePlugin):
     name = 'resolve_entity_path'
 
     def _resolve_entity_paths(self, options):
-        '''Evaluáte list of entities passed on in 'options', ensure
+        '''Evaluate list of entities passed on in 'options', ensure
         a single component and resolve path. Return as dictionary'''
         result = {}
         entities = options.get('selection', [])
