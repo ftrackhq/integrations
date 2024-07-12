@@ -73,7 +73,7 @@ startup_tools = []
 
 
 @run_in_main_thread
-def on_run_tool_callback(tool_name, dialog_name=None, options=dict):
+def on_run_tool_callback(tool_name, dialog_name=None, options=None):
     client_instance.run_tool(
         tool_name,
         dialog_name,
@@ -167,7 +167,7 @@ def bootstrap_integration(framework_extensions_path):
         on_menu = tool.get("menu", True)
         name = tool['name']
         dialog_name = tool.get('dialog_name')
-        options = tool.get('options')
+        options = tool.get('options', {})
         # TODO: In the future, we should probably emit an event so plugins can
         #  subscribe to it. and run_on specific event.
         if on_menu:
