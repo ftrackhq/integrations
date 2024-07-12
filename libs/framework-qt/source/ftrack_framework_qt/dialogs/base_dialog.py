@@ -145,6 +145,8 @@ class BaseDialog(FrameworkDialog, StyledDialog):
         self._stacked_widget.addWidget(self._overlay_widget)
 
         # Start event blocker
+        # Adding the event blocker widget (even if lambda: False) to the layout prevents Maya 2022 from
+        # crashing, specifically on Mac M1.
         self._event_blocker_widget = InputEventBlockingWidget(lambda: False)
 
         # Set the stacked widget as the central widget
