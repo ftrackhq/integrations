@@ -1,0 +1,124 @@
+type: tool_config
+name: standalone-generic-publisher
+config_type: publisher
+engine:
+  - type: plugin
+    tags:
+      - context
+    plugin: store_asset_context
+    options:
+      asset_type_name: script
+    ui: publisher_asset_version_selector
+
+  # Export the file component.
+  - type: group
+    tags:
+      - component
+    options:
+      component: file
+    optional: True # by default so is no need
+    #enabled: True by default so is no need
+    plugins:
+      - type: plugin
+        plugin: store_component
+      - type: plugin
+        tags:
+          - collector
+        plugin: file_collector
+        ui: file_browser_collector
+        options:
+          folder_path: null
+          file_name: null
+      - type: plugin
+        tags:
+          - validator
+        plugin: file_exists_validator
+        ui: validator_label
+      - type: plugin
+        tags:
+          - exporter
+        plugin: rename_file_exporter
+        ui: file_exporter_options
+        options:
+          export_destination: "~/Desktop/myPublishedFile.png"
+
+  # Add a generic component.
+  - type: group
+    tags:
+      - component
+      - generic
+    options:
+      component: generic
+      button_label: Add component
+      editable_component_name: True
+      removable: True
+    optional: True # by default so is no need
+    #enabled: True by default so is no need
+    plugins:
+      - type: plugin
+        plugin: store_component
+      - type: plugin
+        tags:
+          - collector
+        plugin: file_collector
+        ui: file_browser_collector
+        options:
+          folder_path: null
+          file_name: null
+      - type: plugin
+        tags:
+          - validator
+        plugin: file_exists_validator
+        ui: validator_label
+      - type: plugin
+        tags:
+          - exporter
+        plugin: rename_file_exporter
+        ui: file_exporter_options
+        options:
+          export_destination: "~/Desktop/myPublishedFile.png"
+
+  # Add a static name generic component.
+  - type: group
+    tags:
+      - component
+      - generic
+    options:
+      component: generic_static
+      button_label: Add static component
+      editable_component_name: False
+      removable: False
+    optional: True # by default so is no need
+    #enabled: True by default so is no need
+    plugins:
+      - type: plugin
+        plugin: store_component
+      - type: plugin
+        tags:
+          - collector
+        plugin: file_collector
+        ui: file_browser_collector
+        options:
+          folder_path: null
+          file_name: null
+      - type: plugin
+        tags:
+          - validator
+        plugin: file_exists_validator
+        ui: validator_label
+      - type: plugin
+        tags:
+          - exporter
+        plugin: rename_file_exporter
+        ui: file_exporter_options
+
+  # Common validator check all exported paths exists.
+  - type: plugin
+    tags:
+      - validator
+    plugin: exported_paths_validator
+    ui: validator_label
+
+
+  # Publish to ftrack.
+  - publish_to_ftrack

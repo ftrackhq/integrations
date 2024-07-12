@@ -60,6 +60,9 @@ CLIENT_NOTIFY_UI_HOOK_RESULT_TOPIC = '{}.client.notify.ui_hook_result'.format(
 # Client wants to verify the plugins are registered in host
 HOST_VERIFY_PLUGINS_TOPIC = '{}.host.verify.plugins'.format(_BASE_)
 
+# Client wants to verify the plugins are registered in host
+HOST_SYNC_TOOL_CONFIG_TOPIC = '{}.host.sync.tool_config'.format(_BASE_)
+
 # Remote integration<>Python communication; Connection and alive check
 DISCOVER_REMOTE_INTEGRATION_TOPIC = "{}.discover.remote.integration".format(
     _BASE_

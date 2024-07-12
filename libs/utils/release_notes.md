@@ -3,6 +3,7 @@
 
 ## upcoming
 
+* [changed] framework tool configs; get_groups method dictionary support on filters argument..
 * [fix] JS RPC; Properly pick up and handle error messages from DCC.
 * [changed] get_temp_path; Support temp directories.
 

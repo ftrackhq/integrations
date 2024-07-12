@@ -124,13 +124,15 @@ class Registry(object):
         for extension in unique_extensions:
             self.add(**extension)
 
-    def add(self, extension_type, name, extension, path):
+    def add(
+        self, extension_type, name, extension, path, create_reference=True
+    ):
         '''
         Add the given *extension_type* with *name*, *extension* and *path to
         the registry
         '''
-        if extension_type == 'tool_config':
-            self.augment_tool_config(extension)
+        if extension_type == 'tool_config' and create_reference:
+            self.create_unic_references(extension, skip_root=False)
         # We use extension_type and not type to not interfere with python
         # build in type
         self.__registry[extension_type].append(
@@ -141,12 +143,12 @@ class Registry(object):
             }
         )
 
-    def _get(self, extensions, name, extension, path):
+    def _get(self, extensions, name, extension, path, reference=None):
         '''
         Check given *extensions* list to match given *name*, *extension* and *path* if
         neither provided, return all available extensions
         '''
-        if not any([name, extension, path]):
+        if not any([name, extension, path, reference]):
             return extensions
         found_extensions = []
         for _extension in extensions:
@@ -156,10 +158,21 @@ class Registry(object):
                 continue
             if path and _extension['path'] != path:
                 continue
+            if reference and isinstance(_extension['extension'], dict):
+                if _extension['extension'].get('type') == 'tool_config':
+                    if _extension['extension'].get('reference') != reference:
+                        continue
             found_extensions.append(_extension)
         return found_extensions
 
-    def get(self, name=None, extension=None, path=None, extension_type=None):
+    def get(
+        self,
+        name=None,
+        extension=None,
+        path=None,
+        extension_type=None,
+        reference=None,
+    ):
         '''
         Return given matching *name*, *extension*, *path* or *extension_type*.
         If nothing provided, return all available extensions.
@@ -168,13 +181,25 @@ class Registry(object):
         if extension_type:
             extensions = self.registry.get(extension_type)
             found_extensions.extend(
-                self._get(extensions, name, extension, path)
+                self._get(
+                    extensions=extensions,
+                    name=name,
+                    extension=extension,
+                    path=path,
+                    reference=reference,
+                )
             )
         else:
             for extension_type in list(self.registry.keys()):
                 extensions = self.registry.get(extension_type)
                 found_extensions.extend(
-                    self._get(extensions, name, extension, path)
+                    self._get(
+                        extensions=extensions,
+                        name=name,
+                        extension=extension,
+                        path=path,
+                        reference=reference,
+                    )
                 )
 
         return found_extensions
@@ -186,30 +211,37 @@ class Registry(object):
         '''
         matching_extensions = self.get(*args, **kwargs)
         if len(matching_extensions) == 0:
-            kwargs_string = ''.join([('%s=%s' % x) for x in kwargs.items()])
-            raise Exception(
+            kwargs_string = ', '.join([('%s=%s' % x) for x in kwargs.items()])
+            self.logger.warning(
                 "Extension not found. Arguments: {}".format(
                     (''.join(args), kwargs_string)
                 )
             )
+            return None
 
         if len(matching_extensions) > 1:
-            kwargs_string = ''.join([('%s=%s' % x) for x in kwargs.items()])
-            raise Exception(
+            kwargs_string = ', '.join([('%s=%s' % x) for x in kwargs.items()])
+            self.logger.warning(
                 "Multiple matching extensions found.Arguments: {}".format(
                     (''.join(args), kwargs_string)
                 )
             )
+            return None
         return matching_extensions[0]
 
-    def augment_tool_config(self, tool_config):
+    def create_unic_references(self, tool_config, skip_root=False):
         '''
         Augment the given *tool_config* to add a reference id to it
         and each plugin and group
         '''
-        tool_config['reference'] = uuid.uuid4().hex
+        if not skip_root:
+            tool_config['reference'] = uuid.uuid4().hex
         if 'engine' in tool_config:
             self._recursive_create_reference(tool_config['engine'])
+        else:
+            # if doesn't contain engine, we assume that is a portion of the tool
+            # config so we augment that portion
+            self._recursive_create_reference([tool_config])
         return tool_config
 
     def _recursive_create_reference(self, tool_config_engine_portion):

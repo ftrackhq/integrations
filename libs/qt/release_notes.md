@@ -3,6 +3,10 @@
 
 ## upcoming
 
+* [new] MenuButton; Button supporting menu if multiple action items provided.
+* [changed] Improved AccordionWidget and AcordionHeaderWidget to use EditableLabelWidget and possibility to add a remove button. Emits bin_clicked, title_changed, title_edited signals.
+* [changed] StatusMaterialIconWidget clickable.
+* [new] Editable label widget.
 * [changed] FileDialog; support selecting multiple files.
 * [changed] FileBrowser; support collection of multiple files.
 * [changed] Python clique 1.6.1 library as dependency.
