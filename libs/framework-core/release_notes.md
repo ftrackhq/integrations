@@ -2,6 +2,7 @@
 
 ## upcoming
 
+* [changed] EventManager; Local and remote events in the same session are allowed.
 * [feature] Client, Engine, Dialog; Support tool config top level options.
 * [fix] Engine; Check enabled/disabled plugins.
 * [change] Client, Dialog; Support set_tool_config_option for any item in the tool_conifg.
