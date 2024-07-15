@@ -9,6 +9,9 @@ from ftrack_framework_core.widget.dialog import FrameworkDialog
 
 from ftrack_qt.widgets.dialogs import StyledDialog
 from ftrack_qt.widgets.headers import SessionHeader
+from ftrack_qt.utils.widget import (
+    InputEventBlockingWidget,
+)
 
 from ftrack_qt.utils.layout import recursive_clear_layout
 
@@ -20,6 +23,10 @@ class BaseDialog(FrameworkDialog, StyledDialog):
     tool_config_type_filter = None
     run_button_title = 'run'
     ui_type = 'qt'
+
+    @property
+    def event_blocker_widget(self):
+        return self._event_blocker_widget
 
     @property
     def stacked_widget(self):
@@ -56,7 +63,7 @@ class BaseDialog(FrameworkDialog, StyledDialog):
     @property
     def tool_config_names(self):
         '''Return tool config names if passed in the dialog options.'''
-        return self.dialog_options.get('tool_config_names')
+        return self.dialog_options.get('tool_configs')
 
     def __init__(
         self,
@@ -137,8 +144,14 @@ class BaseDialog(FrameworkDialog, StyledDialog):
         self._stacked_widget.addWidget(self._main_widget)
         self._stacked_widget.addWidget(self._overlay_widget)
 
+        # Start event blocker
+        # Adding the event blocker widget (even if lambda: False) to the layout prevents Maya 2022 from
+        # crashing, specifically on Mac M1.
+        self._event_blocker_widget = InputEventBlockingWidget(lambda: False)
+
         # Set the stacked widget as the central widget
         self.setLayout(base_layout)
+        self.layout().addWidget(self._event_blocker_widget)
         self.layout().addWidget(self._stacked_widget)
         self.show_main_widget()
 
@@ -249,4 +262,5 @@ class BaseDialog(FrameworkDialog, StyledDialog):
 
     def closeEvent(self, event):
         self.ui_closed()
+        self._event_blocker_widget.stop()
         super(BaseDialog, self).closeEvent(event)

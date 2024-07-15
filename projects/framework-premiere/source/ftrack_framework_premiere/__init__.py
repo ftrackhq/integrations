@@ -70,8 +70,12 @@ if not app:
 
 
 @invoke_in_qt_main_thread
-def on_run_tool_callback(tool_name, dialog_name=None, options=dict):
-    client_instance.run_tool(tool_name, dialog_name, options)
+def on_run_tool_callback(tool_name, dialog_name=None, options=None):
+    client_instance.run_tool(
+        tool_name,
+        dialog_name,
+        options,
+    )
 
 
 @invoke_in_qt_main_thread

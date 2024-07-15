@@ -144,6 +144,7 @@ class StandardPublisherDialog(BaseContextDialog):
                 "font-style: italic; font-weight: bold;"
             )
             self.tool_widget.layout().addWidget(label_widget)
+            self.run_button.setEnabled(False)
             return
 
         # Build context widgets
@@ -241,12 +242,13 @@ class StandardPublisherDialog(BaseContextDialog):
             )
 
     def post_build_ui(self):
-        self._progress_widget.hide_overlay_signal.connect(
-            self.show_main_widget
-        )
-        self._progress_widget.show_overlay_signal.connect(
-            self.show_overlay_widget
-        )
+        if self._progress_widget:
+            self._progress_widget.hide_overlay_signal.connect(
+                self.show_main_widget
+            )
+            self._progress_widget.show_overlay_signal.connect(
+                self.show_overlay_widget
+            )
 
     def show_options_widget(self, widget):
         '''Sets the given *widget* as the index 2 of the stacked widget and
