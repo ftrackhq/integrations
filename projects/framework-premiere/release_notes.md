@@ -3,6 +3,7 @@
 
 ## upcoming
 
+* [change] Init; Create remote session and initialize EventManager allowing remote events.
 * [fix] Init; Fix on_run_tool_callback options argument.
 
 
