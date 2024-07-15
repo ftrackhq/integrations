@@ -32,6 +32,7 @@ class FlameThumbnailExporterPlugin(BasePlugin):
         current_selection = flame.media_panel.selected_entries[0]
         if not isinstance(current_selection, (flame.PySequence, flame.PyClip)):
             return
+
         self.logger.debug(f"Current selection: {current_selection}.")
         thumbnail_preset_path = presets.get_preset_path('JPG8')
 
@@ -67,9 +68,9 @@ class FlameThumbnailExporterPlugin(BasePlugin):
             exporter.export(
                 duplicate_clip, thumbnail_preset_path, exported_path
             )
-            framename = str(duplicate_clip.current_time.get_value().frame).zfill(8)
-            filename = f'{ duplicate_clip.name.get_value()}.{framename}.jpg'
-            destination_path = os.path.join(exported_path,filename)
+            frame_name = str(duplicate_clip.current_time.get_value().frame).zfill(8)
+            file_name = f'{ duplicate_clip.name.get_value()}.{frame_name}.jpg'
+            destination_path = os.path.join(exported_path,file_name)
             print(f"Exported to {destination_path}")
 
             store['components'][component_name]['exported_path'] = destination_path
