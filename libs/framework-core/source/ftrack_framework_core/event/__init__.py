@@ -159,7 +159,9 @@ class EventManager(object):
         else:
             if not self.allow_remote_events:
                 self.logger.warning(
-                    'Remote events are not allowed. Please initialize the EventManager with allow_remote_events=True or set the allow_remote_Events property to true'
+                    'Remote events are not allowed. Please initialize the '
+                    'EventManager with allow_remote_events=True or set the '
+                    'allow_remote_Events property to true'
                 )
                 return
             self.session.event_hub.publish(event, on_reply=callback)
