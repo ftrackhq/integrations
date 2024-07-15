@@ -2,6 +2,7 @@
 
 ## upcoming
 
+* [changed] Host; Remove with_new_session decorator and use current remote session directly.
 * [changed] EventManager; Local and remote events in the same session are allowed.
 * [feature] Client, Engine, Dialog; Support tool config top level options.
 * [fix] Engine; Check enabled/disabled plugins.
