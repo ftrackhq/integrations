@@ -2,6 +2,7 @@
 
 
 ## v3.0.0rc1
+2024-07-17
 
 * [changed] FileDialog; support selecting multiple files.
 * [changed] FileBrowser; support collection of multiple files.
