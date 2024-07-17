@@ -28,10 +28,10 @@ PySide2 = { version = "^5.13.2", optional = true }
 PySide6 = { version = "^6.5", optional = true }
 #ftrack
 ftrack-constants= {  version = "^2.0.0", optional = true }
-ftrack-utils = {  version = "^2.0.0", optional = true }
-ftrack-qt = {  version = "^2.0.0", optional = true }
+ftrack-utils = { version = "^2.4.0rc1", allow-prereleases=true, optional = true }
+ftrack-qt = {  version = "^3.0.0rc1", allow-prereleases=true, optional = true }
 #framework
-ftrack-framework-core = {  version = "^2.0.0", optional = true }
+ftrack-framework-core = {  version = "^3.0.0rc1", allow-prereleases=true, optional = true }
 
 [tool.poetry.extras]
 pyside2 = ["PySide2"]
