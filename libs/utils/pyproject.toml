@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ftrack-utils"
-version = "2.3.0"
+version = "2.4.0rc1"
 description='ftrack utils library'
 authors = ["ftrack Integrations Team <integrations@backlight.co>"]
 readme = "README.md"

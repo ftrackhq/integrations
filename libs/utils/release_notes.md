@@ -1,7 +1,8 @@
 # ftrack Utils library release Notes
 
 
-## upcoming
+## v2.4.0rc1
+2024-07-17
 
 * [fix] JS RPC; Properly pick up and handle error messages from DCC.
 * [changed] get_temp_path; Support temp directories.
