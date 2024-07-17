@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ftrack-framework-core"
-version = "2.4.0"
+version = "3.0.0rc1"
 description='ftrack Framework Core library'
 authors = ["ftrack Integrations Team <integrations@backlight.co>"]
 readme = "README.md"
@@ -30,7 +30,7 @@ platformdirs = "^4.0.0"
 pyyaml = "^6.0.1"
 #ftrack
 ftrack-constants= {  version = "^2.0.0", optional = true }
-ftrack-utils = { version = "^2.0.0", optional = true }
+ftrack-utils = { version = "^2.4.0rc1", allow-prereleases=true, optional = true, source = "testpypi" }
 
 
 [tool.poetry.extras]

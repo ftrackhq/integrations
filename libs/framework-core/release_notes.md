@@ -1,6 +1,7 @@
 # ftrack Framework Core library release Notes
 
-## upcoming
+## v3.0.0rc1
+2024-07-17
 
 * [changed] Host; Remove with_new_session decorator and use current remote session directly.
 * [changed] EventManager; Local and remote events in the same session are allowed.
