@@ -1,6 +1,6 @@
 # ftrack Framework Core library release Notes
 
-## upcoming
+## v3.0.0rc1
 
 * [feature] Client, Engine, Dialog; Support tool config top level options.
 * [fix] Engine; Check enabled/disabled plugins.

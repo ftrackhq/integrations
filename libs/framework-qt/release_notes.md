@@ -1,7 +1,7 @@
 # ftrack Framework QT library release Notes
 
 
-## upcoming
+## v3.0.0rc1
 
 * [new] BaseDialog; Add event blocker widget on BaseDialog to prevent unexpected crashes.
 * [changed] BaseDialog; update tool_config_names property to get from options tool_configs key.
