@@ -1,5 +1,11 @@
 # ftrack Connect release Notes
 
+## v24.7.0rc1
+2024-07-17
+
+* [fix] Add full ftrack_api and ftrack_Action_handler modules on connect package.
+
+
 ## v24.6.0
 2024-06-04
 
