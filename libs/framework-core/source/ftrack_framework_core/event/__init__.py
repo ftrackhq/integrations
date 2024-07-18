@@ -26,7 +26,6 @@ class _EventHubThread(threading.Thread):
         super(_EventHubThread, self).__init__(name=_name)
         self.logger.debug('Name set for the thread: {}'.format(_name))
         self._session = session
-        self._stop = False
 
     def start(self):
         '''Start thread for *_session*.'''
@@ -35,19 +34,12 @@ class _EventHubThread(threading.Thread):
         )
         super(_EventHubThread, self).start()
 
-    def stop(self):
-        self.logger.debug(
-            'stopping event hub thread for session {}'.format(self._session)
-        )
-        self._stop = True
-
     def run(self):
         '''Listen for events.'''
         self.logger.debug(
             'hub thread started for session {}'.format(self._session)
         )
-        while not self._stop:
-            self._session.event_hub.wait(0.2)
+        self._session.event_hub.wait()
 
 
 class EventManager(object):
@@ -115,13 +107,6 @@ class EventManager(object):
         if not self._event_hub_thread.is_alive():
             # self.logger.debug('Starting new hub thread for {}'.format(self))
             self._event_hub_thread.start()
-
-    def close(self):
-        if self._event_hub_thread and self._event_hub_thread.is_alive():
-            self.logger.debug('Stopping event hub thread')
-            self._event_hub_thread.stop()
-            self._event_hub_thread = None
-            self.session.close()
 
     def __init__(self, session, mode=constants.event.LOCAL_EVENT_MODE):
         self.logger = logging.getLogger(
