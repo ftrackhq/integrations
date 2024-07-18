@@ -53,7 +53,6 @@ class StandardPublisherDialog(BaseContextDialog):
         self._scroll_area = None
         self._scroll_area_widget = None
         self._progress_widget = None
-        self._accordion_widgets_registry = []
 
         super(StandardPublisherDialog, self).__init__(
             event_manager,
