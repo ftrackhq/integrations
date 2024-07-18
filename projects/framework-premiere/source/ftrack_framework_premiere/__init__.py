@@ -58,6 +58,7 @@ logger.debug('v{}'.format(__version__))
 client_instance = None
 premiere_rpc_connection = None
 startup_tools = []
+session = None
 process_monitor = None
 
 # Create Qt application
@@ -280,10 +281,13 @@ def bootstrap_integration(framework_extensions_path):
 def run_integration():
     '''Run Premiere Framework Python standalone part as long as Premiere is alive.'''
 
+    global session
+
     # Run until it's closed, or CTRL+C
     active_time = 0
     while True:
         app.processEvents()
+        session.event_hub.wait(0.01)
         active_time += 10
         if active_time % 10000 == 0:
             logger.info(

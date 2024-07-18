@@ -587,6 +587,7 @@ def build_package(invokation_path, pkg_path, args, command=None):
                 ]
             )
 
+        print(f"Commands: {commands}")
         subprocess.check_call(commands)
 
         if args.include_assets:
