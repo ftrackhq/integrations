@@ -1,6 +1,7 @@
 # ftrack Framework Core library release Notes
 
-## upcoming
+## v3.0.0rc1
+2024-07-17
 
 * [changed] EventManager; Local and remote events in the same session are allowed.
 * [feature] Client, Engine, Dialog; Support tool config top level options.
