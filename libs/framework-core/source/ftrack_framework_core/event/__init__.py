@@ -519,3 +519,27 @@ class Subscribe(object):
             constants.event.HOST_VERIFY_PLUGINS_TOPIC, host_id
         )
         return self._subscribe_event(event_topic, callback)
+
+    def ftrack_action_discover(self, callback=None):
+        '''
+        Subscribe to an event with topic
+        :const:`~ftrack_framework_core.constants.event.FTRACK_ACTION_DISCOVER_TOPIC`
+        '''
+        event_topic = '{} and source.user.username={}'.format(
+            constants.event.FTRACK_ACTION_DISCOVER_TOPIC,
+            self.event_manager.session.api_user,
+        )
+        return self._subscribe_event(event_topic, callback)
+
+    def ftrack_action_launch(self, host_id, action_name, callback=None):
+        '''
+        Subscribe to an event with topic
+        :const:`~ftrack_framework_core.constants.event.FTRACK_ACTION_LAUNCH_TOPIC`
+        '''
+        event_topic = '{} and data.name={} and source.user.username={} and data.host_id={}'.format(
+            constants.event.FTRACK_ACTION_LAUNCH_TOPIC,
+            action_name,
+            self.event_manager.session.api_user,
+            host_id,
+        )
+        return self._subscribe_event(event_topic, callback)

@@ -6,7 +6,6 @@ import logging
 import uuid
 from collections import defaultdict
 from functools import partial
-import atexit
 
 from six import string_types
 
@@ -185,20 +184,6 @@ class Client(object):
     def tool_config_options(self):
         return self._tool_config_options
 
-    @property
-    def remote_event_manager(self):
-        # TODO: this is a temporal solution, 1 session should be able to act as local and remote at the same time
-        if self._remote_event_manager:
-            return self._remote_event_manager
-        else:
-            _remote_session = ftrack_api.Session(auto_connect_event_hub=False)
-            self._remote_event_manager = EventManager(
-                session=_remote_session, mode=constants.event.REMOTE_EVENT_MODE
-            )
-        # Make sure it is shutdown
-        atexit.register(self.close)
-        return self._remote_event_manager
-
     def __init__(
         self, event_manager, registry, run_in_main_thread_wrapper=None
     ):
@@ -224,7 +209,6 @@ class Client(object):
         self.__instanced_dialogs = {}
         self._dialog = None
         self._tool_config_options = defaultdict(defaultdict)
-        self._remote_event_manager = None
 
         # Set up the run_in_main_thread decorator
         self.run_in_main_thread_wrapper = run_in_main_thread_wrapper
@@ -422,12 +406,9 @@ class Client(object):
         '''
         if not options:
             options = dict()
-        # TODO: The event should be added to the event manager to be accesible
-        #  through subscribe and publish classes
-        self.remote_event_manager.session.event_hub.subscribe(
-            u'topic=ftrack.action.discover and '
-            u'source.user.username="{0}"'.format(self.session.api_user),
-            partial(
+
+        self.event_manager.subscribe.ftrack_action_discover(
+            callback=partial(
                 self._on_discover_action_callback,
                 name,
                 label,
@@ -436,15 +417,10 @@ class Client(object):
                 session_identifier_func,
             ),
         )
-
-        self.remote_event_manager.session.event_hub.subscribe(
-            u'topic=ftrack.action.launch and '
-            u'data.name={0} and '
-            u'source.user.username="{1}" and '
-            u'data.host_id={2}'.format(
-                name, self.session.api_user, self.host_id
-            ),
-            self._on_launch_action_callback,
+        self.event_manager.subscribe.ftrack_action_launch(
+            host_id=self.host_id,
+            action_name=name,
+            callback=self._on_launch_action_callback,
         )
 
     @track_framework_usage(
@@ -673,8 +649,3 @@ class Client(object):
 
     def close(self):
         self.logger.debug('Shutting down client')
-
-        if self._remote_event_manager:
-            self.logger.debug('Stopping remote_event_manager')
-            self.remote_event_manager.close()
-            self._remote_event_manager = None
