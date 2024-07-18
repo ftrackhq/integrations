@@ -9,8 +9,6 @@ from functools import partial
 
 from six import string_types
 
-import ftrack_api
-
 from ftrack_framework_core.widget.dialog import FrameworkDialog
 import ftrack_constants.framework as constants
 
@@ -19,8 +17,6 @@ from ftrack_framework_core.client.host_connection import HostConnection
 from ftrack_utils.decorators import track_framework_usage, run_in_main_thread
 
 from ftrack_utils.framework.config.tool import get_tool_config_by_name
-
-from ftrack_framework_core.event import EventManager
 
 
 class Client(object):
@@ -209,9 +205,6 @@ class Client(object):
         self.__instanced_dialogs = {}
         self._dialog = None
         self._tool_config_options = defaultdict(defaultdict)
-
-        # Set up the run_in_main_thread decorator
-        self.run_in_main_thread_wrapper = run_in_main_thread_wrapper
 
         # Set up the run_in_main_thread decorator
         self.run_in_main_thread_wrapper = run_in_main_thread_wrapper
