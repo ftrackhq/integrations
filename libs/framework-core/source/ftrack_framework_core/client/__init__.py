@@ -642,3 +642,4 @@ class Client(object):
 
     def close(self):
         self.logger.debug('Shutting down client')
+        # TODO: try self.event_manager.close() if needed and see if it works.
