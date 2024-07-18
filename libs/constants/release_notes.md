@@ -2,6 +2,7 @@
 
 ## upcoming
 
+* [new] framework/event; FTRACK_ACTION_DISCOVER_TOPIC and FTRACK_ACTION_LAUNCH_TOPIC added.
 * [feature] framework event; Remove remote/local event constant.
 
 
