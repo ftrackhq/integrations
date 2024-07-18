@@ -4,6 +4,7 @@
 ## upcoming
 
 * [changed] Host, Client instance; Pass run_in_main_thread argument.
+* [change] Init; Create remote session and initialize EventManager allowing remote events.
 * [fix] Init; Fix on_run_tool_callback options argument.
 
 

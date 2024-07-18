@@ -87,10 +87,8 @@ def bootstrap_integration(framework_extensions_path):
     global client_instance
 
     # Create ftrack session and instantiate event manager
-    session = ftrack_api.Session(auto_connect_event_hub=False)
-    event_manager = EventManager(
-        session=session, mode=constants.event.LOCAL_EVENT_MODE
-    )
+    session = ftrack_api.Session(auto_connect_event_hub=True)
+    event_manager = EventManager(session=session)
     logger.debug(f"framework_extensions_path:{framework_extensions_path}")
     # Instantiate registry
     registry_instance = Registry()
