@@ -118,6 +118,11 @@ class EventManager(object):
             # self.logger.debug('Starting new hub thread for {}'.format(self))
             self._event_hub_thread.start()
 
+    def close(self):
+        '''Close the event manager and disconnect from the event hub.'''
+        self.session.event_hub.disconnect()
+        self.session.close()
+
     def __init__(self, session, allow_remote_events=True):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
