@@ -7,6 +7,11 @@ import traceback
 from functools import partial
 import platform
 
+try:
+    from PySide6 import QtWidgets, QtCore
+except ImportError:
+    from PySide2 import QtWidgets, QtCore
+
 import nuke, nukescripts
 
 import ftrack_api
@@ -25,6 +30,7 @@ from ftrack_framework_core.configure_logging import configure_logging
 from ftrack_utils.usage import set_usage_tracker, UsageTracker
 
 from ftrack_framework_nuke.utils import (
+    get_nuke_session_identifier,
     dock_nuke_right,
     find_nodegraph_viewer,
     run_in_main_thread,
@@ -70,6 +76,7 @@ def get_ftrack_menu(menu_name='ftrack', submenu_name=None):
 
 client_instance = None
 startup_tools = []
+action_tools = []
 
 
 @run_in_main_thread
@@ -78,11 +85,29 @@ def on_run_tool_callback(tool_name, dialog_name=None, options=None):
         tool_name,
         dialog_name,
         options,
-        dock_func=partial(dock_nuke_right) if dialog_name else None,
+        dock_func=dock_nuke_right if dialog_name else None,
     )
     # Prevent bug in Nuke were curve editor is activated on docking a panel
     if options.get("docked"):
         find_nodegraph_viewer(activate=True)
+
+
+@run_in_main_thread
+def on_subscribe_action_tool_callback(
+    tool_name, label, dialog_name=None, options=None
+):
+    client_instance.subscribe_action_tool(
+        tool_name,
+        label,
+        dialog_name,
+        options,
+        session_identifier_func=get_nuke_session_identifier,
+    )
+
+
+def on_exit():
+    '''Nuke shutdown, tear down client'''
+    client_instance.close()
 
 
 def bootstrap_integration(framework_extensions_path):
@@ -171,8 +196,10 @@ def bootstrap_integration(framework_extensions_path):
 
     for tool in dcc_config['tools']:
         run_on = tool.get("run_on")
+        action = tool.get("action")
         on_menu = tool.get("menu", True)
-        name = tool['name']
+        label = tool.get('label') or tool.get('name')
+        name = tool.get('name')
         dialog_name = tool.get('dialog_name')
         options = tool.get('options', {})
         # TODO: In the future, we should probably emit an event so plugins can
@@ -185,30 +212,37 @@ def bootstrap_integration(framework_extensions_path):
                     tool['label'],
                     f'{__name__}.onRunToolCallback("{name}","{dialog_name}", {options})',
                 )
+        if run_on == "startup":
+            startup_tools.append(
+                [
+                    name,
+                    dialog_name,
+                    options,
+                ]
+            )
+        if action:
+            action_tools.append(
+                [
+                    name,
+                    label,
+                    dialog_name,
+                    options,
+                ]
+            )
 
-        if run_on:
-            if run_on == "startup":
-                # Add all tools on a global variable as they can't be executed until
-                # root node is created.
-                startup_tools.append(
-                    [
-                        name,
-                        dialog_name,
-                        options,
-                    ]
-                )
-            else:
-                logger.error(
-                    f"Unsupported run_on value: {run_on} tool section of the "
-                    f"tool {tool.get('name')} on the tool config file: "
-                    f"{dcc_config['name']}. \n Currently supported values:"
-                    f" [startup]"
-                )
+    # Add shutdown hook, for client to be properly closed when Nuke exists
+    app = QtWidgets.QApplication.instance()
+    app.aboutToQuit.connect(on_exit)
 
 
 def execute_startup_tools():
     for tool in startup_tools:
         on_run_tool_callback(*tool)
+
+
+def subscribe_action_tools():
+    for tool in action_tools:
+        on_subscribe_action_tool_callback(*tool)
 
 
 # Find and read DCC config
