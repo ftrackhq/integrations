@@ -2,7 +2,7 @@
 
 ## upcoming
 
-* [new] Client, Host; Run in main thread decorator used to run methods in the main thread.
+* [new] Client, Host; Using delegate_to_main_thread_wrapper decorator to execute methods in main thread function provided as run_in_main_thread_wrapper argument when instantiating.
 
 
 ## v3.0.0rc1

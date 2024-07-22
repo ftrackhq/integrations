@@ -1,6 +1,12 @@
 # ftrack Utils library release Notes
 
 
+## upcoming
+
+* [new] Calls methids; call_directly utility function added to directly call a function with the give arguments.
+* [new] Decorators threading; delegate_to_main_thread_wrapper added.
+
+
 ## v2.4.0rc1
 2024-07-17
 
