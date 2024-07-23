@@ -51,11 +51,15 @@ def on_launch_integration(session, event):
 
     # add hook path for flame
     flame_hook_paths = os.path.join(connect_plugin_path, 'resource', 'bootstrap')
+
     # https://help.autodesk.com/view/FLAME/2022/ENU/?guid=Flame_API_Python_Hooks_Reference_Python_Hooks_Tips_html
     # and enable hooks debug
-
     launch_data['integration']['env']['DL_PYTHON_HOOK_PATH'] = flame_hook_paths
     launch_data['integration']['env']['DL_DEBUG_PYTHON_HOOKS'] = '1'
+
+    # faster flame startup
+    # https://help.autodesk.com/view/FLAME/2023/ENU/?guid=GUID-7F43A9A3-C997-4846-8381-69D8F6CF1B2E
+    launch_data['integration']['env']['DL_STARTUP_LIBS_CLOSED'] = '1'
 
     launch_data['integration']['env'][
         'PYTHONPATH.prepend'
