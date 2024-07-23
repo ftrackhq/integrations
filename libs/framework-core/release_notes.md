@@ -3,6 +3,7 @@
 
 ## upcoming
 
+* [new] Client; Discover and launch action overrides.
 * [new] Client, Host; Using delegate_to_main_thread_wrapper decorator to execute methods in main thread function provided as run_in_main_thread_wrapper argument when instantiating.
 
 
