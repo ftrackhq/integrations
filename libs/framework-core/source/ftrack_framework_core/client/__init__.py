@@ -6,22 +6,20 @@ import logging
 import uuid
 from collections import defaultdict
 from functools import partial
-import atexit
 
 from six import string_types
-
-import ftrack_api
 
 from ftrack_framework_core.widget.dialog import FrameworkDialog
 import ftrack_constants.framework as constants
 
 from ftrack_framework_core.client.host_connection import HostConnection
 
-from ftrack_utils.decorators import track_framework_usage, run_in_main_thread
-
+from ftrack_utils.decorators import (
+    track_framework_usage,
+    delegate_to_main_thread_wrapper,
+)
 from ftrack_utils.framework.config.tool import get_tool_config_by_name
-
-from ftrack_framework_core.event import EventManager
+from ftrack_utils.calls.methods import call_directly
 
 
 class Client(object):
@@ -185,20 +183,6 @@ class Client(object):
     def tool_config_options(self):
         return self._tool_config_options
 
-    @property
-    def remote_event_manager(self):
-        # TODO: this is a temporal solution, 1 session should be able to act as local and remote at the same time
-        if self._remote_event_manager:
-            return self._remote_event_manager
-        else:
-            _remote_session = ftrack_api.Session(auto_connect_event_hub=False)
-            self._remote_event_manager = EventManager(
-                session=_remote_session, mode=constants.event.REMOTE_EVENT_MODE
-            )
-        # Make sure it is shutdown
-        atexit.register(self.close)
-        return self._remote_event_manager
-
     def __init__(
         self, event_manager, registry, run_in_main_thread_wrapper=None
     ):
@@ -224,13 +208,13 @@ class Client(object):
         self.__instanced_dialogs = {}
         self._dialog = None
         self._tool_config_options = defaultdict(defaultdict)
-        self._remote_event_manager = None
 
         # Set up the run_in_main_thread decorator
-        self.run_in_main_thread_wrapper = run_in_main_thread_wrapper
-
-        # Set up the run_in_main_thread decorator
-        self.run_in_main_thread_wrapper = run_in_main_thread_wrapper
+        if run_in_main_thread_wrapper:
+            self.run_in_main_thread_wrapper = run_in_main_thread_wrapper
+        else:
+            # Using the util.call_directly function as the default method
+            self.run_in_main_thread_wrapper = call_directly
 
         self.logger.debug('Initialising Client {}'.format(self))
 
@@ -292,7 +276,7 @@ class Client(object):
         self.event_manager.publish.client_signal_host_changed(self.id)
 
     # Context
-    @run_in_main_thread
+    @delegate_to_main_thread_wrapper
     def _host_context_changed_callback(self, event):
         '''Set the new context ID based on data provided in *event*'''
         # Feed the new context to the client
@@ -328,7 +312,7 @@ class Client(object):
         )
 
     # Plugin
-    @run_in_main_thread
+    @delegate_to_main_thread_wrapper
     def on_log_item_added_callback(self, event):
         '''
         Called when a log item has added in the host.
@@ -348,7 +332,7 @@ class Client(object):
             self.id, event['data']['log_item']
         )
 
-    @run_in_main_thread
+    @delegate_to_main_thread_wrapper
     def on_ui_hook_callback(self, event):
         '''
         Called ui_hook has been executed on host and needs to notify UI with
@@ -366,86 +350,6 @@ class Client(object):
         Ask host connection to reset values of all tool_configs
         '''
         self.host_connection.reset_all_tool_configs()
-
-    @run_in_main_thread
-    def _on_discover_action_callback(
-        self, name, label, dialog_name, options, session_identifier_func, event
-    ):
-        '''Discover *event*.'''
-        if session_identifier_func:
-            session_id = session_identifier_func()
-            label = label + " @" + session_id
-        selection = event['data'].get('selection', [])
-        if len(selection) == 1 and selection[0]['entityType'] == 'Component':
-            return {
-                'items': [
-                    {
-                        'name': name,
-                        'label': label,
-                        'host_id': self.host_id,
-                        'dialog_name': dialog_name,
-                        'options': options,
-                    }
-                ]
-            }
-
-    @run_in_main_thread
-    def _on_launch_action_callback(self, event):
-        '''Handle *event*.
-
-        event['data'] should contain:
-
-            *applicationIdentifier* to identify which application to start.
-
-        '''
-        selection = event['data']['selection']
-
-        name = event['data']['name']
-        label = event['data']['label']
-        dialog_name = event['data']['dialog_name']
-        options = event['data']['options']
-        options['event_data'] = {'selection': selection}
-
-        self.run_tool(name, dialog_name, options)
-
-    def subscribe_action_tool(
-        self,
-        name,
-        label=None,
-        dialog_name=None,
-        options=None,
-        session_identifier_func=None,
-    ):
-        '''
-        Subscribe the given tool to the ftrack.action.discover and
-        ftrack.action.launch events.
-        '''
-        if not options:
-            options = dict()
-        # TODO: The event should be added to the event manager to be accesible
-        #  through subscribe and publish classes
-        self.remote_event_manager.session.event_hub.subscribe(
-            u'topic=ftrack.action.discover and '
-            u'source.user.username="{0}"'.format(self.session.api_user),
-            partial(
-                self._on_discover_action_callback,
-                name,
-                label,
-                dialog_name,
-                options,
-                session_identifier_func,
-            ),
-        )
-
-        self.remote_event_manager.session.event_hub.subscribe(
-            u'topic=ftrack.action.launch and '
-            u'data.name={0} and '
-            u'source.user.username="{1}" and '
-            u'data.host_id={2}'.format(
-                name, self.session.api_user, self.host_id
-            ),
-            self._on_launch_action_callback,
-        )
 
     @track_framework_usage(
         'FRAMEWORK_RUN_TOOL',
@@ -673,8 +577,4 @@ class Client(object):
 
     def close(self):
         self.logger.debug('Shutting down client')
-
-        if self._remote_event_manager:
-            self.logger.debug('Stopping remote_event_manager')
-            self.remote_event_manager.close()
-            self._remote_event_manager = None
+        # TODO: try self.event_manager.close() if needed and see if it works.

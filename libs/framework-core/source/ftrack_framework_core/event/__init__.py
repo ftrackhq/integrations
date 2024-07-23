@@ -26,7 +26,6 @@ class _EventHubThread(threading.Thread):
         super(_EventHubThread, self).__init__(name=_name)
         self.logger.debug('Name set for the thread: {}'.format(_name))
         self._session = session
-        self._stop = False
 
     def start(self):
         '''Start thread for *_session*.'''
@@ -35,19 +34,12 @@ class _EventHubThread(threading.Thread):
         )
         super(_EventHubThread, self).start()
 
-    def stop(self):
-        self.logger.debug(
-            'stopping event hub thread for session {}'.format(self._session)
-        )
-        self._stop = True
-
     def run(self):
         '''Listen for events.'''
         self.logger.debug(
             'hub thread started for session {}'.format(self._session)
         )
-        while not self._stop:
-            self._session.event_hub.wait(0.2)
+        self._session.event_hub.wait()
 
 
 class EventManager(object):
@@ -115,13 +107,6 @@ class EventManager(object):
         if not self._event_hub_thread.is_alive():
             # self.logger.debug('Starting new hub thread for {}'.format(self))
             self._event_hub_thread.start()
-
-    def close(self):
-        if self._event_hub_thread and self._event_hub_thread.is_alive():
-            self.logger.debug('Stopping event hub thread')
-            self._event_hub_thread.stop()
-            self._event_hub_thread = None
-            self.session.close()
 
     def __init__(self, session, mode=constants.event.LOCAL_EVENT_MODE):
         self.logger = logging.getLogger(
@@ -517,5 +502,29 @@ class Subscribe(object):
         '''
         event_topic = '{} and data.host_id={}'.format(
             constants.event.HOST_VERIFY_PLUGINS_TOPIC, host_id
+        )
+        return self._subscribe_event(event_topic, callback)
+
+    def ftrack_action_discover(self, callback=None):
+        '''
+        Subscribe to an event with topic
+        :const:`~ftrack_framework_core.constants.event.FTRACK_ACTION_DISCOVER_TOPIC`
+        '''
+        event_topic = '{} and source.user.username={}'.format(
+            constants.event.FTRACK_ACTION_DISCOVER_TOPIC,
+            self.event_manager.session.api_user,
+        )
+        return self._subscribe_event(event_topic, callback)
+
+    def ftrack_action_launch(self, host_id, action_name, callback=None):
+        '''
+        Subscribe to an event with topic
+        :const:`~ftrack_framework_core.constants.event.FTRACK_ACTION_LAUNCH_TOPIC`
+        '''
+        event_topic = '{} and data.name={} and source.user.username={} and data.host_id={}'.format(
+            constants.event.FTRACK_ACTION_LAUNCH_TOPIC,
+            action_name,
+            self.event_manager.session.api_user,
+            host_id,
         )
         return self._subscribe_event(event_topic, callback)

@@ -12,7 +12,11 @@ from ftrack_framework_core.log import LogDB
 from ftrack_utils.framework.config.tool import get_plugins
 from ftrack_framework_core.exceptions.engine import EngineExecutionError
 
-from ftrack_utils.decorators import with_new_session, run_in_main_thread
+from ftrack_utils.decorators import (
+    with_new_session,
+    delegate_to_main_thread_wrapper,
+)
+from ftrack_utils.calls.methods import call_directly
 
 logger = logging.getLogger(__name__)
 
@@ -153,7 +157,11 @@ class Host(object):
         )
 
         # Set up the run_in_main_thread decorator
-        self.run_in_main_thread_wrapper = run_in_main_thread_wrapper
+        if run_in_main_thread_wrapper:
+            self.run_in_main_thread_wrapper = run_in_main_thread_wrapper
+        else:
+            # Using the util.call_directly function as the default method
+            self.run_in_main_thread_wrapper = call_directly
 
         # Create the host id
         self._id = uuid.uuid4().hex
@@ -182,23 +190,16 @@ class Host(object):
             self.id, self._client_context_change_callback
         )
 
-        if self.run_in_main_thread_wrapper:
-            # Reply to discover_host_callback to client to pass the host information
-            discover_host_callback_reply = self.run_in_main_thread_wrapper(
-                partial(
-                    provide_host_information,
-                    self.id,
-                    self.context_id,
-                    self.tool_configs,
-                )
-            )
-        else:
-            discover_host_callback_reply = partial(
+        # Reply to discover_host_callback to client to pass the host information
+        discover_host_callback_reply = self.run_in_main_thread_wrapper(
+            partial(
                 provide_host_information,
                 self.id,
                 self.context_id,
                 self.tool_configs,
             )
+        )
+
         self._discover_host_subscribe_id = (
             self.event_manager.subscribe.discover_host(
                 callback=discover_host_callback_reply
@@ -219,7 +220,7 @@ class Host(object):
             self.id, self._verify_plugins_callback
         )
 
-    @run_in_main_thread
+    @delegate_to_main_thread_wrapper
     def _client_context_change_callback(self, event):
         '''Callback when the client has changed context'''
         context_id = event['data']['context_id']
@@ -227,7 +228,7 @@ class Host(object):
             self.context_id = context_id
 
     # Run
-    @run_in_main_thread
+    @delegate_to_main_thread_wrapper
     @with_new_session
     def run_tool_config_callback(self, event, session=None):
         '''
@@ -294,7 +295,7 @@ class Host(object):
         # Publish the event to notify client
         self.event_manager.publish.host_log_item_added(self.id, log_item)
 
-    @run_in_main_thread
+    @delegate_to_main_thread_wrapper
     @with_new_session
     def run_ui_hook_callback(self, event, session=None):
         '''
@@ -377,7 +378,7 @@ class Host(object):
             self.id, plugin_reference, ui_hook_result
         )
 
-    @run_in_main_thread
+    @delegate_to_main_thread_wrapper
     def _verify_plugins_callback(self, event):
         '''
         Call the verify_plugins and return the result to the client.

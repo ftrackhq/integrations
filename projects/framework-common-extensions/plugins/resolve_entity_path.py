@@ -5,13 +5,14 @@ import sys
 from ftrack_utils.string import str_version
 from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
+import clique
 
 
 class ResolveEntityPathsPlugin(BasePlugin):
     name = 'resolve_entity_path'
 
     def _resolve_entity_paths(self, options):
-        '''Evaluáte list of entities passed on in 'options', ensure
+        '''Evaluate list of entities passed on in 'options', ensure
         a single component and resolve path. Return as dictionary'''
         result = {}
         entities = options.get('selection', [])
@@ -46,14 +47,12 @@ class ResolveEntityPathsPlugin(BasePlugin):
 
         if isinstance(component, self.session.types['SequenceComponent']):
             result['is_sequence'] = True
-            # Find start and end frame from members
-            start = sys.maxsize
-            end = -sys.maxsize
-            for member in component['members']:
-                number = int(member['name'])
-                start = min(start, number)
-                end = max(end, number)
-            result['component_path'] = f'{component_path} [{start}-{end}]'
+            file_names = [
+                location.get_filesystem_path(member)
+                for member in component['members']
+            ]  # Adjust as necessary
+            collection, remainder = clique.assemble(file_names)
+            result['component_path'] = collection[0].format()
         else:
             result['component_path'] = component_path
         result[
@@ -63,7 +62,7 @@ class ResolveEntityPathsPlugin(BasePlugin):
 
     def ui_hook(self, payload):
         '''
-        Suppy UI with entity data from options passed on in *payload*.
+        Supply UI with entity data from options passed on in *payload*.
         '''
         try:
             return self._resolve_entity_paths(payload['event_data'])
