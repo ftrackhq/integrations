@@ -14,9 +14,12 @@ import ftrack_constants.framework as constants
 
 from ftrack_framework_core.client.host_connection import HostConnection
 
-from ftrack_utils.decorators import track_framework_usage, run_in_main_thread
-
+from ftrack_utils.decorators import (
+    track_framework_usage,
+    delegate_to_main_thread_wrapper,
+)
 from ftrack_utils.framework.config.tool import get_tool_config_by_name
+from ftrack_utils.calls.methods import call_directly
 
 
 class Client(object):
@@ -207,7 +210,11 @@ class Client(object):
         self._tool_config_options = defaultdict(defaultdict)
 
         # Set up the run_in_main_thread decorator
-        self.run_in_main_thread_wrapper = run_in_main_thread_wrapper
+        if run_in_main_thread_wrapper:
+            self.run_in_main_thread_wrapper = run_in_main_thread_wrapper
+        else:
+            # Using the util.call_directly function as the default method
+            self.run_in_main_thread_wrapper = call_directly
 
         self.logger.debug('Initialising Client {}'.format(self))
 
@@ -269,7 +276,7 @@ class Client(object):
         self.event_manager.publish.client_signal_host_changed(self.id)
 
     # Context
-    @run_in_main_thread
+    @delegate_to_main_thread_wrapper
     def _host_context_changed_callback(self, event):
         '''Set the new context ID based on data provided in *event*'''
         # Feed the new context to the client
@@ -305,7 +312,7 @@ class Client(object):
         )
 
     # Plugin
-    @run_in_main_thread
+    @delegate_to_main_thread_wrapper
     def on_log_item_added_callback(self, event):
         '''
         Called when a log item has added in the host.
@@ -325,7 +332,7 @@ class Client(object):
             self.id, event['data']['log_item']
         )
 
-    @run_in_main_thread
+    @delegate_to_main_thread_wrapper
     def on_ui_hook_callback(self, event):
         '''
         Called ui_hook has been executed on host and needs to notify UI with
@@ -344,7 +351,7 @@ class Client(object):
         '''
         self.host_connection.reset_all_tool_configs()
 
-    @run_in_main_thread
+    @delegate_to_main_thread_wrapper
     def _on_discover_action_callback(
         self, name, label, dialog_name, options, session_identifier_func, event
     ):
@@ -366,7 +373,7 @@ class Client(object):
                 ]
             }
 
-    @run_in_main_thread
+    @delegate_to_main_thread_wrapper
     def _on_launch_action_callback(self, event):
         '''Handle *event*.
 
