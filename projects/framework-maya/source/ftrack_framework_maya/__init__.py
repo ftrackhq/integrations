@@ -23,6 +23,7 @@ from ftrack_utils.extensions.environment import (
     get_extensions_path_from_environment,
 )
 from ftrack_utils.usage import set_usage_tracker, UsageTracker
+from ftrack_utils.actions import register_remote_action
 
 from ftrack_framework_maya.utils import (
     dock_maya_right,
@@ -118,12 +119,19 @@ def on_subscribe_action_tool_callback(
     dialog_name=None,
     options=None,
 ):
-    client_instance.subscribe_action_tool(
-        tool_name,
-        label,
-        dialog_name,
-        options,
-        session_identifier_func=get_maya_session_identifier,
+    register_remote_action(
+        session=client_instance.session,
+        action_name=tool_name,
+        subscriber_id=client_instance.id,
+        launch_callback=client_instance.on_launch_action_callback,
+        discover_callback=functools.partial(
+            client_instance.on_discover_action_callback,
+            tool_name,
+            label,
+            dialog_name,
+            options,
+            get_maya_session_identifier,
+        ),
     )
 
 
