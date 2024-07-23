@@ -1,6 +1,8 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
+from functools import partial
+
 from ftrack_constants.event import (
     FTRACK_ACTION_DISCOVER_TOPIC,
     FTRACK_ACTION_LAUNCH_TOPIC,
@@ -23,6 +25,7 @@ def default_discover_action_callback(action_name, label, subscriber_id, event):
 def register_remote_action(
     session,
     action_name,
+    label,
     subscriber_id,
     launch_callback,
     discover_callback=None,
@@ -41,7 +44,9 @@ def register_remote_action(
         None
     """
     if not discover_callback:
-        discover_callback = default_discover_action_callback
+        discover_callback = partial(
+            default_discover_action_callback, action_name, label, subscriber_id
+        )
 
     discover_event_topic = f'{FTRACK_ACTION_DISCOVER_TOPIC} and source.user.username={session.api_user}'
     discover_subscribe_id = session.event_hub.subscribe(
