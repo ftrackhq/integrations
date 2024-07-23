@@ -3,7 +3,8 @@
 
 ## upcoming
 
-* [new] Calls methids; call_directly utility function added to directly call a function with the give arguments.
+* [new] event_hub event_hub_thread; Added EventHubThread utility.
+* [new] Calls methods; call_directly utility function added to directly call a function with the give arguments.
 * [new] Decorators threading; delegate_to_main_thread_wrapper added.
 
 
