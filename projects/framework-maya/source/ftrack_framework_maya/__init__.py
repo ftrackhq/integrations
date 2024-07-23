@@ -119,9 +119,11 @@ def on_subscribe_action_tool_callback(
     dialog_name=None,
     options=None,
 ):
+    logger.warning('Registering remote action init')
     register_remote_action(
         session=client_instance.session,
         action_name=tool_name,
+        label=label,
         subscriber_id=client_instance.id,
         launch_callback=client_instance.on_launch_action_callback,
         discover_callback=functools.partial(
@@ -144,7 +146,7 @@ def bootstrap_integration(framework_extensions_path):
         f' {framework_extensions_path}'
     )
     # Create ftrack session and instantiate event manager
-    session = ftrack_api.Session(auto_connect_event_hub=False)
+    session = ftrack_api.Session(auto_connect_event_hub=True)
     event_manager = EventManager(
         session=session, mode=constants.event.LOCAL_EVENT_MODE
     )
