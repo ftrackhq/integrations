@@ -9,10 +9,6 @@ LOCAL_EVENT_MODE = 0
 #: See event_table.md from :ref:`~framework_core.doc.developing.event_table.md` file for a
 # better reference on each event.
 
-#: Ftrack general events
-FTRACK_ACTION_DISCOVER_TOPIC = 'ftrack.action.discover'
-FTRACK_ACTION_LAUNCH_TOPIC = 'ftrack.action.launch'
-
 #: Base name for events
 _BASE_ = 'ftrack.framework'
 
