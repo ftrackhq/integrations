@@ -3,6 +3,7 @@
 
 ## upcoming
 
+* [new] Actions, remote_actions; Add support to register remote actions.
 * [new] Calls methods; call_directly utility function added to directly call a function with the give arguments.
 * [new] Decorators threading; delegate_to_main_thread_wrapper added.
 
