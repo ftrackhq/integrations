@@ -147,7 +147,9 @@ def bootstrap_integration(framework_extensions_path):
 
     session = ftrack_api.Session(auto_connect_event_hub=True)
 
-    event_manager = EventManager(session=session)
+    event_manager = EventManager(
+        session=session, mode=constants.event.LOCAL_EVENT_MODE
+    )
 
     registry_instance = registry.Registry()
     registry_instance.scan_extensions(paths=framework_extensions_path)

@@ -8,7 +8,7 @@
 ## v3.0.0rc1
 2024-07-17
 
-* [changed] EventManager; Local and remote events in the same session are allowed.
+* [change] EventManager; Remove override mode.
 * [feature] Client, Engine, Dialog; Support tool config top level options.
 * [fix] Engine; Check enabled/disabled plugins.
 * [change] Client, Dialog; Support set_tool_config_option for any item in the tool_conifg.

@@ -1,6 +1,11 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
+#: Run the events of the session in remote mode
+REMOTE_EVENT_MODE = 1
+#: Run the events of the session in local mode
+LOCAL_EVENT_MODE = 0
+
 #: See event_table.md from :ref:`~framework_core.doc.developing.event_table.md` file for a
 # better reference on each event.
 
