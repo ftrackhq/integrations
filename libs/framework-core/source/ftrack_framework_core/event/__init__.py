@@ -9,37 +9,9 @@ import ftrack_constants.framework as constants
 import uuid
 import time
 
+from ftrack_utils.event_hub import EventHubThread
+
 logger = logging.getLogger(__name__)
-
-
-class _EventHubThread(threading.Thread):
-    '''Listen for events from ftrack's event hub.'''
-
-    def __repr__(self):
-        return "<{0}:{1}>".format(self.__class__.__name__, self.name)
-
-    def __init__(self, session):
-        self.logger = logging.getLogger(
-            __name__ + '.' + self.__class__.__name__
-        )
-        _name = str(hash(session))
-        super(_EventHubThread, self).__init__(name=_name)
-        self.logger.debug('Name set for the thread: {}'.format(_name))
-        self._session = session
-
-    def start(self):
-        '''Start thread for *_session*.'''
-        self.logger.debug(
-            'starting event hub thread for session {}'.format(self._session)
-        )
-        super(_EventHubThread, self).start()
-
-    def run(self):
-        '''Listen for events.'''
-        self.logger.debug(
-            'hub thread started for session {}'.format(self._session)
-        )
-        self._session.event_hub.wait()
 
 
 class EventManager(object):
@@ -90,24 +62,6 @@ class EventManager(object):
         '''
         return self._subscribe_instance
 
-    def _connect(self):
-        # If is not already connected, connect to event hub.
-        while not self.connected:
-            self.session.event_hub.connect()
-
-    def _wait(self):
-        for thread in threading.enumerate():
-            if thread.getName() == str(hash(self.session)):
-                self._event_hub_thread = thread
-                break
-        if not self._event_hub_thread:
-            # self.logger.debug('Initializing new hub thread {}'.format(self))
-            self._event_hub_thread = _EventHubThread(self.session)
-
-        if not self._event_hub_thread.is_alive():
-            # self.logger.debug('Starting new hub thread for {}'.format(self))
-            self._event_hub_thread.start()
-
     def close(self):
         '''Close the event manager and disconnect from the event hub.'''
         self.session.event_hub.disconnect()
@@ -121,9 +75,11 @@ class EventManager(object):
         self._mode = mode
         self._session = session
         if mode == constants.event.REMOTE_EVENT_MODE:
-            # TODO: Bring this back when API event hub properly can differentiate between local and remote mode
-            self._connect()
-            self._wait()
+            if not self.connected:
+                self.logger.error(
+                    'Instantiating event manager in Local mode; Session event hub is not connected.Please make sure to connect the event hub before instantiating the EventManager in remote mode. Example: session.event_hub.connect()'
+                )
+                self._mode = constants.event.LOCAL_EVENT_MODE
 
         # Initialize Publish and subscribe classes to be able to provide
         # predefined events.
