@@ -119,7 +119,6 @@ def on_subscribe_action_tool_callback(
     dialog_name=None,
     options=None,
 ):
-    logger.warning('Registering remote action init')
     register_remote_action(
         session=client_instance.session,
         action_name=tool_name,
