@@ -34,6 +34,8 @@ from ftrack_framework_core.client import Client
 from ftrack_framework_core.configure_logging import configure_logging
 from ftrack_framework_core import registry
 
+from ftrack_utils.session import create_api_session
+
 
 # Evaluate version and log package version
 try:
@@ -145,7 +147,7 @@ def bootstrap_integration(framework_extensions_path):
         f' {framework_extensions_path}'
     )
 
-    session = ftrack_api.Session(auto_connect_event_hub=False)
+    session = create_api_session(auto_connect_event_hub=True)
 
     event_manager = EventManager(
         session=session, mode=constants.event.LOCAL_EVENT_MODE
