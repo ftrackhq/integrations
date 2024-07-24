@@ -4,6 +4,7 @@
 ## upcoming
 
 * [new] Client; Discover and launch action overrides.
+* [changed] EventManager; Remove the ability to connect to the event hub, instead assume that passed session argument is already connected.
 * [changed] EventManager; EventHubThread moved to ftrack_utils.
 * [new] Client, Host; Using delegate_to_main_thread_wrapper decorator to execute methods in main thread function provided as run_in_main_thread_wrapper argument when instantiating.
 

@@ -62,26 +62,6 @@ class EventManager(object):
         '''
         return self._subscribe_instance
 
-    def _connect(self):
-        # If is not already connected, connect to event hub.
-        while not self.connected:
-            self.session.event_hub.connect()
-
-    def _wait(self):
-        # Check if already has an event hub otherwise create one
-        for thread in threading.enumerate():
-            if (
-                isinstance(thread, EventHubThread)
-                and thread._session == self.session
-            ):
-                if thread.name == str(hash(self.session)):
-                    self._event_hub_thread = thread
-                    break
-        if not self._event_hub_thread:
-            self._event_hub_thread = EventHubThread(self.session)
-        if not self._event_hub_thread.is_alive():
-            self._event_hub_thread.start()
-
     def __init__(self, session, mode=constants.event.LOCAL_EVENT_MODE):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
@@ -90,16 +70,16 @@ class EventManager(object):
         self._mode = mode
         self._session = session
         if mode == constants.event.REMOTE_EVENT_MODE:
-            # TODO: Bring this back when API event hub properly can differentiate between local and remote mode
-            self._connect()
-            self._wait()
+            if not self.connected:
+                self.logger.error(
+                    'Instantiating event manager in Local mode; Session event hub is not connected.Please make sure to connect the event hub before instantiating the EventManager in remote mode. Example: session.event_hub.connect()'
+                )
+                self._mode = constants.event.LOCAL_EVENT_MODE
 
         # Initialize Publish and subscribe classes to be able to provide
         # predefined events.
         self._publish_instance = Publish(self)
         self._subscribe_instance = Subscribe(self)
-
-        # self.logger.debug('Initialising {}'.format(self))
 
     def _publish(self, event, callback=None, mode=None):
         '''Emit *event* and provide *callback* function, in local or remote *mode*.'''

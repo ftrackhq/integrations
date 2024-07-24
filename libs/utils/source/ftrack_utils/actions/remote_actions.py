@@ -51,30 +51,10 @@ def register_remote_action(
     """
     # Check if session is connected to event hub
     if not session.event_hub.connected:
-        logger.warning(
-            'Session is not connected to event hub, trying to connect'
+        logger.error(
+            'Session event hub is not connected.Please make sure to connect the event hub before registring remote actions. Example: session.event_hub.connect()'
         )
-        try:
-            session.event_hub.connect()
-        except Exception as e:
-            logger.error(
-                'Failed to connect to event hub, not registring actions: {}'.format(
-                    e
-                )
-            )
-            return
-
-    # Check if already has an event hub otherwise create one
-    event_hub_thread = None
-    for thread in threading.enumerate():
-        if isinstance(thread, EventHubThread) and thread._session == session:
-            if thread.name == str(hash(session)):
-                event_hub_thread = thread
-                break
-    if not event_hub_thread:
-        event_hub_thread = EventHubThread(session)
-    if not event_hub_thread.is_alive():
-        event_hub_thread.start()
+        return
 
     # Use the default discover callback if not provided
     if not discover_callback:
