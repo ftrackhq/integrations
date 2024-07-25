@@ -4,6 +4,7 @@
 import threading
 import ftrack_api
 import logging
+import time
 
 from ftrack_utils.event_hub import EventHubThread
 
@@ -15,7 +16,7 @@ def create_event_hub_thread(session):
 
     if not session.event_hub.connected:
         raise Exception(
-            'Session event hub is not connected.Please make sure to connect the event hub before creating the event hub thread. Example: session.event_hub.connect()'
+            'Session event hub is not connected. Please make sure to connect the event hub before creating the event hub thread. Example: session.event_hub.connect()'
         )
 
     event_hub_thread = get_event_hub_thread(session)
@@ -34,7 +35,7 @@ def get_event_hub_thread(session):
     '''
     if not session.event_hub.connected:
         raise Exception(
-            'Session event hub is not connected.Please make sure to connect the event hub before creating the event hub thread. Example: session.event_hub.connect()'
+            'Session event hub is not connected. Please make sure to connect the event hub before creating the event hub thread. Example: session.event_hub.connect()'
         )
 
     event_hub_thread = None
@@ -47,6 +48,19 @@ def get_event_hub_thread(session):
     return event_hub_thread
 
 
+def wait_for_event_hub_connection(session, timeout=30, poll_interval=0.5):
+    time.sleep(poll_interval)
+    start_time = time.time()
+    while not session.event_hub.connected:
+        if time.time() - start_time > timeout:
+            raise TimeoutError(
+                f'Failed to connect to the event hub within the timeout period or {timeout}.'
+            )
+        logger.debug("retrying connection")
+        session.event_hub.connect()
+        time.sleep(poll_interval)
+
+
 def create_api_session(auto_connect_event_hub=True):
     '''Create an API session and an EventHubThread if auto_connect_event_hub is True.'''
 
@@ -54,9 +68,10 @@ def create_api_session(auto_connect_event_hub=True):
 
     if auto_connect_event_hub:
         event_hub_thread = None
-        while not session.event_hub.connected:
-            # TODO: double check this to try to find a nicer way to do it.
-            session.event_hub.connect()
+        try:
+            wait_for_event_hub_connection(session)
+        except Exception as error:
+            logger.error(f'Failed to connect to event hub: {error}')
         try:
             event_hub_thread = create_event_hub_thread(session)
         except Exception as error:
