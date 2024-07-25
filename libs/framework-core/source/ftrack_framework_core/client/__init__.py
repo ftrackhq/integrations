@@ -5,7 +5,6 @@ import time
 import logging
 import uuid
 from collections import defaultdict
-from functools import partial
 
 from six import string_types
 

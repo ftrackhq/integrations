@@ -10,8 +10,6 @@ from ftrack_constants.event import (
     FTRACK_ACTION_LAUNCH_TOPIC,
 )
 
-from ftrack_utils.event_hub import EventHubThread
-
 logger = logging.getLogger('ftrack_utils:actions:remote_actions')
 
 
