@@ -3,6 +3,7 @@
 
 ## upcoming
 
+* [new] Actions, remote_actions; Add support to register remote actions.
 * [new] Session, ftrack_api_session; Added create_api_session utility to create the api session with an EventHubThread in case of auto_connect_event_hub is True.
 * [new] Dependency; Added dependency on ftrack-python-api.
 * [new] event_hub event_hub_thread; Added EventHubThread utility.

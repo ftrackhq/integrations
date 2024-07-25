@@ -3,6 +3,7 @@
 
 import threading
 from functools import wraps
+import socket
 
 import maya.cmds as cmds
 import maya.utils as maya_utils
@@ -14,6 +15,15 @@ try:
     from PySide6 import QtWidgets, QtCore
 except ImportError:
     from PySide2 import QtWidgets, QtCore
+
+
+def get_maya_session_identifier():
+    computer_name = socket.gethostname()
+    # Get the Maya scene name
+    scene_name = cmds.file(q=True, sceneName=True, shortName=True)
+    identifier = f"{scene_name}_Maya_{computer_name}"
+
+    return identifier
 
 
 # Dock widget in Maya

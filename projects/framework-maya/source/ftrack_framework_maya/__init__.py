@@ -21,10 +21,15 @@ from ftrack_utils.extensions.environment import (
     get_extensions_path_from_environment,
 )
 from ftrack_utils.usage import set_usage_tracker, UsageTracker
+from ftrack_utils.actions import register_remote_action
 
 from ftrack_utils.session import create_api_session
 
-from ftrack_framework_maya.utils import dock_maya_right, run_in_main_thread
+from ftrack_framework_maya.utils import (
+    dock_maya_right,
+    run_in_main_thread,
+    get_maya_session_identifier,
+)
 
 
 # Evaluate version and log package version
@@ -103,6 +108,31 @@ def on_run_tool_callback(
         dialog_name,
         options,
         dock_func=dock_maya_right if dialog_name else None,
+    )
+
+
+@run_in_main_thread
+def on_subscribe_action_tool_callback(
+    client_instance,
+    tool_name,
+    label,
+    dialog_name=None,
+    options=None,
+):
+    register_remote_action(
+        session=client_instance.session,
+        action_name=tool_name,
+        label=label,
+        subscriber_id=client_instance.id,
+        launch_callback=client_instance.on_launch_action_callback,
+        discover_callback=functools.partial(
+            client_instance.on_discover_action_callback,
+            tool_name,
+            label,
+            dialog_name,
+            options,
+            get_maya_session_identifier,
+        ),
     )
 
 
@@ -194,11 +224,13 @@ def bootstrap_integration(framework_extensions_path):
     # Register tools into ftrack menu
     for tool in dcc_config['tools']:
         run_on = tool.get("run_on")
+        action = tool.get("action")
         on_menu = tool.get("menu", True)
+        label = tool.get('label') or tool.get('name')
         if on_menu:
             cmds.menuItem(
                 parent=ftrack_menu,
-                label=tool['label'],
+                label=label,
                 command=(
                     functools.partial(
                         on_run_tool_callback,
@@ -210,22 +242,21 @@ def bootstrap_integration(framework_extensions_path):
                 ),
                 image=":/{}.png".format(tool['icon']),
             )
-        if run_on:
-            if run_on == "startup":
-                # Execute startup tool-configs
-                on_run_tool_callback(
-                    client_instance,
-                    tool.get('name'),
-                    tool.get('dialog_name'),
-                    tool['options'],
-                )
-            else:
-                logger.error(
-                    f"Unsupported run_on value: {run_on} tool section of the "
-                    f"tool {tool.get('name')} on the tool config file: "
-                    f"{dcc_config['name']}. \n Currently supported values:"
-                    f" [startup]"
-                )
+        if run_on == "startup":
+            on_run_tool_callback(
+                client_instance,
+                tool.get('name'),
+                tool.get('dialog_name'),
+                tool['options'],
+            )
+        if action:
+            on_subscribe_action_tool_callback(
+                client_instance,
+                tool.get('name'),
+                label,
+                tool.get('dialog_name'),
+                tool['options'],
+            )
 
     return client_instance
 
