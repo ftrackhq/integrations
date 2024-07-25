@@ -7,8 +7,6 @@ import xml.etree.ElementTree as ET
 from xml.sax.saxutils import unescape
 import platform
 
-import ftrack_api
-
 from ftrack_framework_core.host import Host
 from ftrack_framework_core.event import EventManager
 from ftrack_framework_core.client import Client
@@ -21,6 +19,7 @@ from ftrack_utils.extensions.environment import (
     get_extensions_path_from_environment,
 )
 from ftrack_utils.usage import set_usage_tracker, UsageTracker
+from ftrack_utils.session import create_api_session
 
 from ftrack_framework_houdini.utils import (
     dock_houdini_right,
@@ -87,8 +86,10 @@ def bootstrap_integration(framework_extensions_path):
     global client_instance
 
     # Create ftrack session and instantiate event manager
-    session = ftrack_api.Session(auto_connect_event_hub=True)
-    event_manager = EventManager(session=session)
+    session = create_api_session(auto_connect_event_hub=True)
+    event_manager = EventManager(
+        session=session, mode=constants.event.LOCAL_EVENT_MODE
+    )
     logger.debug(f"framework_extensions_path:{framework_extensions_path}")
     # Instantiate registry
     registry_instance = Registry()
@@ -140,8 +141,16 @@ def bootstrap_integration(framework_extensions_path):
     )
 
     # Instantiate Host and Client
-    Host(event_manager, registry=registry_instance)
-    client_instance = Client(event_manager, registry=registry_instance)
+    Host(
+        event_manager,
+        registry=registry_instance,
+        run_in_main_thread_wrapper=run_in_main_thread,
+    )
+    client_instance = Client(
+        event_manager,
+        registry=registry_instance,
+        run_in_main_thread_wrapper=run_in_main_thread,
+    )
 
     # Init tools
     dcc_config = registry_instance.get_one(

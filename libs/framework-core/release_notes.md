@@ -1,13 +1,21 @@
 # ftrack Framework Core library release Notes
 
+## upcoming
+
+* [changed] Host; Remove with_new_session decorator and use current remote session directly.
+* [changed] EventManager; Remove the ability to connect to the event hub, instead assume that passed session argument is already connected.
+* [changed] EventManager; EventHubThread moved to ftrack_utils.
+* [new] Client, Host; Using delegate_to_main_thread_wrapper decorator to execute methods in main thread function provided as run_in_main_thread_wrapper argument when instantiating.
+
+
 ## v3.0.0rc1
 2024-07-17
 
-* [changed] Host; Remove with_new_session decorator and use current remote session directly.
-* [changed] EventManager; Local and remote events in the same session are allowed.
+* [change] EventManager; Remove override mode.
 * [feature] Client, Engine, Dialog; Support tool config top level options.
 * [fix] Engine; Check enabled/disabled plugins.
 * [change] Client, Dialog; Support set_tool_config_option for any item in the tool_conifg.
+
 
 ## v2.4.0
 2024-06-04

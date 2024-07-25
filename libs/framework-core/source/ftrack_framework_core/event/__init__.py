@@ -9,44 +9,16 @@ import ftrack_constants.framework as constants
 import uuid
 import time
 
+from ftrack_utils.event_hub import EventHubThread
+
 logger = logging.getLogger(__name__)
-
-
-class _EventHubThread(threading.Thread):
-    '''Listen for events from ftrack's event hub.'''
-
-    def __repr__(self):
-        return "<{0}:{1}>".format(self.__class__.__name__, self.name)
-
-    def __init__(self, session):
-        self.logger = logging.getLogger(
-            __name__ + '.' + self.__class__.__name__
-        )
-        _name = str(hash(session))
-        super(_EventHubThread, self).__init__(name=_name)
-        self.logger.debug('Name set for the thread: {}'.format(_name))
-        self._session = session
-
-    def start(self):
-        '''Start thread for *_session*.'''
-        self.logger.debug(
-            'starting event hub thread for session {}'.format(self._session)
-        )
-        super(_EventHubThread, self).start()
-
-    def run(self):
-        '''Listen for events.'''
-        self.logger.debug(
-            'hub thread started for session {}'.format(self._session)
-        )
-        self._session.event_hub.wait()
 
 
 class EventManager(object):
     '''Manages the events handling.'''
 
     def __repr__(self):
-        return '<EventManager:{}:{}>'.format(self.allow_remote_events, self.id)
+        return '<EventManager:{}:{}>'.format(self.mode, self.id)
 
     def __del__(self):
         self.logger.debug('Closing {}'.format(self))
@@ -71,18 +43,8 @@ class EventManager(object):
         return _connected
 
     @property
-    def allow_remote_events(self):
-        return self._allow_remote_events
-
-    @allow_remote_events.setter
-    def allow_remote_events(self, value):
-        if not isinstance(value, bool):
-            self.logger.error('allow_remote_events must be a boolean')
-            return
-        if value:
-            self._connect()
-            self._wait()
-        self._allow_remote_events = value
+    def mode(self):
+        return self._mode
 
     @property
     def publish(self):
@@ -100,31 +62,24 @@ class EventManager(object):
         '''
         return self._subscribe_instance
 
-    def _connect(self):
-        # If is not already connected, connect to event hub.
-        while not self.connected:
-            self.session.event_hub.connect()
+    def close(self):
+        '''Close the event manager and disconnect from the event hub.'''
+        self.session.event_hub.disconnect()
+        self.session.close()
 
-    def _wait(self):
-        for thread in threading.enumerate():
-            if thread.getName() == str(hash(self.session)):
-                self._event_hub_thread = thread
-                break
-        if not self._event_hub_thread:
-            # self.logger.debug('Initializing new hub thread {}'.format(self))
-            self._event_hub_thread = _EventHubThread(self.session)
-
-        if not self._event_hub_thread.is_alive():
-            # self.logger.debug('Starting new hub thread for {}'.format(self))
-            self._event_hub_thread.start()
-
-    def __init__(self, session, allow_remote_events=True):
+    def __init__(self, session, mode=constants.event.LOCAL_EVENT_MODE):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
         self._event_hub_thread = None
+        self._mode = mode
         self._session = session
-        self.allow_remote_events = allow_remote_events
+        if mode == constants.event.REMOTE_EVENT_MODE:
+            if not self.connected:
+                self.logger.error(
+                    'Instantiating event manager in Local mode; Session event hub is not connected. Please make sure to connect the event hub before instantiating the EventManager in remote mode. Example: session.event_hub.connect()'
+                )
+                self._mode = constants.event.LOCAL_EVENT_MODE
 
         # Initialize Publish and subscribe classes to be able to provide
         # predefined events.
@@ -132,13 +87,13 @@ class EventManager(object):
         self._subscribe_instance = Subscribe(self)
 
         self.logger.debug(
-            f'Initialising event manager {self} with remote events {self.allow_remote_events}'
+            f'Initialising event manager {self} with mode {self.mode}'
         )
 
-    def _publish(self, event, callback=None, remote=None):
+    def _publish(self, event, callback=None):
         '''Emit *event* and provide *callback* function, in local or remote *remote*.'''
 
-        if not remote:
+        if self.mode == constants.event.LOCAL_EVENT_MODE:
             result = self.session.event_hub.publish(
                 event,
                 synchronous=True,
@@ -157,13 +112,6 @@ class EventManager(object):
             return result
 
         else:
-            if not self.allow_remote_events:
-                self.logger.warning(
-                    'Remote events are not allowed. Please initialize the '
-                    'EventManager with allow_remote_events=True or set the '
-                    'allow_remote_Events property to true'
-                )
-                return
             self.session.event_hub.publish(event, on_reply=callback)
 
     def _subscribe(self, topic, callback):
@@ -192,7 +140,7 @@ class Publish(object):
         super(Publish, self).__init__()
         self._event_manager = event_manager
 
-    def _publish_event(self, event_topic, data, callback, remote=None):
+    def _publish_event(self, event_topic, data, callback):
         '''
         Common method that calls the private publish method from the
         event manager
@@ -201,11 +149,11 @@ class Publish(object):
             topic=event_topic, data=data
         )
         publish_result = self.event_manager._publish(
-            publish_event, callback=callback, remote=remote
+            publish_event, callback=callback
         )
         return publish_result
 
-    def discover_host(self, callback=None, remote=None):
+    def discover_host(self, callback=None):
         '''
         Publish an event with topic
         :const:`~ftrack_framework_core.constants.event.DISCOVER_HOST_TOPIC`
@@ -213,17 +161,10 @@ class Publish(object):
         # TODO: review this implementation, for now this one can't never be remote as it goes into a loop.
         data = None
         event_topic = constants.event.DISCOVER_HOST_TOPIC
-        return self._publish_event(
-            event_topic, data, callback, remote=False
-        )  # Change this once fixed.
+        return self._publish_event(event_topic, data, callback)
 
     def host_run_tool_config(
-        self,
-        host_id,
-        tool_config_reference,
-        client_options,
-        callback=None,
-        remote=None,
+        self, host_id, tool_config_reference, client_options, callback=None
     ):
         '''
         Publish an event with topic
@@ -235,7 +176,7 @@ class Publish(object):
             'client_options': client_options,
         }
         event_topic = constants.event.HOST_RUN_TOOL_CONFIG_TOPIC
-        return self._publish_event(event_topic, data, callback, remote=remote)
+        return self._publish_event(event_topic, data, callback)
 
     def host_run_ui_hook(
         self,
@@ -245,7 +186,6 @@ class Publish(object):
         client_options,
         payload,
         callback=None,
-        remote=None,
     ):
         '''
         Publish an event with topic
@@ -259,11 +199,9 @@ class Publish(object):
             'payload': payload,
         }
         event_topic = constants.event.HOST_RUN_UI_HOOK_TOPIC
-        return self._publish_event(event_topic, data, callback, remote=remote)
+        return self._publish_event(event_topic, data, callback)
 
-    def host_context_changed(
-        self, host_id, context_id, callback=None, remote=None
-    ):
+    def host_context_changed(self, host_id, context_id, callback=None):
         '''
         Publish an event with topic
         :const:`~ftrack_framework_core.constants.event.HOST_CONTEXT_CHANGED_TOPIC`
@@ -273,11 +211,9 @@ class Publish(object):
             'context_id': context_id,
         }
         event_topic = constants.event.HOST_CONTEXT_CHANGED_TOPIC
-        return self._publish_event(event_topic, data, callback, remote=remote)
+        return self._publish_event(event_topic, data, callback)
 
-    def client_context_changed(
-        self, host_id, context_id, callback=None, remote=None
-    ):
+    def client_context_changed(self, host_id, context_id, callback=None):
         '''
         Publish an event with topic
         :const:`~ftrack_framework_core.constants.event.CLIENT_CONTEXT_CHANGED_TOPIC`
@@ -287,11 +223,9 @@ class Publish(object):
             'context_id': context_id,
         }
         event_topic = constants.event.CLIENT_CONTEXT_CHANGED_TOPIC
-        return self._publish_event(event_topic, data, callback, remote=remote)
+        return self._publish_event(event_topic, data, callback)
 
-    def host_log_item_added(
-        self, host_id, log_item, callback=None, remote=None
-    ):
+    def host_log_item_added(self, host_id, log_item, callback=None):
         '''
         Publish an event with topic
         :const:`~ftrack_framework_core.constants.event.HOST_LOG_ITEM_ADDED_TOPIC`
@@ -302,15 +236,10 @@ class Publish(object):
         }
 
         event_topic = constants.event.HOST_LOG_ITEM_ADDED_TOPIC
-        return self._publish_event(event_topic, data, callback, remote=remote)
+        return self._publish_event(event_topic, data, callback)
 
     def host_run_ui_hook_result(
-        self,
-        host_id,
-        plugin_reference,
-        ui_hook_result,
-        callback=None,
-        remote=None,
+        self, host_id, plugin_reference, ui_hook_result, callback=None
     ):
         '''
         Publish an event with topic
@@ -323,11 +252,9 @@ class Publish(object):
         }
 
         event_topic = constants.event.HOST_UI_HOOK_RESULT_TOPIC
-        return self._publish_event(event_topic, data, callback, remote=remote)
+        return self._publish_event(event_topic, data, callback)
 
-    def client_signal_context_changed(
-        self, client_id, callback=None, remote=None
-    ):
+    def client_signal_context_changed(self, client_id, callback=None):
         '''
         Publish an event with topic
         :const:`~ftrack_framework_core.constants.event.CLIENT_SIGNAL_CONTEXT_CHANGED_TOPIC`
@@ -337,11 +264,9 @@ class Publish(object):
         }
 
         event_topic = constants.event.CLIENT_SIGNAL_CONTEXT_CHANGED_TOPIC
-        return self._publish_event(event_topic, data, callback, remote=remote)
+        return self._publish_event(event_topic, data, callback)
 
-    def client_signal_host_changed(
-        self, client_id, callback=None, remote=None
-    ):
+    def client_signal_host_changed(self, client_id, callback=None):
         '''
         Publish an event with topic
         :const:`~ftrack_framework_core.constants.event.CLIENT_SIGNAL_HOST_CHANGED_TOPIC`
@@ -351,11 +276,9 @@ class Publish(object):
         }
 
         event_topic = constants.event.CLIENT_SIGNAL_HOST_CHANGED_TOPIC
-        return self._publish_event(event_topic, data, callback, remote=remote)
+        return self._publish_event(event_topic, data, callback)
 
-    def client_notify_log_item_added(
-        self, client_id, log_item, callback=None, remote=None
-    ):
+    def client_notify_log_item_added(self, client_id, log_item, callback=None):
         '''
         Publish an event with topic
         :const:`~ftrack_framework_core.constants.event.CLIENT_NOTIFY_LOG_ITEM_ADDED_TOPIC`
@@ -366,15 +289,10 @@ class Publish(object):
         }
 
         event_topic = constants.event.CLIENT_NOTIFY_LOG_ITEM_ADDED_TOPIC
-        return self._publish_event(event_topic, data, callback, remote=remote)
+        return self._publish_event(event_topic, data, callback)
 
     def client_notify_ui_hook_result(
-        self,
-        client_id,
-        plugin_reference,
-        ui_hook_result,
-        callback=None,
-        remote=None,
+        self, client_id, plugin_reference, ui_hook_result, callback=None
     ):
         '''
         Publish an event with topic
@@ -387,11 +305,9 @@ class Publish(object):
         }
 
         event_topic = constants.event.CLIENT_NOTIFY_UI_HOOK_RESULT_TOPIC
-        return self._publish_event(event_topic, data, callback, remote=remote)
+        return self._publish_event(event_topic, data, callback)
 
-    def host_verify_plugins(
-        self, host_id, plugin_names, callback=None, remote=None
-    ):
+    def host_verify_plugins(self, host_id, plugin_names, callback=None):
         '''
         Publish an event with topic
         :const:`~ftrack_framework_core.constants.event.HOST_VERIFY_PLUGINS_TOPIC`
@@ -402,7 +318,7 @@ class Publish(object):
         }
 
         event_topic = constants.event.HOST_VERIFY_PLUGINS_TOPIC
-        return self._publish_event(event_topic, data, callback, remote=remote)
+        return self._publish_event(event_topic, data, callback)
 
 
 class Subscribe(object):

@@ -9,8 +9,6 @@ import platform
 
 import nuke, nukescripts
 
-import ftrack_api
-
 from ftrack_constants import framework as constants
 from ftrack_utils.extensions.environment import (
     get_extensions_path_from_environment,
@@ -23,6 +21,7 @@ from ftrack_framework_core import registry
 from ftrack_framework_core.configure_logging import configure_logging
 
 from ftrack_utils.usage import set_usage_tracker, UsageTracker
+from ftrack_utils.session import create_api_session
 
 from ftrack_framework_nuke.utils import (
     dock_nuke_right,
@@ -93,9 +92,11 @@ def bootstrap_integration(framework_extensions_path):
         f' {framework_extensions_path}'
     )
 
-    session = ftrack_api.Session(auto_connect_event_hub=True)
+    session = create_api_session(auto_connect_event_hub=True)
 
-    event_manager = EventManager(session=session)
+    event_manager = EventManager(
+        session=session, mode=constants.event.LOCAL_EVENT_MODE
+    )
 
     registry_instance = registry.Registry()
     registry_instance.scan_extensions(paths=framework_extensions_path)
@@ -145,9 +146,16 @@ def bootstrap_integration(framework_extensions_path):
         )
     )
 
-    Host(event_manager, registry=registry_instance)
-
-    client_instance = Client(event_manager, registry=registry_instance)
+    Host(
+        event_manager,
+        registry=registry_instance,
+        run_in_main_thread_wrapper=run_in_main_thread,
+    )
+    client_instance = Client(
+        event_manager,
+        registry=registry_instance,
+        run_in_main_thread_wrapper=run_in_main_thread,
+    )
 
     # Init tools
     dcc_config = registry_instance.get_one(

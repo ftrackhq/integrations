@@ -28,6 +28,7 @@ from ftrack_utils.extensions.environment import (
 )
 
 from ftrack_utils.usage import set_usage_tracker, UsageTracker
+from ftrack_utils.session import create_api_session
 
 from ftrack_framework_harmony.utils import TCPRPCClient
 
@@ -97,8 +98,10 @@ def bootstrap_integration(framework_extensions_path):
         f' {framework_extensions_path}'
     )
     # Create ftrack session and instantiate event manager
-    session = ftrack_api.Session(auto_connect_event_hub=True)
-    event_manager = EventManager(session=session)
+    session = create_api_session(auto_connect_event_hub=True)
+    event_manager = EventManager(
+        session=session, mode=constants.event.LOCAL_EVENT_MODE
+    )
 
     logger.debug(f"framework_extensions_path:{framework_extensions_path}")
 
