@@ -17,19 +17,19 @@ class ResolveEntityPathsPlugin(BasePlugin):
         result = {}
         entities = options.get('selection', [])
         if not entities:
-            raise PluginExecutionError('No entities selected!')
+            raise PluginExecutionError('No entities selected')
         if len(entities) != 1:
-            raise PluginExecutionError('Only one single entity supported!')
+            raise PluginExecutionError('Only one single entity supported')
         entity = entities[0]
         if entity['entityType'].lower() != 'component':
-            raise PluginExecutionError('Only Component entity supported!')
+            raise PluginExecutionError('Only Component entity supported')
 
         component_id = entity['entityId']
         component = self.session.query(
             f'Component where id={component_id}'
         ).first()
         if not component:
-            raise PluginExecutionError(f'Component not found: {component_id}!')
+            raise PluginExecutionError(f'Component not found: {component_id}')
 
         result['entity_id'] = component_id
         result['entity_type'] = entity['entityType']
