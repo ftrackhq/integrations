@@ -60,7 +60,7 @@ logger.debug('v{}'.format(__version__))
 client_instance = None
 photoshop_rpc_connection = None
 startup_tools = []
-remote_session = None
+session = None
 process_monitor = None
 
 # Create Qt application
@@ -140,7 +140,7 @@ def bootstrap_integration(framework_extensions_path):
     '''Initialise Photoshop Framework Python standalone part,
     with extensions defined @ *framework_extensions_path*'''
 
-    global client_instance, photoshop_rpc_connection, startup_tools, remote_session, process_monitor
+    global client_instance, photoshop_rpc_connection, startup_tools, session, process_monitor
 
     logger.debug(
         'Photoshop standalone integration initialising, extensions path:'
@@ -175,9 +175,6 @@ def bootstrap_integration(framework_extensions_path):
 
     logger.debug(f'Read DCC config: {dcc_config}')
 
-    # Init Photoshop connection
-    remote_session = ftrack_api.Session(auto_connect_event_hub=True)
-
     # Filter tools, extract the ones that are marked as startup tools
     panel_launchers = []
     for tool in dcc_config['tools']:
@@ -207,7 +204,7 @@ def bootstrap_integration(framework_extensions_path):
                 )
     photoshop_rpc_connection = JavascriptRPC(
         'photoshop',
-        remote_session,
+        session,
         client_instance,
         panel_launchers,
         on_connected_callback,
@@ -290,13 +287,13 @@ def bootstrap_integration(framework_extensions_path):
 def run_integration():
     '''Run Framework Python standalone as long as Photoshop is alive.'''
 
-    global remote_session
+    global session
 
     # Run until it's closed, or CTRL+C
     active_time = 0
     while True:
         app.processEvents()
-        remote_session.event_hub.wait(0.01)
+        session.event_hub.wait(0.01)
         active_time += 10
         if active_time % 10000 == 0:
             logger.info(

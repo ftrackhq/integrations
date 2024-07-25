@@ -229,8 +229,7 @@ class Host(object):
 
     # Run
     @delegate_to_main_thread_wrapper
-    @with_new_session
-    def run_tool_config_callback(self, event, session=None):
+    def run_tool_config_callback(self, event):
         '''
         Runs the data with the defined engine type of the given *event*
 
@@ -266,7 +265,7 @@ class Host(object):
             )
             engine_instance = engine_registry['extension'](
                 self.registry,
-                session,
+                self.session,
                 self.context_id,
                 on_plugin_executed=self.on_plugin_executed_callback,
             )
@@ -296,8 +295,7 @@ class Host(object):
         self.event_manager.publish.host_log_item_added(self.id, log_item)
 
     @delegate_to_main_thread_wrapper
-    @with_new_session
-    def run_ui_hook_callback(self, event, session=None):
+    def run_ui_hook_callback(self, event):
         '''
         Runs the data with the defined engine type of the given *event*
 
@@ -336,7 +334,7 @@ class Host(object):
             )
             engine_instance = engine_registry['extension'](
                 self.registry,
-                session,
+                self.session,
                 on_plugin_executed=partial(
                     self.on_ui_hook_executed_callback, plugin_reference
                 ),
