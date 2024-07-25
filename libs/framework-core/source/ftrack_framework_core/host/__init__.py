@@ -376,6 +376,7 @@ class Host(object):
             self.id, plugin_reference, ui_hook_result
         )
 
+    @delegate_to_main_thread_wrapper
     def _verify_plugins_callback(self, event):
         '''
         Call the verify_plugins and return the result to the client.
