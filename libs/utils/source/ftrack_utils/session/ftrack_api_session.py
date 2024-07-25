@@ -15,7 +15,7 @@ def create_event_hub_thread(session):
 
     if not session.event_hub.connected:
         raise Exception(
-            'Session event hub is not connected.Please make sure to connect the event hub before creating the event hub thread. Example: session.event_hub.connect()'
+            'Session event hub is not connected. Please make sure to connect the event hub before creating the event hub thread. Example: session.event_hub.connect()'
         )
 
     event_hub_thread = get_event_hub_thread(session)
@@ -34,7 +34,7 @@ def get_event_hub_thread(session):
     '''
     if not session.event_hub.connected:
         raise Exception(
-            'Session event hub is not connected.Please make sure to connect the event hub before creating the event hub thread. Example: session.event_hub.connect()'
+            'Session event hub is not connected. Please make sure to connect the event hub before creating the event hub thread. Example: session.event_hub.connect()'
         )
 
     event_hub_thread = None

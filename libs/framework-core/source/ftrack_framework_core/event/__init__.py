@@ -72,7 +72,7 @@ class EventManager(object):
         if mode == constants.event.REMOTE_EVENT_MODE:
             if not self.connected:
                 self.logger.error(
-                    'Instantiating event manager in Local mode; Session event hub is not connected.Please make sure to connect the event hub before instantiating the EventManager in remote mode. Example: session.event_hub.connect()'
+                    'Instantiating event manager in Local mode; Session event hub is not connected. Please make sure to connect the event hub before instantiating the EventManager in remote mode. Example: session.event_hub.connect()'
                 )
                 self._mode = constants.event.LOCAL_EVENT_MODE
 
