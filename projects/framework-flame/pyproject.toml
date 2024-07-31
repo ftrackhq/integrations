@@ -35,6 +35,8 @@ ftrack-framework-core = {  version = "^3.0.0rc1", allow-prereleases=true, option
 ftrack-framework-qt = {  version = "^3.0.0rc1", allow-prereleases=true, optional = true, source = "testpypi"  }
 # override SSL
 urllib3 = "<2"
+# wiretap
+#wiretap = {git="https://github.com/predat/wiretap"}
 
 [tool.poetry.extras]
 ftrack-libs = ["ftrack-constants", "ftrack-utils", "ftrack-qt", "ftrack-qt-style"]
