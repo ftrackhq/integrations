@@ -5,6 +5,14 @@ import os
 import shutil
 
 
+VERSION_TEMPLATE = '''
+# :coding: utf-8
+# :copyright: Copyright (c) 2024 ftrack
+
+__version__ = '{version}'
+'''
+
+
 class ConnectPluginFileManager:
     @property
     def source_module(self):
@@ -29,7 +37,8 @@ class ConnectPluginFileManager:
 
     @destination_path.setter
     def destination_path(self, value):
-        if not isinstance(value, str):
+        # Check that value is a string or None
+        if value is not None and not isinstance(value, str):
             raise ValueError(
                 "The destination path must be a string representing a path."
             )
@@ -46,7 +55,7 @@ class ConnectPluginFileManager:
 
     @connect_hook_folder.setter
     def connect_hook_folder(self, value):
-        if not isinstance(value, str):
+        if value is not None and not isinstance(value, str):
             raise ValueError(
                 "The connect hook folder must be a string representing a path."
             )
@@ -61,7 +70,7 @@ class ConnectPluginFileManager:
 
     @connect_launch_folder.setter
     def connect_launch_folder(self, value):
-        if not isinstance(value, str):
+        if value is not None and not isinstance(value, str):
             raise ValueError(
                 "The connect launch folder must be a string representing a path."
             )
@@ -76,7 +85,7 @@ class ConnectPluginFileManager:
 
     @resource_folder.setter
     def resource_folder(self, value):
-        if not isinstance(value, str):
+        if value is not None and not isinstance(value, str):
             raise ValueError(
                 "The resource folder must be a string representing a path."
             )
@@ -88,7 +97,7 @@ class ConnectPluginFileManager:
 
     @dependencies_folder.setter
     def dependencies_folder(self, value):
-        if not isinstance(value, str):
+        if value is not None and not isinstance(value, str):
             raise ValueError(
                 "The dependencies folder must be a string representing a path."
             )
@@ -115,7 +124,7 @@ class ConnectPluginFileManager:
 
     @hook_destination.setter
     def hook_destination(self, value):
-        if not isinstance(value, str):
+        if value is not None and not isinstance(value, str):
             raise ValueError(
                 "The hook destination must be a string representing a path."
             )
@@ -129,7 +138,7 @@ class ConnectPluginFileManager:
 
     @dependencies_destination.setter
     def dependencies_destination(self, value):
-        if not isinstance(value, str):
+        if value is not None and not isinstance(value, str):
             raise ValueError(
                 "The dependencies destination must be a string representing a path."
             )
@@ -143,7 +152,7 @@ class ConnectPluginFileManager:
 
     @extensions_destination.setter
     def extensions_destination(self, value):
-        if not isinstance(value, str):
+        if value is not None and not isinstance(value, str):
             raise ValueError(
                 "The extensions destination must be a string representing a path."
             )
@@ -157,7 +166,7 @@ class ConnectPluginFileManager:
 
     @launch_destination.setter
     def launch_destination(self, value):
-        if not isinstance(value, str):
+        if value is not None and not isinstance(value, str):
             raise ValueError(
                 "The launch destination must be a string representing a path."
             )
@@ -171,7 +180,7 @@ class ConnectPluginFileManager:
 
     @resource_destination.setter
     def resource_destination(self, value):
-        if not isinstance(value, str):
+        if value is not None and not isinstance(value, str):
             raise ValueError(
                 "The resource destination must be a string representing a path."
             )
@@ -185,7 +194,7 @@ class ConnectPluginFileManager:
 
     @build_folder.setter
     def build_folder(self, value):
-        if not isinstance(value, str):
+        if value is not None and not isinstance(value, str):
             raise ValueError(
                 "The build folder must be a string representing a path."
             )
@@ -280,19 +289,11 @@ class ConnectPluginFileManager:
                 raise FileNotFoundError(
                     f"Extensions path {path} does not exist."
                 )
-            shutil.copytree(
-                path,
-                os.path.join(self.extensions_destination, label),
-                dirs_exist_ok=True,
+            self._copy_folder_to_destination(
+                path, os.path.join(self.extensions_destination, label)
             )
 
     def generate_version_file_to_destination(self):
-        VERSION_TEMPLATE = '''
-        # :coding: utf-8
-        # :copyright: Copyright (c) 2024 ftrack
-
-        __version__ = '{version}'
-        '''
         # Store the version so Connect easily can identify the plugin version
         version_path = os.path.join(self.destination_path, '__version__.py')
         with open(version_path, 'w') as file:
@@ -300,10 +301,12 @@ class ConnectPluginFileManager:
 
     def clean(self):
         # Remove the build folder if exists
-        if os.path.exists(self._build_folder):
-            shutil.rmtree(self._build_folder)
+        if os.path.exists(self.build_folder):
+            shutil.rmtree(self.build_folder)
 
     def _copy_folder_to_destination(self, source_folder, destination_folder):
         if not os.path.exists(source_folder):
             raise FileNotFoundError(f"Folder {source_folder} does not exist.")
-        shutil.copytree(source_folder, destination_folder, dirs_exist_ok=True)
+        if os.path.exists(destination_folder):
+            shutil.rmtree(destination_folder)
+        shutil.copytree(source_folder, destination_folder)

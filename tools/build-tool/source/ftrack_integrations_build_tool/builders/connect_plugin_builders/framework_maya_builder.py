@@ -50,14 +50,17 @@ class FrameworkMayaBuilder:  # (BuilderBase): probably here inherit from Builder
         FileManager=ConnectPluginFileManager,
         DependencyManager=PoetryDependencyManager,
     ):
+        '''
+        :param source_module: The path to the source module.
+        :param python_environment_path: The path to the python environment.
+        :param pre_build_dependencies_path: The path to the pre-build dependencies.
+        :param extensions_paths: The paths to the extensions.
+        :param ProjectManager: The project manager class. Default is PyProjectTomlProjectManager.
+        :param FileManager: The file manager class. Default is ConnectPluginFileManager.
+        :param DependencyManager: The dependency manager class. Default is PoetryDependencyManager.
+        '''
         # TODO: probably better to inherit from builder base and that is an ABC class
-        '''super(FrameworkMayaBuilder, self).__init__(
-            source_module,
-            python_environment_path,
-            ProjectManager,
-            FileManager,
-            DependencyManager,
-        )'''
+
         self._source_module = source_module
         self._python_environment_path = python_environment_path
 

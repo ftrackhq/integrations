@@ -1,0 +1,34 @@
+[tool.poetry]
+name = "ftrack-integrations-build-tool"
+version = "1.0.0rc1"
+description='ftrack Integrations Tool'
+authors = ["ftrack Integrations Team <integrations@backlight.co>"]
+readme = "README.md"
+packages = [{include = "ftrack_integrations_build_tool", from = "source"}]
+license = "Apache-2.0"
+homepage = "https://ftrack.com"
+repository = "https://github.com/ftrackhq/integrations/tree/main/tools/build-tool"
+
+[[tool.poetry.source]]
+name = "PyPI"
+priority = "primary"
+
+[[tool.poetry.source]]
+name = "testpypi"
+url = "https://test.pypi.org/simple/"
+priority = "explicit"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.dependencies]
+python = ">= 3.7, < 3.12"
+toml = "^0.10.2"
+
+[tool.poetry.scripts]
+BuildTool = "ftrack_integrations_build_tool.build_tool.cli:main"
+
+[tool.black]
+line-length = 79
+skip-string-normalization = true
