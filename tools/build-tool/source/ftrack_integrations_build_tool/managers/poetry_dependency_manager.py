@@ -4,6 +4,8 @@
 import os
 import subprocess
 
+# TODO: mayabe we should be able to generate the requirements.txt file and build the .whl to push it to the release. But that is secondary for now.
+
 
 class PoetryDependencyManager:
     @property
