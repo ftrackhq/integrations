@@ -3,6 +3,7 @@
 
 import os
 import shutil
+import subprocess
 from distutils.spawn import find_executable
 
 ZXPSIGN_CMD = 'ZXPSignCmd'
@@ -16,8 +17,34 @@ class CEPManager:
         return self._source_module
 
     @property
+    def destination_path(self):
+        return self._destination_path
+
+    @property
     def cep_folder(self):
         return self._cep_folder
+
+    @property
+    def build_folder(self):
+        return self._build_folder
+
+    @property
+    def plugin_version(self):
+        return self._plugin_version
+
+    @property
+    def plugin_distribution_name(self):
+        return self._plugin_distribution_name
+
+    @property
+    def zxp_file_path(self):
+        return os.path.join(
+            self.destination_path, f'{self.plugin_distribution_name}.zxp'
+        )
+
+    @property
+    def staging_folder(self):
+        return os.path.join(self.build_folder, 'staging')
 
     @property
     def style_images_folder(self):
@@ -46,13 +73,17 @@ class CEPManager:
         self._style_css_file = value
 
     @property
+    def source_cep_folder(self):
+        return os.path.join(self.source_module, 'resource', 'adobe-cep')
+
+    @property
     def manifest_path(self):
         if not self._manifest_path:
             default_manifest_path = os.path.join(
                 self.source_module,
                 'resource',
                 'adobe-cep',
-                'bundle',
+                'CSXS',
                 'manifest.xml',
             )
             return str(default_manifest_path)
@@ -89,7 +120,7 @@ class CEPManager:
     def adobe_certificate_p12_path(self):
         if not self._adobe_certificate_p12_path:
             default_adobe_certificate_p12_path = os.path.join(
-                self.cep_folder, 'bundle', 'certificate.p12'
+                self.cep_folder, 'certificate', 'certificate.p12'
             )
             return str(default_adobe_certificate_p12_path)
         return str(self._adobe_certificate_p12_path)
@@ -106,9 +137,7 @@ class CEPManager:
     @property
     def cep_libraries_folder(self):
         if not self._cep_libraries_folder:
-            default_cep_libraries_folder = os.path.join(
-                self.cep_folder, 'libraries'
-            )
+            default_cep_libraries_folder = os.path.join(self.cep_folder, 'lib')
             return str(default_cep_libraries_folder)
         return str(self._cep_libraries_folder)
 
@@ -121,27 +150,13 @@ class CEPManager:
             )
         self._cep_libraries_folder = value
 
-    @property
-    def framework_js_libraries_folder(self):
-        if not self._framework_js_libraries_folder:
-            default_framework_js_libraries_folder = os.path.join(
-                self.cep_folder, 'framework-js', 'source'
-            )
-            return str(default_framework_js_libraries_folder)
-        return str(self._framework_js_libraries_folder)
-
-    @framework_js_libraries_folder.setter
-    def framework_js_libraries_folder(self, value):
-        # Check that value is a string or None
-        if value is not None and not isinstance(value, str):
-            raise ValueError(
-                "The adobe certificate p12 path must be a string representing a path."
-            )
-        self._framework_js_libraries_folder = value
-
     def __init__(
         self,
         source_module,
+        destination_path,
+        build_folder,
+        plugin_distribution_name,
+        plugin_version,
         cep_folder,
         style_images_folder,
         style_css_file,
@@ -149,19 +164,12 @@ class CEPManager:
         adobe_certificate_password=None,
         adobe_certificate_p12_path=None,
         cep_libraries_folder=None,
-        framework_js_libraries_folder=None,
-        build_folder=None,
-        plugin_version=None,
-        # plugin_distribution_name,
-        # plugin_version,
-        # destination_path=None,
-        # connect_hook_folder=None,
-        # connect_launch_folder=None,
-        # resource_folder=None,
-        # dependencies_folder=None,
-        # extensions_paths=None,
     ):
         self._source_module = source_module
+        self._destination_path = destination_path
+        self._build_folder = build_folder
+        self._plugin_version = plugin_version
+        self._plugin_distribution_name = plugin_distribution_name
         self._cep_folder = cep_folder
         self.style_images_folder = style_images_folder
         self.style_css_file = style_css_file
@@ -170,65 +178,22 @@ class CEPManager:
         self.adobe_certificate_password = adobe_certificate_password
         self.adobe_certificate_p12_path = adobe_certificate_p12_path
         self.cep_libraries_folder = cep_libraries_folder
-        self.framework_js_libraries_folder = framework_js_libraries_folder
-
-        self.build_folder = build_folder
-        self.staging_folder = os.path.join(build_folder, 'staging')
-
-        # destination_folder
 
         ZXPSIGN_CMD_PATH = find_executable(ZXPSIGN_CMD)
         if not ZXPSIGN_CMD_PATH:
             raise Exception('%s is not in your ${PATH}!' % (ZXPSIGN_CMD))
 
-        # self._plugin_distribution_name = plugin_distribution_name
-        # self._plugin_version = plugin_version
-        #
-        # self.destination_path = destination_path
-        #
-        # self.connect_hook_folder = connect_hook_folder
-        # self.connect_launch_folder = connect_launch_folder
-        # self.resource_folder = resource_folder
-        # self.dependencies_folder = dependencies_folder
-        # self.extensions_paths = extensions_paths
-        #
-        # # Init paths
-        # self._hook_destination = None
-        # self._dependencies_destination = None
-        # self._extensions_destination = None
-        # self._launch_destination = None
-        # self._resource_destination = None
-        # self._build_folder = None
-
     def create_staging_folder(self):
         shutil.rmtree(self.staging_folder, ignore_errors=True)
         os.makedirs(self.staging_folder)
-        os.makedirs(os.path.join(self.staging_folder, 'image'))
-        os.makedirs(os.path.join(self.staging_folder, 'css'))
 
-    def copy_index_html_to_staging_folder(self):
-        try:
-            self._copy_and_replace_version(
-                os.path.join(self.cep_folder, 'index.html'),
-                os.path.join(self.staging_folder, 'index.html'),
-            )
-        except FileNotFoundError as e:
-            raise FileNotFoundError(
-                f"Index.html not found in CEP folder {self.cep_folder}."
-            )
-
-    def copy_bootstrap_js_to_staging_folder(self):
-        try:
-            self._copy_and_replace_version(
-                os.path.join(self.cep_folder, 'bootstrap.js'),
-                os.path.join(self.staging_folder, 'bootstrap.js'),
-            )
-        except FileNotFoundError as e:
-            raise FileNotFoundError(
-                f"Bootstrap.js not found in CEP folder {self.cep_folder}."
-            )
+        # Remove this
+        # os.makedirs(os.path.join(self.staging_folder, 'CSXS'))
 
     def copy_style_images_to_staging_folder(self):
+        # if os.path.exists(os.path.join(self.staging_folder, 'image')):
+        #     shutil.rmtree(os.path.join(self.staging_folder, 'image'))
+        # os.makedirs(os.path.join(self.staging_folder, 'image'))
         try:
             shutil.copytree(
                 self.style_images_folder,
@@ -240,14 +205,47 @@ class CEPManager:
             )
 
     def copy_style_file_to_staging_folder(self):
+        if os.path.exists(os.path.join(self.staging_folder, 'css')):
+            shutil.rmtree(os.path.join(self.staging_folder, 'css'))
+        os.makedirs(os.path.join(self.staging_folder, 'css'))
         try:
             shutil.copy(
                 self.style_css_file,
-                os.path.join(self.staging_folder, 'css', 'style.css'),
+                os.path.join(self.staging_folder, 'css'),
             )
         except FileNotFoundError as e:
             raise FileNotFoundError(
                 f"Style css file {self.style_css_file} does not exist."
+            )
+
+    def copy_source_cep_content_files_to_staging_folder(self):
+        for item in os.listdir(self.source_cep_folder):
+            s = os.path.join(self.source_cep_folder, item)
+            d = os.path.join(self.staging_folder, item)
+
+            if os.path.isfile(s):
+                shutil.copy2(s, d)
+
+    def copy_index_html_to_staging_folder(self):
+        try:
+            shutil.copy(
+                os.path.join(self.cep_folder, 'index.html'),
+                os.path.join(self.staging_folder, 'index.html'),
+            )
+        except FileNotFoundError as e:
+            raise FileNotFoundError(
+                f"Index.html not found in CEP folder {self.cep_folder}."
+            )
+
+    def copy_bootstrap_js_to_staging_folder(self):
+        try:
+            shutil.copy(
+                os.path.join(self.cep_folder, 'bootstrap.js'),
+                os.path.join(self.staging_folder, 'bootstrap.js'),
+            )
+        except FileNotFoundError as e:
+            raise FileNotFoundError(
+                f"Bootstrap.js not found in CEP folder {self.cep_folder}."
             )
 
     def copy_cep_libraries_to_staging_folder(self):
@@ -261,17 +259,42 @@ class CEPManager:
                 f"CEP libraries folder {self.cep_libraries_folder} does not exist."
             )
 
-    def copy_framework_js_libraries_to_staging_folder(self):
+    def copy_manifest_file_to_staging_folder(self):
+        if os.path.exists(os.path.join(self.staging_folder, 'CSXS')):
+            shutil.rmtree(os.path.join(self.staging_folder, 'CSXS'))
+        os.makedirs(os.path.join(self.staging_folder, 'CSXS'))
         try:
-            # TODO: make sure we don't replace the lib folder if it already exists
-            shutil.copytree(
-                self.framework_js_libraries_folder,
-                os.path.join(self.staging_folder, 'lib'),
+            self._copy_and_replace_version(
+                self.manifest_path,
+                os.path.join(self.staging_folder, 'CSXS', 'manifest.xml'),
             )
         except FileNotFoundError as e:
             raise FileNotFoundError(
-                f"Framework JS libraries folder {self.framework_js_libraries_folder} does not exist."
+                f"Manifest file {self.manifest_path} does not exist."
             )
+
+    def generate_and_sign_zxp(self):
+        # Generate the ZXP file and log the result
+        print(f"self.staging_folder: {self.staging_folder}")
+        print(f"self.zxp_file_path: {self.zxp_file_path}")
+        print(
+            f"self.adobe_certificate_p12_path: {self.adobe_certificate_p12_path}"
+        )
+        print(
+            f"self.adobe_certificate_password: {self.adobe_certificate_password}"
+        )
+        command = [
+            ZXPSIGN_CMD,
+            '-sign',
+            self.staging_folder,
+            self.zxp_file_path,
+            self.adobe_certificate_p12_path,
+            self.adobe_certificate_password,
+        ]
+        result = subprocess.run(command, capture_output=True, text=True)
+        # Check if result is an error raise exception
+        if result.returncode != 0:
+            raise Exception(f"Error generating ZXP file: {result.stderr}")
 
     def _copy_and_replace_version(self, source_path, target_path):
         '''Copies the single file pointed out by *source_path* to *target_path* and
@@ -285,82 +308,3 @@ class CEPManager:
                 f_dst.write(
                     f_src.read().replace('${VERSION}', self.plugin_version)
                 )
-
-    # def copy_hook_to_destination(self):
-    #     # Check that connect_hook_folder has been set
-    #     if not self.connect_hook_folder:
-    #         raise ValueError("Connect hook folder has not been set.")
-    #     try:
-    #         self._copy_folder_to_destination(
-    #             self.connect_hook_folder, self.hook_destination
-    #         )
-    #     except FileNotFoundError as e:
-    #         raise FileNotFoundError(
-    #             f"Connect hook folder {self.connect_hook_folder} does not exist."
-    #         )
-    #
-    # def copy_dependencies_to_destination(self):
-    #     if not self.dependencies_folder:
-    #         raise ValueError("Dependencies folder has not been set.")
-    #     try:
-    #         self._copy_folder_to_destination(
-    #             self.dependencies_folder, self.dependencies_destination
-    #         )
-    #     except FileNotFoundError as e:
-    #         raise FileNotFoundError(
-    #             f"Dependencies path {self.dependencies_folder} does not exist."
-    #         )
-    #
-    # def copy_launch_to_destination(self):
-    #     if not self.connect_launch_folder:
-    #         raise ValueError("Launch folder has not been set.")
-    #     try:
-    #         self._copy_folder_to_destination(
-    #             self.connect_launch_folder, self.launch_destination
-    #         )
-    #     except FileNotFoundError as e:
-    #         raise FileNotFoundError(
-    #             f"Launch folder {self.connect_launch_folder} does not exist."
-    #         )
-    #
-    # def copy_resource_to_destination(self):
-    #     if not self.resource_folder:
-    #         raise ValueError("Resource folder has not been set.")
-    #     try:
-    #         self._copy_folder_to_destination(
-    #             self.resource_folder, self.resource_destination
-    #         )
-    #     except FileNotFoundError as e:
-    #         raise FileNotFoundError(
-    #             f"Resource folder {self.resource_folder} does not exist."
-    #         )
-    #
-    # def copy_extensions_to_destination(self):
-    #     if not self.extensions_paths:
-    #         raise ValueError("Extensions paths have not been set.")
-    #     for label, path in self.extensions_paths.items():
-    #         if not os.path.exists(path):
-    #             raise FileNotFoundError(
-    #                 f"Extensions path {path} does not exist."
-    #             )
-    #         self._copy_folder_to_destination(
-    #             path, os.path.join(self.extensions_destination, label)
-    #         )
-    #
-    # def generate_version_file_to_destination(self):
-    #     # Store the version so Connect easily can identify the plugin version
-    #     version_path = os.path.join(self.destination_path, '__version__.py')
-    #     with open(version_path, 'w') as file:
-    #         file.write(VERSION_TEMPLATE.format(version=self.plugin_version))
-    #
-    # def clean(self):
-    #     # Remove the build folder if exists
-    #     if os.path.exists(self.build_folder):
-    #         shutil.rmtree(self.build_folder)
-    #
-    # def _copy_folder_to_destination(self, source_folder, destination_folder):
-    #     if not os.path.exists(source_folder):
-    #         raise FileNotFoundError(f"Folder {source_folder} does not exist.")
-    #     if os.path.exists(destination_folder):
-    #         shutil.rmtree(destination_folder)
-    #     shutil.copytree(source_folder, destination_folder)

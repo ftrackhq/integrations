@@ -3,6 +3,7 @@ import inspect
 import importlib.util
 import os
 import sys
+import json
 
 
 # TODO: somehow parser values of the arguments that contain python clases for when users want to override a manager
@@ -56,6 +57,13 @@ def parse_extra_args(unknown_args):
                     )
             except StopIteration:
                 value = None  # Handle flags without values
+
+            # Attempt to parse the value as JSON for dictionary arguments
+            try:
+                value = json.loads(value)
+            except json.JSONDecodeError:
+                pass  # If it's not JSON, just use the string as is
+
             kwargs[key] = value
     return kwargs
 
