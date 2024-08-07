@@ -9,11 +9,11 @@ tools:
       tool_configs:
         - flame-scene-publisher
       docked: true
-  - name: open
-    label: "Open"
-    dialog_name: framework_standard_opener_dialog
-    icon: open
-    options:
-      tool_configs:
-        - flame-scene-opener
-      docked: false
+#  - name: open
+#    label: "Open"
+#    dialog_name: framework_standard_opener_dialog
+#    icon: open
+#    options:
+#      tool_configs:
+#        - flame-scene-opener
+#      docked: false
