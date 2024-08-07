@@ -11,29 +11,29 @@ engine:
     ui: publisher_asset_version_selector
 
   # Export the snapshot component.
-  - type: group
-    tags:
-      - component
-    options:
-      component: snapshot
-    optional: true
-    enabled: False
-    plugins:
-      - type: plugin
-        plugin: store_component
-      - type: plugin
-        tags:
-          - collector
-        plugin: flame_scene_collector
-      - type: plugin
-        tags:
-          - validator
-        plugin: flame_scene_saved_validator
-        ui: validator_label
-      - type: plugin
-        tags:
-          - exporter
-        plugin: flame_scene_exporter
+#  - type: group
+#    tags:
+#      - component
+#    options:
+#      component: snapshot
+#    optional: true
+#    enabled: False
+#    plugins:
+#      - type: plugin
+#        plugin: store_component
+#      - type: plugin
+#        tags:
+#          - collector
+#        plugin: flame_scene_collector
+#      - type: plugin
+#        tags:
+#          - validator
+#        plugin: flame_scene_saved_validator
+#        ui: validator_label
+#      - type: plugin
+#        tags:
+#          - exporter
+#        plugin: flame_scene_exporter
 
   # Export Thumbnail
   - type: group
