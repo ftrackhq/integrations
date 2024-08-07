@@ -3,7 +3,6 @@ name: framework-flame
 priority: 100
 context:
   - Task
-  - Project
 identifier: ftrack-framework-launch-flame
 applicationIdentifier: flame_{variant}
 integrations:
