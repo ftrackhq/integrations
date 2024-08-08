@@ -2,6 +2,7 @@
 
 ## upcoming
 
+* [changed] Registry; Remove support for JS extensions.
 * [changed] Host; Remove with_new_session decorator and use current remote session directly.
 * [changed] EventManager; Remove the ability to connect to the event hub, instead assume that passed session argument is already connected.
 * [changed] EventManager; EventHubThread moved to ftrack_utils.
