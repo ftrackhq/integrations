@@ -21,7 +21,8 @@ class FlameThumbnailExporterPlugin(BasePlugin):
         '''
         component_name = self.options.get('component')
 
-        exported_path = get_temp_path()
+        exported_path = get_temp_path(is_directory=True)
+
         try:
             # TODO: thumbnail_path = Export thumbnail
 
@@ -62,16 +63,17 @@ class FlameThumbnailExporterPlugin(BasePlugin):
             duplicate_clip.name = new_name
 
             # export first frame
-            duplicate_clip.in_mark = 1
-            duplicate_clip.out_mark = 2
+            duplicate_clip.in_mark = current_selection.current_time.get_value()
+            duplicate_clip.out_mark = current_selection.current_time.get_value() + 1
 
             exporter.export(
                 duplicate_clip, thumbnail_preset_path, exported_path
             )
-            frame_name = str(duplicate_clip.current_time.get_value().frame).zfill(8)
+            frame_name = str(current_selection.current_time.get_value().frame).zfill(8)
+
             file_name = f'{ duplicate_clip.name.get_value()}.{frame_name}.jpg'
-            destination_path = os.path.join(exported_path,file_name)
-            print(f"Exported to {destination_path}")
+            destination_path = os.path.join(exported_path, file_name)
+            self.logger.debug(f"Thumbnail exported to {destination_path}")
 
             store['components'][component_name]['exported_path'] = destination_path
 

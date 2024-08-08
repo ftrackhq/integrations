@@ -20,7 +20,8 @@ class FlameReviewableExporterPlugin(BasePlugin):
         '''
         component_name = self.options.get('component')
 
-        exported_path = get_temp_path()
+        exported_path = get_temp_path(is_directory=True)
+
         try:
             # TODO: thumbnail_path = Export thumbnail
 
@@ -46,6 +47,6 @@ class FlameReviewableExporterPlugin(BasePlugin):
         )
         file_name = f'{current_selection.name.get_value()}.mov'
         destination_path = os.path.join(exported_path, file_name)
-        print(f"Exported to {destination_path}")
+        self.logger.debug(f"Reviwable Exported to {destination_path}")
         store['components'][component_name]['exported_path'] = destination_path
 
