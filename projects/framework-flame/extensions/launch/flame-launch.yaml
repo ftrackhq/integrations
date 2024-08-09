@@ -24,12 +24,10 @@ search_path:
   darwin:
       prefix:
         - /
-        - opt
-      expression:
+        - Applications
         - Autodesk
-        - .flamefamily_*
-        - bin
-        - startFlame$
+      expression:
+        - Flame \d.+.app
 extensions_path:
   - extensions/common
   - extensions/flame
