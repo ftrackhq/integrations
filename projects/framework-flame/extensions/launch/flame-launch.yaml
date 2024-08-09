@@ -21,6 +21,15 @@ search_path:
       - flame_.*
       - bin
       - startFlame$
+  darwin:
+      prefix:
+        - /
+        - opt
+      expression:
+        - Autodesk
+        - .flamefamily_*
+        - bin
+        - startFlame$
 extensions_path:
   - extensions/common
   - extensions/flame
