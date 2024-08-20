@@ -1,5 +1,10 @@
 # ftrack Connect release Notes
 
+## Upcoming
+
+* [fix] Add xcb-util-cursor for Rocky linux builds.
+
+
 ## v24.7.0
 2024-07-17
 
