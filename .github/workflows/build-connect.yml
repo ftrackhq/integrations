@@ -255,8 +255,8 @@ jobs:
         run: |
           dnf install -y epel-release
           dnf install -y 'dnf-command(config-manager)'
-          /usr/bin/crb enable
-          dnf update
+          dnf -y update
+          dnf config-manager --set-enabled crb
           dnf groupinstall -y "Development Tools"
           dnf install -y *xcb* gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz-devel git findutils patch wget tar make libuuid-devel mesa-libGL
           curl https://pyenv.run | bash
