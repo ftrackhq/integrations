@@ -73,7 +73,7 @@ jobs:
       - name: Build Qt resources
         shell: bash
         run: |
-          pip install -r tools/requirements-connect.txt
+          pip install --no-cache-dir -r tools/requirements-connect.txt
           python tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py --pyside_version 6 build_qt_resources apps/connect
       - name: poetry build and export dependencies
         shell: bash
