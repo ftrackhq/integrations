@@ -26,22 +26,24 @@ def on_run_tool_callback(
 
 # https://help.autodesk.com/view/FLAME/2022/ENU/?guid=Flame_API_Python_Hooks_Reference_html
 
-def get_mediahub_files_custom_ui_actions():
-    # Adds custom actions in the MediaHub's Files browser. The path of the selection object can be obtained using .path .
-    return get_ftrack_menu()
-
 
 def get_timeline_custom_ui_actions():
     #  Adds custom actions to the contextual menu available in the Timeline.
     return get_ftrack_menu()
 
-def get_media_panel_custom_ui_actions():
-    return get_ftrack_menu()
-
-def get_main_menu_custom_ui_actions():
-    return get_ftrack_menu()
-
 # DISABLED
+
+# def get_mediahub_files_custom_ui_actions():
+#     # Adds custom actions in the MediaHub's Files browser. The path of the selection object can be obtained using .path .
+#     return get_ftrack_menu()
+
+#
+# def get_media_panel_custom_ui_actions():
+#     return get_ftrack_menu()
+#
+# def get_main_menu_custom_ui_actions():
+#     return get_ftrack_menu()
+
 # def get_action_custom_ui_actions():
 #     #  Adds custom actions to the contextual menu available in the Batch Action node.
 #     return get_ftrack_menu()
