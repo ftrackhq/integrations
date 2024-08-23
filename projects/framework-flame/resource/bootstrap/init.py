@@ -15,7 +15,7 @@ logger = logging.getLogger('ftrack_framework_flame.init')
 
 
 def on_run_tool_callback(
-    client_instance, tool_name, dialog_name=None, options=dict, maya_args=None
+        client_instance, tool_name, dialog_name=None, options=dict, maya_args=None
 ):
     client_instance.run_tool(
         tool_name,
@@ -29,7 +29,9 @@ def on_run_tool_callback(
 
 def get_timeline_custom_ui_actions():
     #  Adds custom actions to the contextual menu available in the Timeline.
-    return get_ftrack_menu()
+    show_on = (flame.PySegment)
+    return get_ftrack_menu(show_on)
+
 
 # DISABLED
 
@@ -61,7 +63,16 @@ def get_timeline_custom_ui_actions():
 #     # Adds custom actions to the contextual menu available in Batch.
 #     return get_ftrack_menu()
 
-def get_ftrack_menu():
+def scope_node(show_on, selection):
+    for item in selection:
+        if isinstance(item, show_on):
+            return True
+
+    return False
+
+
+def get_ftrack_menu(show_on=None):
+    show_on = show_on or ()
     client_instance, registry_instance = bootstrap_integration(get_extensions_path_from_environment())
 
     dcc_config = registry_instance.get_one(
@@ -80,13 +91,16 @@ def get_ftrack_menu():
             new_action = {
                 'name': tool['label'],
                 'execute': functools.partial(
-                        on_run_tool_callback,
-                        client_instance,
-                        tool.get('name'),
-                        tool.get('dialog_name'),
-                        tool['options'],
+                    on_run_tool_callback,
+                    client_instance,
+                    tool.get('name'),
+                    tool.get('dialog_name'),
+                    tool['options'],
                 ),
-                'minimumVersion': '2023'
+                'minimumVersion': '2023',
+                'isVisible': functools.partial(
+                    scope_node, show_on
+                ),
             }
             actions.append(new_action)
 
