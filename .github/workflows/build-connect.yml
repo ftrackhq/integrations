@@ -89,7 +89,7 @@ jobs:
           echo "Connect version: $CONNECT_VERSION"
           echo "connect_version=$CONNECT_VERSION" >> $GITHUB_OUTPUT
       - name: Prepare upload Connect wheel to GitHub Release
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ftrack-connect-whl
           path: ${{ needs.set-variables.outputs.folder }}/dist/ftrack_connect-${{ steps.get_version.outputs.connect_version }}-py3-none-any.whl
