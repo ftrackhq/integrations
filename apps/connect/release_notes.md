@@ -1,8 +1,8 @@
 # ftrack Connect release Notes
 
-## Upcoming
+## v24.9.0rc1
 
-* [fix] Add xcb-util-cursor for Rocky linux builds.
+* [fix] Add xcb-util-cursor for Rocky linux builds and ensure PySide6 is bundled.
 
 
 ## v24.7.0

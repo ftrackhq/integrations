@@ -413,6 +413,67 @@ class LinuxAppInstaller(AppInstaller):
     def codesign(self):
         pass
 
+    def generate_executable(self):
+        '''Generates a platform dependant executable with pyinstaller'''
+        # TODO: we should generalize this file and remove all references to connect
+
+        import PySide6
+        import os
+
+        pyside6_path = os.path.join(
+            os.path.dirname(PySide6.__file__), 'Qt', 'plugins', 'platforms'
+        )
+        print(pyside6_path)
+
+        version_file_path = self._generate_version_file()
+
+        pyinstaller_commands = [
+            self.entry_file_path,
+            '--windowed',
+            '--name',
+            self.bundle_name,
+            '--collect-all',
+            'ftrack_connect',
+            '--collect-all',
+            'ftrack_utils',
+            '--collect-all',
+            'ftrack_framework_core',
+            '--collect-all',
+            'ftrack_api',
+            '--collect-all',
+            'ftrack_action_handler',
+            '--collect-all',
+            'PySide6',
+            '--add-data',
+            pyside6_path,
+            '--hidden-import',
+            'PySide6.QtXcbQpa',
+            '--add-binary',
+            '/usr/lib64/libxcb.so.1:.',
+            '--add-binary',
+            '/usr/lib64/libxcb-cursor.so.0:.',
+            '--icon',
+            self.icon_path,
+            '--distpath',
+            self.dist_path,
+            '--workpath',
+            self.build_path,
+            '--add-data',
+            version_file_path + ':ftrack_connect',
+            '--add-data',
+            requests.certs.where() + ':ftrack_connect/certs',
+            '--hidden-import',
+            # This is just making sure to add this build in python library so
+            # it's available on the installer (Requested by Lorenzo)
+            'html.parser',
+            '-y',
+            '--clean',
+        ]
+        try:
+            PyInstaller.__main__.run(pyinstaller_commands)
+        except Exception as e:
+            f'pyinstaller failed to build {self.bundle_name}! Exitcode: {e}'
+
     def generate_installer_package(self, codesign=False):
         '''Generates a tar.gz file of the current app'''
         try:
