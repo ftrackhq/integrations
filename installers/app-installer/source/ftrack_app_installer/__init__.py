@@ -445,7 +445,7 @@ class LinuxAppInstaller(AppInstaller):
             '--collect-all',
             'PySide6',
             '--add-data',
-            pyside6_path,
+            pyside6_path + ':PySide6/Qt/plugins/platforms',
             '--hidden-import',
             'PySide6.QtXcbQpa',
             '--add-binary',
