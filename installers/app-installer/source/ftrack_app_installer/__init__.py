@@ -88,6 +88,8 @@ class AppInstaller(object):
             'ftrack_api',
             '--collect-all',
             'ftrack_action_handler',
+            '--collect-all',
+            'riffle',
             '--icon',
             self.icon_path,
             '--distpath',
@@ -98,8 +100,6 @@ class AppInstaller(object):
             version_file_path + ':ftrack_connect',
             '--add-data',
             requests.certs.where() + ':ftrack_connect/certs',
-            '--hidden-import',
-            'riffle',
             '--hidden-import',
             # This is just making sure to add this build in python library so
             # its available on the installer (Requested by Lorenzo)
