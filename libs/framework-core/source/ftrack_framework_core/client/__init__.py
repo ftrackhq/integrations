@@ -350,6 +350,53 @@ class Client(object):
         '''
         self.host_connection.reset_all_tool_configs()
 
+    @delegate_to_main_thread_wrapper
+    def on_discover_action_callback(
+        self,
+        action_name,
+        label,
+        dialog_name,
+        options,
+        session_identifier_func,
+        event,
+    ):
+        '''Discover *event*.'''
+        if session_identifier_func:
+            session_id = session_identifier_func()
+            label = label + " @" + session_id
+        selection = event['data'].get('selection', [])
+        if len(selection) == 1 and selection[0]['entityType'] == 'Component':
+            return {
+                'items': [
+                    {
+                        'action_name': action_name,
+                        'label': label,
+                        'subscriber_id': self.id,
+                        'dialog_name': dialog_name,
+                        'options': options,
+                    }
+                ]
+            }
+
+    @delegate_to_main_thread_wrapper
+    def on_launch_action_callback(self, event):
+        '''Handle *event*.
+
+        event['data'] should contain:
+
+            *applicationIdentifier* to identify which application to start.
+
+        '''
+        selection = event['data']['selection']
+
+        action_name = event['data']['action_name']
+        label = event['data']['label']
+        dialog_name = event['data']['dialog_name']
+        options = event['data']['options']
+        options['event_data'] = {'selection': selection}
+
+        self.run_tool(action_name, dialog_name, options)
+
     @track_framework_usage(
         'FRAMEWORK_RUN_TOOL',
         {'module': 'client'},
@@ -573,3 +620,7 @@ class Client(object):
             self.host_id, plugin_names
         )[0]
         return unregistered_plugins
+
+    def close(self):
+        self.logger.debug('Shutting down client')
+        # TODO: try self.event_manager.close() if needed and see if it works.
