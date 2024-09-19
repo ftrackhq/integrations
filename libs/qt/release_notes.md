@@ -1,14 +1,9 @@
 # ftrack QT library release Notes
 
-## v3.0.0rc2
+## v3.0.0
 2024-09-19
 
 * [changed] Update framework dependencies to 3.0.0.
-
-
-## v3.0.0rc1 (Test PyPi)
-2024-07-17
-
 * [changed] FileDialog; support selecting multiple files.
 * [changed] FileBrowser; support collection of multiple files.
 * [changed] Python clique 1.6.1 library as dependency.

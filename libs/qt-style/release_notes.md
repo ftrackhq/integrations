@@ -1,6 +1,6 @@
 # ftrack Framework QT Style library release Notes
 
-## v2.3.0rc1
+## v2.3.0
 2024-09-19
 
 * [changed] Update ftrack utils dependency to 3.0.0.

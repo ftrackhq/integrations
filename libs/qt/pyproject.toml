@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ftrack-qt"
-version = "3.0.0rc2"
+version = "3.0.0"
 description='ftrack qt library'
 authors = ["ftrack Integrations Team <integrations@backlight.co>"]
 readme = "README.md"
@@ -28,9 +28,9 @@ PySide2 = { version = "^5.13.2", optional = true }
 PySide6 = { version = "^6.5", optional = true }
 clique = "1.6.1"
 #ftrack
-ftrack-constants = {  version = "^2.0.0", allow-prereleases=true, source = "testpypi", optional = true }
-ftrack-utils = {  version = "^3.0.0rc1", allow-prereleases=true, optional = true, source = "testpypi" }
-ftrack-qt-style = {  version = "^2.0.0", allow-prereleases=true, source = "testpypi", optional = true }
+ftrack-constants = {  version = "^2.0.0", optional = true }
+ftrack-utils = {  version = "^3.0.0", optional = true}
+ftrack-qt-style = {  version = "^2.0.0", optional = true }
 
 [tool.poetry.extras]
 pyside2 = ["PySide2"]

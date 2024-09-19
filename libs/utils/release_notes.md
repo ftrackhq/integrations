@@ -1,7 +1,7 @@
 # ftrack Utils library release Notes
 
 
-## v3.0.0rc1
+## v3.0.0
 2024-09-19
 
 * [new] Session, ftrack_api_session; Added create_api_session utility to create the api session with an EventHubThread in case of auto_connect_event_hub is True.
@@ -9,11 +9,6 @@
 * [new] event_hub event_hub_thread; Added EventHubThread utility.
 * [new] Calls methods; call_directly utility function added to directly call a function with the give arguments.
 * [new] Decorators threading; delegate_to_main_thread_wrapper added.
-
-
-## v2.4.0rc1 (Test PyPi)
-2024-07-17
-
 * [new] decorators; run_in_main_thread decorator added.
 * [fix] JS RPC; Properly pick up and handle error messages from DCC.
 * [changed] get_temp_path; Support temp directories.
