@@ -12,7 +12,11 @@ from ftrack_framework_core.log import LogDB
 from ftrack_utils.framework.config.tool import get_plugins
 from ftrack_framework_core.exceptions.engine import EngineExecutionError
 
-from ftrack_utils.decorators import with_new_session
+from ftrack_utils.decorators import (
+    with_new_session,
+    delegate_to_main_thread_wrapper,
+)
+from ftrack_utils.calls.methods import call_directly
 
 logger = logging.getLogger(__name__)
 
@@ -91,11 +95,13 @@ class Host(object):
         # context
         self.event_manager.unsubscribe(self._discover_host_subscribe_id)
         # Reply to discover_host_callback to clients to pass the host information
-        discover_host_callback_reply = partial(
-            provide_host_information,
-            self.id,
-            self.context_id,
-            self.tool_configs,
+        discover_host_callback_reply = self.run_in_main_thread(
+            partial(
+                provide_host_information,
+                self.id,
+                self.context_id,
+                self.tool_configs,
+            )
         )
         self._discover_host_subscribe_id = (
             self.event_manager.subscribe.discover_host(
@@ -137,7 +143,9 @@ class Host(object):
         '''Return registry object'''
         return self._registry
 
-    def __init__(self, event_manager, registry):
+    def __init__(
+        self, event_manager, registry, run_in_main_thread_wrapper=None
+    ):
         '''
         Initialise Host with instance of
         :class:`~ftrack_framework_core.event.EventManager` and extensions *registry*
@@ -147,6 +155,13 @@ class Host(object):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
+
+        # Set up the run_in_main_thread decorator
+        if run_in_main_thread_wrapper:
+            self.run_in_main_thread_wrapper = run_in_main_thread_wrapper
+        else:
+            # Using the util.call_directly function as the default method
+            self.run_in_main_thread_wrapper = call_directly
 
         # Create the host id
         self._id = uuid.uuid4().hex
@@ -176,12 +191,15 @@ class Host(object):
         )
 
         # Reply to discover_host_callback to client to pass the host information
-        discover_host_callback_reply = partial(
-            provide_host_information,
-            self.id,
-            self.context_id,
-            self.tool_configs,
+        discover_host_callback_reply = self.run_in_main_thread_wrapper(
+            partial(
+                provide_host_information,
+                self.id,
+                self.context_id,
+                self.tool_configs,
+            )
         )
+
         self._discover_host_subscribe_id = (
             self.event_manager.subscribe.discover_host(
                 callback=discover_host_callback_reply
@@ -202,6 +220,7 @@ class Host(object):
             self.id, self._verify_plugins_callback
         )
 
+    @delegate_to_main_thread_wrapper
     def _client_context_change_callback(self, event):
         '''Callback when the client has changed context'''
         context_id = event['data']['context_id']
@@ -209,8 +228,8 @@ class Host(object):
             self.context_id = context_id
 
     # Run
-    @with_new_session
-    def run_tool_config_callback(self, event, session=None):
+    @delegate_to_main_thread_wrapper
+    def run_tool_config_callback(self, event):
         '''
         Runs the data with the defined engine type of the given *event*
 
@@ -246,7 +265,7 @@ class Host(object):
             )
             engine_instance = engine_registry['extension'](
                 self.registry,
-                session,
+                self.session,
                 self.context_id,
                 on_plugin_executed=self.on_plugin_executed_callback,
             )
@@ -275,8 +294,8 @@ class Host(object):
         # Publish the event to notify client
         self.event_manager.publish.host_log_item_added(self.id, log_item)
 
-    @with_new_session
-    def run_ui_hook_callback(self, event, session=None):
+    @delegate_to_main_thread_wrapper
+    def run_ui_hook_callback(self, event):
         '''
         Runs the data with the defined engine type of the given *event*
 
@@ -315,7 +334,7 @@ class Host(object):
             )
             engine_instance = engine_registry['extension'](
                 self.registry,
-                session,
+                self.session,
                 on_plugin_executed=partial(
                     self.on_ui_hook_executed_callback, plugin_reference
                 ),
@@ -357,6 +376,7 @@ class Host(object):
             self.id, plugin_reference, ui_hook_result
         )
 
+    @delegate_to_main_thread_wrapper
     def _verify_plugins_callback(self, event):
         '''
         Call the verify_plugins and return the result to the client.
