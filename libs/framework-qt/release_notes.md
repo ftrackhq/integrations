@@ -1,6 +1,12 @@
 # ftrack Framework QT library release Notes
 
 
+## v3.0.0rc2
+2024-09-19
+
+* [changed] Update framework dependencies to 3.0.0.
+
+
 ## v3.0.0rc1
 2024-07-17
 
