@@ -88,6 +88,8 @@ class AppInstaller(object):
             'ftrack_api',
             '--collect-all',
             'ftrack_action_handler',
+            '--collect-all',
+            'riffle',
             '--icon',
             self.icon_path,
             '--distpath',
