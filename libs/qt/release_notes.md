@@ -1,9 +1,9 @@
 # ftrack QT library release Notes
 
+## v3.0.0
+2024-09-19
 
-## v3.0.0rc1
-2024-07-17
-
+* [changed] Update framework dependencies to 3.0.0.
 * [changed] FileDialog; support selecting multiple files.
 * [changed] FileBrowser; support collection of multiple files.
 * [changed] Python clique 1.6.1 library as dependency.
