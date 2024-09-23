@@ -275,13 +275,13 @@ url = "../../installers/app-installer"
 
 [[package]]
 name = "ftrack-framework-core"
-version = "2.4.0"
+version = "3.0.0"
 description = "ftrack Framework Core library"
 optional = false
 python-versions = "<3.12,>=3.7"
 files = [
-    {file = "ftrack_framework_core-2.4.0-py3-none-any.whl", hash = "sha256:7cd452e33a018164d3e6cf99ceb25d07f6ebd704f776ae12ee5b199653f439e8"},
-    {file = "ftrack_framework_core-2.4.0.tar.gz", hash = "sha256:ee94053a2f7d860f804266359a3cbdbcb0956952b16b88a977e061454ae84f9a"},
+    {file = "ftrack_framework_core-3.0.0-py3-none-any.whl", hash = "sha256:bbf243dc0d13952a618ce7e1b8d73034fb793adffb72a5e5f91a7f80caf82551"},
+    {file = "ftrack_framework_core-3.0.0.tar.gz", hash = "sha256:104e05aa6fd4699c5c6d9ec95eab0ee1f0c764afd9f5b80a719c731295953dd9"},
 ]
 
 [package.dependencies]
@@ -291,7 +291,7 @@ pyyaml = ">=6.0.1,<7.0.0"
 six = ">=1,<2"
 
 [package.extras]
-ftrack-libs = ["ftrack-constants (>=2.0.0,<3.0.0)", "ftrack-utils (>=2.0.0,<3.0.0)"]
+ftrack-libs = ["ftrack-constants (>=3.0.0,<4.0.0)", "ftrack-utils (>=3.0.0,<4.0.0)"]
 
 [[package]]
 name = "ftrack-python-api"
@@ -316,17 +316,18 @@ websocket-client = ">=0.40.0,<1"
 
 [[package]]
 name = "ftrack-utils"
-version = "2.3.0"
+version = "3.0.0"
 description = "ftrack utils library"
 optional = false
 python-versions = "<3.12,>=3.7"
 files = [
-    {file = "ftrack_utils-2.3.0-py3-none-any.whl", hash = "sha256:3e7e89d30b799bcb711f88c9c207799b0f4e201ed6718645cf2ed7b8bca12f5f"},
-    {file = "ftrack_utils-2.3.0.tar.gz", hash = "sha256:bcd11e8aa8cf42a8f036ecd502b9e7aa12a9e26cf56d66ecf4595b31a79cbfca"},
+    {file = "ftrack_utils-3.0.0-py3-none-any.whl", hash = "sha256:a016f2a326499d9535735fbba5711c2ab8cb55baaa7879cb5089add0c49c57d6"},
+    {file = "ftrack_utils-3.0.0.tar.gz", hash = "sha256:0c1a8799abc19af21e47837e295841fbbf8b9fe51d24f02076c3bec850a0847c"},
 ]
 
 [package.dependencies]
 clique = "1.6.1"
+ftrack-python-api = ">=2.5.4,<3.0.0"
 six = ">=1,<2"
 toml = ">=0.10.2,<0.11.0"
 
@@ -541,13 +542,13 @@ files = [
 
 [[package]]
 name = "platformdirs"
-version = "4.3.3"
+version = "4.3.6"
 description = "A small Python package for determining appropriate platform-specific dirs, e.g. a `user data dir`."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "platformdirs-4.3.3-py3-none-any.whl", hash = "sha256:50a5450e2e84f44539718293cbb1da0a0885c9d14adf21b77bae4e66fc99d9b5"},
-    {file = "platformdirs-4.3.3.tar.gz", hash = "sha256:d4e0b7d8ec176b341fb03cb11ca12d0276faa8c485f9cd218f613840463fc2c0"},
+    {file = "platformdirs-4.3.6-py3-none-any.whl", hash = "sha256:73e575e1408ab8103900836b97580d5307456908a03e92031bab39e4554cc3fb"},
+    {file = "platformdirs-4.3.6.tar.gz", hash = "sha256:357fb2acbc885b0419afd3ce3ed34564c13c9b95c89360cd9563f73aa5e2b907"},
 ]
 
 [package.extras]
@@ -895,13 +896,13 @@ tests = ["pytest (>=2.3.5,<5)"]
 
 [[package]]
 name = "setuptools"
-version = "75.0.0"
+version = "75.1.0"
 description = "Easily download, build, install, upgrade, and uninstall Python packages"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "setuptools-75.0.0-py3-none-any.whl", hash = "sha256:791ae94f04f78c880b5e614e560dd32d4b4af5d151bd9e7483e3377846caf90a"},
-    {file = "setuptools-75.0.0.tar.gz", hash = "sha256:25af69c809d9334cd8e653d385277abeb5a102dca255954005a7092d282575ea"},
+    {file = "setuptools-75.1.0-py3-none-any.whl", hash = "sha256:35ab7fd3bcd95e6b7fd704e4a1539513edad446c097797f2985e0e4b960772f2"},
+    {file = "setuptools-75.1.0.tar.gz", hash = "sha256:d59a21b17a275fb872a9c3dae73963160ae079f1049ed956880cd7c09b120538"},
 ]
 
 [package.extras]
@@ -1153,4 +1154,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">= 3.8, < 3.11"
-content-hash = "bc4474fac77ee111ba07bf921adf7bad075a54c4c22620a0fdde61d392198b7f"
+content-hash = "a2c77bf973ca7e59207f6338210fa4f0cfe365a0bcddd2529b9bd29062d303ec"
