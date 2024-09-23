@@ -1,0 +1,23 @@
+type: tool_config
+name: standalone-batch-publisher
+config_type: publisher
+engine:
+  - type: plugin
+    tags:
+      - collector
+    plugin: batch_collector
+    options:
+      source_folder: /Users/ftrack/Desktop/test_batch
+    # Replace this to edls collector or selection in different DCCs.
+    ui: batch_objects_collector
+
+  - type: plugin
+    plugin: object_analyzer
+    options:
+      name_pattern: '{project_name}_{sequence_name}_{shot_name}_{task_name}_{asset_name}_{version}'
+
+  # You can add name validators, renamers, etc.
+  # You could add the above plugins inside a group if you want to allow publishing multiple different grupped things.
+
+  - ftrack_structure_generator
+
