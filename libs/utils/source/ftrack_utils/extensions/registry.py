@@ -65,44 +65,6 @@ def register_yaml_files(file_list):
     return registered_files
 
 
-def register_js_files(file_list):
-    '''
-    Generate data registry files for all extension compatible javascript files in
-    the given *file_list*.
-    '''
-
-    registered_files = []
-    for _file in file_list:
-        # Ready the file and extract the extension
-
-        extension_type = extension_name = None
-        content = ""
-        with open(_file, 'r') as js_file:
-            for line in js_file:
-                if line.startswith("const EXTENSION_TYPE="):
-                    # Expect: const EXTENSION_TYPE="functions_js", extract
-                    # the value of the variable
-                    extension_type = line.split("=")[1].strip().strip('"')
-                elif line.startswith("const EXTENSION_NAME="):
-                    extension_name = line.split("=")[1].strip().strip('"')
-                content += line
-        if not (extension_type and extension_name):
-            logger.warning(
-                "No extension compatible .js file, missing 'EXTENSION_TYPE' and"
-                " 'EXTENSION_NAME' definitions."
-                "\nFile: {}".format(_file)
-            )
-            continue
-        data = {
-            "extension_type": extension_type,
-            "name": extension_name,
-            "extension": content,
-            "path": _file,
-        }
-        registered_files.append(data)
-    return registered_files
-
-
 def get_files_from_folder(_dir, filetype_pattern):
     '''
     Return all files matching the *filetype_pattern* the given folder *_dir*
@@ -124,7 +86,7 @@ def get_extensions_from_directory(scan_dir, extension_types=None):
         subfolders.append(scan_dir)
 
     available_extensions = []
-    # Check YAML extensions
+    # Check non python extensions
     for _dir in subfolders:
         file_list = get_files_from_folder(_dir, filetype_pattern="*.y*ml")
         if not file_list:
@@ -157,24 +119,6 @@ def get_extensions_from_directory(scan_dir, extension_types=None):
                 or data["extension_type"] in extension_types
             ):
                 available_extensions.append(data)
-
-    # Check JS extensions
-    for _dir in subfolders:
-        file_list = get_files_from_folder(_dir, filetype_pattern="*.js")
-        if not file_list:
-            continue
-        registered_files = register_js_files(file_list)
-        if not registered_files:
-            logger.warning(
-                "No compatible JS extensions found in "
-                "folder {}".format(_dir)
-            )
-        if extension_types is None:
-            available_extensions.extend(registered_files)
-        else:
-            for extension in registered_files:
-                if extension["extension_type"] in extension_types:
-                    available_extensions.append(extension)
 
     return available_extensions
 

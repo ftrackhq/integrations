@@ -139,8 +139,8 @@ def sync_js_plugin(app_path, framework_extensions_paths):
     )
 
     # Copy the library and bootstrap
-    for fn in ['utils.js', 'configure.js']:
-        src = os.path.join(bootstrap_folder, fn)
+    for fn in ['utils.js', 'configure.js', 'harmony_commands.js']:
+        src = os.path.join(bootstrap_folder, 'js', fn)
         dst = os.path.join(path_scripts, fn)
         shutil.copy(src, dst)
         logger.debug(f'Copied: {fn}')
@@ -150,23 +150,6 @@ def sync_js_plugin(app_path, framework_extensions_paths):
     dst = os.path.join(path_scripts, 'icons')
     shutil.copytree(src, dst)
     logger.debug(f'Copied: icons')
-
-    # Collect extensions
-
-    registry_instance = registry.Registry()
-    registry_instance.scan_extensions(
-        paths=framework_extensions_paths, extension_types=['functions_js']
-    )
-
-    logger.debug(
-        f'JS functions extensions found: {len(registry_instance.functions_js or [])}'
-    )
-    for functions_js in registry_instance.functions_js or []:
-        fn = os.path.basename(functions_js['path'])
-        src = functions_js['path']
-        dst = os.path.join(path_scripts, fn)
-        shutil.copy(src, dst)
-        logger.debug(f'Copied: {fn}')
 
 
 def on_launch_integration(session, event):
