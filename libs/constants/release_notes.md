@@ -1,5 +1,9 @@
 # ftrack Constants library release Notes
 
+## Upcoming
+
+* [new] Add HOST_SYNC_TOOL_CONFIG_TOPIC constant.
+
 ## v3.0.0
 2024-09-19
 

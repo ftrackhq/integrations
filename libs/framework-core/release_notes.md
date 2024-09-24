@@ -1,5 +1,12 @@
 # ftrack Framework Core library release Notes
 
+## upcoming
+
+* [change] Registry; support get tool config extensions by reference.
+* [new] Client; Add method save_tool_config_in_destination; Save given tool config as yaml file in specific destination.
+* [new] Client, Host, Event Manager; Add host_sync_tool_config on event manager to sync tool config from the client to the host.
+
+
 ## v3.0.0
 2024-09-19
 

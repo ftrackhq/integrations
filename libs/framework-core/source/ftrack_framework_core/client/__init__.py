@@ -5,6 +5,7 @@ import time
 import logging
 import uuid
 from collections import defaultdict
+import yaml
 
 from six import string_types
 
@@ -544,6 +545,22 @@ class Client(object):
             self._tool_config_options[tool_config_reference][
                 item_reference
             ] = options
+
+    def sync_tool_config(self, tool_config):
+        '''
+        Sync the given *tool_config* with the host.
+        '''
+        self.event_manager.publish.host_sync_tool_config(
+            self.host_id,
+            tool_config,
+        )
+
+    def save_tool_config_in_destination(self, tool_config, destination):
+        '''
+        Save the given *tool_config* in the given *destination*.
+        '''
+        with open(destination, 'w') as file:
+            yaml.dump(tool_config, file)
 
     def run_ui_hook(
         self, tool_config_reference, plugin_config_reference, payload

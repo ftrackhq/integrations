@@ -8,3 +8,8 @@ QLineEdit {
 QLineEdit:focus {
     border: 1px solid $color-primary;
 }
+
+QLineEdit[label='true']:read-only {
+    border: none;
+    background: transparent;
+}

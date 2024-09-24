@@ -220,6 +220,11 @@ class Host(object):
             self.id, self._verify_plugins_callback
         )
 
+        # Subscribe to sync tool config from the client
+        self.event_manager.subscribe.host_sync_tool_config(
+            self.id, self._sync_tool_config_callback
+        )
+
     @delegate_to_main_thread_wrapper
     def _client_context_change_callback(self, event):
         '''Callback when the client has changed context'''
@@ -310,6 +315,7 @@ class Host(object):
         client_options = event['data']['client_options']
         payload = event['data']['payload']
 
+        # TODO: we should be able to replace this to: tool_config = self.registry.get_one(extension_type='tool_config', reference=tool_config_reference)
         for typed_configs in self.tool_configs.values():
             tool_config = None
             for _tool_config in typed_configs:
@@ -398,3 +404,32 @@ class Host(object):
                 f'correct extensions path: {unregistered_plugins}'
             )
         return unregistered_plugins
+
+    def _sync_tool_config_callback(self, event):
+        '''
+        Runs the data with the defined engine type of the given *event*
+
+        Returns result of the engine run.
+
+        *event* : Published from the client host connection at
+        :meth:`~ftrack_framework_core.client.HostConnection.run`
+        '''
+
+        tool_config = event['data']['tool_config']
+
+        registered_tool_config = self.registry.get_one(
+            extension_type='tool_config', reference=tool_config['reference']
+        )
+
+        if not registered_tool_config:
+            self.registry.add(
+                tool_config['type'],
+                name=tool_config['name'],
+                extension=tool_config,
+                path="Memory",
+                create_reference=False,
+            )
+        else:
+            registered_tool_config = tool_config
+
+        return registered_tool_config
