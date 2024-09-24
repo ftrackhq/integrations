@@ -9,37 +9,9 @@ import ftrack_constants.framework as constants
 import uuid
 import time
 
+from ftrack_utils.event_hub import EventHubThread
+
 logger = logging.getLogger(__name__)
-
-
-class _EventHubThread(threading.Thread):
-    '''Listen for events from ftrack's event hub.'''
-
-    def __repr__(self):
-        return "<{0}:{1}>".format(self.__class__.__name__, self.name)
-
-    def __init__(self, session):
-        self.logger = logging.getLogger(
-            __name__ + '.' + self.__class__.__name__
-        )
-        _name = str(hash(session))
-        super(_EventHubThread, self).__init__(name=_name)
-        self.logger.debug('Name set for the thread: {}'.format(_name))
-        self._session = session
-
-    def start(self):
-        '''Start thread for *_session*.'''
-        self.logger.debug(
-            'starting event hub thread for session {}'.format(self._session)
-        )
-        super(_EventHubThread, self).start()
-
-    def run(self):
-        '''Listen for events.'''
-        self.logger.debug(
-            'hub thread started for session {}'.format(self._session)
-        )
-        self._session.event_hub.wait()
 
 
 class EventManager(object):
@@ -90,23 +62,10 @@ class EventManager(object):
         '''
         return self._subscribe_instance
 
-    def _connect(self):
-        # If is not already connected, connect to event hub.
-        while not self.connected:
-            self.session.event_hub.connect()
-
-    def _wait(self):
-        for thread in threading.enumerate():
-            if thread.getName() == str(hash(self.session)):
-                self._event_hub_thread = thread
-                break
-        if not self._event_hub_thread:
-            # self.logger.debug('Initializing new hub thread {}'.format(self))
-            self._event_hub_thread = _EventHubThread(self.session)
-
-        if not self._event_hub_thread.is_alive():
-            # self.logger.debug('Starting new hub thread for {}'.format(self))
-            self._event_hub_thread.start()
+    def close(self):
+        '''Close the event manager and disconnect from the event hub.'''
+        self.session.event_hub.disconnect()
+        self.session.close()
 
     def __init__(self, session, mode=constants.event.LOCAL_EVENT_MODE):
         self.logger = logging.getLogger(
@@ -116,30 +75,29 @@ class EventManager(object):
         self._mode = mode
         self._session = session
         if mode == constants.event.REMOTE_EVENT_MODE:
-            # TODO: Bring this back when API event hub properly can differentiate between local and remote mode
-            self._connect()
-            self._wait()
+            if not self.connected:
+                self.logger.error(
+                    'Instantiating event manager in Local mode; Session event hub is not connected. Please make sure to connect the event hub before instantiating the EventManager in remote mode. Example: session.event_hub.connect()'
+                )
+                self._mode = constants.event.LOCAL_EVENT_MODE
 
         # Initialize Publish and subscribe classes to be able to provide
         # predefined events.
         self._publish_instance = Publish(self)
         self._subscribe_instance = Subscribe(self)
 
-        # self.logger.debug('Initialising {}'.format(self))
+        self.logger.debug(
+            f'Initialising event manager {self} with mode {self.mode}'
+        )
 
-    def _publish(self, event, callback=None, mode=None):
-        '''Emit *event* and provide *callback* function, in local or remote *mode*.'''
+    def _publish(self, event, callback=None):
+        '''Emit *event* and provide *callback* function, in local or remote *remote*.'''
 
-        mode = mode or self.mode
-
-        if mode is constants.event.LOCAL_EVENT_MODE:
+        if self.mode == constants.event.LOCAL_EVENT_MODE:
             result = self.session.event_hub.publish(
                 event,
                 synchronous=True,
             )
-
-            if result:
-                result = result
 
             # Mock async event reply.
             new_event = ftrack_api.event.base.Event(
@@ -170,9 +128,6 @@ class EventManager(object):
         release dangling callback reference in memory'''
         self.session.event_hub.unsubscribe(subscribe_id)
 
-    def available_framework_events(self):
-        pass
-
 
 class Publish(object):
     '''Class with all the events published by the framework'''
@@ -185,7 +140,7 @@ class Publish(object):
         super(Publish, self).__init__()
         self._event_manager = event_manager
 
-    def _publish_event(self, event_topic, data, callback, mode=None):
+    def _publish_event(self, event_topic, data, callback):
         '''
         Common method that calls the private publish method from the
         event manager
@@ -194,7 +149,7 @@ class Publish(object):
             topic=event_topic, data=data
         )
         publish_result = self.event_manager._publish(
-            publish_event, callback=callback, mode=mode
+            publish_event, callback=callback
         )
         return publish_result
 
@@ -203,7 +158,7 @@ class Publish(object):
         Publish an event with topic
         :const:`~ftrack_framework_core.constants.event.DISCOVER_HOST_TOPIC`
         '''
-
+        # TODO: review this implementation, for now this one can't never be remote as it goes into a loop.
         data = None
         event_topic = constants.event.DISCOVER_HOST_TOPIC
         return self._publish_event(event_topic, data, callback)
@@ -352,13 +307,7 @@ class Publish(object):
         event_topic = constants.event.CLIENT_NOTIFY_UI_HOOK_RESULT_TOPIC
         return self._publish_event(event_topic, data, callback)
 
-    def host_verify_plugins(
-        self,
-        host_id,
-        plugin_names,
-        callback=None,
-        mode=constants.event.LOCAL_EVENT_MODE,
-    ):
+    def host_verify_plugins(self, host_id, plugin_names, callback=None):
         '''
         Publish an event with topic
         :const:`~ftrack_framework_core.constants.event.HOST_VERIFY_PLUGINS_TOPIC`
@@ -369,7 +318,7 @@ class Publish(object):
         }
 
         event_topic = constants.event.HOST_VERIFY_PLUGINS_TOPIC
-        return self._publish_event(event_topic, data, callback, mode)
+        return self._publish_event(event_topic, data, callback)
 
     def host_sync_tool_config(
         self,

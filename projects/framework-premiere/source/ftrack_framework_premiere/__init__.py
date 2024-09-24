@@ -35,6 +35,8 @@ from ftrack_framework_core.client import Client
 from ftrack_framework_core.configure_logging import configure_logging
 from ftrack_framework_core import registry
 
+from ftrack_utils.session import create_api_session
+
 # Evaluate version and log package version
 try:
     from ftrack_utils.version import get_version
@@ -58,7 +60,7 @@ logger.debug('v{}'.format(__version__))
 client_instance = None
 premiere_rpc_connection = None
 startup_tools = []
-remote_session = None
+session = None
 process_monitor = None
 
 # Create Qt application
@@ -144,14 +146,14 @@ def bootstrap_integration(framework_extensions_path):
     '''Initialise Premiere Framework Python standalone part,
     with panels defined in *panel_launchers*'''
 
-    global client_instance, premiere_rpc_connection, startup_tools, remote_session, process_monitor
+    global client_instance, premiere_rpc_connection, startup_tools, session, process_monitor
 
     logger.debug(
         'Premiere standalone integration initialising, extensions path:'
         f' {framework_extensions_path}'
     )
 
-    session = ftrack_api.Session(auto_connect_event_hub=False)
+    session = create_api_session(auto_connect_event_hub=True)
 
     event_manager = EventManager(
         session=session, mode=constants.event.LOCAL_EVENT_MODE
@@ -160,9 +162,17 @@ def bootstrap_integration(framework_extensions_path):
     registry_instance = registry.Registry()
     registry_instance.scan_extensions(paths=framework_extensions_path)
 
-    Host(event_manager, registry=registry_instance)
+    Host(
+        event_manager,
+        registry=registry_instance,
+        run_in_main_thread_wrapper=invoke_in_qt_main_thread,
+    )
 
-    client_instance = Client(event_manager, registry=registry_instance)
+    client_instance = Client(
+        event_manager,
+        registry=registry_instance,
+        run_in_main_thread_wrapper=invoke_in_qt_main_thread,
+    )
 
     # Init tools
     dcc_config = registry_instance.get_one(
@@ -170,9 +180,6 @@ def bootstrap_integration(framework_extensions_path):
     )['extension']
 
     logger.debug(f'Read DCC config: {dcc_config}')
-
-    # Init Premiere connection
-    remote_session = ftrack_api.Session(auto_connect_event_hub=True)
 
     # Filter tools, extract the ones that are marked as startup tools
     panel_launchers = []
@@ -203,7 +210,7 @@ def bootstrap_integration(framework_extensions_path):
                 )
     premiere_rpc_connection = JavascriptRPC(
         'premiere',
-        remote_session,
+        session,
         client_instance,
         panel_launchers,
         on_connected_callback,
@@ -286,13 +293,13 @@ def bootstrap_integration(framework_extensions_path):
 def run_integration():
     '''Run Premiere Framework Python standalone part as long as Premiere is alive.'''
 
-    global remote_session
+    global session
 
     # Run until it's closed, or CTRL+C
     active_time = 0
     while True:
         app.processEvents()
-        remote_session.event_hub.wait(0.01)
+        session.event_hub.wait(0.01)
         active_time += 10
         if active_time % 10000 == 0:
             logger.info(

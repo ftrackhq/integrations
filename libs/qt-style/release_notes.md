@@ -4,6 +4,11 @@
 
 * [changed] LineEdit; Support label property.
 
+## v3.0.0
+2024-09-19
+
+* [changed] Update ftrack utils dependency to 3.0.0.
+
 ## v2.2.1
 2024-05-02
 

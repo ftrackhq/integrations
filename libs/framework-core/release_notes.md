@@ -5,9 +5,20 @@
 * [change] Registry; support get tool config extensions by reference.
 * [new] Client; Add method save_tool_config_in_destination; Save given tool config as yaml file in specific destination.
 * [new] Client, Host, Event Manager; Add host_sync_tool_config on event manager to sync tool config from the client to the host.
+
+
+## v3.0.0
+2024-09-19
+
+* [changed] Host; Remove with_new_session decorator and use current remote session directly.
+* [changed] EventManager; Remove the ability to connect to the event hub, instead assume that passed session argument is already connected.
+* [changed] EventManager; EventHubThread moved to ftrack_utils.
+* [new] Client, Host; Using delegate_to_main_thread_wrapper decorator to execute methods in main thread function provided as run_in_main_thread_wrapper argument when instantiating.
+* [change] EventManager; Remove override mode.
 * [feature] Client, Engine, Dialog; Support tool config top level options.
 * [fix] Engine; Check enabled/disabled plugins.
 * [change] Client, Dialog; Support set_tool_config_option for any item in the tool_conifg.
+
 
 ## v2.4.0
 2024-06-04

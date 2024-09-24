@@ -73,7 +73,7 @@ jobs:
       - name: Build Qt resources
         shell: bash
         run: |
-          pip install -r tools/requirements-connect.txt
+          pip install --no-cache-dir -r tools/requirements-connect.txt
           python tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py --pyside_version 6 build_qt_resources apps/connect
       - name: poetry build and export dependencies
         shell: bash
@@ -89,7 +89,7 @@ jobs:
           echo "Connect version: $CONNECT_VERSION"
           echo "connect_version=$CONNECT_VERSION" >> $GITHUB_OUTPUT
       - name: Prepare upload Connect wheel to GitHub Release
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: ftrack-connect-whl
           path: ${{ needs.set-variables.outputs.folder }}/dist/ftrack_connect-${{ steps.get_version.outputs.connect_version }}-py3-none-any.whl
@@ -253,8 +253,10 @@ jobs:
       - uses: actions/checkout@v3
       - name: Install dependencies and pyenv
         run: |
+          dnf install -y epel-release
+          dnf -y update
           dnf groupinstall -y "Development Tools"
-          dnf install -y gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz-devel git findutils patch wget tar make libuuid-devel mesa-libGL
+          dnf install -y libxcb xcb-util-cursor gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz-devel git findutils patch wget tar make libuuid-devel mesa-libGL
           curl https://pyenv.run | bash
           echo 'export PATH="$HOME/.pyenv/bin:$PATH"' >> ~/.bashrc
           echo 'eval "$(pyenv init --path)"' >> ~/.bashrc
