@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ftrack-connect"
-version = "24.9.0rc1"
+version = "24.9.0"
 description='ftrack Connect desktop application.'
 authors = ["ftrack Integrations Team <integrations@backlight.co>"]
 readme = "README.md"
@@ -39,8 +39,8 @@ pyyaml = "^6.0.1"
 #ftrack
 ftrack-python-api = "^2.5.4"
 ftrack-action-handler = "*"
-ftrack-utils = {  version = "^2.0.0"}
-ftrack-framework-core = {  version = "^2.0.0"}
+ftrack-utils = {  version = "^3.0.0"}
+ftrack-framework-core = {  version = "^3.0.0"}
 
 [tool.poetry.group.dev]
 optional = true
