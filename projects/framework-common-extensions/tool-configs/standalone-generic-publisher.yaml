@@ -1,0 +1,23 @@
+type: tool_config
+name: standalone-generic-publisher
+config_type: publisher
+engine:
+  - type: plugin
+    tags:
+      - context
+    plugin: store_asset_context
+    options:
+      asset_type_name: script
+    ui: publisher_asset_version_selector
+
+  - type: plugin
+    tags:
+      - collector
+    plugin: generic_collector
+    options:
+      editable_component_name: True
+      available_collector_widgets:
+        - file_browser_collector
+        - object_collector
+
+    ui: generic_accordion_collector

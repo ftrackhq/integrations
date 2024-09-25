@@ -18,7 +18,7 @@ from ftrack_utils.decorators import (
     delegate_to_main_thread_wrapper,
 )
 from ftrack_utils.framework.config.tool import get_tool_config_by_name
-from ftrack_utils.calls.methods import call_directly
+from ftrack_utils.decorators.threading import call_directly
 
 
 class Client(object):

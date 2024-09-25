@@ -2,6 +2,7 @@
 
 ## Upcoming
 
+* [new] Generic publisher dialog added with a generic tool-config.
 * [fixed] StandardPublisherDialog; Fix bug were _accordion_widgets_registry wasn't initialized if no tool_config available.
 * [fixed] StandardOpenerDialog, StandardPublisherDialog; Fix bug were dialog creation crashed if not tool configs. Also disabled run button.
 * [changed] RenameFileExporterPlugin; Accept folder as destination.

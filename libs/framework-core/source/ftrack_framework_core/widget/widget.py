@@ -92,6 +92,16 @@ class FrameworkWidget(BaseUI):
         '''
         self.plugin_options = {name: value}
 
+    def remove_plugin_option(self, name):
+        '''
+        Updates the *name* option of the current plugin with the given *value*
+        '''
+        try:
+            self._options.pop(name)
+            self.on_set_plugin_option(self._options)
+        except:
+            pass
+
     def validate(self):
         '''Re implement this method to add validation to the widget'''
         return None

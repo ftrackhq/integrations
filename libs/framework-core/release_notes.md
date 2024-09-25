@@ -1,5 +1,11 @@
 # ftrack Framework Core library release Notes
 
+## upcoming
+
+* [change] Registry; Support get tool config extensions by reference.
+* [change] Registry; Support create references in a tool-config section.
+
+
 ## v3.0.0
 2024-09-19
 
