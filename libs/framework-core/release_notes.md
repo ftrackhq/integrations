@@ -1,9 +1,16 @@
 # ftrack Framework Core library release Notes
 
+
 ## upcoming
 
 * [change] Registry; Support get tool config extensions by reference.
 * [change] Registry; Support create references in a tool-config section.
+
+
+## v3.0.1
+2024-09-25
+
+* [fix] Client, Host; Fix issue with run_in_main_thread_wrapper decorator.
 
 
 ## v3.0.0
