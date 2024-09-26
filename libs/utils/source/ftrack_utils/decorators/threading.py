@@ -8,6 +8,16 @@ from functools import wraps
 task_queue = queue.Queue()
 
 
+def call_directly(func):
+    """Decorator to directly call a function Without caring about threading."""
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
 def run_in_main_thread(func):
     """Decorator to ensure a function runs on the main thread."""
 

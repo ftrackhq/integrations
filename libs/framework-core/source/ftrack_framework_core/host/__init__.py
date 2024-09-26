@@ -16,7 +16,7 @@ from ftrack_utils.decorators import (
     with_new_session,
     delegate_to_main_thread_wrapper,
 )
-from ftrack_utils.calls.methods import call_directly
+from ftrack_utils.decorators.threading import call_directly
 
 logger = logging.getLogger(__name__)
 
