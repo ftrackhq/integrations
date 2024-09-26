@@ -1,5 +1,11 @@
 # ftrack Framework Core library release Notes
 
+## v3.0.1
+2024-09-25
+
+* [fix] Client, Host; Fix issue with run_in_main_thread_wrapper decorator.
+
+
 ## v3.0.0
 2024-09-19
 
