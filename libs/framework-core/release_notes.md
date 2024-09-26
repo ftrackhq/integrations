@@ -1,6 +1,5 @@
 # ftrack Framework Core library release Notes
 
-
 ## upcoming
 
 * [change] Registry; Support get tool config extensions by reference.
