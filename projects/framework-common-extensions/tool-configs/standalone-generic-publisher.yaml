@@ -17,7 +17,9 @@ engine:
     options:
       editable_component_name: True
       available_collector_widgets:
-        - file_browser_collector
+        - FileBrowser
         - object_collector
 
     ui: generic_accordion_collector
+
+  - publish_to_ftrack

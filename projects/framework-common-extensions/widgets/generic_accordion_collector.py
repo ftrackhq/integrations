@@ -92,6 +92,8 @@ class GenericAccordionCollectorWidget(BaseWidget):
         accordion_widget = AccordionBaseWidget(
             selectable=False,
             show_checkbox=False,
+            show_settings=False,
+            show_status=False,
             checkable=False,
             title="<Set Component Name>",
             editable_title=editable_component_name,
@@ -150,21 +152,27 @@ class GenericAccordionCollectorWidget(BaseWidget):
                     return self.layout().indexOf(item.widget())
                 else:
                     return self._get_latest_component_index(idx + 1)
-        return 0
+        return -1
 
     def _on_component_name_edited_callback(self, new_name):
         new_name = self.get_available_component_name(
             new_name, skip_widget=self.sender()
         )
         if self.sender().previous_title:
-            options = self.plugin_options.get(self.sender().previous_title)
-            self.remove_plugin_option(self.sender().previous_title)
-            self.set_plugin_option(new_name, options)
+            current_components = self.plugin_options.get('components', {})
+            component_options = current_components.get(
+                self.sender().previous_title
+            )
+            if current_components.get(self.sender().previous_title):
+                current_components.pop(self.sender().previous_title)
+                current_components.update({new_name: component_options})
+            self.set_plugin_option('components', current_components)
 
         self.sender().set_title(new_name)
 
     def _on_component_removed_callback(self):
-        self.remove_plugin_option(self.sender().title)
+        current_components = self.plugin_options.get('components', {})
+        current_components.pop(self.sender().title)
         # Remove the widget from the registry
         self._accordion_widgets_registry.remove(self.sender())
         # Remove the widget from the layout
@@ -177,7 +185,9 @@ class GenericAccordionCollectorWidget(BaseWidget):
         Updates the option dictionary with provided *asset_name* when
         asset_changed of asset_selector event is triggered
         '''
-        self.remove_plugin_option(accordion_widget.title)
+        current_components = self.plugin_options.get('components', {})
+        if current_components.get(accordion_widget.title):
+            current_components.pop(accordion_widget.title)
         if not file_path:
             return
 
@@ -205,7 +215,9 @@ class GenericAccordionCollectorWidget(BaseWidget):
         option_value = {
             'file_path': file_path,
         }
-        self.set_plugin_option(accordion_widget.title, option_value)
+
+        current_components.update({accordion_widget.title: option_value})
+        self.set_plugin_option('components', current_components)
 
         # self.path_changed.emit(file_path)
 

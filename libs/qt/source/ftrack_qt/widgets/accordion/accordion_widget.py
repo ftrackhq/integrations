@@ -50,6 +50,16 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         return self._show_checkbox
 
     @property
+    def show_settings(self):
+        '''Return True if accordion is checkable with a checkbox'''
+        return self._show_settings
+
+    @property
+    def show_status(self):
+        '''Return True if accordion is checkable with a checkbox'''
+        return self._show_status
+
+    @property
     def collapsed(self):
         '''Return True if accordion is collapsed - content hidden (default)'''
         return self._collapsed
@@ -91,6 +101,8 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         self,
         selectable=False,
         show_checkbox=False,
+        show_settings=True,
+        show_status=True,
         checkable=False,
         title=None,
         editable_title=False,
@@ -123,6 +135,8 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         self._selectable = selectable
         self._checkable = checkable
         self._show_checkbox = show_checkbox
+        self._show_settings = show_settings
+        self._show_status = show_status
         self._title = title
         self._editable_title = editable_title
         self._collapsable = collapsable
@@ -167,6 +181,8 @@ class AccordionBaseWidget(QtWidgets.QFrame):
             checkable=self.checkable,
             checked=self.checked,
             show_checkbox=self.show_checkbox,
+            show_settings=self.show_settings,
+            show_status=self.show_status,
             collapsable=self.collapsable,
             collapsed=self.collapsed,
             removable=self.removable,

@@ -52,6 +52,14 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
         return self._show_checkbox
 
     @property
+    def show_settings(self):
+        return self._show_settings
+
+    @property
+    def show_status(self):
+        return self._show_status
+
+    @property
     def collapsable(self):
         return self._collapsable
 
@@ -78,6 +86,8 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
         checkable=False,
         checked=True,
         show_checkbox=False,
+        show_settings=False,
+        show_status=False,
         collapsable=True,
         collapsed=True,
         removable=False,
@@ -96,6 +106,8 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
         self._checkable = checkable
         self._checked = checked
         self._show_checkbox = show_checkbox
+        self._show_settings = show_settings
+        self._show_status = show_status
         self._collapsable = collapsable
         self._collapsed = collapsed
         self._removable = removable
@@ -150,9 +162,11 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
             self.title, MaterialIcon('settings', color='gray')
         )
         self._options_button.setProperty('borderless', True)
+        self._options_button.setVisible(self._show_settings)
         content_layout.addWidget(LineWidget(horizontal=True))
         # add status icon
         self._status_icon = StatusMaterialIconWidget('check')
+        self._status_icon.setVisible(self._show_status)
 
         # Create Arrow
         self._arrow = ArrowMaterialIconWidget(None)

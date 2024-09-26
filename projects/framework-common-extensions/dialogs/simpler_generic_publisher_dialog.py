@@ -27,11 +27,6 @@ class SimplerGenericPublisherDialog(BaseContextDialog):
     ui_type = 'qt'
     run_button_title = 'PUBLISH'
 
-    @property
-    def modified_tool_config(self):
-        '''Return the modified tool config'''
-        return self._modified_tool_config
-
     def __init__(
         self,
         event_manager,
