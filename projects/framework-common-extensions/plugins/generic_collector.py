@@ -25,4 +25,8 @@ class GenericCollectorPlugin(BasePlugin):
                 )
                 raise PluginExecutionError(message)
             self.logger.debug(f"Collected file_path: {file_path}.")
+            if store.get('components') is None:
+                store['components'] = {}
+            if store['components'].get(component_name) is None:
+                store['components'][component_name] = {}
             store['components'][component_name]['collected_path'] = file_path
