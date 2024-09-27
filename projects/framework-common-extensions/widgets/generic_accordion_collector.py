@@ -15,7 +15,12 @@ from ftrack_framework_qt.widgets import BaseWidget
 from ftrack_qt.widgets.accordion import AccordionBaseWidget
 from ftrack_qt.widgets.buttons import CircularButton
 from ftrack_qt.widgets.buttons import MenuButton
+
+# TODO: Remove this from qt widgets as it needs to be loaded from the registry
 from ftrack_qt.widgets.browsers import FileBrowser
+from ftrack_qt.widgets.browsers.generic_object_collector import (
+    GenericObjectCollectorWidget,
+)
 
 
 SUPPORTED_COLLECTORS = ['FileBrowser']

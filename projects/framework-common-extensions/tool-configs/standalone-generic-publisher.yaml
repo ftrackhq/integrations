@@ -18,7 +18,7 @@ engine:
       editable_component_name: True
       available_collector_widgets:
         - FileBrowser
-        - object_collector
+        - GenericObjectCollectorWidget
 
     ui: generic_accordion_collector
 
