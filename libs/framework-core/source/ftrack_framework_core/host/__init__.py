@@ -310,6 +310,7 @@ class Host(object):
         client_options = event['data']['client_options']
         payload = event['data']['payload']
 
+        # TODO: we should be able to replace this to: tool_config = self.registry.get_one(extension_type='tool_config', reference=tool_config_reference)
         for typed_configs in self.tool_configs.values():
             tool_config = None
             for _tool_config in typed_configs:
