@@ -10,6 +10,18 @@ from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 class GenericCollectorPlugin(BasePlugin):
     name = 'generic_collector'
 
+    def ui_hook(self, payload):
+        ''' '''
+        mock_items = [
+            'item1',
+            'item2',
+        ]
+        result = {
+            'widget': payload.get('widget'),
+            'items': mock_items,
+        }
+        return result
+
     def run(self, store):
         '''
         Get folder_path and file_name from the :obj:`self.options`

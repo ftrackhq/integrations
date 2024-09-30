@@ -16,9 +16,6 @@ engine:
     plugin: generic_collector
     options:
       editable_component_name: True
-      available_collector_widgets:
-        - FileBrowser
-        - GenericObjectCollectorWidget
 
     ui: generic_accordion_collector
 
