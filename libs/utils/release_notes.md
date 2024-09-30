@@ -12,17 +12,6 @@
 * [fix] Calls, decorators; Remove calls package and move the call_directly to decorators threading, this fixes a buc when calling it from framework Client and Host.
 
 
-## upcoming
-
-* [changed] framework tool configs; get_groups method dictionary support on filters argument..
-
-
-## v3.0.1
-2024-09-25
-
-* [fix] Calls, decorators; Remove calls package and move the call_directly to decorators threading, this fixes a buc when calling it from framework Client and Host.
-
-
 ## v3.0.0
 2024-09-19
 
