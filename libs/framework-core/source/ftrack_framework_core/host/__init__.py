@@ -310,15 +310,11 @@ class Host(object):
         client_options = event['data']['client_options']
         payload = event['data']['payload']
 
-        for typed_configs in self.tool_configs.values():
-            tool_config = None
-            for _tool_config in typed_configs:
-                if _tool_config['reference'] == tool_config_reference:
-                    tool_config = _tool_config
-                    break
-            if tool_config:
-                break
-        else:
+        tool_config = self.registry.get_one(
+            extension_type='tool_config', reference=tool_config_reference
+        )
+        tool_config = tool_config.get('extension')
+        if not tool_config:
             raise Exception(
                 'Given tool config reference {} not found on registered '
                 'tool_configs. \n {}'.format(
