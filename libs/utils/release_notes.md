@@ -1,5 +1,11 @@
 # ftrack Utils library release Notes
 
+## v3.1.0
+2024-09-30
+
+* [changed] framework tool configs; get_groups method dictionary support on filters argument..
+
+
 ## v3.0.1
 2024-09-25
 
