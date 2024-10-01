@@ -1,0 +1,22 @@
+type: tool_config
+name: maya-generic-publisher
+config_type: publisher
+engine:
+  - type: plugin
+    tags:
+      - context
+    plugin: store_asset_context
+    options:
+      asset_type_name: script
+    ui: publisher_asset_version_selector
+
+  - type: plugin
+    tags:
+      - collector
+    plugin: maya_generic_collector
+    options:
+      editable_component_name: True
+
+    ui: generic_accordion_collector
+
+  - publish_to_ftrack

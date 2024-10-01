@@ -10,6 +10,15 @@ tools:
       tool_configs:
         - maya-scene-publisher
       docked: true
+  - name: generic_publish
+    menu: true
+    label: "Generic Publish"
+    dialog_name: simpler_framework_generic_publisher_dialog
+    icon: publish
+    options:
+      tool_configs:
+        - maya-generic-publisher
+      docked: true
   - name: open
     menu: true
     label: "Open"
