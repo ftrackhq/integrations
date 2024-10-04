@@ -1,5 +1,12 @@
 # ftrack Framework Core library release Notes
 
+
+## v3.1.1
+2024-10-04
+
+* [fix] Host; Fix bug on set context_id calling the run_in_main_thread_wrapper.
+
+
 ## v3.1.0
 2024-09-30
 
