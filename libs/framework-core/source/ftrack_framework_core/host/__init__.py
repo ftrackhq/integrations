@@ -95,7 +95,7 @@ class Host(object):
         # context
         self.event_manager.unsubscribe(self._discover_host_subscribe_id)
         # Reply to discover_host_callback to clients to pass the host information
-        discover_host_callback_reply = self.run_in_main_thread(
+        discover_host_callback_reply = self.run_in_main_thread_wrapper(
             partial(
                 provide_host_information,
                 self.id,
