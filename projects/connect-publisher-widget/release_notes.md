@@ -1,5 +1,15 @@
 # ftrack Connect Publisher widget release Notes
 
+
+## v24.7.0rc2
+2024-07-05
+
+* [fix] Fix bug when starting the publisher from Connect without an asset.
+* [fix] Query Context and not only tasks on the entity selector from the publisher.
+* [changed] Ensure logging level to debug on the publisher widget.
+
+
+
 ## v24.7.0rc1
 2024-07-05
 
