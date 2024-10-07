@@ -57,6 +57,7 @@ class Publisher(QtWidgets.QWidget):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
+        self.logger.setLevel(logging.DEBUG)
 
         self._entity = None
 
@@ -139,8 +140,9 @@ class Publisher(QtWidgets.QWidget):
     def setEntity(self, entity):
         '''Set current entity.'''
         self.logger.debug("On setEntity: {0}".format(entity))
+        self.logger.debug("Entity parent is: {0}".format(entity.get('parent')))
         self.entitySelector.setEntity(entity)
-        self.assetOptions.setEntity(self.entitySelector._entity)
+        self.assetOptions.setEntity(entity)
 
     def _onComponentListItemsChanged(self):
         '''Callback for component changed signal.'''

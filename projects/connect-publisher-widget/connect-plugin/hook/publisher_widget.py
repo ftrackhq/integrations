@@ -169,11 +169,10 @@ class PublisherWidget(ftrack_connect.ui.application.ConnectWidget):
         if manageData:
             self.publishView.setManageData(True)
 
-        entity = self.session.get('Task', entity.get('entityId'))
+        entity = self.session.get('Context', entity.get('entityId'))
         logger.debug('Setting entity: {0}'.format(entity))
         if not entity:
             logger.error('No entity found for id: {0}'.format(entity))
-            return
         self.setEntity(entity)
         self.requestApplicationFocus.emit(self)
 
