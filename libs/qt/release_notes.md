@@ -1,5 +1,17 @@
 # ftrack QT library release Notes
 
+## v3.0.0
+2024-09-19
+
+* [changed] Update framework dependencies to 3.0.0.
+* [changed] FileDialog; support selecting multiple files.
+* [changed] FileBrowser; support collection of multiple files.
+* [changed] Python clique 1.6.1 library as dependency.
+* [new] RadioButtonDialog; Dialog to return an item from a list of items represented by radio buttons.
+* [change] build_progress_data; Check enabled/disabled plugins.
+* [change] AccordionBaseWidget; Emit enabled event signal.
+
+
 ## v2.2.2
 2024-06-26
 

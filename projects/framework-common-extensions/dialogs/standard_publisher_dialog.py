@@ -1,6 +1,8 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
+from functools import partial
+
 try:
     from PySide6 import QtWidgets, QtCore
 except ImportError:
@@ -51,6 +53,7 @@ class StandardPublisherDialog(BaseContextDialog):
         self._scroll_area = None
         self._scroll_area_widget = None
         self._progress_widget = None
+        self._accordion_widgets_registry = []
 
         super(StandardPublisherDialog, self).__init__(
             event_manager,
@@ -142,6 +145,7 @@ class StandardPublisherDialog(BaseContextDialog):
                 "font-style: italic; font-weight: bold;"
             )
             self.tool_widget.layout().addWidget(label_widget)
+            self.run_button.setEnabled(False)
             return
 
         # Build context widgets
@@ -194,6 +198,9 @@ class StandardPublisherDialog(BaseContextDialog):
             group_accordion_widget.show_options_overlay.connect(
                 self.show_options_widget
             )
+            group_accordion_widget.enabled_changed.connect(
+                partial(self._on_enable_component_changed_callback, _group)
+            )
             self._accordion_widgets_registry.append(group_accordion_widget)
 
         spacer = QtWidgets.QSpacerItem(
@@ -236,12 +243,13 @@ class StandardPublisherDialog(BaseContextDialog):
             )
 
     def post_build_ui(self):
-        self._progress_widget.hide_overlay_signal.connect(
-            self.show_main_widget
-        )
-        self._progress_widget.show_overlay_signal.connect(
-            self.show_overlay_widget
-        )
+        if self._progress_widget:
+            self._progress_widget.hide_overlay_signal.connect(
+                self.show_main_widget
+            )
+            self._progress_widget.show_overlay_signal.connect(
+                self.show_overlay_widget
+            )
 
     def show_options_widget(self, widget):
         '''Sets the given *widget* as the index 2 of the stacked widget and
@@ -250,6 +258,14 @@ class StandardPublisherDialog(BaseContextDialog):
             self._stacked_widget.removeWidget(self._stacked_widget.widget(2))
         self._stacked_widget.addWidget(widget)
         self._stacked_widget.setCurrentIndex(2)
+
+    def _on_enable_component_changed_callback(self, group_config, enabled):
+        '''Callback for when the component is enabled/disabled'''
+        self.set_tool_config_option(
+            {'enabled': enabled}, group_config['reference']
+        )
+        group_config['enabled'] = enabled
+        self._progress_widget.set_data(build_progress_data(self.tool_config))
 
     def _on_run_button_clicked(self):
         '''(Override) Drive the progress widget'''

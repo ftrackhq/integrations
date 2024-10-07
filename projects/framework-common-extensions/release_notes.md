@@ -2,6 +2,12 @@
 
 ## Upcoming
 
+* [fixed] StandardPublisherDialog; Fix bug were _accordion_widgets_registry wasn't initialized if no tool_config available.
+* [fixed] StandardOpenerDialog, StandardPublisherDialog; Fix bug were dialog creation crashed if not tool configs. Also disabled run button.
+* [changed] RenameFileExporterPlugin; Accept folder as destination.
+* [required] Add clique 1.6.1 as dependency.
+* [changed] FileBrowserCollectorWidget emit signal when path changed.
+* [fix] StandardPublisherDialog; Support enable and disable components.
 * [new] Exported paths validator to support image sequences.
 * [new] PySide6 support.
 * [new] PySide2 support.

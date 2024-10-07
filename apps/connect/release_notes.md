@@ -1,5 +1,17 @@
 # ftrack Connect release Notes
 
+## v24.9.0
+
+* [changed] Ftrack libraries updated to ^3.0.0.
+* [fix] Add xcb-util-cursor for Rocky linux builds and ensure PySide6 is bundled.
+
+
+## v24.7.0
+2024-07-17
+
+* [fix] Add full ftrack_api and ftrack_Action_handler modules on connect package.
+
+
 ## v24.6.0
 2024-06-04
 
