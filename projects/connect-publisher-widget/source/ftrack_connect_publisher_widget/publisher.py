@@ -142,7 +142,6 @@ class Publisher(QtWidgets.QWidget):
         self.logger.debug("On setEntity: {0}".format(entity))
         self.logger.debug("Entity parent is: {0}".format(entity.get('parent')))
         self.entitySelector.setEntity(entity)
-        self.assetOptions.setEntity(self.entitySelector._entity)
 
     def _onComponentListItemsChanged(self):
         '''Callback for component changed signal.'''

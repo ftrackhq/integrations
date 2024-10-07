@@ -116,9 +116,8 @@ class PublisherWidget(ftrack_connect.ui.application.ConnectWidget):
     def setEntity(self, entity):
         '''Set the *entity* for the publisher.'''
         self._entity = entity
-        self.entityChanged.emit(entity)
-
         self.publishView.setEntity(entity)
+        self.entityChanged.emit(entity)
 
     def start(self, event):
         '''Handle *event*.
