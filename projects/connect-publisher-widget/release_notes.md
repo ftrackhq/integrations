@@ -2,7 +2,6 @@
 
 
 ## v24.7.0rc2
-2024-07-05
 
 * [fix] Fix bug when starting the publisher from Connect without an asset.
 * [fix] Query Context and not only tasks on the entity selector from the publisher.
