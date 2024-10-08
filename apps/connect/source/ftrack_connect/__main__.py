@@ -8,7 +8,6 @@ import logging
 import signal
 import os
 import importlib
-from PySide6 import QtCore
 
 from ftrack_connect.utils.plugin import (
     create_target_plugin_directory,
