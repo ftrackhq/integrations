@@ -1,6 +1,6 @@
 # ftrack Connect release Notes
 
-## v24.9.0dev1
+## v24.9.0.dev1
 
 * [changed] Add debug logs on item_selector and asset_selector widgets to debug publisher.
 
