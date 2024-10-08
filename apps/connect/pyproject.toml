@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ftrack-connect"
-version = "24.9.0debug1"
+version = "24.9.0dev1"
 description='ftrack Connect desktop application.'
 authors = ["ftrack Integrations Team <integrations@backlight.co>"]
 readme = "README.md"
