@@ -102,7 +102,7 @@ class Publisher(QtWidgets.QWidget):
             )
         )
         self.assetOptions.setEntity(self.entitySelector._entity)
-        self.entitySelector.entityChanged.connect(self.assetOptions.setEntity)
+        self.entitySelector.entityChanged.connect(self._on_entity_changed)
         self.assetCreated.connect(self.assetOptions.setAsset)
         formLayout.addRow('Asset', self.assetOptions.radioButtonFrame)
         formLayout.addRow(
@@ -137,10 +137,23 @@ class Publisher(QtWidgets.QWidget):
             publishButton, alignment=QtCore.Qt.AlignCenter, stretch=0
         )
 
+    def _on_entity_changed(self, entity):
+        self.logger.debug(
+            "_on_entity_changed: On setEntity: {0}".format(entity)
+        )
+        self.logger.debug(
+            "_on_entity_changed: Entity parent is: {0}".format(
+                entity.get('parent')
+            )
+        )
+        self.assetOptions.setEntity(entity)
+
     def setEntity(self, entity):
         '''Set current entity.'''
-        self.logger.debug("On setEntity: {0}".format(entity))
-        self.logger.debug("Entity parent is: {0}".format(entity.get('parent')))
+        self.logger.debug("setEntity: On setEntity: {0}".format(entity))
+        self.logger.debug(
+            "setEntity :Entity parent is: {0}".format(entity.get('parent'))
+        )
         self.entitySelector.setEntity(entity)
 
     def _onComponentListItemsChanged(self):
