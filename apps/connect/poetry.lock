@@ -275,13 +275,13 @@ url = "../../installers/app-installer"
 
 [[package]]
 name = "ftrack-framework-core"
-version = "3.0.0"
+version = "3.1.1"
 description = "ftrack Framework Core library"
 optional = false
 python-versions = "<3.12,>=3.7"
 files = [
-    {file = "ftrack_framework_core-3.0.0-py3-none-any.whl", hash = "sha256:bbf243dc0d13952a618ce7e1b8d73034fb793adffb72a5e5f91a7f80caf82551"},
-    {file = "ftrack_framework_core-3.0.0.tar.gz", hash = "sha256:104e05aa6fd4699c5c6d9ec95eab0ee1f0c764afd9f5b80a719c731295953dd9"},
+    {file = "ftrack_framework_core-3.1.1-py3-none-any.whl", hash = "sha256:02a8d3e36b15291c149e7e579f1c4051889d7a31c5792580e4acaecb0c7ee158"},
+    {file = "ftrack_framework_core-3.1.1.tar.gz", hash = "sha256:32a4de62a27fb644c0f32b42b0a863b926c326fedd05408f6ece4fe47239009c"},
 ]
 
 [package.dependencies]
@@ -316,13 +316,13 @@ websocket-client = ">=0.40.0,<1"
 
 [[package]]
 name = "ftrack-utils"
-version = "3.0.0"
+version = "3.1.0"
 description = "ftrack utils library"
 optional = false
 python-versions = "<3.12,>=3.7"
 files = [
-    {file = "ftrack_utils-3.0.0-py3-none-any.whl", hash = "sha256:a016f2a326499d9535735fbba5711c2ab8cb55baaa7879cb5089add0c49c57d6"},
-    {file = "ftrack_utils-3.0.0.tar.gz", hash = "sha256:0c1a8799abc19af21e47837e295841fbbf8b9fe51d24f02076c3bec850a0847c"},
+    {file = "ftrack_utils-3.1.0-py3-none-any.whl", hash = "sha256:409ac01f663a1ec734f768785c0e8920f7ba7ceabde435083f5275ca9796c8a6"},
+    {file = "ftrack_utils-3.1.0.tar.gz", hash = "sha256:acdb28f87cca38b377226dd0b6bebb817df50d17cd77376d441d87fdf0792290"},
 ]
 
 [package.dependencies]
