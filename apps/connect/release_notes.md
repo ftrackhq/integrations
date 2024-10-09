@@ -1,5 +1,9 @@
 # ftrack Connect release Notes
 
+## Upcoming
+
+* [fix] Remove obsolete pkg_resources import which lead to errors when launching through the commandline
+
 ## v24.9.0
 
 * [changed] Ftrack libraries updated to ^3.0.0.
