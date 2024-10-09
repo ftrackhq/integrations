@@ -1,5 +1,10 @@
 # ftrack Connect release Notes
 
+## Upcoming
+
+* [fix] Fix ctrl+c interrupt behaviour when launching connect through the commandline. It will now properly exit the application.
+
+
 ## v24.9.0
 
 * [changed] Ftrack libraries updated to ^3.0.0.
