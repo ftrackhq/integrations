@@ -1,5 +1,14 @@
 # ftrack QT library release Notes
 
+
+## upcoming
+
+* [new] MenuButton; Button supporting menu if multiple action items provided.
+* [changed] Improved AccordionWidget and AccordionHeaderWidget to use EditableLabelWidget and possibility to add a remove button. Emits bin_clicked, title_changed, title_edited signals.
+* [changed] StatusMaterialIconWidget clickable.
+* [new] Editable label widget.
+
+
 ## v3.0.0
 2024-09-19
 

@@ -18,6 +18,8 @@ logger = logging.getLogger(__name__)
 class StatusMaterialIconWidget(QtWidgets.QWidget):
     '''Material icon widget, support status > icon encoding'''
 
+    clicked = QtCore.Signal(object)
+
     @property
     def icon(self):
         '''Return the material icon'''
@@ -81,3 +83,7 @@ class StatusMaterialIconWidget(QtWidgets.QWidget):
             icon_name, variant=variant, color='#{}'.format(color), size=size
         )
         return color
+
+    def mousePressEvent(self, event):
+        self.clicked.emit(event)
+        return super(StatusMaterialIconWidget, self).mousePressEvent(event)

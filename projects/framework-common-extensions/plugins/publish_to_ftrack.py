@@ -103,12 +103,25 @@ class PublishToFtrack(BasePlugin):
                         ),
                     )
                 else:
+                    component_dictionary = store['components'][component_name]
+                    # Try to get first the exported path if doesn't exists, pick the collected_path
+                    component_path = component_dictionary.get(
+                        'exported_path',
+                        component_dictionary.get('collected_path'),
+                    )
+                    # Raise error if no exported or collected path passed.
+                    if not component_path:
+                        message = (
+                            f"Please provide exported_path or collected_path in "
+                            f"component options. \n options: {component_dictionary}"
+                        )
+                        error = True
+                        break
+
                     self._create_component(
                         asset_version_object,
                         component_name,
-                        store['components'][component_name].get(
-                            'exported_path'
-                        ),
+                        component_path,
                     )
                 store['components'][component_name][
                     'published_to_ftrack'

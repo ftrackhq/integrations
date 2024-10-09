@@ -1,5 +1,9 @@
 # ftrack Framework QT Style library release Notes
 
+## upcoming
+
+* [changed] LineEdit; Support label property.
+
 ## v3.0.0
 2024-09-19
 
