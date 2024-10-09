@@ -1,5 +1,10 @@
 # ftrack Connect release Notes
 
+## Upcoming
+
+* [changed] Move deprecated HighDPI settings into PySide2 specific codepath.
+
+
 ## v24.9.0
 
 * [changed] Ftrack libraries updated to ^3.0.0.
