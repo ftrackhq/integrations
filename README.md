@@ -67,6 +67,8 @@ To be sure that code is properly formatted before committing code, enable the Gi
 pip install pre-commit
 pre-commit install
 ```
+> [!NOTE]
+> If you are using windows and have installed python using `scoop`, don't forget to register the python version globally by running `<path-to-scoop-python>/install-pep-514.reg`. Otherwise, `pre-commit` might not be able to find your specific python version.
 
 ## Testing
 We run PyTest ^7.4 on the codebase to ensure the consistency of our monorepo.

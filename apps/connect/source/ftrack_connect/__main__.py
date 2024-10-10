@@ -136,8 +136,21 @@ def main_connect(arguments=None):
     application.setOrganizationDomain('ftrack.com')
     application.setQuitOnLastWindowClosed(False)
 
-    # Enable ctrl+c to quit application when started from command line.
-    signal.signal(signal.SIGINT, lambda sig, _: application.quit())
+    # Handle Ctrl+C (SIGINT) for both Windows and Unix-like systems
+    # Use a timer to allow Python interpreter to run and handle signals
+    timer = QtCore.QTimer()
+    timer.start(500)
+    timer.timeout.connect(lambda: None)
+
+    class SignalHandler(QtCore.QObject):
+        signal_received = QtCore.Signal()
+
+    signal_handler = SignalHandler()
+    signal_handler.signal_received.connect(application.quit)
+
+    signal.signal(
+        signal.SIGINT, lambda *_: signal_handler.signal_received.emit()
+    )
 
     # Construct main connect window and apply theme.
     connectWindow = ftrack_connect.ui.application.Application(
