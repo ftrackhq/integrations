@@ -49,12 +49,11 @@ def on_launch_integration(session, event):
     if not launch_data['integration'].get('env'):
         launch_data['integration']['env'] = {}
 
-    # add hook path for flame
-    flame_hook_paths = os.path.join(connect_plugin_path, 'resource', 'bootstrap')
+    flame_bootstrap_path = os.path.join(connect_plugin_path, 'resource', 'bootstrap')
 
     # https://help.autodesk.com/view/FLAME/2022/ENU/?guid=Flame_API_Python_Hooks_Reference_Python_Hooks_Tips_html
     # and enable hooks debug
-    launch_data['integration']['env']['DL_PYTHON_HOOK_PATH'] = flame_hook_paths
+    launch_data['integration']['env']['DL_PYTHON_HOOK_PATH'] = flame_bootstrap_path
     launch_data['integration']['env']['DL_DEBUG_PYTHON_HOOKS'] = '1'
 
     # faster flame startup
@@ -63,7 +62,7 @@ def on_launch_integration(session, event):
 
     launch_data['integration']['env'][
         'PYTHONPATH.prepend'
-    ] = os.path.pathsep.join([python_dependencies, flame_hook_paths])
+    ] = os.path.pathsep.join([python_dependencies, flame_bootstrap_path])
 
     launch_data['integration']['env']['FTRACK_FLAME_VERSION'] = str(
         integration_version
