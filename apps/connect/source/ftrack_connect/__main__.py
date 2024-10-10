@@ -7,7 +7,6 @@ import argparse
 import logging
 import signal
 import os
-import pkg_resources
 import importlib
 
 from ftrack_connect.utils.plugin import (
