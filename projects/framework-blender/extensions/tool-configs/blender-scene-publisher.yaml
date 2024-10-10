@@ -1,0 +1,5 @@
+type: tool_config
+name: blender-scene-publisher
+config_type: publisher
+engine:
+  - blender_camera_collector

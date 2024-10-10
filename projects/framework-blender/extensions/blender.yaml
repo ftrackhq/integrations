@@ -1,0 +1,13 @@
+type: dcc_config
+name: framework-blender
+tools:
+  - name: publish
+    menu: true
+    label: "Publish"
+    dialog_name: framework_standard_publisher_dialog
+    icon: publish
+    options:
+      tool_configs:
+        - blender-scene-publisher
+      docked: true
+
