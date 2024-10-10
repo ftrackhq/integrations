@@ -2,7 +2,9 @@
 
 ## Upcoming
 
+* [fix] Fix ctrl+c interrupt behaviour when launching connect through the commandline. It will now properly exit the application.
 * [fix] Remove obsolete pkg_resources import which lead to errors when launching through the commandline
+
 
 ## v24.9.0
 
