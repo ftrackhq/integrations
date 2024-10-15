@@ -117,21 +117,20 @@ def main_connect(arguments=None):
     if namespace.interactive:
         code.interact(local=globals())
 
-    # If under X11, make Xlib calls thread-safe.
-    # http://stackoverflow.com/questions/31952711/threading-pyqt-crashes-with-unknown-request-in-queue-while-dequeuing
-
-    if os.name == 'posix' and is_pyside2:
+    if is_pyside2:
+        # These HighDPI settings are deprecated and enabled by default in PySide6.
         QtCore.QCoreApplication.setAttribute(
-            QtCore.Qt.ApplicationAttribute.AA_X11InitThreads
+            QtCore.Qt.AA_EnableHighDpiScaling, True
         )
-
-    # Ensure support for highdpi
-    QtCore.QCoreApplication.setAttribute(
-        QtCore.Qt.AA_EnableHighDpiScaling, True
-    )
-    QtCore.QCoreApplication.setAttribute(
-        QtCore.Qt.ApplicationAttribute.AA_UseHighDpiPixmaps, True
-    )
+        QtCore.QCoreApplication.setAttribute(
+            QtCore.Qt.ApplicationAttribute.AA_UseHighDpiPixmaps, True
+        )
+        # If under X11, make Xlib calls thread-safe.
+        # http://stackoverflow.com/questions/31952711/threading-pyqt-crashes-with-unknown-request-in-queue-while-dequeuing
+        if os.name == 'posix':
+            QtCore.QCoreApplication.setAttribute(
+                QtCore.Qt.ApplicationAttribute.AA_X11InitThreads
+            )
 
     # Construct global application.
 
