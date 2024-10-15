@@ -46,18 +46,14 @@ logger.debug('v{}'.format(__version__))
 
 
 @run_in_main_thread
-def on_run_dialog_callback(
-    client_instance, dialog_name, tool_config_names, docked, flame_args
+def on_run_tool_callback(
+        client_instance, tool_name, dialog_name=None, options=dict, maya_args=None
 ):
-    client_instance.run_dialog(
+    client_instance.run_tool(
+        tool_name,
         dialog_name,
-        dialog_options={
-            'tool_config_names': tool_config_names,
-            'docked': docked,
-        },
-        dock_func=dock_flame_right,
+        options,
     )
-
 
 def bootstrap_integration(framework_extensions_path):
     '''

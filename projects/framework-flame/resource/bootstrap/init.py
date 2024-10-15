@@ -5,23 +5,13 @@ import flame
 
 import logging
 import functools
-from ftrack_framework_flame import bootstrap_integration
+from ftrack_framework_flame import bootstrap_integration, on_run_tool_callback
 
 from ftrack_utils.extensions.environment import (
     get_extensions_path_from_environment,
 )
 
 logger = logging.getLogger('ftrack_framework_flame.init')
-
-
-def on_run_tool_callback(
-        client_instance, tool_name, dialog_name=None, options=dict, maya_args=None
-):
-    client_instance.run_tool(
-        tool_name,
-        dialog_name,
-        options,
-    )
 
 
 # https://help.autodesk.com/view/FLAME/2022/ENU/?guid=Flame_API_Python_Hooks_Reference_html
