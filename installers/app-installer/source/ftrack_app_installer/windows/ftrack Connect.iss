@@ -40,5 +40,7 @@ Name: "{autoprograms}\ftrack Connect"; Filename: "{app}\ftrack Connect.exe"
 Name: "{autodesktop}\ftrack Connect"; Filename: "{app}\ftrack Connect.exe"; Tasks: desktopicon
 
 [Run]
+Filename: "powershell.exe"; Parameters: "-ExecutionPolicy Bypass -Command ""irm https://astral.sh/uv/install.ps1 | iex"""; Flags: runhidden; StatusMsg: "Installing uv tool..."
 Filename: "{app}\ftrack Connect.exe"; Description: "{cm:LaunchProgram,ftrack Connect}"; Flags: nowait postinstall skipifsilent
+
 
