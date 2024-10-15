@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ftrack-connect"
-version = "24.9.0"
+version = "24.10.0rc1"
 description='ftrack Connect desktop application.'
 authors = ["ftrack Integrations Team <integrations@backlight.co>"]
 readme = "README.md"
@@ -35,7 +35,7 @@ darkdetect = "*"
 certifi = ">=2022,<2023"
 urllib3 = "<2"
 pyyaml = "^6.0.1"
-uv = "0.4.28"
+uv = "*"
 
 #ftrack
 ftrack-python-api = "^2.5.4"
