@@ -23,9 +23,7 @@ class FlameReviewableExporterPlugin(BasePlugin):
         exported_path = get_temp_path(is_directory=True)
 
         try:
-            # TODO: thumbnail_path = Export thumbnail
-
-            self.logger.debug(f"Thumbnail has been saved to: {exported_path}.")
+            self.logger.debug(f"Reviewable has been saved to: {exported_path}.")
         except Exception as error:
             raise PluginExecutionError(message=error)
 
