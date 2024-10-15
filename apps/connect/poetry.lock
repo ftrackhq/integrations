@@ -289,6 +289,20 @@ type = "directory"
 url = "../../installers/app-installer"
 
 [[package]]
+name = "ftrack-constants"
+version = "3.0.0"
+description = "ftrack constants library"
+optional = false
+python-versions = "<3.12,>=3.7"
+files = [
+    {file = "ftrack_constants-3.0.0-py3-none-any.whl", hash = "sha256:2a6a6e2b4a1d607d45f8800cced965d52c54d8821715937cb98a740272fa8182"},
+    {file = "ftrack_constants-3.0.0.tar.gz", hash = "sha256:a3cabcf93272e624acd02d669598a10a09d703701f501bc2f030c2eaf41c9d8e"},
+]
+
+[package.extras]
+ftrack-libs = ["ftrack-utils (>=3.0.0,<4.0.0)"]
+
+[[package]]
 name = "ftrack-framework-core"
 version = "3.1.1"
 description = "ftrack Framework Core library"
@@ -1196,4 +1210,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">= 3.8, < 3.11"
-content-hash = "4b773f18b46c396ae54519a615f9994e2e8af61226dae53e4e897a8ce32403ca"
+content-hash = "90efacaf8f8bd28e7292cc629fa11071a734bdab2908330fb9ddc13d2ca423a4"
