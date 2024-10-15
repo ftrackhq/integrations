@@ -8,6 +8,7 @@ import logging
 import signal
 import os
 import importlib
+import code
 
 from ftrack_connect.utils.plugin import (
     create_target_plugin_directory,
@@ -112,6 +113,9 @@ def main_connect(arguments=None):
                 )
             )
             raise SystemExit(1)
+
+    if namespace.interactive:
+        code.interact(local=globals())
 
     # If under X11, make Xlib calls thread-safe.
     # http://stackoverflow.com/questions/31952711/threading-pyqt-crashes-with-unknown-request-in-queue-while-dequeuing

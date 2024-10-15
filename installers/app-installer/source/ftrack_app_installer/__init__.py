@@ -90,6 +90,8 @@ class AppInstaller(object):
             'ftrack_action_handler',
             '--collect-all',
             'riffle',
+            '--collect-all',
+            'uv',
             '--icon',
             self.icon_path,
             '--distpath',
@@ -106,6 +108,7 @@ class AppInstaller(object):
             'html.parser',
             '-y',
             '--clean',
+            '--console',
         ]
         try:
             PyInstaller.__main__.run(pyinstaller_commands)
