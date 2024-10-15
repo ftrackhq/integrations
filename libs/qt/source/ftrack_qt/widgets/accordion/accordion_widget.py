@@ -17,14 +17,22 @@ class AccordionBaseWidget(QtWidgets.QFrame):
     doubleClicked = QtCore.Signal(
         object
     )  # Emitted when accordion is double clicked
+    bin_clicked = QtCore.Signal(object)  # Emitted when bin icon is clicked
     show_options_overlay = QtCore.Signal(object)
     hide_options_overlay = QtCore.Signal()
     enabled_changed = QtCore.Signal(object)
+    title_changed = QtCore.Signal(object)
+    title_edited = QtCore.Signal(object)
 
     @property
     def title(self):
         '''Return the title text shown in header by default'''
         return self._title
+
+    @property
+    def editable_title(self):
+        '''Return the title text shown in header by default'''
+        return self._editable_title
 
     @property
     def selectable(self):
@@ -40,6 +48,16 @@ class AccordionBaseWidget(QtWidgets.QFrame):
     def show_checkbox(self):
         '''Return True if accordion is checkable with a checkbox'''
         return self._show_checkbox
+
+    @property
+    def show_settings(self):
+        '''Return True if accordion is checkable with a checkbox'''
+        return self._show_settings
+
+    @property
+    def show_status(self):
+        '''Return True if accordion is checkable with a checkbox'''
+        return self._show_status
 
     @property
     def collapsed(self):
@@ -68,16 +86,31 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         '''(Checkable) Return True if checked'''
         return self._checked
 
+    @property
+    def removable(self):
+        '''
+        Return True if accordion is removable - can be deleted by user
+        '''
+        return self._removable
+
+    @property
+    def previous_title(self):
+        return self._header_widget.previous_title
+
     def __init__(
         self,
         selectable=False,
         show_checkbox=False,
+        show_settings=True,
+        show_status=True,
         checkable=False,
         title=None,
+        editable_title=False,
         selected=False,
         checked=True,
         collapsable=True,
         collapsed=True,
+        removable=False,
         parent=None,
     ):
         '''
@@ -102,8 +135,12 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         self._selectable = selectable
         self._checkable = checkable
         self._show_checkbox = show_checkbox
+        self._show_settings = show_settings
+        self._show_status = show_status
         self._title = title
+        self._editable_title = editable_title
         self._collapsable = collapsable
+        self._removable = removable
 
         self._selected = selected
         self._checked = checked
@@ -140,11 +177,15 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         # Create Header
         self._header_widget = AccordionHeaderWidget(
             title=self.title,
+            editable_title=self.editable_title,
             checkable=self.checkable,
             checked=self.checked,
             show_checkbox=self.show_checkbox,
+            show_settings=self.show_settings,
+            show_status=self.show_status,
             collapsable=self.collapsable,
             collapsed=self.collapsed,
+            removable=self.removable,
         )
 
         # Add header to main widget
@@ -170,12 +211,15 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         self._header_widget.arrow_clicked.connect(
             self._on_header_arrow_clicked
         )
+        self._header_widget.bin_clicked.connect(self._on_header_bin_clicked)
         self._header_widget.show_options_overlay.connect(
             self._on_show_options_overlay_callback
         )
         self._header_widget.hide_options_overlay.connect(
             self._on_hide_options_overlay_callback
         )
+        self._header_widget.title_changed.connect(self._on_title_changed)
+        self._header_widget.title_edited.connect(self._on_title_edited)
         self._content_widget.setVisible(not self._collapsed)
         self._content_widget.setEnabled(self.checked)
 
@@ -184,6 +228,12 @@ class AccordionBaseWidget(QtWidgets.QFrame):
 
     def _on_hide_options_overlay_callback(self):
         self.hide_options_overlay.emit()
+
+    def _on_title_changed(self, title):
+        self.title_changed.emit(title)
+
+    def _on_title_edited(self, title):
+        self.title_edited.emit(title)
 
     def add_option_widget(self, widget, section_name):
         self._header_widget.add_option_widget(widget, section_name)
@@ -234,6 +284,10 @@ class AccordionBaseWidget(QtWidgets.QFrame):
             # This is the way to collapse
             self.toggle_collapsed()
 
+    def _on_header_bin_clicked(self, event):
+        '''Callback on header arrow user click'''
+        self.bin_clicked.emit(event)
+
     def toggle_collapsed(self):
         '''Toggle the accordion collapsed state'''
         self._collapsed = not self._collapsed
@@ -273,6 +327,10 @@ class AccordionBaseWidget(QtWidgets.QFrame):
                 'background',
                 'selected' if self._selected else 'transparent',
             )
+
+    def set_title(self, new_title):
+        self._title = new_title
+        self._header_widget.set_title(self.title)
 
     def teardown(self):
         '''Teardown the header widget - properly cleanup the options overlay'''
