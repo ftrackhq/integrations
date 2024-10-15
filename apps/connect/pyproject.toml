@@ -40,6 +40,7 @@ uv = "*"
 #ftrack
 ftrack-python-api = "^2.5.4"
 ftrack-action-handler = "*"
+ftrack-constants = {  version = "^3.0.0"}
 ftrack-utils = {  version = "^3.0.0"}
 ftrack-framework-core = {  version = "^3.0.0"}
 
