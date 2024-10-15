@@ -86,6 +86,13 @@ def main_connect(arguments=None):
         action='store_true',
     )
 
+    parser.add_argument(
+        '-i',
+        '--interactive',
+        help='Start with an interactive Python shell.',
+        action='store_true',
+    )
+
     namespace = parser.parse_args(arguments)
 
     ftrack_connect.utils.log.configure_logging(
