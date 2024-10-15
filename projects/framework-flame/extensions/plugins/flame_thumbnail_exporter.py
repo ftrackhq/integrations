@@ -7,7 +7,7 @@ from ftrack_utils.paths import get_temp_path
 
 from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
-from ftrack_framework_flame import presets
+from ftrack_framework_flame.utils import presets
 
 import flame
 
