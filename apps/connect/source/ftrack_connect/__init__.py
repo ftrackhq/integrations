@@ -44,6 +44,8 @@ if __version__ == "0.0.0":
     else:
         uv_executable = os.path.join(base_path, 'tools', 'uv', 'uv')
 
+    logging.warning(f"The uv_executable is: {uv_executable}")
+
     import subprocess
 
     subprocess.run([uv_executable, '-V'])
