@@ -33,6 +33,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 [Files]
 Source: "${DIST_PATH}\ftrack Connect\ftrack Connect.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "${DIST_PATH}\ftrack Connect\_internal\*"; DestDir: "{app}\_internal"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "${DIST_PATH}\tools\uv\uv.exe"; DestDir: "{app}\tools\uv"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]

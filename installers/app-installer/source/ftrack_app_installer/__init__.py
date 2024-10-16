@@ -91,6 +91,8 @@ class AppInstaller(object):
             '--collect-all',
             'riffle',
             '--collect-all',
+            "--add-binary",
+            "/Users/ftrack/work/ftrack/repos/integrations/apps/connect/uv/uv.exe:ftrack_connect/tools/uv",
             'uv',
             '--icon',
             self.icon_path,

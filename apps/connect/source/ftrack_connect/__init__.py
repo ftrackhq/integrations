@@ -39,6 +39,15 @@ if __version__ == "0.0.0":
     else:
         base_path = os.path.abspath(".")
 
+    if sys.platform.startswith('win'):
+        uv_executable = os.path.join(base_path, 'tools', 'uv', 'uv.exe')
+    else:
+        uv_executable = os.path.join(base_path, 'tools', 'uv', 'uv')
+
+    import subprocess
+
+    subprocess.run([uv_executable, '-V'])
+
     version_file_path = os.path.join(
         base_path, 'ftrack_connect', '__version__.py'
     )
