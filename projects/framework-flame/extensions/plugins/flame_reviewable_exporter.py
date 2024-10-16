@@ -2,13 +2,13 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 
 import os
-from ftrack_utils.paths import get_temp_path
-
-from ftrack_framework_core.plugin import BasePlugin
-from ftrack_framework_core.exceptions.plugin import PluginExecutionError
-from ftrack_framework_flame.utils import presets
 
 import flame
+
+from ftrack_framework_core.plugin import BasePlugin
+from ftrack_framework_flame.utils import presets
+from ftrack_utils.paths import get_temp_path
+
 
 class FlameReviewableExporterPlugin(BasePlugin):
     name = 'flame_reviewable_exporter'
@@ -44,4 +44,3 @@ class FlameReviewableExporterPlugin(BasePlugin):
         destination_path = os.path.join(exported_path, file_name)
         self.logger.debug(f"Reviwable Exported to {destination_path}")
         store['components'][component_name]['exported_path'] = destination_path
-

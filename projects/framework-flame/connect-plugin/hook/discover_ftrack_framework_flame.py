@@ -1,16 +1,16 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
-import os
-import ftrack_api
-import logging
 import functools
+import logging
+import os
+
+import ftrack_api
 
 from ftrack_utils.version import get_connect_plugin_version
 
 # The name of the integration, should match name in launcher.
 NAME = 'framework-flame'
-
 
 logger = logging.getLogger(__name__)
 

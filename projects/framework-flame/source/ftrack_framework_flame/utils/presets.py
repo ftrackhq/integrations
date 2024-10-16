@@ -1,8 +1,8 @@
 import os
+
 import flame
 
-
-PRESETS={
+PRESETS = {
     'JPG8': {
         "visibility": flame.PyExporter.PresetVisibility.Autodesk,
         "type": flame.PyExporter.PresetType.Image_Sequence,
@@ -16,7 +16,6 @@ PRESETS={
         "preset": "QuickTime (8-bit Uncompressed).xml",
     }
 }
-
 
 
 def get_preset_path(preset_name):

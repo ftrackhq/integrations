@@ -1,28 +1,23 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
+import functools
 import logging
 import os
-import traceback
 import platform
-import functools
+
 import ftrack_api
 
-from ftrack_framework_core.host import Host
-from ftrack_framework_core.event import EventManager
-from ftrack_framework_core.client import Client
-from ftrack_framework_core.registry import Registry
-from ftrack_framework_core.configure_logging import configure_logging
-
 from ftrack_constants import framework as constants
-
+from ftrack_framework_core.client import Client
+from ftrack_framework_core.configure_logging import configure_logging
+from ftrack_framework_core.event import EventManager
+from ftrack_framework_core.host import Host
+from ftrack_framework_core.registry import Registry
+from ftrack_framework_flame.utils import run_in_main_thread
 from ftrack_utils.extensions.environment import (
     get_extensions_path_from_environment,
 )
-
-from ftrack_utils.usage import set_usage_tracker, UsageTracker
-
-from ftrack_framework_flame.utils import dock_flame_right, run_in_main_thread
-
+from ftrack_utils.usage import UsageTracker, set_usage_tracker
 
 # Evaluate version and log package version
 try:
@@ -54,6 +49,7 @@ def on_run_tool_callback(
         dialog_name,
         options,
     )
+
 
 def bootstrap_integration(framework_extensions_path):
     '''
@@ -109,7 +105,7 @@ def bootstrap_integration(framework_extensions_path):
                 app="Flame",
                 registry=registry_info_dict,
                 version=__version__,
-                app_version="2023", # TODO: fetch DCC version through API
+                app_version="2023",  # TODO: fetch DCC version through API
                 os=platform.platform(),
             ),
         )
@@ -120,6 +116,7 @@ def bootstrap_integration(framework_extensions_path):
     client_instance = Client(event_manager, registry=registry_instance)
 
     return client_instance, registry_instance
+
 
 def scope_node(show_on, selection):
     for item in selection:

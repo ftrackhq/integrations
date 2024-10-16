@@ -3,6 +3,7 @@
 import threading
 from functools import wraps
 
+
 def run_in_main_thread(f):
     '''Make sure a function runs in the main Flame thread.'''
 

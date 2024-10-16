@@ -1,15 +1,15 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 
-import os
 import datetime
-from ftrack_utils.paths import get_temp_path
-
-from ftrack_framework_core.plugin import BasePlugin
-from ftrack_framework_core.exceptions.plugin import PluginExecutionError
-from ftrack_framework_flame.utils import presets
+import os
 
 import flame
+
+from ftrack_framework_core.plugin import BasePlugin
+from ftrack_framework_flame.utils import presets
+from ftrack_utils.paths import get_temp_path
+
 
 class FlameThumbnailExporterPlugin(BasePlugin):
     name = 'flame_thumbnail_exporter'
@@ -66,7 +66,7 @@ class FlameThumbnailExporterPlugin(BasePlugin):
             )
             frame_name = str(current_selection.current_time.get_value().frame).zfill(8)
 
-            file_name = f'{ duplicate_clip.name.get_value()}.{frame_name}.jpg'
+            file_name = f'{duplicate_clip.name.get_value()}.{frame_name}.jpg'
             destination_path = os.path.join(exported_path, file_name)
             self.logger.debug(f"Thumbnail exported to {destination_path}")
 
@@ -76,5 +76,3 @@ class FlameThumbnailExporterPlugin(BasePlugin):
             # Be sure to clean up duplicated clip in case of error during the export
             #
             flame.delete(duplicate_clip)
-
-

@@ -2,25 +2,12 @@
 # customised from # https://github.com/predat/wiretap/blob/master/src/wiretap/wiretap.py#L275
 
 import logging
-import pwd
-import grp
-import os
-
-import sys
-import platform
 import pprint
 import xml.dom.minidom as minidom
 
 import flame
-
-from adsk.libwiretapPythonClientAPI import (
-    WireTapClientInit,
-    WireTapClientUninit,
-    WireTapNodeHandle,
-    WireTapServerHandle,
-    WireTapInt,
-    WireTapStr,
-)
+from adsk.libwiretapPythonClientAPI import (WireTapClientInit, WireTapClientUninit, WireTapInt, WireTapNodeHandle,
+                                            WireTapServerHandle, WireTapStr)
 
 logger = logging.getLogger(__name__)
 
@@ -206,7 +193,7 @@ class WiretapApi(object):
         parent_node_name = WireTapStr()
 
         if not parent_node.getDisplayName(parent_node_name):
-            raise WiretapException(f"Couldn't get node name:{ parent_node.lastError()}")
+            raise WiretapException(f"Couldn't get node name:{parent_node.lastError()}")
         logger.debug("parent node name: %s" % parent_node_name)
 
         num_children = WireTapInt(0)
@@ -286,10 +273,10 @@ class WiretapApi(object):
 
         return False
 
-    def _xml_settings(self, project_name, volume, fps=25, width=1920, height=1080,depth='10-bit'):
+    def _xml_settings(self, project_name, volume, fps=25, width=1920, height=1080, depth='10-bit'):
         # https://help.autodesk.com/view/FLAME/2024/ENU/?guid=Flame_API_Wiretap_SDK_Media_and_Metadata_Formats_Project_Node_Metadata_XML_html
 
-        ratio = str(float(width)/float(height))
+        ratio = str(float(width) / float(height))
         project_xml_data = f"""
         <Project>
         <Name>{project_name}</Name>
