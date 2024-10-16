@@ -164,3 +164,18 @@ def set_up_certificates():
 
 
 set_up_certificates()
+
+if getattr(sys, 'frozen', False):
+    # If the application is run as a bundle, the pyInstaller bootloader
+    # extends the sys module by a flag frozen=True and sets the app
+    # path into variable _MEIPASS.
+    base_path = sys._MEIPASS
+else:
+    base_path = os.path.abspath(".")
+
+if sys.platform.startswith('win'):
+    uv_executable = os.path.join(base_path, 'tools', 'uv', 'uv.exe')
+else:
+    uv_executable = os.path.join(base_path, 'tools', 'uv', 'uv')
+
+logging.warning(f"The uv_executable is: {uv_executable}")
