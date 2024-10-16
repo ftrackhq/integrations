@@ -93,7 +93,7 @@ class AppInstaller(object):
             '--collect-all',
             'uv',
             "--add-binary",
-            "/Users/ftrack/work/ftrack/repos/integrations/apps/connect/uv/uv.exe:ftrack_connect/tools/uv",
+            f"{self.root_path}/uv/uv.exe:ftrack_connect/tools/uv",
             '--icon',
             self.icon_path,
             '--distpath',
