@@ -22,10 +22,7 @@ class FlameReviewableExporterPlugin(BasePlugin):
 
         exported_path = get_temp_path(is_directory=True)
 
-        try:
-            self.logger.debug(f"Reviewable has been saved to: {exported_path}.")
-        except Exception as error:
-            raise PluginExecutionError(message=error)
+        self.logger.debug(f"Reviewable has been saved to: {exported_path}.")
 
         current_selection = flame.media_panel.selected_entries[0]
         if not isinstance(current_selection, (flame.PySequence, flame.PyClip)):
