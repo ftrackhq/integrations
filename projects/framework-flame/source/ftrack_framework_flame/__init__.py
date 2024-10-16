@@ -13,7 +13,6 @@ from ftrack_framework_core.configure_logging import configure_logging
 from ftrack_framework_core.event import EventManager
 from ftrack_framework_core.host import Host
 from ftrack_framework_core.registry import Registry
-from ftrack_framework_flame.utils import run_in_main_thread
 from ftrack_utils.extensions.environment import (
     get_extensions_path_from_environment,
 )
@@ -40,14 +39,14 @@ logger = logging.getLogger(__name__)
 logger.debug('v{}'.format(__version__))
 
 
-@run_in_main_thread
+# @run_in_main_thread
 def on_run_tool_callback(
-        client_instance, tool_name, dialog_name=None, options=dict, maya_args=None
+        client_instance, tool_name, dialog_name=None, options=dict, extra_args=None
 ):
     client_instance.run_tool(
         tool_name,
         dialog_name,
-        options,
+        options
     )
 
 
@@ -150,7 +149,7 @@ def get_ftrack_menu(show_on=None):
                     client_instance,
                     tool.get('name'),
                     tool.get('dialog_name'),
-                    tool['options'],
+                    tool['options']
                 ),
                 'minimumVersion': '2023',
                 'isVisible': functools.partial(
@@ -166,7 +165,7 @@ def get_ftrack_menu(show_on=None):
                     client_instance,
                     tool.get('name'),
                     tool.get('dialog_name'),
-                    tool['options'],
+                    tool['options']
                 )
             else:
                 logger.error(
