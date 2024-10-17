@@ -141,11 +141,12 @@ class Publisher(QtWidgets.QWidget):
         self.logger.debug(
             "_on_entity_changed: On setEntity: {0}".format(entity)
         )
-        self.logger.debug(
-            "_on_entity_changed: Entity parent is: {0}".format(
-                entity.get('parent')
+        if entity:
+            self.logger.debug(
+                "_on_entity_changed: Entity parent is: {0}".format(
+                    entity.get('parent')
+                )
             )
-        )
         self.assetOptions.setEntity(entity)
 
     def setEntity(self, entity):
