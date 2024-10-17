@@ -1,4 +1,4 @@
-def test_get_temp_path_file_exists() -> None:
+def test__get_temp_path__file_exists() -> None:
     """Tests the existence of a file created by the get_temp_path function."""
     import os
     from ftrack_utils.paths import get_temp_path
@@ -12,7 +12,7 @@ def test_get_temp_path_file_exists() -> None:
     )
 
 
-def test_get_temp_path_directory_exists() -> None:
+def test__get_temp_path__directory_exists() -> None:
     """Tests the existence of a directory created by the get_temp_path function."""
     import os
     from ftrack_utils.paths import get_temp_path
