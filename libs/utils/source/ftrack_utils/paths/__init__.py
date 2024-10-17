@@ -57,6 +57,10 @@ def get_temp_path(filename_extension=None, is_directory=False):
         temp_file = tempfile.NamedTemporaryFile(
             delete=False, dir=base_temp_dir
         )
+        # NamedTemporaryFile keeps a handle open to the file. We have to close that explicitly
+        # if we're not using it as a contextmanger.
+        temp_file.close()
+
         result = temp_file.name
 
         # If a filename extension is provided, append it to the file name
