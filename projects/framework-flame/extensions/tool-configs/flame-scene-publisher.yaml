@@ -1,0 +1,49 @@
+type: tool_config
+name: flame-scene-publisher
+config_type: publisher
+engine:
+  - type: plugin
+    tags:
+      - context
+    plugin: store_asset_context
+    options:
+      asset_type_name: scene
+    ui: publisher_asset_version_selector
+
+  # Export Thumbnail
+  - type: group
+    tags:
+      - component
+    options:
+      component: thumbnail
+    plugins:
+      - type: plugin
+        plugin: store_component
+      - type: plugin
+        tags:
+          - exporter
+        plugin: flame_thumbnail_exporter
+
+  # Export Reviewable
+  - type: group
+    tags:
+      - component
+    options:
+      component: reviewable
+    plugins:
+      - type: plugin
+        plugin: store_component
+      - type: plugin
+        tags:
+          - exporter
+        plugin: flame_reviewable_exporter
+
+  # Common validator check all exported paths exists.
+  - type: plugin
+    tags:
+      - validator
+    plugin: exported_paths_validator
+    ui: validator_label
+
+  # Publish to ftrack.
+  - publish_to_ftrack
