@@ -18,6 +18,14 @@ search_path:
       - Applications
     expression:
       - Blender.app
+  windows:
+    prefix:
+      - C:\
+      - Program Files.*
+    expression:
+      - Blender Foundation
+      - Blender.+
+      - blender.exe
 extensions_path:
   - extensions/common
   - extensions/blender
