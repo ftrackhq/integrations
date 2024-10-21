@@ -1,0 +1,41 @@
+type: launch_config
+name: framework-max
+priority: 100
+context:
+  - Task
+identifier: ftrack-framework-launch-max
+applicationIdentifier: max_{variant}
+integrations:
+  framework:
+    - framework-max
+label: Max
+icon: max
+variant: "{version}"
+search_path:
+  linux:
+    prefix:
+      - "/"
+      - usr
+      - local
+      - Max.*
+    expression:
+      - Max\d.+
+    version_expression: "Max(?P<version>.*)\/.+$"
+  windows:
+    prefix:
+      - C:\
+      - Program Files.*
+    expression:
+      - Max.*
+      - Max\d.+.exe
+    version_expression: "(?P<version>[\\d.]+[vabc]+[\\dvabc.]*)"
+  darwin:
+    prefix:
+      - "/"
+      - Applications
+    expression:
+      - Max.*
+      - Max\d[\w.]+.app
+extensions_path:
+  - extensions/common
+  - extensions/max

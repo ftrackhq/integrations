@@ -1,0 +1,58 @@
+type: tool_config
+name: max-scene-publisher
+config_type: publisher
+engine:
+  - type: plugin
+    tags:
+      - context
+    plugin: store_asset_context
+    options:
+      asset_type_name: scene
+    ui: publisher_asset_version_selector
+
+  # Export the snapshot component.
+  - type: group
+    tags:
+      - component
+    options:
+      component: snapshot
+    plugins:
+      - type: plugin
+        plugin: store_component
+      - type: plugin
+        tags:
+          - collector
+        plugin: max_scene_collector
+      - type: plugin
+        tags:
+          - validator
+        plugin: max_scene_saved_validator
+        ui: validator_label
+      - type: plugin
+        tags:
+          - exporter
+        plugin: max_scene_exporter
+
+  # Export Thumbnail
+  - type: group
+    tags:
+      - component
+    options:
+      component: thumbnail
+    plugins:
+      - type: plugin
+        plugin: store_component
+      - type: plugin
+        tags:
+          - exporter
+        plugin: max_thumbnail_exporter
+
+  # Common validator check all exported paths exists.
+  - type: plugin
+    tags:
+      - validator
+    plugin: exported_paths_validator
+    ui: validator_label
+
+  # Publish to ftrack.
+  - publish_to_ftrack
