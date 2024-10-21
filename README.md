@@ -38,6 +38,7 @@
 | libs/utils/source/ftrack\_utils/extensions/registry.py                        |      113 |       95 |     16% |22-25, 38-65, 74-103, 110-114, 119-179, 184-223 |
 | libs/utils/source/ftrack\_utils/modules/\_\_init\_\_.py                       |        0 |        0 |    100% |           |
 | libs/utils/source/ftrack\_utils/modules/scan\_modules.py                      |       13 |        0 |    100% |           |
+| libs/utils/source/ftrack\_utils/paths/\_\_init\_\_.py                         |       34 |       16 |     53% |     15-37 |
 | libs/utils/source/ftrack\_utils/server/\_\_init\_\_.py                        |        2 |        0 |    100% |           |
 | libs/utils/source/ftrack\_utils/server/send\_event.py                         |       16 |        2 |     88% |     34-35 |
 | libs/utils/source/ftrack\_utils/server/track\_usage.py                        |        8 |        1 |     88% |        22 |
@@ -46,7 +47,8 @@
 | libs/utils/source/ftrack\_utils/version/\_\_init\_\_.py                       |       31 |       22 |     29% |13-20, 24-31, 38-52 |
 | tests/framework/unit/\_\_init\_\_.py                                          |        0 |        0 |    100% |           |
 | tests/framework/unit/test\_engine.py                                          |       49 |        0 |    100% |           |
-|                                                                     **TOTAL** |  **892** |  **326** | **63%** |           |
+| tests/libraries/test\_paths.py                                                |       14 |        0 |    100% |           |
+|                                                                     **TOTAL** |  **940** |  **342** | **64%** |           |
 
 
 ## Setup coverage badge
