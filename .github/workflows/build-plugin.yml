@@ -86,9 +86,13 @@ jobs:
         with:
           python-version: '3.7'
       - uses: actions/setup-python@v4
-        if: ${{ needs.set-variables.outputs.package == 'framework-harmony' || needs.set-variables.outputs.package == 'framework-houdini' || needs.set-variables.outputs.package == 'framework-flame'}}
+        if: ${{ needs.set-variables.outputs.package == 'framework-harmony' || needs.set-variables.outputs.package == 'framework-flame'}}
         with:
           python-version: '3.9'
+      - uses: actions/setup-python@v4
+        if: ${{ needs.set-variables.outputs.package == 'framework-houdini'}}
+        with:
+          python-version: '3.10'
       - name: install poetry
         shell: bash
         run: |

@@ -20,7 +20,7 @@ search_path:
       - hfs.*
       - bin
       - houdinicore-bin$
-    version_expression: (?P<version>[\\d.+]{4})
+    version_expression: (?P<version>(\d+\.?){3})
   windows:
     prefix:
       - C:\
