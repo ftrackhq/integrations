@@ -5,7 +5,6 @@
 * [changed] Move deprecated HighDPI settings into PySide2 specific codepath.
 * [fix] Fix ctrl+c interrupt behaviour when launching connect through the commandline. It will now properly exit the application.
 * [fix] Remove obsolete pkg_resources import which lead to errors when launching through the commandline
-* [fix] Fix temporary file handling which caused issues with the creation of the ftrack menu in Houdini on Windows.
 
 
 ## v24.9.0

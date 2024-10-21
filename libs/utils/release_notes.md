@@ -1,5 +1,10 @@
 # ftrack Utils library release Notes
 
+## Upcoming
+
+* [fix] Fix temporary file handling which caused issues with the creation of the ftrack menu in Houdini on Windows.
+
+
 ## v3.1.0
 2024-09-30
 
