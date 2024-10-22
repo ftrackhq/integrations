@@ -1,9 +1,12 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
+import functools
 import logging
 import os
 import traceback
 import platform
+
+from pymxs import runtime as rt
 
 import ftrack_api
 
@@ -22,7 +25,6 @@ from ftrack_utils.extensions.environment import (
 from ftrack_utils.usage import set_usage_tracker, UsageTracker
 
 from ftrack_framework_max.utils import dock_max_right, run_in_main_thread
-
 
 # Evaluate version and log package version
 try:
@@ -43,6 +45,16 @@ configure_logging(
 
 logger = logging.getLogger(__name__)
 logger.debug('v{}'.format(__version__))
+
+
+@run_in_main_thread
+def on_run_tool_callback(
+    client_instance,
+    tool_name,
+    dialog_name=None,
+    options=None,
+):
+    client_instance.run_tool(tool_name, dialog_name, options, dock_func=None)
 
 
 @run_in_main_thread
@@ -130,11 +142,66 @@ def bootstrap_integration(framework_extensions_path):
 
     logger.debug(f'Read DCC config: {dcc_config}')
 
-    # Create ftrack menu
-
     # Register tools into ftrack menu
+    # https://help.autodesk.com/view/MAXDEV/2025/ENU/?guid=MAXDEV_Python_using_pymxs_pymxs_macroscripts_menus_html
     for tool in dcc_config['tools']:
-        pass
+        normalized_tool_name = f"ftrack{tool['name'].lower().replace(' ', '')}"
+        rt.macros.new(
+            "ftrack",  # Category for the macro script
+            normalized_tool_name,  # Name of the macro script
+            tool["label"],  # Tooltip text for the action
+            tool["label"],  # Text displayed in the menu
+            f"{normalized_tool_name}()",  # Function to execute when this action is triggered
+        )
+
+        # Our plugin specific function that gets called when the user clicks the menu item
+        def callback():
+            return functools.partial(
+                on_run_tool_callback,
+                client_instance,
+                tool.get("name"),
+                tool.get("dialog_name"),
+                tool.get("options"),
+            )
+
+        # Expose this function to the maxscript global namespace
+        rt.execute(f'{normalized_tool_name} = ""')
+        rt.globalVars.set(normalized_tool_name, callback())
+
+    def menucallback():
+        import uuid
+
+        """Register the a menu an its items.
+        This callback is registered on the "cuiRegistermenus" event of 3dsMax and
+        is typically called in he startup of 3dsMax.
+        """
+        menumgr = rt.callbacks.notificationparam()
+        mainmenubar = menumgr.mainmenubar
+
+        # Create a new submenu at the end of the 3dsMax main menu bar
+        # To place the menu at a specific position, use the 'beforeID' parameter with the GUID of the suceeding menu item
+        # Note, that every menu item in the menu system needs a persistent Guid for identification and referencing
+        submenu = mainmenubar.createsubmenu(str(uuid.uuid4()), "ftrack")
+
+        for tool in dcc_config['tools']:
+            normalized_tool_name = (
+                f"ftrack{tool['name'].lower().replace(' ', '')}"
+            )
+            # Add the first macroscript action to the submenu
+            macroscriptTableid = 647394
+            submenu.createaction(
+                str(uuid.uuid4()),
+                macroscriptTableid,
+                f"{normalized_tool_name}`ftrack",
+            )  # Note the action identifier created from the macroscripts name and category
+
+    # Make sure menucallback is called on cuiRegisterMenus events
+    # so that it can register menus at the appropriate moment
+    MENU_ID = rt.name("ftrack")
+    rt.callbacks.removescripts(id=MENU_ID)
+    rt.callbacks.addscript(
+        rt.name("cuiRegisterMenus"), menucallback, id=MENU_ID
+    )
 
     return client_instance
 
