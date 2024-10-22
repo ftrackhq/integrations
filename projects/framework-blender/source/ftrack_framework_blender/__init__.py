@@ -25,8 +25,6 @@ from ftrack_utils.usage import set_usage_tracker, UsageTracker
 
 from ftrack_utils.session import create_api_session
 
-# from ftrack_framework_blender.utils import dock_blender_right, run_in_main_thread
-
 
 # Evaluate version and log package version
 try:
