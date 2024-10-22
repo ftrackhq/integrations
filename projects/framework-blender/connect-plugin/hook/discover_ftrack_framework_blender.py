@@ -55,9 +55,7 @@ def on_launch_integration(session, event):
     launch_data['integration']['env'][
         'PYTHONPATH.prepend'
     ] = os.path.pathsep.join([python_dependencies, bootstrap_path])
-    # launch_data['integration']['env'][
-    #     'PATH.prepend'
-    # ] = os.path.pathsep.join([python_dependencies, bootstrap_path])
+
     launch_data['integration']['env']['BLENDER_USER_SCRIPTS'] = bootstrap_path
     launch_data['integration']['env'][
         'PYSIDE6_BLENDER_PATH'
@@ -87,7 +85,7 @@ def register(session):
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.discover and '
         'data.application.identifier=blender*'
-        ' and data.application.version >= 4.2.2',
+        ' and data.application.version >= 4.2',
         handle_discovery_event,
         priority=40,
     )
@@ -97,7 +95,7 @@ def register(session):
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.launch and '
         'data.application.identifier=blender*'
-        ' and data.application.version >= 4.2.2',
+        ' and data.application.version >= 4.2',
         handle_launch_event,
         priority=40,
     )
