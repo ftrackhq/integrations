@@ -9,33 +9,18 @@ integrations:
   framework:
     - framework-max
 label: Max
-icon: max
+icon: 3ds_max
 variant: "{version}"
 search_path:
-  linux:
-    prefix:
-      - "/"
-      - usr
-      - local
-      - Max.*
-    expression:
-      - Max\d.+
-    version_expression: "Max(?P<version>.*)\/.+$"
   windows:
     prefix:
       - C:\
       - Program Files.*
+      - Autodesk
     expression:
-      - Max.*
-      - Max\d.+.exe
-    version_expression: "(?P<version>[\\d.]+[vabc]+[\\dvabc.]*)"
-  darwin:
-    prefix:
-      - "/"
-      - Applications
-    expression:
-      - Max.*
-      - Max\d[\w.]+.app
+      - 3ds Max \d{4}
+      - 3dsmax\.exe$
+    version_expression: (?P<version>\d{4})
 extensions_path:
   - extensions/common
   - extensions/max
