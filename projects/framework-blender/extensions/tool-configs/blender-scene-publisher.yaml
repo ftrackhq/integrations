@@ -2,4 +2,77 @@ type: tool_config
 name: blender-scene-publisher
 config_type: publisher
 engine:
-  - blender_camera_collector
+  - type: plugin
+    tags:
+      - context
+    plugin: store_asset_context
+    options:
+      asset_type_name: scene
+    ui: publisher_asset_version_selector
+
+  # Export the snapshot component.
+  - type: group
+    tags:
+      - component
+    options:
+      component: snapshot
+    #optional: False by default so is no need
+    #enabled: True by default so is no need
+    plugins:
+      - type: plugin
+        plugin: store_component
+      - type: plugin
+        tags:
+          - collector
+        plugin: blender_scene_collector
+        options:
+          export_type: scene # selection is also available
+          extension_format: mb # ma is also available
+      - type: plugin
+        tags:
+          - validator
+        plugin: blender_scene_saved_validator
+        ui: validator_label
+      - type: plugin
+        tags:
+          - exporter
+        plugin: blender_scene_exporter
+
+  # Export Thumbnail
+  - type: group
+    tags:
+      - component
+    options:
+      component: thumbnail
+    #optional: False by default so is no need
+    #enabled: True by default so is no need
+    plugins:
+      - type: plugin
+        plugin: store_component
+      - type: plugin
+        tags:
+          - collector
+        plugin: blender_camera_collector
+        ui: blender_camera_selector
+        options:
+          camera_name: Camera
+      - type: plugin
+        tags:
+          - validator
+        plugin: blender_camera_exists_validator
+        ui: validator_label
+      - type: plugin
+        tags:
+          - exporter
+        plugin: blender_thumbnail_exporter
+
+
+  # Common validator check all exported paths exists.
+  - type: plugin
+    tags:
+      - validator
+    plugin: exported_paths_validator
+    ui: validator_label
+
+  # Publish to ftrack.
+  - publish_to_ftrack

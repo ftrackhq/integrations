@@ -10,7 +10,6 @@ class BlenderCameraExistsValidatorPlugin(BasePlugin):
     '''
     Plugin to validate if a camera exists.
     '''
-
     name = 'blender_camera_exists_validator'
 
     def run(self, store):
