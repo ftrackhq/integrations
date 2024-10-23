@@ -10,6 +10,8 @@ from ftrack_framework_core.exceptions.plugin import (
     PluginValidationError,
 )
 
+from pymxs import runtime as rt
+
 
 class MaxSceneSavedValidatorPlugin(BasePlugin):
     '''
@@ -25,7 +27,7 @@ class MaxSceneSavedValidatorPlugin(BasePlugin):
         try:
             # Save file to a temp file
             save_path = get_temp_path(filename_extension=extension_format)
-            # TODO: Tell DCC to save scene to this path
+            rt.saveMaxFile(save_path, useNewFile=False)
 
             self.logger.debug(f"Scene has been saved to: {save_path}.")
         except Exception as error:
@@ -40,15 +42,18 @@ class MaxSceneSavedValidatorPlugin(BasePlugin):
         '''
         Save the current scene.
         '''
+        component_name = self.options.get('component', 'main')
+
         try:
-            # TODO: tell DCC to save scene
+            scene_name = store['components'][component_name].get('scene_name')
+            rt.saveMaxFile(scene_name, useNewFile=True)
+
             self.logger.debug(f"Scene has been saved.")
         except Exception as error:
             raise PluginExecutionError(
                 message=f"Error saving the scene: {error}"
             )
 
-        component_name = self.options.get('component', 'main')
         store['components'][component_name]['scene_saved'] = True
         store['components'][component_name]['valid_file'] = True
 
@@ -61,7 +66,7 @@ class MaxSceneSavedValidatorPlugin(BasePlugin):
         scene_name = store['components'][component_name].get('scene_name')
         scene_saved = store['components'][component_name].get('scene_saved')
 
-        extension_format = '<format>'
+        extension_format = '.max'
 
         if not scene_name:
             # Scene is not saved, save it first.

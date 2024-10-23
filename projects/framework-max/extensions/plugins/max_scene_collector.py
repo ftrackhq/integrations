@@ -1,8 +1,12 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
+import os
+
 from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
+
+from pymxs import runtime as rt
 
 
 class MaxSceneCollectorPlugin(BasePlugin):
@@ -17,15 +21,13 @@ class MaxSceneCollectorPlugin(BasePlugin):
         scene_name = None
         scene_saved = False
         try:
-            # TODO: get scene name from DCC
-            pass
+            scene_name = os.path.join(rt.maxFilePath, rt.maxFileName)
         except Exception as error:
             raise PluginExecutionError(
                 f"Error retrieving the scene name: {error}"
             )
         try:
-            # TODO: check if DCC scene is saved
-            pass
+            scene_saved = not rt.getSaveRequired()
         except Exception as error:
             raise PluginExecutionError(
                 f"Error Checking if the scene is saved: {error}"

@@ -7,6 +7,8 @@ from ftrack_utils.paths import get_temp_path
 from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
+from pymxs import runtime as rt
+
 
 class MaxThumbnailExporterPlugin(BasePlugin):
     name = 'max_thumbnail_exporter'
@@ -20,7 +22,11 @@ class MaxThumbnailExporterPlugin(BasePlugin):
 
         thumbnail_path = None
         try:
-            # TODO: thumbnail_path = Export thumbnail
+            viewport_index = rt.viewport.activeViewport
+            bitmap = rt.viewport.getViewportDib(index=viewport_index)
+            thumbnail_path = get_temp_path(filename_extension='.jpg')
+            bitmap.filename = thumbnail_path
+            rt.save(bitmap)
 
             self.logger.debug(
                 f"Thumbnail has been saved to: {thumbnail_path}."
