@@ -25,9 +25,10 @@ engine:
         tags:
           - collector
         plugin: blender_scene_collector
+        ui: blender_scene_options_selector
         options:
           export_type: scene # selection is also available
-          extension_format: mb # ma is also available
+          extension_format: blend
       - type: plugin
         tags:
           - validator
