@@ -12,8 +12,8 @@ class BlenderSceneCollectorPlugin(BasePlugin):
 
     def run(self, store):
         '''
-        Set the desired export_type for the current maya scene and the desired
-        extension format to be published to the *store*. Also collect the maya
+        Set the desired export_type for the current blender scene and the desired
+        extension format to be published to the *store*. Also collect the blender
         scene_name and collect if scene is saved.
         '''
         try:

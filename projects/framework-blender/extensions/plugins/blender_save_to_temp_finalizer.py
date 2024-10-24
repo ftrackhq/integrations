@@ -15,8 +15,9 @@ class BlenderSaveToTempPlugin(BasePlugin):
         Makes sure that the current opened scene is saved to a temporary file so
         prevents it to be overridden.
         '''
-        #if bpy.data.is_saved ## if the file has been saved
-        #if bpy.data.is_dirty ## if the file has changed since the last save
+
+        old_path = bpy.context.scene.render.filepath
+
         try:
             # Save file to a temp file
             save_path = get_temp_path(filename_extension='.blend')
@@ -28,3 +29,5 @@ class BlenderSaveToTempPlugin(BasePlugin):
                 message=f"Error attempting to save the current scene to a "
                 f"temporal path: {error}"
             )
+        bpy.context.scene.render.filepath = old_path
+

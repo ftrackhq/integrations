@@ -68,6 +68,35 @@ engine:
         plugin: blender_thumbnail_exporter
 
 
+  # Export the reviewable component.
+  - type: group
+    tags:
+      - component
+    options:
+      component: reviewable
+    optional: true
+    #enabled: True by default so is no need
+    plugins:
+      - type: plugin
+        plugin: store_component
+      - type: plugin
+        tags:
+          - collector
+        plugin: blender_camera_collector
+        ui: blender_camera_selector
+        options:
+          camera_name: Camera
+      - type: plugin
+        tags:
+          - validator
+        plugin: blender_camera_exists_validator
+        ui: validator_label
+      - type: plugin
+        tags:
+          - exporter
+        plugin: blender_playblast_exporter
+
+
   # Common validator check all exported paths exists.
   - type: plugin
     tags:

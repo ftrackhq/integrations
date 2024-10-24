@@ -11,3 +11,11 @@ tools:
         - blender-scene-publisher
       docked: true
 
+
+  # Execute tool config without UI
+  - name: set_up_scene
+    run_on: startup
+    menu: false # True by default
+    options:
+      tool_configs:
+        - blender-setup-scene

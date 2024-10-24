@@ -21,7 +21,7 @@ class BlenderThumbnailExporterPlugin(BasePlugin):
         old_path = bpy.context.scene.render.filepath
 
         component_name = self.options.get('component')
-        exported_path = get_temp_path(filename_extension='png')
+        exported_path = get_temp_path(filename_extension='.png')
         # store blender output path
         try:
             bpy.context.scene.render.filepath = exported_path

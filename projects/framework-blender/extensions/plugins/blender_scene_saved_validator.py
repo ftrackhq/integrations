@@ -35,7 +35,7 @@ class BlenderSceneSavedValidatorPlugin(BasePlugin):
 
     def save_scene(self, store):
         '''
-        Save the current Maya scene.
+        Save the current blender scene.
         '''
         try:
             save_path = get_temp_path(filename_extension='.blend')
@@ -52,7 +52,7 @@ class BlenderSceneSavedValidatorPlugin(BasePlugin):
 
     def run(self, store):
         '''
-        Check if maya scene has been saved.
+        Check if blender scene has been saved.
         '''
         component_name = self.options.get('component', 'main')
         extension_format = store['components'][component_name].get(
@@ -72,7 +72,7 @@ class BlenderSceneSavedValidatorPlugin(BasePlugin):
         if not scene_saved:
             self.logger.warning('Blender scene not saved')
             raise PluginValidationError(
-                message='Maya scene not saved, Click fix to save it.',
+                message='Blender scene not saved, Click fix to save it.',
                 on_fix_callback=self.save_scene,
             )
         self.logger.debug("Scene is saved validation passed.")
