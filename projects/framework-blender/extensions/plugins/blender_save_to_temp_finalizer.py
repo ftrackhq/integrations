@@ -16,8 +16,6 @@ class BlenderSaveToTempPlugin(BasePlugin):
         prevents it to be overridden.
         '''
 
-        old_path = bpy.context.scene.render.filepath
-
         try:
             # Save file to a temp file
             save_path = get_temp_path(filename_extension='.blend')
@@ -29,5 +27,5 @@ class BlenderSaveToTempPlugin(BasePlugin):
                 message=f"Error attempting to save the current scene to a "
                 f"temporal path: {error}"
             )
-        bpy.context.scene.render.filepath = old_path
+        # bpy.context.scene.render.filepath = old_path
 

@@ -25,9 +25,9 @@ class BlenderSetupFrameRangeStartupPlugin(BasePlugin):
                 )
                 fps = task['parent']['custom_attributes'].get('fps', 24)
                 # Set start end frames and frame rate
-                bpy.context.scene.frame_end = end_frame
-                bpy.context.scene.frame_start = st_frame
-                bpy.context.scene.render.fps = fps
+                bpy.context.scenes[0].frame_end = end_frame
+                bpy.context.scenes[0].frame_start = st_frame
+                bpy.context.scenes[0].render.fps = fps
 
             except Exception as error:
                 raise PluginExecutionError(

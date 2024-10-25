@@ -19,8 +19,6 @@ class BlenderPlayblastExporterPlugin(BasePlugin):
         Create a playblast from the selected camera given in the *store*.
         Save it to a temp file and this one will be published as reviewable.
         '''
-        old_path = bpy.context.scene.render.filepath
-
         component_name = self.options.get('component')
 
         # Set the output file path
@@ -45,8 +43,10 @@ class BlenderPlayblastExporterPlugin(BasePlugin):
         rd.ffmpeg.codec = "H264"
 
         # Render the viewport and save the result
+        bpy.context.scene.render.filepath = save_path
         bpy.ops.render.render(animation=True, use_viewport=True)
+        self.logger.debug(f'Rendering playblast to {save_path}')
         bpy.data.images["Render Result"].save_render(save_path)
 
         store['components'][component_name]['exported_path'] = save_path
-        bpy.context.scene.render.filepath = old_path
+        # bpy.context.scene.render.filepath = old_path

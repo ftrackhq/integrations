@@ -13,7 +13,6 @@ class BlenderCameraCollectorPlugin(BasePlugin):
         '''
         Return all available cameras in Blender
         '''
-        # collected_objects = cmds.listCameras()
         cameras_obj = [cam.name for cam in bpy.data.objects if cam.type == 'CAMERA']
         return cameras_obj
 
