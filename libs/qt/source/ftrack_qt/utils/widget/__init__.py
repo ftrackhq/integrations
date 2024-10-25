@@ -133,7 +133,7 @@ def build_progress_data(tool_config):
                 enabled = False
                 continue
             if 'options' in group:
-                tags.extend(list(str(group['options'].values())))
+                tags.extend(list(group['options'].values()))
             if 'tags' in group:
                 tags.extend(group['tags'])
         if enabled:
