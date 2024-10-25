@@ -1,0 +1,17 @@
+type: integration-config
+name: framework-maya
+# Integration key: Can be a pip library, git repo URL, or local folder path
+Integration: "git+https://github.com/user/integration-repo.git"
+
+# Extensions key: A list that can contain pip libraries, git repo URLs, or local folder paths
+Extensions:
+  #- "ftrack-maya-default-extensions==1.0.0"
+  #- "git+https://github.com/user/extension-repo.git"
+  - "./local_extension_folder"
+
+# Python interpreter key: Points to the Python environment or the path of your custom environment
+# # [3.7, 3.10]  if its decalred this way it means it will use our versions, and we can define multiple versions and will install the depenencies in al this packages,.
+python-interpreter: "./env/bin/python" # [3.7, 3.10]
+
+# TODO: we should provide our own default python builds. And we can have daily tests to make sure no libraries got updated.
+

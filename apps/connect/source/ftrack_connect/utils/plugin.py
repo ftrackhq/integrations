@@ -42,6 +42,14 @@ def get_plugins_from_path(plugin_directory):
         if not f.startswith('.')
         and os.path.isdir(os.path.join(plugin_directory, f))
     ]
+    new_plugins = [
+        f
+        for f in os.listdir(plugin_directory)
+        if not f.startswith('.')
+        and os.path.isfile(os.path.join(plugin_directory, f))
+        and f.endswith('.yaml')
+    ]
+    plugins.extend(new_plugins)
     return plugins
 
 
@@ -66,6 +74,16 @@ def get_plugin_data(plugin_path):
     "my_plugin"
     "my-plugin"
     '''
+
+    if plugin_path.endswith('.yaml'):
+        return {
+            'path': plugin_path,
+            'incompatible': False,
+            'deprecated': False,
+            'platform': 'noarch',
+            'version': '0.0.0',
+            'name': os.path.basename(plugin_path),
+        }
     plugin_re = re.compile(
         r'(?P<name>.+?)-(?P<version>\d+\.\d+(?:\.\d+)?(?:[a-zA-Z]+\d+)?)(?:-(?P<platform>\w+))?(?P<extension>(?:\.\w+)+)?$'
     )
