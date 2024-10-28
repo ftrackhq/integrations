@@ -1,5 +1,12 @@
 # ftrack QT library release Notes
 
+
+## v3.0.1
+2024-10-28
+
+* [fix] Fix collecting tags on progress widget.
+
+
 ## v3.0.0
 2024-09-19
 
