@@ -266,7 +266,7 @@ class Host(object):
             )
             engine_instance = engine_registry['extension'](
                 self.registry,
-                session or self.session,
+                session,
                 self.context_id,
                 on_plugin_executed=self.on_plugin_executed_callback,
             )
@@ -332,7 +332,7 @@ class Host(object):
             )
             engine_instance = engine_registry['extension'](
                 self.registry,
-                session or self.session,
+                session,
                 on_plugin_executed=partial(
                     self.on_ui_hook_executed_callback, plugin_reference
                 ),
