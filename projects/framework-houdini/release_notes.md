@@ -1,7 +1,7 @@
 # ftrack Framework Houdini integration release Notes
 
 
-## v24.10.1
+## v24.10.1rc1
 2024-10-28
 
 * [fix] Connect hook; Fix menu creation and permission errors on launching Houdini.
