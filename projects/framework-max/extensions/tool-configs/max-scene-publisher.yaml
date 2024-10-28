@@ -47,6 +47,21 @@ engine:
           - exporter
         plugin: max_thumbnail_exporter
 
+  # Export the reviewable component.
+  - type: group
+    tags:
+      - component
+    options:
+      component: reviewable
+    optional: true
+    plugins:
+      - type: plugin
+        plugin: store_component
+      - type: plugin
+        tags:
+          - exporter
+        plugin: max_playblast_exporter
+
   # Common validator check all exported paths exists.
   - type: plugin
     tags:
