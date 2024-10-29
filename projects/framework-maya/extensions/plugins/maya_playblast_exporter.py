@@ -86,6 +86,7 @@ class MayaPlayblastExporterPlugin(BasePlugin):
                 quality=70,
                 w=res_w,
                 h=res_h,
+                fo=True,
             )
             self.logger.debug(f"Playblast exported to: {exported_path}")
         except Exception as error:
