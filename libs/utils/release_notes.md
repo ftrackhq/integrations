@@ -1,5 +1,10 @@
 # ftrack Utils library release Notes
 
+## v3.1.3
+2024-10-28
+
+* ~~[fix] Fix collecting tags on progress widget.~~
+
 ## v3.1.2
 2024-10-28
 
