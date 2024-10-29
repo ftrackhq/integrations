@@ -8,12 +8,12 @@ import maya.cmds as cmds
 import maya.utils as maya_utils
 import maya.OpenMayaUI as omui
 
-from shiboken2 import wrapInstance
-
 try:
     from PySide6 import QtWidgets, QtCore
+    from shiboken6 import wrapInstance
 except ImportError:
     from PySide2 import QtWidgets, QtCore
+    from shiboken2 import wrapInstance
 
 
 # Dock widget in Maya
