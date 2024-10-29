@@ -1,8 +1,8 @@
 # ftrack Framework Houdini integration release Notes
 
 
-## v24.10.1rc1
-2024-10-28
+## v24.10.1
+2024-10-29
 
 * [fix] Connect hook; Fix menu creation and permission errors on launching Houdini.
 * [fix] Bootstrap; Fix bootstrap python 3.9 (Houdini 19.0) and python 3.11 (Houdini 20.5)
