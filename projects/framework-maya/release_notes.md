@@ -1,7 +1,7 @@
 # ftrack Framework Maya integration release Notes
 
 
-## v24.10.0rc1
+## v24.10.0
 2024-10-29
 
 * [changed] extensions; Playblast override true by default.
