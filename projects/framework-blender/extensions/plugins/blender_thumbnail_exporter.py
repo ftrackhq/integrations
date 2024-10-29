@@ -1,7 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
-import glob
 import bpy
 
 from ftrack_utils.paths import get_temp_path
