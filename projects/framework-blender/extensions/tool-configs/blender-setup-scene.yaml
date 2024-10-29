@@ -1,5 +1,0 @@
-type: tool_config
-name: blender-setup-scene
-config_type: setup
-engine:
-  - blender_setup_frame_range
