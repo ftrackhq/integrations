@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ftrack-framework-blender"
-version = "24.6.0"
+version = "24.11.0rc1"
 description='ftrack Blender integration'
 authors = ["ftrack Integrations Team <integrations@backlight.co>"]
 readme = "README.md"
@@ -23,7 +23,7 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.dependencies]
-python = ">=3.7, <3.12"
+python = ">=3.11, <3.12"
 ftrack-python-api = "^2.5.4"
 PySide6 = "*"
 # ftrack dependnecies

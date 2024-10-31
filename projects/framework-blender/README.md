@@ -9,7 +9,7 @@ Community owned Blender integration for ftrack.
 
 Install Poetry
 
-Create a Python >=3.11, <3.12 virtual environment. If you're using an Apple Silicon chip, follow the instructions in the [How to install compatible PySide2 on Silicon based Mac](../../README.md#how-to-install-compatible-pyside2-on-silicon-based-mac) section. 
+Create a Python 3.11 virtual environment.
 
 Activate the virtual environment. 
 
@@ -64,20 +64,6 @@ to build the plugin.
 
 To build from source, not involving PyPi, use the `--from_source` flag.
 
-### Build documentation
-
-
-Install documentation dependencies:
-
-```bash
-    poetry install --only documentation
-```
-
-Build documentation:
-
-```bash
-    poetry run sphinx-build -b html doc dist/doc
-```
 
 ## Installing
 

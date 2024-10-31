@@ -70,14 +70,9 @@ class BlenderSceneOptionsSelectorWidget(BaseWidget):
         self._extension_format_cb.currentTextChanged.connect(
             self._on_export_changed
         )
-        default_extension_format = self.plugin_config['options'].get(
-            'extension_format', 'blend'
-        )
-        self._extension_format_cb.setCurrentText(default_extension_format)
 
         # Manually call the signals on build
         self._on_export_changed(default_export_type)
-        self._on_extension_changed(default_extension_format)
 
     def _on_export_changed(self, export_type):
         '''Updates the option dictionary with provided *export_type* when
@@ -85,10 +80,3 @@ class BlenderSceneOptionsSelectorWidget(BaseWidget):
         if not export_type:
             return
         self.set_plugin_option('export_type', export_type)
-
-    def _on_extension_changed(self, extension_format):
-        '''Updates the option dictionary with provided *extension_format* when
-        the selected extension format in the combobox has changed'''
-        if not extension_format:
-            return
-        self.set_plugin_option('extension_format', extension_format)

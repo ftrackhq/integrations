@@ -59,7 +59,7 @@ class BlenderSceneSavedValidatorPlugin(BasePlugin):
             'extension_format'
         )
         scene_name = store['components'][component_name].get('scene_name')
-        scene_saved = store['components'][component_name].get('scene_saved')
+        scene_saved = not bpy.data.is_saved
 
         if not scene_name:
             # Scene is not saved, save it first.

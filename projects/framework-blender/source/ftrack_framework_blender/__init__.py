@@ -101,13 +101,6 @@ def draw_ftrack_menu(self, context):
     self.layout.menu("FTRACK_MT_menu")
 
 
-# We could use the ftrack @invoke_in_qt_main_thread utility which should act
-# the same way as the DCC specific one. But using this means it ensures
-# synchronization with Blender’s undo stack, event loop, and other core
-# functionalities, which might not be guaranteed if you use Qt’s threading
-# mechanisms directly.
-
-
 def on_run_tool_callback(
     client_instance,
     tool_name,
@@ -190,12 +183,10 @@ def bootstrap_integration(framework_extensions_path):
     Host(
         event_manager,
         registry=registry_instance,
-        # run_in_main_thread_wrapper=run_in_main_thread,
     )
     client_instance = Client(
         event_manager,
         registry=registry_instance,
-        # run_in_main_thread_wrapper=run_in_main_thread,
     )
 
     # Init tools
@@ -206,8 +197,6 @@ def bootstrap_integration(framework_extensions_path):
     logger.debug(f'Read DCC config: {dcc_config}')
 
     # Create ftrack menu
-    # ftrack_menu = get_ftrack_menu()
-
     # Register tools into ftrack menu
 
     for tool in dcc_config['tools']:
