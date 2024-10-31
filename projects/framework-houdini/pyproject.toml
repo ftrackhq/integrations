@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ftrack-framework-houdini"
-version = "24.10.0"
+version = "24.10.1"
 description='ftrack Houdini integration'
 authors = ["ftrack Integrations Team <integrations@backlight.co>"]
 readme = "README.md"
@@ -23,7 +23,7 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.dependencies]
-python = ">=3.9,<3.11"
+python = ">=3.9,<3.12"
 # ftrack dependencies
 ftrack-python-api = "^2.5.4"
 ftrack-constants = { version = "^3.0.0", optional = true }

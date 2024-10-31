@@ -1,5 +1,15 @@
 # ftrack Utils library release Notes
 
+## upcoming
+
+
+* [changed] UsageTracker; Change the log level when UsageTracker is not created to debug.
+
+## v3.1.3
+2024-10-28
+
+* ~~[fix] Fix collecting tags on progress widget.~~
+
 ## v3.1.2
 2024-10-28
 
