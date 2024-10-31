@@ -49,10 +49,7 @@ logger.debug('v{}'.format(__version__))
 
 @run_in_main_thread
 def on_run_tool_callback(
-    client_instance,
-    tool_name,
-    dialog_name=None,
-    options=None,
+    client_instance, tool_name, dialog_name=None, options=None, max_args=None
 ):
     client_instance.run_tool(tool_name, dialog_name, options, dock_func=None)
 
@@ -67,7 +64,7 @@ def on_run_dialog_callback(
             'tool_config_names': tool_config_names,
             'docked': docked,
         },
-        dock_func=dock_max_right,
+        dock_func=None,
     )
 
 
