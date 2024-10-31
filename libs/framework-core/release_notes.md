@@ -1,6 +1,11 @@
 # ftrack Framework Core library release Notes
 
 
+## upcoming
+
+* [changed] Registry; Remove support for JS extensions.
+
+
 ## v3.1.2
 2024-10-28
 
@@ -29,7 +34,6 @@
 ## v3.0.0
 2024-09-19
 
-* [changed] Registry; Remove support for JS extensions.
 * [changed] Host; Remove with_new_session decorator and use current remote session directly.
 * [changed] EventManager; Remove the ability to connect to the event hub, instead assume that passed session argument is already connected.
 * [changed] EventManager; EventHubThread moved to ftrack_utils.

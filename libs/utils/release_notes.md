@@ -1,5 +1,9 @@
 # ftrack Utils library release Notes
 
+## upcoming
+
+* [changed] Registry; Remove support for JS extensions.
+
 ## v3.1.3
 2024-10-28
 
@@ -32,7 +36,6 @@
 ## v3.0.0
 2024-09-19
 
-* [changed] Registry; Remove support for JS extensions.
 * [new] Session, ftrack_api_session; Added create_api_session utility to create the api session with an EventHubThread in case of auto_connect_event_hub is True.
 * [new] Dependency; Added dependency on ftrack-python-api.
 * [new] event_hub event_hub_thread; Added EventHubThread utility.
