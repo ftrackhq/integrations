@@ -29,7 +29,7 @@ class MaxThumbnailExporterPlugin(BasePlugin):
             rt.save(bitmap)
 
             self.logger.debug(
-                f"Thumbnail has been saved to: {thumbnail_path}."
+                f'Thumbnail has been saved to: {thumbnail_path}.'
             )
         except Exception as error:
             raise PluginExecutionError(message=error)

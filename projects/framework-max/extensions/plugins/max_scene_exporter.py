@@ -6,6 +6,8 @@ from ftrack_utils.paths import get_temp_path
 from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
+from pymxs import runtime as rt
+
 
 class MaxSceneExporterPlugin(BasePlugin):
     name = 'max_scene_exporter'
@@ -25,11 +27,17 @@ class MaxSceneExporterPlugin(BasePlugin):
 
         if export_type == 'selection':
             try:
-                # TODO: Export selected objects
-                pass
+                exported_path = get_temp_path(filename_extension='max')
+                success = rt.saveNodes(rt.selection, exported_path)
+                if success:
+                    self.logger.debug(
+                        f'Selected objects exported to: {exported_path}.'
+                    )
+                else:
+                    raise
             except Exception as error:
                 raise PluginExecutionError(
-                    message=f"Couldn't export selection, error:{error}"
+                    message=f'Couldn\'t export selection, error:{error}'
                 )
 
         else:

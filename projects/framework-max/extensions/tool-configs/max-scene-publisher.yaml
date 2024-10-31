@@ -23,6 +23,9 @@ engine:
         tags:
           - collector
         plugin: max_scene_collector
+        ui: max_scene_options_selector
+        options:
+          export_type: scene
       - type: plugin
         tags:
           - validator
