@@ -58,7 +58,7 @@ def on_launch_integration(session, event):
 
     launch_data['integration']['env']['BLENDER_USER_SCRIPTS'] = bootstrap_path
     launch_data['integration']['env'][
-        'PYSIDE6_BLENDER_PATH'
+        'FRAMEWORK_DEPENDENCIES'
     ] = python_dependencies
     launch_data['integration']['env']['FTRACK_BLENDER_VERSION'] = str(
         integration_version

@@ -6,7 +6,7 @@ from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
 
-class MayaSceneOpenerPlugin(BasePlugin):
+class BlenderSceneOpenerPlugin(BasePlugin):
     name = 'blender_scene_opener'
 
     def run(self, store):

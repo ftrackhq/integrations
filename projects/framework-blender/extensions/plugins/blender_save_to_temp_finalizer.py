@@ -27,5 +27,4 @@ class BlenderSaveToTempPlugin(BasePlugin):
                 message=f"Error attempting to save the current scene to a "
                 f"temporal path: {error}"
             )
-        # bpy.context.scene.render.filepath = old_path
 

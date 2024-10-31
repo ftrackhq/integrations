@@ -22,7 +22,7 @@ class BlenderSceneSavedValidatorPlugin(BasePlugin):
 
         try:
             # Save file to a temp file
-            save_path = get_temp_path(filename_extension='.blend')
+            save_path = get_temp_path(filename_extension=extension_format)
             # Save Blender scene to this path
             bpy.ops.wm.save_as_mainfile(filepath=save_path)
             self.logger.debug(f"Scene has been saved to: {save_path}.")
@@ -38,12 +38,9 @@ class BlenderSceneSavedValidatorPlugin(BasePlugin):
         '''
         Save the current blender scene.
         '''
-        bpy.context.scene.render.filepath = None
-
         try:
-            save_path = get_temp_path(filename_extension='.blend')
-            bpy.ops.wm.save_as_mainfile(filepath=save_path)
-            self.logger.debug(f"Scene has been saved.")
+            bpy.ops.wm.save_as_mainfile(filepath=bpy.data.filepath)
+            self.logger.debug("Scene has been saved.")
         except Exception as error:
             raise PluginExecutionError(
                 message=f"Error saving the scene: {error}"

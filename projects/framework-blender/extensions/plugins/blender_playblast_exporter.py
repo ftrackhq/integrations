@@ -24,25 +24,7 @@ class BlenderPlayblastExporterPlugin(BasePlugin):
         scene = bpy.context.scene
         rd = scene.render
 
-        task = self.session.get('Context', self.context_id)
-
-        st_frame = int(task['parent']['custom_attributes'].get(
-            'fstart', 1
-        ))
-
-        end_frame = int(task['parent']['custom_attributes'].get(
-            'fend', 240
-        ))
-
-        fps = int(task['parent']['custom_attributes'].get(
-            'fps', 24
-        ))
-
-        scene.frame_start = st_frame
-        scene.frame_end = end_frame
-        rd.fps = fps
-
-        self.logger.debug(f'Setting frames as SF:{st_frame}|EF:{end_frame}|FPS:{fps}')
+        self.logger.debug(f'Setting frames as SF:{scene.frame_start}|EF:{scene.frame_end}|FPS:{rd.fps}')
 
         # Set the viewport resolution
         rd.resolution_x = 1920
