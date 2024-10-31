@@ -1,5 +1,18 @@
 # ftrack Connect release Notes
 
+## Upcoming
+
+* [changed] Move deprecated HighDPI settings into PySide2 specific codepath.
+* [fix] Fix ctrl+c interrupt behaviour when launching connect through the commandline. It will now properly exit the application.
+* [fix] Remove obsolete pkg_resources import which lead to errors when launching through the commandline
+
+
+## v24.9.0
+
+* [changed] Ftrack libraries updated to ^3.0.0.
+* [fix] Add xcb-util-cursor for Rocky linux builds and ensure PySide6 is bundled.
+
+
 ## v24.7.0
 2024-07-17
 

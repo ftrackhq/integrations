@@ -1,7 +1,36 @@
 # ftrack Utils library release Notes
 
+## v3.1.3
+2024-10-28
 
-## upcoming
+* ~~[fix] Fix collecting tags on progress widget.~~
+
+## v3.1.2
+2024-10-28
+
+* [fix] Fix collecting tags on progress widget.
+
+
+## v3.1.1
+2024-10-21
+
+* [fix] Fix temporary file handling which caused issues with the creation of the ftrack menu in Houdini on Windows.
+
+
+## v3.1.0
+2024-09-30
+
+* [changed] framework tool configs; get_groups method dictionary support on filters argument..
+
+
+## v3.0.1
+2024-09-25
+
+* [fix] Calls, decorators; Remove calls package and move the call_directly to decorators threading, this fixes a buc when calling it from framework Client and Host.
+
+
+## v3.0.0
+2024-09-19
 
 * [changed] Registry; Remove support for JS extensions.
 * [new] Session, ftrack_api_session; Added create_api_session utility to create the api session with an EventHubThread in case of auto_connect_event_hub is True.
@@ -9,11 +38,6 @@
 * [new] event_hub event_hub_thread; Added EventHubThread utility.
 * [new] Calls methods; call_directly utility function added to directly call a function with the give arguments.
 * [new] Decorators threading; delegate_to_main_thread_wrapper added.
-
-
-## v2.4.0rc1
-2024-07-17
-
 * [new] decorators; run_in_main_thread decorator added.
 * [fix] JS RPC; Properly pick up and handle error messages from DCC.
 * [changed] get_temp_path; Support temp directories.

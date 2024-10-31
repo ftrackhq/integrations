@@ -16,7 +16,7 @@ from ftrack_utils.decorators import (
     with_new_session,
     delegate_to_main_thread_wrapper,
 )
-from ftrack_utils.calls.methods import call_directly
+from ftrack_utils.decorators.threading import call_directly
 
 logger = logging.getLogger(__name__)
 
@@ -95,7 +95,7 @@ class Host(object):
         # context
         self.event_manager.unsubscribe(self._discover_host_subscribe_id)
         # Reply to discover_host_callback to clients to pass the host information
-        discover_host_callback_reply = self.run_in_main_thread(
+        discover_host_callback_reply = self.run_in_main_thread_wrapper(
             partial(
                 provide_host_information,
                 self.id,
@@ -229,7 +229,8 @@ class Host(object):
 
     # Run
     @delegate_to_main_thread_wrapper
-    def run_tool_config_callback(self, event):
+    @with_new_session
+    def run_tool_config_callback(self, event, session=None):
         '''
         Runs the data with the defined engine type of the given *event*
 
@@ -265,7 +266,7 @@ class Host(object):
             )
             engine_instance = engine_registry['extension'](
                 self.registry,
-                self.session,
+                session,
                 self.context_id,
                 on_plugin_executed=self.on_plugin_executed_callback,
             )
@@ -295,7 +296,8 @@ class Host(object):
         self.event_manager.publish.host_log_item_added(self.id, log_item)
 
     @delegate_to_main_thread_wrapper
-    def run_ui_hook_callback(self, event):
+    @with_new_session
+    def run_ui_hook_callback(self, event, session=None):
         '''
         Runs the data with the defined engine type of the given *event*
 
@@ -310,15 +312,11 @@ class Host(object):
         client_options = event['data']['client_options']
         payload = event['data']['payload']
 
-        for typed_configs in self.tool_configs.values():
-            tool_config = None
-            for _tool_config in typed_configs:
-                if _tool_config['reference'] == tool_config_reference:
-                    tool_config = _tool_config
-                    break
-            if tool_config:
-                break
-        else:
+        tool_config = self.registry.get_one(
+            extension_type='tool_config', reference=tool_config_reference
+        )
+        tool_config = tool_config.get('extension')
+        if not tool_config:
             raise Exception(
                 'Given tool config reference {} not found on registered '
                 'tool_configs. \n {}'.format(
@@ -334,7 +332,7 @@ class Host(object):
             )
             engine_instance = engine_registry['extension'](
                 self.registry,
-                self.session,
+                session,
                 on_plugin_executed=partial(
                     self.on_ui_hook_executed_callback, plugin_reference
                 ),

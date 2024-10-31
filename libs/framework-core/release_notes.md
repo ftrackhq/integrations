@@ -1,17 +1,39 @@
 # ftrack Framework Core library release Notes
 
-## upcoming
+
+## v3.1.2
+2024-10-28
+
+* [fix] Host; Create new session when running a tool config to avoid corrupted sessions.
+
+
+## v3.1.1
+2024-10-04
+
+* [fix] Host; Fix bug on set context_id calling the run_in_main_thread_wrapper.
+
+
+## v3.1.0
+2024-09-30
+
+* [change] Registry; Support get tool config extensions by reference.
+* [change] Registry; Support create references in a tool-config section.
+
+
+## v3.0.1
+2024-09-25
+
+* [fix] Client, Host; Fix issue with run_in_main_thread_wrapper decorator.
+
+
+## v3.0.0
+2024-09-19
 
 * [changed] Registry; Remove support for JS extensions.
 * [changed] Host; Remove with_new_session decorator and use current remote session directly.
 * [changed] EventManager; Remove the ability to connect to the event hub, instead assume that passed session argument is already connected.
 * [changed] EventManager; EventHubThread moved to ftrack_utils.
 * [new] Client, Host; Using delegate_to_main_thread_wrapper decorator to execute methods in main thread function provided as run_in_main_thread_wrapper argument when instantiating.
-
-
-## v3.0.0rc1
-2024-07-17
-
 * [change] EventManager; Remove override mode.
 * [feature] Client, Engine, Dialog; Support tool config top level options.
 * [fix] Engine; Check enabled/disabled plugins.

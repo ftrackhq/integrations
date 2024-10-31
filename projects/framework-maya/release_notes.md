@@ -1,8 +1,12 @@
 # ftrack Framework Maya integration release Notes
 
 
-## upcoming
+## v24.10.0
+2024-10-29
 
+* [changed] extensions; Playblast override true by default.
+* [changed] Dependencies; Update all framework dependencies to version ^3.0.0.
+* [fix] Utils; Fix error on importing shiboken2 on utils out of the try/except for PySide6.
 * [changed] Init; Use create_api_session utility to create the api session.
 * [changed] Host, Client instance; Pass run_in_main_thread argument.
 * [fix] Init; Fix on_run_tool_callback options argument.

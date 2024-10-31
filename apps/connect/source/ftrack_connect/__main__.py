@@ -7,7 +7,6 @@ import argparse
 import logging
 import signal
 import os
-import pkg_resources
 import importlib
 
 from ftrack_connect.utils.plugin import (
@@ -114,21 +113,20 @@ def main_connect(arguments=None):
             )
             raise SystemExit(1)
 
-    # If under X11, make Xlib calls thread-safe.
-    # http://stackoverflow.com/questions/31952711/threading-pyqt-crashes-with-unknown-request-in-queue-while-dequeuing
-
-    if os.name == 'posix' and is_pyside2:
+    if is_pyside2:
+        # These HighDPI settings are deprecated and enabled by default in PySide6.
         QtCore.QCoreApplication.setAttribute(
-            QtCore.Qt.ApplicationAttribute.AA_X11InitThreads
+            QtCore.Qt.AA_EnableHighDpiScaling, True
         )
-
-    # Ensure support for highdpi
-    QtCore.QCoreApplication.setAttribute(
-        QtCore.Qt.AA_EnableHighDpiScaling, True
-    )
-    QtCore.QCoreApplication.setAttribute(
-        QtCore.Qt.ApplicationAttribute.AA_UseHighDpiPixmaps, True
-    )
+        QtCore.QCoreApplication.setAttribute(
+            QtCore.Qt.ApplicationAttribute.AA_UseHighDpiPixmaps, True
+        )
+        # If under X11, make Xlib calls thread-safe.
+        # http://stackoverflow.com/questions/31952711/threading-pyqt-crashes-with-unknown-request-in-queue-while-dequeuing
+        if os.name == 'posix':
+            QtCore.QCoreApplication.setAttribute(
+                QtCore.Qt.ApplicationAttribute.AA_X11InitThreads
+            )
 
     # Construct global application.
 
@@ -138,8 +136,21 @@ def main_connect(arguments=None):
     application.setOrganizationDomain('ftrack.com')
     application.setQuitOnLastWindowClosed(False)
 
-    # Enable ctrl+c to quit application when started from command line.
-    signal.signal(signal.SIGINT, lambda sig, _: application.quit())
+    # Handle Ctrl+C (SIGINT) for both Windows and Unix-like systems
+    # Use a timer to allow Python interpreter to run and handle signals
+    timer = QtCore.QTimer()
+    timer.start(500)
+    timer.timeout.connect(lambda: None)
+
+    class SignalHandler(QtCore.QObject):
+        signal_received = QtCore.Signal()
+
+    signal_handler = SignalHandler()
+    signal_handler.signal_received.connect(application.quit)
+
+    signal.signal(
+        signal.SIGINT, lambda *_: signal_handler.signal_received.emit()
+    )
 
     # Construct main connect window and apply theme.
     connectWindow = ftrack_connect.ui.application.Application(
