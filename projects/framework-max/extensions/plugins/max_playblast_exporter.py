@@ -28,8 +28,11 @@ class MaxPlayblastExporterPlugin(BasePlugin):
         print(exported_path)
         try:
             # Create the most basic preview with the currently set viewport settings
-            # (it might actually be the preview settings)
-            rt.createPreview(outputAVI=True, filename=exported_path)
+            rt.createPreview(
+                outputAVI=True,
+                filename=exported_path,
+                autoplay=False,  # don't open a video player when the preview is done
+            )
 
             self.logger.debug(f"Preview exported to: {exported_path}")
         except Exception as error:

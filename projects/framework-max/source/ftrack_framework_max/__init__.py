@@ -142,10 +142,26 @@ def bootstrap_integration(framework_extensions_path):
 
     logger.debug(f'Read DCC config: {dcc_config}')
 
-    # Register tools into ftrack menu
+    tools_on_menu = [
+        tool for tool in dcc_config['tools'] if tool.get('menu', True)
+    ]
+    startup_tools = [
+        tool for tool in dcc_config['tools'] if tool.get('run_on') == 'startup'
+    ]
+
+    for tool in startup_tools:
+        on_run_tool_callback(
+            client_instance,
+            tool.get('name'),
+            tool.get('dialog_name'),
+            tool['options'],
+        )
+
+    # Register tools into ftrack menu and run startup tools directly
     # https://help.autodesk.com/view/MAXDEV/2025/ENU/?guid=MAXDEV_Python_using_pymxs_pymxs_macroscripts_menus_html
-    for tool in dcc_config['tools']:
+    for tool in tools_on_menu:
         normalized_tool_name = f"ftrack{tool['name'].lower().replace(' ', '')}"
+
         rt.macros.new(
             "ftrack",  # Category for the macro script
             normalized_tool_name,  # Name of the macro script
@@ -183,7 +199,7 @@ def bootstrap_integration(framework_extensions_path):
         # Note, that every menu item in the menu system needs a persistent Guid for identification and referencing
         submenu = mainmenubar.createsubmenu(str(uuid.uuid4()), "ftrack")
 
-        for tool in dcc_config['tools']:
+        for tool in tools_on_menu:
             normalized_tool_name = (
                 f"ftrack{tool['name'].lower().replace(' ', '')}"
             )

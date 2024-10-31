@@ -1,0 +1,5 @@
+type: tool_config
+name: max-setup-scene
+config_type: setup
+engine:
+  - max_setup_frame_range
