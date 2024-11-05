@@ -72,7 +72,7 @@ class MayaSceneOptionsSelectorWidget(BaseWidget):
         self._export_type_cb.setCurrentText(default_export_type)
 
         self._extension_format_cb.currentTextChanged.connect(
-            self._on_export_changed
+            self._on_extension_changed
         )
         default_extension_format = self.plugin_config['options'].get(
             'extension_format', 'mb'
