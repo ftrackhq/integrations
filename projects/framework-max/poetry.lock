@@ -507,4 +507,4 @@ ftrack-libs = ["ftrack-constants", "ftrack-qt", "ftrack-qt-style", "ftrack-utils
 [metadata]
 lock-version = "2.0"
 python-versions = ">= 3.7, < 3.12"
-content-hash = "b18febf5da6de48de6d3010cd1854e77e64be56cb8cf1d308a643eb39ea41dca"
+content-hash = "c2c1a4396643548326a43cd9108808a18bdf698caa4e6c52b0db6a7e2d753a80"
