@@ -3,6 +3,9 @@
 
 from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
+from ftrack_framework_max.utils import ExecuteInMainThreadWithResult
+
+from pymxs import runtime as rt
 
 
 class MaxSceneOpenerPlugin(BasePlugin):
@@ -23,8 +26,7 @@ class MaxSceneOpenerPlugin(BasePlugin):
             raise PluginExecutionError("No path provided to open!")
 
         try:
-            # TODO: Open file in DCC
-            pass
+            rt.loadMaxFile(collected_path)
         except Exception as error:
             raise PluginExecutionError(
                 f"Couldn't open the given path. Error: {error}"
