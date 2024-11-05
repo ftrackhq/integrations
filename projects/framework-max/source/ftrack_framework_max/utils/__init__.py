@@ -48,7 +48,9 @@ class ExecuteInMainThreadWithResult(QObject):
 
     @Slot()
     def execute(self):
-        result = self.method(*self.args, **self.kwargs)
+        result = self.method_with_args[0](
+            *self.method_with_args[1], **self.method_with_args[2]
+        )
         # trigger garbage collector
         self.setParent(None)
         return result
