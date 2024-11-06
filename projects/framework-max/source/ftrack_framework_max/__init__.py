@@ -119,10 +119,10 @@ def bootstrap_integration(framework_extensions_path):
         UsageTracker(
             session=session,
             default_data=dict(
-                app="Max",
+                app="3ds Max",
                 registry=registry_info_dict,
                 version=__version__,
-                app_version="2024",  # TODO: fetch DCC version through API
+                app_version=rt.maxVersion()[7],
                 os=platform.platform(),
             ),
         )

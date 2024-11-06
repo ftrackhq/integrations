@@ -8,7 +8,7 @@ applicationIdentifier: max_{variant}
 integrations:
   framework:
     - framework-max
-label: Max
+label: 3ds Max
 icon: 3ds_max
 variant: "{version}"
 search_path:
