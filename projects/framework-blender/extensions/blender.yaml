@@ -20,3 +20,11 @@ tools:
       tool_configs:
         - blender-scene-opener
       docked: false
+
+
+  - name: set_up_scene
+    run_on: startup
+    menu: false # True by default
+    options:
+      tool_configs:
+        - blender-setup-scene
