@@ -167,8 +167,8 @@ jobs:
       - name: build standard framework DCC integration plugin
         shell: bash
         run: |
-          pip install -r tools/requirements.txt
-          python tools/build.py --remove_intermediate_folder --include_resources resource/bootstrap build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+          pip install -r tools/requirements-pyside6.txt
+          python tools/build.py --remove_intermediate_folder --include_resources resource/bootstrap --platform_dependent 1 build_connect_plugin ${{ needs.set-variables.outputs.folder }}
       - name: upload artifacts to release
         shell: bash
         run: |
@@ -222,9 +222,9 @@ jobs:
         if: ${{ needs.set-variables.outputs.package == 'framework-blender' }}
         shell: bash
         run: |
-          pip install -r tools/requirements.txt
+          pip install -r tools/requirements-pyside6.txt
           # Use --testpypi or --from_source to change where the deps are picked from
-          python tools/build.py --remove_intermediate_folder --include_resources resource/bootstrap build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+          python tools/build.py --remove_intermediate_folder --include_resources resource/bootstrap --platform_dependent 1 build_connect_plugin ${{ needs.set-variables.outputs.folder }}
 
       - name: Build CSS resources for CEP extension
         if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' || needs.set-variables.outputs.package == 'framework-premiere' }}
