@@ -19,14 +19,12 @@ class BlenderSceneExporterPlugin(BasePlugin):
         '''
 
         component_name = self.options.get('component')
-        export_type = store['components'][component_name].get('export_type')
-        selection_export = True if export_type == 'selection' else False
         try:
             # Save file to a temp file
             exported_path = get_temp_path(
                 filename_extension='.blend'
             )
-            bpy.ops.wm.save_as_mainfile(filepath=exported_path, selected=selection_export)
+            bpy.ops.wm.save_as_mainfile(filepath=exported_path)
             self.logger.debug(f'Saving blender snapshot to {exported_path}')
 
             self.logger.debug(
