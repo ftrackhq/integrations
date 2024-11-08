@@ -52,11 +52,6 @@ class BlenderSceneOptionsSelectorWidget(BaseWidget):
         self._export_type_cb.addItems(["scene", "selection"])
         self.layout().addWidget(self._export_type_cb)
 
-        # Create extension format type combo box
-        self._extension_format_cb = QtWidgets.QComboBox()
-        self._extension_format_cb.addItems(["blend"])
-        self.layout().addWidget(self._extension_format_cb)
-
     def post_build_ui(self):
         '''hook events'''
         self._export_type_cb.currentTextChanged.connect(
@@ -67,9 +62,6 @@ class BlenderSceneOptionsSelectorWidget(BaseWidget):
         )
         self._export_type_cb.setCurrentText(default_export_type)
 
-        self._extension_format_cb.currentTextChanged.connect(
-            self._on_export_changed
-        )
 
         # Manually call the signals on build
         self._on_export_changed(default_export_type)

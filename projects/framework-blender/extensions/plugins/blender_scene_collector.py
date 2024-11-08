@@ -18,7 +18,6 @@ class BlenderSceneCollectorPlugin(BasePlugin):
         '''
         try:
             export_type = self.options['export_type']
-            extension_format = self.options['extension_format']
         except Exception as error:
             raise PluginExecutionError(
                 f"Provide export_type and extension_format: {error}"
@@ -37,15 +36,11 @@ class BlenderSceneCollectorPlugin(BasePlugin):
             )
 
         self.logger.debug(f"Export type set to {export_type}.")
-        self.logger.debug(f"Extension format set to {extension_format}.")
         self.logger.debug(f"Current scene name is: {scene_name}.")
         self.logger.debug(f"Is current scene saved?: {scene_saved}.")
 
         component_name = self.options.get('component', 'main')
         store['components'][component_name]['export_type'] = export_type
-        store['components'][component_name][
-            'extension_format'
-        ] = extension_format
 
         store['components'][component_name]['scene_name'] = scene_name
         store['components'][component_name]['scene_saved'] = scene_saved

@@ -24,8 +24,6 @@ class BlenderPlayblastExporterPlugin(BasePlugin):
         scene = bpy.context.scene
         rd = scene.render
 
-        self.logger.debug(f'Setting frames as SF:{scene.frame_start}|EF:{scene.frame_end}|FPS:{rd.fps}')
-
         # Set the viewport resolution
         rd.resolution_x = 1920
         rd.resolution_y = 1080

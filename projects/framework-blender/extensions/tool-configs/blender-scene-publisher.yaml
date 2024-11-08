@@ -28,7 +28,6 @@ engine:
         ui: blender_scene_options_selector
         options:
           export_type: scene # selection is also available
-          extension_format: blend
       - type: plugin
         tags:
           - validator
