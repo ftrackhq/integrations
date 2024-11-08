@@ -31,7 +31,7 @@ class MayaSceneExporterPlugin(BasePlugin):
             try:
                 # Save file to a temp file
                 exported_path = get_temp_path(
-                    filename_extension=extension_format
+                    filename_extension=extension_format_short
                 )
                 cmds.file(
                     exported_path,
