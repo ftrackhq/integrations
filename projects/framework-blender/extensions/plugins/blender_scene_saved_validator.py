@@ -55,9 +55,7 @@ class BlenderSceneSavedValidatorPlugin(BasePlugin):
         Check if blender scene has been saved.
         '''
         component_name = self.options.get('component', 'main')
-        extension_format = store['components'][component_name].get(
-            'extension_format'
-        )
+        extension_format = '.blend'
         scene_name = store['components'][component_name].get('scene_name')
         scene_saved = not bpy.data.is_saved
 
