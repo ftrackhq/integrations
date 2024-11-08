@@ -150,8 +150,6 @@ jobs:
       group: ci-${{ github.ref }}
     if: ${{ needs.set-variables.outputs.package == 'framework-blender' }}
     runs-on: windows-latest
-    outputs:
-      package: ${{ needs.set-variables.outputs.package }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
@@ -186,8 +184,6 @@ jobs:
       group: ci-${{ github.ref }}
     if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' || needs.set-variables.outputs.package == 'framework-premiere' || needs.set-variables.outputs.package == 'framework-blender' }}
     runs-on: macos-12
-    outputs:
-      package: ${{ needs.set-variables.outputs.package }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
