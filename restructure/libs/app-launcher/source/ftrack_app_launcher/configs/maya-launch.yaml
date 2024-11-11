@@ -1,0 +1,14 @@
+type: launch_config
+label: Maya
+icon: maya_{version}
+supported_versions: ">= 2018, < 2024"
+windows:
+  path: C:\Program Files\Autodesk\Maya*\bin\maya_(?P<version>\\d{4}).exe"
+linux:
+  path: C:/Program Files/Autodesk/Maya*/bin/maya_(?P<version>\\d{4}).exe
+macos:
+  path: C:/Program Files/Autodesk/Maya*/bin/maya_(?P<version>\\d{4}).exe
+
+launch-sequence:
+  - launch_app
+
