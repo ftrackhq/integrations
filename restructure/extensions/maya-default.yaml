@@ -1,0 +1,20 @@
+maya_default:
+  launch:
+    supported_versions: ">= 2018, < 2024"
+    windows:
+      executable: C:\Program Files\Autodesk\Maya*\bin\maya_(?P<version>\\d{4}).exe"
+      arguments: [-s]
+    linux:
+      executable: C:/Program Files/Autodesk/Maya*/bin/maya_(?P<version>\\d{4}).exe
+      arguments: [-s]
+    macos:
+      executable: C:/Program Files/Autodesk/Maya*/bin/maya_(?P<version>\\d{4}).exe
+      arguments: [-s]
+    discovery-hook:
+      - passthrough
+    pre-launch-hook:
+      - setup_environment
+    launch-hook:
+      - launch_app # This is an optional key that overrides the default behaviour of how we launch the application.
+
+

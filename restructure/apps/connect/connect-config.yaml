@@ -1,0 +1,6 @@
+paths:
+  windows:
+    resource_path: %appdata%
+connect:
+  marketplace-source: #repo branch tag in git
+  resource_path: {paths.{platform_full}.installation}

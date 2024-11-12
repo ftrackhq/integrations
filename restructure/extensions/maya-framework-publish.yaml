@@ -1,4 +1,4 @@
-maya_publish_tool:
+maya_framework_publisher:
   menu: true
   label: "Publish"
   dialog_name: framework_standard_publisher_dialog

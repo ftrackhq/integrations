@@ -1,0 +1,36 @@
+
+
+configs:
+  _ftrack_framework_maya:
+    packages: &ftrack_framework_maya_packages
+      ftrack_framework_maya:
+        source: PyPi
+        version: 3.0.0
+
+      ftrack_tools_common:
+        source: PyPi
+        version: 1.0.0
+
+      ftrack_tools_maya:
+        source: PyPi
+        version: 1.0.0
+  maya-framework:
+    <<: *maya_default
+    packages: *ftrack_framework_maya_packages # Cloud have its own packages
+    python-interpreter: [3.7, 3.10]
+    tools:
+      extensions_path: .../../maya-framework-publish.yaml
+      <<: *maya_framework_publish
+    launch:
+      environment_variables:
+        PYTHONPATH:
+          - $PYTHONPATH
+          - '${source.dependencies}'
+          - '${bootstrap_path}'
+        MAYA_SCRIPT_PATH:
+          - '${bootstrap_path}'
+        FTRACK_MAYA_VERSION:
+          - '${version}'
+      discovery-hook: default_discovery
+      pre-launch-hook: setup_environment
+      launch-hook: launch_app

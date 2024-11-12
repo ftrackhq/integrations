@@ -1,8 +1,6 @@
-# This is the actual tool
-
 # query all yaml files and read them
 # discover all the applications based on the yaml files and register the event if its called from connect
-# Subscribe to the launch event on all the yaml files if its called from connect
+# Subscrive to the launch event on all the yaml files if its called from connect
 # othewise just call the launch function directly
 
 
