@@ -40,7 +40,10 @@ class AssetSelector(_item_selector.ItemSelector):
                         entity['id']
                     )
                 )
-                entity = entity['parent']
+                entity = entity.get('parent')
+                if not entity:
+                    self.logger.error("Entity {} has no parent".format(entity))
+                    raise AttributeError()
                 self.logger.debug('Parent entity: {0}'.format(entity))
 
             self.logger.debug(
