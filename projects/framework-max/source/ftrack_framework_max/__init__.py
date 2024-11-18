@@ -24,7 +24,7 @@ from ftrack_utils.extensions.environment import (
 
 from ftrack_utils.usage import set_usage_tracker, UsageTracker
 
-from ftrack_framework_max.utils import dock_max_right, run_in_main_thread
+from ftrack_framework_max.utils import run_in_main_thread
 
 # Evaluate version and log package version
 try:
@@ -49,23 +49,9 @@ logger.debug('v{}'.format(__version__))
 
 @run_in_main_thread
 def on_run_tool_callback(
-    client_instance, tool_name, dialog_name=None, options=None, max_args=None
+    client_instance, tool_name, dialog_name=None, options=None
 ):
     client_instance.run_tool(tool_name, dialog_name, options, dock_func=None)
-
-
-@run_in_main_thread
-def on_run_dialog_callback(
-    client_instance, dialog_name, tool_config_names, docked, max_args
-):
-    client_instance.run_dialog(
-        dialog_name,
-        dialog_options={
-            'tool_config_names': tool_config_names,
-            'docked': docked,
-        },
-        dock_func=None,
-    )
 
 
 def bootstrap_integration(framework_extensions_path):

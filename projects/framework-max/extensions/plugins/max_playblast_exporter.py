@@ -1,9 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
-import glob
-import platform
-
 from ftrack_utils.paths import get_temp_path
 
 from ftrack_framework_core.plugin import BasePlugin
@@ -25,7 +22,6 @@ class MaxPlayblastExporterPlugin(BasePlugin):
             is_directory=False, filename_extension="avi"
         )
 
-        print(exported_path)
         try:
             # Create the most basic preview with the currently set viewport settings
             rt.createPreview(

@@ -22,6 +22,15 @@ priority = "explicit"
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
+[tool.poetry.dev-dependencies]
+ftrack-constants = { version = "^3.0.0" }
+ftrack-utils = { version = "^3.0.0" }
+ftrack-qt = { version = "^3.0.0" }
+ftrack-qt-style = { version = "^3.0.0" }
+# framework dependencies
+ftrack-framework-core = { version = "^3.0.0" }
+ftrack-framework-qt = { version = "^3.0.0" }
+
 [tool.poetry.dependencies]
 python = ">= 3.7, < 3.11"
 ftrack-python-api = "^2.5.4"
