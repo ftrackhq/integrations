@@ -996,8 +996,8 @@ class ApplicationLauncher(object):
         # The virtual environment variable is picked up by the child python process
         # This leads to problems with certain libraries, specifically PySide not being
         # able to locate the proper dlls of the host DCC.
-        # TODO: we should probably make this configurable so the venv CAN be enherited if desired.
-        environment.pop('VIRTUAL_ENV', None)
+        # TODO: we should probably make this configurable so the venv CAN be inherited if desired.
+        # environment.pop('VIRTUAL_ENV', None)
 
         # Ensure SSL_CERT_FILE points to the default cert.
         if 'win32' not in sys.platform:

@@ -64,6 +64,19 @@ def on_launch_integration(session, event):
         integration_version
     )
 
+    ##########################################################################
+    # The virtual environment specific environment variable VIRTUAL_ENV
+    # is passed to the spawned process (that launches 3dsMax or any other app).
+    # 3ds Max "understands" this variable and incorporates it into its own
+    # environment. This is a problem when running ftrack connect from a virtual
+    # environment which has other libraries/dependencies than 3ds Max.
+    # This leads to problems with certain libraries, specifically PySide not being
+    # able to locate the proper dlls of the host DCC.
+    # For now, we unset the variable.
+    # TODO: we should probably make this configurable so the venv CAN be inherited if desired.
+    launch_data['integration']['env']['VIRTUAL_ENV.unset'] = ""
+    ##########################################################################
+
     selection = event['data'].get('context', {}).get('selection', [])
 
     if selection:
