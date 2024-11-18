@@ -7,6 +7,7 @@
 * [changed] Move deprecated HighDPI settings into PySide2 specific codepath.
 * [fix] Fix ctrl+c interrupt behaviour when launching connect through the commandline. It will now properly exit the application.
 * [fix] Remove obsolete pkg_resources import which lead to errors when launching through the commandline
+* [changed] Add debug logs on item_selector and asset_selector widgets to debug publisher.
 
 
 ## v24.9.0
