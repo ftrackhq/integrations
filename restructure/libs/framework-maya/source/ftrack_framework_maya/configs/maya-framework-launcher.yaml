@@ -1,0 +1,20 @@
+configs:
+  maya-framework:
+    <<: *maya_default
+    python-interpreter: [3.7, 3.10]
+    launch:
+      environment_variables:
+        PYTHONPATH:
+          - $PYTHONPATH --> not encurage this
+          - '${source.dependencies}'
+          - '${bootstrap_path}'
+        MAYA_SCRIPT_PATH:
+          - '${bootstrap_path}'
+        FTRACK_MAYA_VERSION:
+          - '${version}'
+      discovery-hook:
+        - ftrack_app_launcher.custom
+      pre-launch-hook:
+        - ftrack_app_launcher.setup_environment1
+      launch-hook:
+        - ftrack_app_launcher.launch1

@@ -10,11 +10,11 @@ maya_default:
     macos:
       executable: C:/Program Files/Autodesk/Maya*/bin/maya_(?P<version>\\d{4}).exe
       arguments: [-s]
-    discovery-hook:
-      - passthrough
+    discovery-hook: # Execute all the functions in sequence in the engine, with a specialized store where we validate the keys and values
+      - ftrack_app_launcher.discover #This one has 2 functions one to filter in the event and one to discover in the system
     pre-launch-hook:
-      - setup_environment
+      - ftrack_app_launcher.setup_environment # Will do nothing by default
     launch-hook:
-      - launch_app # This is an optional key that overrides the default behaviour of how we launch the application.
+      - ftrack_app_launcher.launch # This will actually launch the exe
 
 

@@ -3,4 +3,5 @@ paths:
     resource_path: %appdata%
 connect:
   marketplace-source: #repo branch tag in git
-  resource_path: {paths.{platform_full}.installation}
+  resource_path: {paths.{runtime.platform_full}.resource_path}/{runtime.args.workspace}
+  # supporting .env files

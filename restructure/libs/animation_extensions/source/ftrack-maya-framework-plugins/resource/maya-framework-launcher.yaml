@@ -1,0 +1,12 @@
+configs:
+  maya-framework:
+    tools:
+      - *maya_framework_publish
+    launch:
+      discovery-hook: !:replace
+        - ftrack_app_launcher.discover2
+      pre-launch-hook:
+        - ftrack_app_launcher.setup_environment2 !:replace
+      launch-hook:
+        - ftrack_app_launcher.launch2 !:replace
+

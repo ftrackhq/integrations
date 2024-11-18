@@ -37,5 +37,6 @@ search_path:
       - Nuke.*
       - Nuke\d[\w.]+.app
 extensions_path:
+  - my-custom-extensions/nuke
   - extensions/common
   - extensions/nuke
