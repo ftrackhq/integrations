@@ -1,8 +1,12 @@
 # ftrack Connect release Notes
 
-## v24.11.0rc1
+## v24.11.0rc2
 2024-11-18
 
+* [changed] Login; Add login unic identifier when login with Connect; ftrack-connect-<local_user>@<mac_hex>
+
+## v24.11.0rc1
+2024-11-18
 * [changed] Dependencies; Poetry update.
 * [changed] Move deprecated HighDPI settings into PySide2 specific codepath.
 * [fix] Fix ctrl+c interrupt behaviour when launching connect through the commandline. It will now properly exit the application.
