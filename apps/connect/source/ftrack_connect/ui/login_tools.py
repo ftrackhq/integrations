@@ -104,10 +104,10 @@ class LoginServerThread(QtCore.QThread):
     def run(self):
         '''Listen for events.'''
         import getpass
-        import uuid
+        import socket
 
         username = getpass.getuser()
-        mac_hex = hex(uuid.getnode())
+        hostname = socket.gethostname()
 
         self._server = HTTPServer(
             ('localhost', 0),
@@ -115,7 +115,7 @@ class LoginServerThread(QtCore.QThread):
         )
         webbrowser.open_new_tab(
             '{0}/user/api_credentials?identifier=ftrack-connect-{1}@{2}&redirect_url=http://localhost:{3}'.format(
-                self.url, username, mac_hex, self._server.server_port
+                self.url, username, hostname, self._server.server_port
             )
         )
         logger.debug(f'Started login server @ port {self._server.server_port}')
