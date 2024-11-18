@@ -5,14 +5,17 @@ from functools import wraps
 
 from typing import Callable
 
-try:
-    from PySide6 import QtCore, QtGui, QtWidgets
-    from PySide6.QtCore import QObject, Signal, Slot
-    from PySide6.QtGui import QGuiApplication
-except ImportError:
-    from PySide2 import QtCore, QtGui
-    from PySide2.QtCore import QObject, Signal, Slot
-    from PySide2.QtGui import QtWidgets, QGuiApplication
+from PySide6.QtWidgets import (
+    QDockWidget,
+    QSizePolicy
+)
+from PySide6.QtCore import (
+    Qt,
+    QObject,
+    Signal,
+    Slot
+)
+from PySide6.QtGui import QGuiApplication
 
 import qtmax
 
@@ -22,17 +25,17 @@ def dock_max_right(widget):
     # Use the current widget's parent as the parent for the dockable
     # widget
 
-    dock_widget = QtWidgets.QDockWidget()
+    dock_widget = QDockWidget()
     dock_widget.setWindowTitle(widget.windowTitle())
     dock_widget.setObjectName(widget.windowTitle())
     dock_widget.setWidget(widget)
     qtmax.GetQMaxMainWindow().addDockWidget(
-        QtCore.Qt.RightDockWidgetArea,
+        Qt.RightDockWidgetArea,
         dock_widget,
-        QtCore.Qt.Horizontal
+        Qt.Horizontal
     )
-    dock_widget.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
-    dock_widget.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+    dock_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+    dock_widget.setAttribute(Qt.WA_DeleteOnClose)
     dock_widget.setFloating(False)
     dock_widget.show()
 

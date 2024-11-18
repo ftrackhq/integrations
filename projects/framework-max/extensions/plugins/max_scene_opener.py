@@ -3,7 +3,6 @@
 
 from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
-from ftrack_framework_max.utils import ExecuteInMainThreadWithResult
 
 from pymxs import runtime as rt
 
