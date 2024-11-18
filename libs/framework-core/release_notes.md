@@ -1,6 +1,12 @@
 # ftrack Framework Core library release Notes
 
 
+## v3.1.2
+2024-10-28
+
+* [fix] Host; Create new session when running a tool config to avoid corrupted sessions.
+
+
 ## v3.1.1
 2024-10-04
 
