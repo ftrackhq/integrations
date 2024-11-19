@@ -1,14 +1,11 @@
 /**
  * Harmony ftrack integration
  * 
- * Base extension
+ * Harmony commands
  *
  * Copyright (c) 2024 ftrack
  */
 "use strict";
-
-const EXTENSION_TYPE="functions_js"
-const EXTENSION_NAME="framework-harmony"
 
 // RPC functions
 
@@ -65,4 +62,4 @@ function renderSequence(destination_path, prefix, extension, format_option) {
     return true;
 }
 
-info("(Base extension) Loaded");
+info("(Harmony Commands) Loaded");
