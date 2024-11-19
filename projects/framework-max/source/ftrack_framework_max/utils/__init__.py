@@ -24,20 +24,23 @@ def dock_max_right(widget):
     '''Dock *widget* to the right side of Max.'''
     # Use the current widget's parent as the parent for the dockable
     # widget
+    widget.show()
 
-    dock_widget = QDockWidget()
-    dock_widget.setWindowTitle(widget.windowTitle())
-    dock_widget.setObjectName(widget.windowTitle())
-    dock_widget.setWidget(widget)
-    qtmax.GetQMaxMainWindow().addDockWidget(
-        Qt.RightDockWidgetArea,
-        dock_widget,
-        Qt.Horizontal
-    )
-    dock_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-    dock_widget.setAttribute(Qt.WA_DeleteOnClose)
-    dock_widget.setFloating(False)
-    dock_widget.show()
+    # TODO: Check for existing publisher widget and delete if exists
+    # TODO: To provide docking functionality, uncomment the code below
+    # dock_widget = QDockWidget()
+    # dock_widget.setWindowTitle(widget.windowTitle())
+    # dock_widget.setObjectName(widget.windowTitle())
+    # dock_widget.setWidget(widget)
+    # qtmax.GetQMaxMainWindow().addDockWidget(
+    #     Qt.RightDockWidgetArea,
+    #     dock_widget,
+    #     Qt.Horizontal
+    # )
+    # dock_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+    # dock_widget.setAttribute(Qt.WA_DeleteOnClose)
+    # dock_widget.setFloating(False)
+    # dock_widget.show()
 
 
 def run_in_main_thread(f):
