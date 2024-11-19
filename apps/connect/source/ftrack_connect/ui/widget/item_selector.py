@@ -1,10 +1,13 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
+import logging
 
 try:
     from PySide6 import QtWidgets
 except ImportError:
     from PySide2 import QtWidgets
+
+logger = logging.getLogger(__name__)
 
 
 class ItemSelector(QtWidgets.QComboBox):
@@ -23,7 +26,7 @@ class ItemSelector(QtWidgets.QComboBox):
         defaultLabel='Unnamed Item',
         emptyLabel='Select an item',
         *args,
-        **kwargs
+        **kwargs,
     ):
         '''Initialise item selector widget.
 
@@ -104,18 +107,27 @@ class ItemSelector(QtWidgets.QComboBox):
         matching those set for idField and labelField.
 
         '''
+        logger.debug(f"Setting items: {items}")
+
         if items is None:
             items = []
 
         self.__currentItem = self.currentItem()
         self.clear()
 
+        logger.debug(f"Current item before clearing: {self.__currentItem}")
+
         # Add default empty item
         self.addItem(str(self._emptyLabel), None)
+        logger.debug(f"Added default empty item: {self._emptyLabel}")
 
         for item in items:
             label = item.get(self._labelField) or self._defaultLabel
+            logger.debug(f"Added item: {label} with ID: {item[self._idField]}")
             self.addItem(str(label), item[self._idField])
 
         # Re-select previously selected item
         self.selectItem(self.__currentItem)
+        logger.debug(f"Re-selected item: {self.__currentItem}")
+
+        logger.info(f"Set {len(items)} items in ItemSelector")
