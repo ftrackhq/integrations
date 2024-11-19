@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ftrack-framework-core"
-version = "3.1.2"
+version = "3.2.0"
 description='ftrack Framework Core library'
 authors = ["ftrack Integrations Team <integrations@backlight.co>"]
 readme = "README.md"

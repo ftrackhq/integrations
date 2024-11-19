@@ -1,7 +1,8 @@
 # ftrack Framework Core library release Notes
 
 
-## upcoming
+## v3.2.0
+2024-11-19
 
 * [changed] Registry; Remove support for JS extensions.
 
