@@ -182,13 +182,13 @@ ftrack-libs = ["ftrack-utils (>=3.0.0,<4.0.0)"]
 
 [[package]]
 name = "ftrack-framework-core"
-version = "3.1.2"
+version = "3.2.0"
 description = "ftrack Framework Core library"
 optional = true
 python-versions = "<3.12,>=3.7"
 files = [
-    {file = "ftrack_framework_core-3.1.2-py3-none-any.whl", hash = "sha256:31101fe26131bfe84d94dcc3fc4dcfb22cb0d0de629a493604dd51b93d5299dc"},
-    {file = "ftrack_framework_core-3.1.2.tar.gz", hash = "sha256:88ea383ea643507965e4676a4568a16c3de8a2e42ae523ac30b8970eaa7b1ce5"},
+    {file = "ftrack_framework_core-3.2.0-py3-none-any.whl", hash = "sha256:7272099f18830f6ecb81f968eb6b212424a3d72fda7445d4e7d452685fd132fc"},
+    {file = "ftrack_framework_core-3.2.0.tar.gz", hash = "sha256:06e07646804c8436ddb174da63f2692eda7387b064891c3cea61b852b2e81862"},
 ]
 
 [package.dependencies]
@@ -273,13 +273,13 @@ ftrack-libs = ["ftrack-utils (>=3.0.0,<4.0.0)"]
 
 [[package]]
 name = "ftrack-utils"
-version = "3.1.4"
+version = "3.2.0"
 description = "ftrack utils library"
 optional = true
 python-versions = "<3.12,>=3.7"
 files = [
-    {file = "ftrack_utils-3.1.4-py3-none-any.whl", hash = "sha256:56406222d370fecfbe238983134dcaa5f99b75182a1b8e0e7159a1c85d33ebe6"},
-    {file = "ftrack_utils-3.1.4.tar.gz", hash = "sha256:a7417f341b98130325a59f50d066d981fbe3d5d140aca7067266d6cf862d9f89"},
+    {file = "ftrack_utils-3.2.0-py3-none-any.whl", hash = "sha256:ac64b75aac9e09576c6c3de080df555c838374a0c3b4ac89a3213db88ab482b7"},
+    {file = "ftrack_utils-3.2.0.tar.gz", hash = "sha256:bb75b4a768cb02a30252c759430029cad0d27c4b36ffb1afcd32089c87ce6671"},
 ]
 
 [package.dependencies]

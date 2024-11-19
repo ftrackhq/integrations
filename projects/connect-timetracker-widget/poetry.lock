@@ -189,13 +189,13 @@ websocket-client = ">=0.40.0,<1"
 
 [[package]]
 name = "ftrack-utils"
-version = "3.1.4"
+version = "3.2.0"
 description = "ftrack utils library"
 optional = true
 python-versions = "<3.12,>=3.7"
 files = [
-    {file = "ftrack_utils-3.1.4-py3-none-any.whl", hash = "sha256:56406222d370fecfbe238983134dcaa5f99b75182a1b8e0e7159a1c85d33ebe6"},
-    {file = "ftrack_utils-3.1.4.tar.gz", hash = "sha256:a7417f341b98130325a59f50d066d981fbe3d5d140aca7067266d6cf862d9f89"},
+    {file = "ftrack_utils-3.2.0-py3-none-any.whl", hash = "sha256:ac64b75aac9e09576c6c3de080df555c838374a0c3b4ac89a3213db88ab482b7"},
+    {file = "ftrack_utils-3.2.0.tar.gz", hash = "sha256:bb75b4a768cb02a30252c759430029cad0d27c4b36ffb1afcd32089c87ce6671"},
 ]
 
 [package.dependencies]
