@@ -31,11 +31,24 @@ class AssetSelector(_item_selector.ItemSelector):
         '''
         assets = []
         try:
+            self.logger.debug('Entity type: {0}'.format(entity.entity_type))
             # ftrack does not support having Tasks as parent for Assets.
             # Therefore get parent shot/sequence etc.
             if entity.entity_type == 'Task':
-                entity = entity['parent']
+                self.logger.debug(
+                    'Entity is a Task, with id {0}, getting parent entity.'.format(
+                        entity['id']
+                    )
+                )
+                entity = entity.get('parent')
+                if not entity:
+                    self.logger.error("Entity {} has no parent".format(entity))
+                    raise AttributeError()
+                self.logger.debug('Parent entity: {0}'.format(entity))
 
+            self.logger.debug(
+                'Querying assets for entity id: {0}'.format(entity['id'])
+            )
             assets = entity.session.query(
                 'select name from Asset where parent.id is {}'.format(
                     entity['id']
@@ -44,6 +57,11 @@ class AssetSelector(_item_selector.ItemSelector):
 
             self.logger.debug('Loaded {0} assets'.format(len(assets)))
             assets = sorted(assets, key=lambda asset: asset['name'])
+            self.logger.debug(
+                'Sorted assets: {0}'.format(
+                    [asset['name'] for asset in assets]
+                )
+            )
 
         except AttributeError:
             self.logger.warning(
@@ -51,6 +69,7 @@ class AssetSelector(_item_selector.ItemSelector):
             )
 
         self.setItems(assets)
+        self.logger.debug('Set items in selector.')
 
         if selectAsset:
             self.logger.debug('Selecting asset: {0}'.format(selectAsset))

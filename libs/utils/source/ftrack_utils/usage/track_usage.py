@@ -25,7 +25,7 @@ def set_usage_tracker(usage_tracker):
     if usage_tracker_singleton is None:
         usage_tracker_singleton = usage_tracker
     else:
-        logger.error(
+        logger.debug(
             "UsageTracker instance is already set. Ignoring the new instance."
         )
 
