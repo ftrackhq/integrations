@@ -2,7 +2,7 @@
 
 
 ## v24.11.0
-2024-11-18
+2024-11-19
 
 * [changed] Dependencies; Upgrade framework dependencies to version >=3.0.0.
 * [changed] Init; Remove remote session and use only one session instead.
