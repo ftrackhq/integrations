@@ -24,7 +24,7 @@
 | libs/framework-core/source/ftrack\_framework\_core/exceptions/plugin.py       |       21 |       12 |     43% |15, 25-27, 33-42, 51 |
 | libs/framework-core/source/ftrack\_framework\_core/plugin/\_\_init\_\_.py     |       32 |       10 |     69% |14, 21, 28, 54, 62, 69-82 |
 | libs/framework-core/source/ftrack\_framework\_core/plugin/plugin\_info.py     |       24 |        2 |     92% |    10, 52 |
-| libs/framework-core/source/ftrack\_framework\_core/registry/\_\_init\_\_.py   |      123 |       58 |     53% |22, 29, 36, 43, 50, 57, 64, 71, 78, 82, 109-125, 135, 152, 156, 158, 160, 162-164, 182-183, 214-220, 223-229, 237-245, 252-283 |
+| libs/framework-core/source/ftrack\_framework\_core/registry/\_\_init\_\_.py   |      120 |       57 |     52% |22, 29, 36, 43, 50, 57, 64, 71, 75, 102-118, 128, 145, 149, 151, 153, 155-157, 175-176, 207-213, 216-222, 230-238, 245-276 |
 | libs/utils/source/ftrack\_utils/\_\_init\_\_.py                               |        6 |        2 |     67% |     13-14 |
 | libs/utils/source/ftrack\_utils/decorators/\_\_init\_\_.py                    |        4 |        0 |    100% |           |
 | libs/utils/source/ftrack\_utils/decorators/asynchronous.py                    |       18 |        4 |     78% |     25-28 |
@@ -34,8 +34,8 @@
 | libs/utils/source/ftrack\_utils/directories/\_\_init\_\_.py                   |        0 |        0 |    100% |           |
 | libs/utils/source/ftrack\_utils/directories/scan\_dir.py                      |        6 |        4 |     33% |     11-18 |
 | libs/utils/source/ftrack\_utils/extensions/\_\_init\_\_.py                    |        0 |        0 |    100% |           |
-| libs/utils/source/ftrack\_utils/extensions/overrides.py                       |       24 |       20 |     17% | 11, 17-62 |
-| libs/utils/source/ftrack\_utils/extensions/registry.py                        |      113 |       95 |     16% |22-25, 38-65, 74-103, 110-114, 119-179, 184-223 |
+| libs/utils/source/ftrack\_utils/extensions/overrides.py                       |       23 |       19 |     17% | 11, 17-58 |
+| libs/utils/source/ftrack\_utils/extensions/registry.py                        |       83 |       66 |     20% |22-25, 38-65, 72-76, 81-123, 128-167 |
 | libs/utils/source/ftrack\_utils/modules/\_\_init\_\_.py                       |        0 |        0 |    100% |           |
 | libs/utils/source/ftrack\_utils/modules/scan\_modules.py                      |       13 |        0 |    100% |           |
 | libs/utils/source/ftrack\_utils/paths/\_\_init\_\_.py                         |       34 |       16 |     53% |     15-37 |
@@ -48,7 +48,7 @@
 | tests/framework/unit/\_\_init\_\_.py                                          |        0 |        0 |    100% |           |
 | tests/framework/unit/test\_engine.py                                          |       49 |        0 |    100% |           |
 | tests/libraries/test\_paths.py                                                |       14 |        0 |    100% |           |
-|                                                                     **TOTAL** |  **940** |  **342** | **64%** |           |
+|                                                                     **TOTAL** |  **906** |  **311** | **66%** |           |
 
 
 ## Setup coverage badge
