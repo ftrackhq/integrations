@@ -1,8 +1,10 @@
 # ftrack Framework Photoshop integration release Notes
 
 
-## upcoming
+## v24.11.0rc1
+2024-11-19
 
+* [changed] Dependencies; upgrade ftrack dependencies to >=3.0.0
 * [changed] Init; Remove remote session and use only one session instead.
 * [changed] Init; Use create_api_session utility to create the api session.
 * [changed] Host, Client instance; Pass run_in_main_thread argument.

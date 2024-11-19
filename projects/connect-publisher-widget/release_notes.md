@@ -1,8 +1,8 @@
 # ftrack Connect Publisher widget release Notes
 
 
-## v24.11.0
-2024-11-18
+## v24.11.0rc1
+2024-11-19
 
 * [fix] Fix debug bug when entity is None.
 * [fix] Fix bug when starting the publisher from Connect without an asset.

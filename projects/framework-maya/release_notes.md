@@ -1,9 +1,10 @@
 # ftrack Framework Maya integration release Notes
 
 
-## v24.11.0
-2024-11-05
+## v24.11.0rc1
+2024-11-19
 
+* [changed] Dependencies; upgrade ftrack dependencies to >=3.0.0
 * [fix] Plugin; export_type and extension_format correctly propagated.
 
 

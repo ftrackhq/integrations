@@ -1,7 +1,9 @@
 # ftrack Nuke Studio integration release Notes
 
-## Upcoming
+## v24.11.0rc1
+2024-11-19
 
+* [changed] Dependencies; Upgrade framework dependencies to version >=3.0.0.
 * [fix] Launcher; Properly escaped version expressions.
 
 ## v24.4.0

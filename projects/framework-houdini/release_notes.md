@@ -1,5 +1,10 @@
 # ftrack Framework Houdini integration release Notes
 
+## v24.11.0rc1
+2024-11-19
+
+* [changed] Dependencies; upgrade ftrack dependencies.
+
 
 ## v24.10.1
 2024-10-29

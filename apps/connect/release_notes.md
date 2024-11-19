@@ -1,6 +1,6 @@
 # ftrack Connect release Notes
 
-## v24.11.0
+## v24.11.0rc1
 2024-11-19
 
 * [changed] Login; Add login unique identifier when login with Connect; ftrack-connect-<local_user>@<mac_hex>
