@@ -1,6 +1,11 @@
 # ftrack Framework Core library release Notes
 
 
+## v3.2.1
+2024-11-20
+
+* [changed] Log; Set save of log file warning to info level.
+
 ## v3.2.0
 2024-11-19
 
