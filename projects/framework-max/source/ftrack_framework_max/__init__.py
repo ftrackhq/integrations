@@ -24,7 +24,9 @@ from ftrack_utils.extensions.environment import (
 
 from ftrack_utils.usage import set_usage_tracker, UsageTracker
 
-from ftrack_framework_max.utils import dock_max_right, run_in_main_thread
+from ftrack_utils.decorators import run_in_main_thread
+
+from ftrack_framework_max.utils import dock_max_right
 
 # Evaluate version and log package version
 try:
