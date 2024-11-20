@@ -1,7 +1,7 @@
 # ftrack Connect Timetracker widget release Notes
 
-## v24.11.0rc1
-2024-11-19
+## v24.11.0
+2024-11-21
 
 * [changed] Dependencies; upgrade ftrack dependencies to >=3.0.0
 

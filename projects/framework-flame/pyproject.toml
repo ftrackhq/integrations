@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ftrack-framework-flame"
-version = "24.11.0rc1"
+version = "24.11.0"
 description = 'ftrack Flame integration'
 authors = ["ftrack Integrations Team <integrations@backlight.co>"]
 readme = "README.md"

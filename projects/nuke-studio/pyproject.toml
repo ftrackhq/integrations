@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ftrack-nuke-studio"
-version = "24.11.0rc1"
+version = "24.11.0"
 description='ftrack Connect integration with Nuke Studio'
 authors = ["ftrack Integrations Team <integrations@backlight.co>"]
 readme = "README.md"

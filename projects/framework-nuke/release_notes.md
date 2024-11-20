@@ -1,8 +1,8 @@
 # ftrack Framework Nuke integration release Notes
 
 
-## v24.11.0rc1
-2024-11-19
+## v24.11.0
+2024-11-21
 
 * [fix] Plugin; Publisher is not launched in docked mode anymore. 
 * [changed] Dependencies; upgrade ftrack dependencies to >=3.0.0
