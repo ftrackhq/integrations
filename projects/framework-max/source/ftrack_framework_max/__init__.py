@@ -24,7 +24,8 @@ from ftrack_utils.extensions.environment import (
 
 from ftrack_utils.usage import set_usage_tracker, UsageTracker
 
-from ftrack_utils.decorators import run_in_main_thread
+import ftrack_qt.utils.decorators as ftrack_qt_decorators
+import ftrack_qt.utils.threading as ftrack_qt_threading
 
 from ftrack_framework_max.utils import dock_max_right
 
@@ -49,7 +50,7 @@ logger = logging.getLogger(__name__)
 logger.debug('v{}'.format(__version__))
 
 
-@run_in_main_thread
+@ftrack_qt_decorators.invoke_in_qt_main_thread
 def on_run_tool_callback(
     client_instance, tool_name, dialog_name=None, options=None
 ):
@@ -120,12 +121,10 @@ def bootstrap_integration(framework_extensions_path):
     Host(
         event_manager,
         registry=registry_instance,
-        run_in_main_thread_wrapper=run_in_main_thread,
     )
     client_instance = Client(
         event_manager,
         registry=registry_instance,
-        run_in_main_thread_wrapper=run_in_main_thread
     )
 
     # Init tools
