@@ -140,7 +140,7 @@ def configure_logging(
     logging.captureWarnings(True)
 
     # Log out the file exporters.
-    logging.warning('Saving log file to: {0}'.format(logfile))
+    logging.info('Saving log file to: {0}'.format(logfile))
 
     # Log out the version to disk
     logger = logging.getLogger('ftrack_framework_core')
