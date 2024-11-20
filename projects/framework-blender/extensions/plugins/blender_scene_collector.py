@@ -19,11 +19,11 @@ class BlenderSceneCollectorPlugin(BasePlugin):
         try:
             export_type = self.options['export_type']
         except Exception as error:
-            raise PluginExecutionError(
-                f"Provide export_type and extension_format: {error}"
-            )
+            raise PluginExecutionError(f"Provide export_type: {error}")
         try:
-            scene_name = bpy.path.basename(bpy.context.blend_data.filepath).split('.')[0]
+            scene_name = bpy.path.basename(
+                bpy.context.blend_data.filepath
+            ).split('.')[0]
         except Exception as error:
             raise PluginExecutionError(
                 f"Error retrieving the scene name: {error}"

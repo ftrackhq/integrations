@@ -10,6 +10,7 @@ official CI/CD build implementation in place.
 
 Changelog:
 
+0.4.24 [24.11.08] platform_dependent flag in build script.
 0.4.23 [24.05.20] Fixed bug when building qt-style from sources.
 0.4.22 [24.05.14] CEP build; Support for JS include folder, overriding extensions/js folder.
 0.4.21 [24.04.30] Support for building packages outside the monorepo.
@@ -114,7 +115,7 @@ def build_package(invokation_path, pkg_path, args, command=None):
     EXTENSION_PATH = os.path.join(ROOT_PATH, 'extensions')
     USES_FRAMEWORK = False
     FTRACK_DEP_LIBS = {}
-    PLATFORM_DEPENDENT = False
+    PLATFORM_DEPENDENT = args.platform_dependent or False
 
     POETRY_CONFIG_PATH = os.path.join(ROOT_PATH, 'pyproject.toml')
     DCC_NAME = None
@@ -1074,6 +1075,12 @@ if __name__ == '__main__':
         '--from_source',
         help='(Connect plugin) Instead of pulling from PyPi, uses dependencies '
         'directly from sources.',
+        action='store_true',
+    )
+
+    parser.add_argument(
+        '--platform_dependent',
+        help='(Connect plugin) It will be build with the platform name at the end.',
         action='store_true',
     )
 
