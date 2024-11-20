@@ -37,12 +37,13 @@ class HoudiniSetupFrameRangeStartupPlugin(BasePlugin):
                 self.logger.debug(
                     f'Setting frame range and fps to: {st_frame}-{end_frame} @ {fps}fps'
                 )
-                hou.hscript(
-                    'tset {0} {1}'.format(st_frame / fps, end_frame / fps)
-                )
+                # It's important to set the fps first and then the framerange.
+                # Otherwise Houdini will calculate an appropriate framerange based on the new
+                # duration in seconds.
+                hou.setFps(fps)
+                hou.playbar.setFrameRange(st_frame, end_frame)
                 hou.playbar.setPlaybackRange(st_frame, end_frame)
                 hou.setFrame(st_frame)
-                hou.setFps(fps)
             except Exception as error:
                 raise PluginExecutionError(
                     f"Error trying to setup frame range on houdini, error: {error}"
