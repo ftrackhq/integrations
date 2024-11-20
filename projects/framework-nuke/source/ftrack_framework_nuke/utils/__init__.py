@@ -14,7 +14,7 @@ from nukescripts import panels
 
 def dock_nuke_right(widget):
     '''Dock *widget*, to the right of the properties panel in Nuke'''
-    pass
+    widget.show()
     # TODO: To provide docking functionality, comment line above and uncomment code below
     # class_name = widget.__class__.__name__
     #
