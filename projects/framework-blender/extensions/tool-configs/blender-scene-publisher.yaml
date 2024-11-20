@@ -25,6 +25,7 @@ engine:
         tags:
           - collector
         plugin: blender_scene_collector
+        ui: blender_scene_options_selector
         options:
           export_type: scene # selection is also available
       - type: plugin
@@ -36,6 +37,7 @@ engine:
         tags:
           - exporter
         plugin: blender_scene_exporter
+
 
   # Export Thumbnail
   - type: group
