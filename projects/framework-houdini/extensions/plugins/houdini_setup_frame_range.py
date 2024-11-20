@@ -18,14 +18,20 @@ class HoudiniSetupFrameRangeStartupPlugin(BasePlugin):
         task = self.session.get('Context', context_id)
         if task:
             try:
+                # We're not using a default for the get method anymore (.get('fstart', 1.0)
+                # as this could result in None being returned in some cases.
+                # Therefore we're now introducing a default value AFTER retrieving the value
+                # from ftrack.
+                # TODO: Verify whether this might also happen in other integrations
+                #  and other custom attributes
                 st_frame = float(
-                    task['parent']['custom_attributes'].get('fstart', 1.0)
+                    task['parent']['custom_attributes'].get('fstart') or 1.0
                 )
                 end_frame = float(
-                    task['parent']['custom_attributes'].get('fend', 100.0)
+                    task['parent']['custom_attributes'].get('fend') or 100.0
                 )
                 fps = float(
-                    task['parent']['custom_attributes'].get('fps', 24.0)
+                    task['parent']['custom_attributes'].get('fps') or 24.0
                 )
                 # Set start frame
                 self.logger.debug(
