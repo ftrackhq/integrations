@@ -25,11 +25,9 @@ if (this['__packageFolder__']) {
     MessageLog.trace("[ftrack] Including utilities");
     include(__packageFolder__+"/ftrack/utils.js");
 
-    info("Including base extensions");
-    include(__packageFolder__+"/ftrack/harmony-extensions.js");
+    info("Including harmony commands");
+    include(__packageFolder__+"/ftrack/harmony_commands.js");
 
-    info("Including user extensions");
-    include(__packageFolder__+"/ftrack/harmony-user-extensions.js");
 } else {
     // Menu launch, create launchers
     QCoreApplication.instance().integration.createLaunchers(this);
@@ -240,13 +238,6 @@ function HarmonyIntegration() {
         var app = QCoreApplication.instance();
         app.aboutToQuit.connect(app, this.shutdown);
 
-        // Enable user extension to do additional setup
-        try {
-            ftrackInitialiseExtension(this);
-        } catch (err) {
-            warning("Failed to initialise ftrack user extensions! "+err);
-        }
-
         this.initialized = true;
     }
 
@@ -268,13 +259,6 @@ function HarmonyIntegration() {
             this.sendEvent(topic, {}, id); // Return reply
         } else if (topic === REMOTE_INTEGRATION_RPC_TOPIC) {
             this.handleRemoteIntegrationRPCCallback(topic, data, id);
-        } else {
-            // Have user extension process event
-            try {
-                processUserEvent(integration, topic, data, id)
-            } catch (e) {
-                warning("Could not have user extensions process event, details: "+e);
-            }
         }
     }
 
@@ -293,12 +277,6 @@ function HarmonyIntegration() {
 
             // Add menu item, and create shortcut if it is the primary publish tool
             this.addMenuItem(name, label, name == "publish");
-        }
-
-        try {
-            ftrackIntegrationConnected(this);
-        } catch (err) {
-            warning("Failed to tell user extension we are connected! "+err);
         }
     }
 

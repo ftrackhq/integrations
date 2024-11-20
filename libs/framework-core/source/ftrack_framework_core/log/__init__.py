@@ -52,7 +52,7 @@ class LogDB(object):
         if table_name:
             self.table_name = table_name
 
-        print(self.table_name)
+        self.logger.info('Log Table Name: {0}'.format(self.table_name))
 
         self._database_path = self.get_database_path(host_id)
 
