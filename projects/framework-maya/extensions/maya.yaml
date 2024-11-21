@@ -9,7 +9,7 @@ tools:
     options:
       tool_configs:
         - maya-scene-publisher
-      docked: true
+      docked: false
   - name: open
     menu: true
     label: "Open"

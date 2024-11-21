@@ -1,7 +1,7 @@
 # ftrack Framework Harmony integration release Notes
 
 
-## upcoming
+## v24.6.0rc1
 
-* [new] Initial release.
+* [feat] Initial release. Not building on CI; still needs an update of all libraries.
 

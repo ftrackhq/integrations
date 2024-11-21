@@ -2,7 +2,7 @@
 
 
 ## v24.11.0
-2024-11-18
+2024-11-21
 
 * [fix] Fix debug bug when entity is None.
 * [fix] Fix bug when starting the publisher from Connect without an asset.

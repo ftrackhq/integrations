@@ -1,8 +1,11 @@
 # ftrack Framework Nuke integration release Notes
 
 
-## upcoming
+## v24.11.0
+2024-11-21
 
+* [fix] Plugin; Publisher is not launched in docked mode anymore. 
+* [changed] Dependencies; upgrade ftrack dependencies to >=3.0.0
 * [changed] Init; Use create_api_session utility to create the api session.
 * [changed] Host, Client instance; Pass run_in_main_thread argument.
 * [fix] Init; Fix on_run_tool_callback options argument.

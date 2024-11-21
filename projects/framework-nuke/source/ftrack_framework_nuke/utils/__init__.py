@@ -14,21 +14,23 @@ from nukescripts import panels
 
 def dock_nuke_right(widget):
     '''Dock *widget*, to the right of the properties panel in Nuke'''
-    class_name = widget.__class__.__name__
-
-    if class_name not in globals():
-        globals()[class_name] = lambda *args, **kwargs: widget
-
-        # Register docked panel
-        panels.registerWidgetAsPanel(
-            f'{__name__}.{class_name}', widget.windowTitle(), class_name
-        )
-
-    # Restore panel
-    pane = nuke.getPaneFor("Properties.1")
-
-    panel = nukescripts.restorePanel(class_name)
-    panel.addToPane(pane)
+    widget.show()
+    # TODO: To provide docking functionality, comment line above and uncomment code below
+    # class_name = widget.__class__.__name__
+    #
+    # if class_name not in globals():
+    #     globals()[class_name] = lambda *args, **kwargs: widget
+    #
+    #     # Register docked panel
+    #     panels.registerWidgetAsPanel(
+    #         f'{__name__}.{class_name}', widget.windowTitle(), class_name
+    #     )
+    #
+    # # Restore panel
+    # pane = nuke.getPaneFor("Properties.1")
+    #
+    # panel = nukescripts.restorePanel(class_name)
+    # panel.addToPane(pane)
 
 
 def find_nodegraph_viewer(activate=False):

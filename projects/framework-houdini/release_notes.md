@@ -1,5 +1,12 @@
 # ftrack Framework Houdini integration release Notes
 
+## v24.11.0
+2024-11-21
+
+* [fix] Plugin; Framerange is now set correctly at startup.
+* [fix] Plugin; Publisher is not launched in docked mode anymore. 
+* [changed] Dependencies; upgrade ftrack dependencies.
+
 
 ## v24.10.1
 2024-10-29

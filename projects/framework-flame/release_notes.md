@@ -1,6 +1,12 @@
 # ftrack Framework Flame integration release Notes
 
 
+## v24.11.0
+2024-11-21
+
+* [changed] Update dependencies.
+
+
 ## v24.10.0
 
 * [fixed] Code cleanup for release. 

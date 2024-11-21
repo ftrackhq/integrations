@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ftrack-connect-timetracker-widget"
-version = "24.5.0"
+version = "24.11.0"
 description='ftrack Connect time tracker widget.'
 authors = ["ftrack Integrations Team <integrations@backlight.co>"]
 readme = "README.md"
@@ -25,7 +25,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry.dependencies]
 python = ">= 3.7, < 3.11"
 qtawesome = "*"
-ftrack-utils = { version = "^2.0.0", optional = true}
+ftrack-utils = { version = "^3.0.0", optional = true}
 
 [tool.poetry.group.dev]
 optional = true

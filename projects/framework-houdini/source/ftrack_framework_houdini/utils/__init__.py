@@ -17,48 +17,50 @@ created_widgets = dict()
 # Dock widget in Houdini
 def dock_houdini_right(widget):
     '''Dock *widget* to the right side of Houdini.'''
-    class_name = widget.__class__.__name__
-
-    if class_name not in globals():
-        globals()[class_name] = lambda *args, **kwargs: widget
-
-    created_widgets[class_name] = widget
-
-    panel_xml = _generate_pypanel_xml(class_name)
-    xml = unescape(ET.tostring(panel_xml).decode())
-
-    xml_path = get_temp_path('pypanel')
-
-    if not os.path.exists(os.path.dirname(xml_path)):
-        os.makedirs(os.path.dirname(xml_path))
-
-    with open(xml_path, "w") as xml_file_handle:
-        xml_file_handle.write(xml)
-        xml_file_handle.close()
-
-    hou.pypanel.installFile(xml_path)
-
-    panel_interface = None
-
-    try:
-        for interface, value in hou.pypanel.interfaces().items():
-            if interface == "ftrack Publish panel":
-                panel_interface = value
-                break
-    except hou.OperationFailed as e:
-        hou.ui.displayMessage("Something wrong with Python Panel")
-
-    main_tab = hou.ui.curDesktop().findPaneTab("Ftrack_ID")
-    if main_tab:
-        panel = main_tab.pane().createTab(hou.paneTabType.PythonPanel)
-        panel.showToolbar(True)
-        panel.setActiveInterface(panel_interface)
-    else:
-        if panel_interface:
-            hou.hscript('pane -S -m pythonpanel -o -n {}'.format("Ftrack_ID"))
-            panel = hou.ui.curDesktop().findPaneTab("Ftrack_ID")
-            panel.showToolbar(True)
-            panel.setActiveInterface(panel_interface)
+    widget.show()
+    # TODO: To provide docking functionality, comment line above and uncomment code below
+    # class_name = widget.__class__.__name__
+    #
+    # if class_name not in globals():
+    #     globals()[class_name] = lambda *args, **kwargs: widget
+    #
+    # created_widgets[class_name] = widget
+    #
+    # panel_xml = _generate_pypanel_xml(class_name)
+    # xml = unescape(ET.tostring(panel_xml).decode())
+    #
+    # xml_path = get_temp_path('pypanel')
+    #
+    # if not os.path.exists(os.path.dirname(xml_path)):
+    #     os.makedirs(os.path.dirname(xml_path))
+    #
+    # with open(xml_path, "w") as xml_file_handle:
+    #     xml_file_handle.write(xml)
+    #     xml_file_handle.close()
+    #
+    # hou.pypanel.installFile(xml_path)
+    #
+    # panel_interface = None
+    #
+    # try:
+    #     for interface, value in hou.pypanel.interfaces().items():
+    #         if interface == "ftrack Publish panel":
+    #             panel_interface = value
+    #             break
+    # except hou.OperationFailed as e:
+    #     hou.ui.displayMessage("Something wrong with Python Panel")
+    #
+    # main_tab = hou.ui.curDesktop().findPaneTab("Ftrack_ID")
+    # if main_tab:
+    #     panel = main_tab.pane().createTab(hou.paneTabType.PythonPanel)
+    #     panel.showToolbar(True)
+    #     panel.setActiveInterface(panel_interface)
+    # else:
+    #     if panel_interface:
+    #         hou.hscript('pane -S -m pythonpanel -o -n {}'.format("Ftrack_ID"))
+    #         panel = hou.ui.curDesktop().findPaneTab("Ftrack_ID")
+    #         panel.showToolbar(True)
+    #         panel.setActiveInterface(panel_interface)
 
 
 def run_in_main_thread(f):

@@ -1,7 +1,7 @@
 # ftrack Connect release Notes
 
 ## v24.11.0
-2024-11-19
+2024-11-21
 
 * [changed] Login; Add login unique identifier when login with Connect; ftrack-connect-<local_user>@<mac_hex>
 * [changed] Dependencies; Poetry update.

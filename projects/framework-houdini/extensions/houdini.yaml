@@ -8,7 +8,7 @@ tools:
     options:
       tool_configs:
         - houdini-scene-publisher
-      docked: true
+      docked: false
   - name: open_dialog
     label: "Open"
     dialog_name: framework_standard_opener_dialog
