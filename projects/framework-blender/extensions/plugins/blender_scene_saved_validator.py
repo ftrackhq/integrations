@@ -39,7 +39,7 @@ class BlenderSceneSavedValidatorPlugin(BasePlugin):
         Save the current blender scene.
         '''
         try:
-            bpy.ops.wm.save_as_mainfile(filepath=bpy.data.filepath)
+            bpy.ops.wm.save_as_mainfile()
             self.logger.debug("Scene has been saved.")
         except Exception as error:
             raise PluginExecutionError(
@@ -56,8 +56,8 @@ class BlenderSceneSavedValidatorPlugin(BasePlugin):
         '''
         component_name = self.options.get('component', 'main')
         extension_format = '.blend'
-        scene_name = store['components'][component_name].get('scene_name')
-        scene_saved = not bpy.data.is_saved
+        scene_name= store['components'][component_name].get('scene_name')
+        scene_saved = store['components'][component_name].get('scene_saved')
 
         if not scene_name:
             # Scene is not saved, save it first.

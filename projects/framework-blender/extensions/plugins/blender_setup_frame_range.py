@@ -18,21 +18,25 @@ class BlenderSetupFrameRangeStartupPlugin(BasePlugin):
 
         task = self.session.get('Context', self.context_id)
         self.logger.debug(f'calling bpy.app.handlers.load_post.append with {task}')
-        st_frame = task['parent']['custom_attributes'].get(
-            'fstart', 1.0
-        )
-        end_frame = task['parent']['custom_attributes'].get(
-            'fend', 100.0
-        )
-        fps = task['parent']['custom_attributes'].get(
+        st_frame = int(task['parent']['custom_attributes'].get(
+            'fstart', 1
+        ))
+        end_frame = int(task['parent']['custom_attributes'].get(
+            'fend', 100
+        ))
+        fps = int(task['parent']['custom_attributes'].get(
             'fps', 24
-        )
+        ))
 
         @persistent
-        def load_handler(st_frame, end_frame, fps):
-            bpy.context.scene.frame_end = end_frame
-            bpy.context.scene.frame_start = st_frame
-            bpy.context.scene.render.fps = fps
+        def load_handler(*args, **kwargs):
+            # args[0] is the scene, which will be an empty string in case of
+            # the startup scene    print(args, args[0]=="")
+            if args[0] == '':
+                self.logger.debug(f'calling load_handler to set timeline with {st_frame}, {end_frame}, {fps}')
+                bpy.context.scene.frame_end = end_frame
+                bpy.context.scene.frame_start = st_frame
+                bpy.context.scene.render.fps = fps
 
-        self.logger.debug(f'calling load_handler to set timeline with {st_frame}, {end_frame}, {fps}')
-        bpy.app.handlers.load_post.append(partial(load_handler,st_frame, end_frame, fps))
+        self.logger.debug(f'registering load_handler to set timeline with {st_frame}, {end_frame}, {fps}')
+        bpy.app.handlers.load_post.append(load_handler)

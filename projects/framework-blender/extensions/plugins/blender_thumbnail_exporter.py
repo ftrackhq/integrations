@@ -19,17 +19,22 @@ class BlenderThumbnailExporterPlugin(BasePlugin):
         '''
 
         component_name = self.options.get('component')
-        exported_path = get_temp_path(filename_extension='.png')
+        exported_path = get_temp_path(filename_extension='.jpg')
         self.logger.debug(f'Rendering thumbnail to {exported_path}')
 
+        bpy.ops.ed.undo_push()
         try:
-            bpy.context.scene.render.image_settings.file_format = "PNG"
+            bpy.context.scene.render.image_settings.file_format = "JPEG"
             bpy.context.scene.render.filepath = exported_path
-            bpy.ops.render.opengl(animation=False)
-
+            bpy.ops.render.opengl(
+                animation=False,
+                write_still=True
+            )
         except Exception as error:
             raise PluginExecutionError(
                 f"Error trying to create the thumbnail, error: {error}"
             )
+        finally:
+            bpy.ops.ed.undo()
 
         store['components'][component_name]['exported_path'] = exported_path

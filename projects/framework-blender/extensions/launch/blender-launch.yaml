@@ -21,11 +21,16 @@ search_path:
   windows:
     prefix:
       - C:\
-      - Program Files.*
+      - Users
+      - dennis.weil
+      - scoop
+      - persist
+      - blender-launcher
+      - stable
     expression:
-      - Blender Foundation
-      - Blender.+
+      - blender.*
       - blender.exe
+    version_expression: (?P<version>\d+\.\d+\.\d+)
 extensions_path:
   - extensions/common
   - extensions/blender
