@@ -22,7 +22,7 @@ class MaxSaveToTempPlugin(BasePlugin):
             # Save file to a temp file
             save_path = get_temp_path(filename_extension=scene_type)
             # Save Max scene to this path
-            rt.saveMaxFile(save_path, useNewFile=False)
+            rt.saveMaxFile(save_path, useNewFile=True)
 
             self.logger.debug(f"Max scene saved to temp path: {save_path}")
         except Exception as error:
