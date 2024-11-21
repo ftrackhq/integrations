@@ -1,0 +1,31 @@
+type: launch_config
+name: framework-blender
+priority: 100
+context:
+  - Task
+identifier: ftrack-framework-launch-blender
+applicationIdentifier: blender_{variant}
+integrations:
+  framework:
+    - framework-blender
+label: Blender
+icon: blender
+variant: "{version}"
+search_path:
+  darwin:
+    prefix:
+      - "/"
+      - Applications
+    expression:
+      - Blender.app
+  windows:
+    prefix:
+      - C:\
+      - Program Files.*
+    expression:
+      - Blender Foundation
+      - Blender.+
+      - blender.exe
+extensions_path:
+  - extensions/common
+  - extensions/blender
