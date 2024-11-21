@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ftrack-framework-blender"
-version = "24.11.0rc1"
+version = "24.11.0"
 description='ftrack Blender integration'
 authors = ["ftrack Integrations Team <integrations@backlight.co>"]
 readme = "README.md"
