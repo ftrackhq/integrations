@@ -1,0 +1,26 @@
+type: launch_config
+name: framework-max
+priority: 100
+context:
+  - Task
+identifier: ftrack-framework-launch-max
+applicationIdentifier: max_{variant}
+integrations:
+  framework:
+    - framework-max
+label: 3ds Max
+icon: 3ds_max
+variant: "{version}"
+search_path:
+  windows:
+    prefix:
+      - C:\
+      - Program Files.*
+      - Autodesk
+    expression:
+      - 3ds Max \d{4}
+      - 3dsmax\.exe$
+    version_expression: (?P<version>\d{4})
+extensions_path:
+  - extensions/common
+  - extensions/max
