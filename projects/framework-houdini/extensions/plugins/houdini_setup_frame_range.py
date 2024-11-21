@@ -18,25 +18,32 @@ class HoudiniSetupFrameRangeStartupPlugin(BasePlugin):
         task = self.session.get('Context', context_id)
         if task:
             try:
+                # We're not using a default for the get method anymore (.get('fstart', 1.0)
+                # as this could result in None being returned in some cases.
+                # Therefore we're now introducing a default value AFTER retrieving the value
+                # from ftrack.
+                # TODO: Verify whether this might also happen in other integrations
+                #  and other custom attributes
                 st_frame = float(
-                    task['parent']['custom_attributes'].get('fstart', 1.0)
+                    task['parent']['custom_attributes'].get('fstart') or 1.0
                 )
                 end_frame = float(
-                    task['parent']['custom_attributes'].get('fend', 100.0)
+                    task['parent']['custom_attributes'].get('fend') or 100.0
                 )
                 fps = float(
-                    task['parent']['custom_attributes'].get('fps', 24.0)
+                    task['parent']['custom_attributes'].get('fps') or 24.0
                 )
                 # Set start frame
                 self.logger.debug(
                     f'Setting frame range and fps to: {st_frame}-{end_frame} @ {fps}fps'
                 )
-                hou.hscript(
-                    'tset {0} {1}'.format(st_frame / fps, end_frame / fps)
-                )
+                # It's important to set the fps first and then the framerange.
+                # Otherwise Houdini will calculate an appropriate framerange based on the new
+                # duration in seconds.
+                hou.setFps(fps)
+                hou.playbar.setFrameRange(st_frame, end_frame)
                 hou.playbar.setPlaybackRange(st_frame, end_frame)
                 hou.setFrame(st_frame)
-                hou.setFps(fps)
             except Exception as error:
                 raise PluginExecutionError(
                     f"Error trying to setup frame range on houdini, error: {error}"

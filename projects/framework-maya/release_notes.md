@@ -1,9 +1,16 @@
 # ftrack Framework Maya integration release Notes
 
 
+## v24.11.1
+2024-11-21
+
+* [fix] Plugin; Correctly set the framerange and fps at startup.
+* [fix] Plugin; Publisher is not launched in docked mode anymore. 
+* [changed] Dependencies; upgrade ftrack dependencies to >=3.0.0
+
+
 ## v24.11.0
 2024-11-05
-
 * [fix] Plugin; export_type and extension_format correctly propagated.
 
 

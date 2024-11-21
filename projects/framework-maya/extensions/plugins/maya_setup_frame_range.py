@@ -25,13 +25,16 @@ class MayaSetupFrameRangeStartupPlugin(BasePlugin):
                 )
                 fps = task['parent']['custom_attributes'].get('fps', 24)
                 # Set start end frames and frame rate
+                # It's important to set the fps first and then the framerange.
+                # Otherwise Houdini will calculate an appropriate framerange based on the new
+                # duration in seconds.
+                cmds.currentUnit(time=f'{int(fps)}fps')
                 cmds.playbackOptions(
                     min=int(st_frame),
                     max=int(end_frame),
                     ast=int(st_frame),
                     aet=int(end_frame),
                 )
-                cmds.currentUnit(time=f'{int(fps)}fps')
             except Exception as error:
                 raise PluginExecutionError(
                     f"Error trying to setup frame range on maya, error: {error}"

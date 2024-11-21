@@ -1,7 +1,12 @@
 # ftrack Utils library release Notes
 
-## upcoming
+## v3.2.0
+2024-11-19
 
+* [changed] Registry; Remove support for JS extensions.
+
+## v3.1.4
+2024-11-19
 
 * [changed] UsageTracker; Change the log level when UsageTracker is not created to debug.
 
