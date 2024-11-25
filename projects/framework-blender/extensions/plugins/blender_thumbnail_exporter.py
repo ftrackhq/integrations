@@ -22,13 +22,14 @@ class BlenderThumbnailExporterPlugin(BasePlugin):
         exported_path = get_temp_path(filename_extension='.jpg')
         self.logger.debug(f'Rendering thumbnail to {exported_path}')
 
-        bpy.ops.ed.undo_push()
+        bpy.ops.ed.undo_push(message="ftrack: Export Thumbnail")
         try:
             bpy.context.scene.render.image_settings.file_format = "JPEG"
             bpy.context.scene.render.filepath = exported_path
             bpy.ops.render.opengl(
                 animation=False,
-                write_still=True
+                write_still=True,
+                view_context=True
             )
         except Exception as error:
             raise PluginExecutionError(

@@ -28,7 +28,7 @@ class BlenderSceneExporterPlugin(BasePlugin):
                 exported_path = get_temp_path(filename_extension='.blend')
 
                 # open the undo group
-                bpy.ops.ed.undo_push()
+                bpy.ops.ed.undo_push(message="ftrack: Export selection")
 
                 internal_scene_name = bpy.context.scene.name
                 bpy.context.scene.name = f"{internal_scene_name}_temp"
