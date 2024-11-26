@@ -16,12 +16,14 @@ class BlenderSceneCollectorPlugin(BasePlugin):
         extension format to be published to the *store*. Also collect the blender
         scene_name and collect if scene is saved.
         '''
+        context = bpy.context
+        blender_context_copy = bpy.context.copy()
         try:
             export_type = self.options['export_type']
         except Exception as error:
             raise PluginExecutionError(f"Provide export_type: {error}")
         try:
-            scene_name= bpy.context.blend_data.filepath
+            scene_name = bpy.context.blend_data.filepath
         except Exception as error:
             raise PluginExecutionError(
                 f"Error retrieving the scene name: {error}"
@@ -42,3 +44,6 @@ class BlenderSceneCollectorPlugin(BasePlugin):
 
         store['components'][component_name]['scene_name'] = scene_name
         store['components'][component_name]['scene_saved'] = scene_saved
+        store['components'][component_name][
+            'blender_context_copy'
+        ] = blender_context_copy

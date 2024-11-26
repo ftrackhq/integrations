@@ -24,6 +24,7 @@ from ftrack_utils.extensions.environment import (
 from ftrack_utils.usage import set_usage_tracker, UsageTracker
 
 from ftrack_utils.session import create_api_session
+from ftrack_utils.decorators.threading import run_in_main_thread
 
 
 # Evaluate version and log package version
@@ -80,6 +81,7 @@ class FTRACK_OT_ExecuteCommand(bpy.types.Operator):
         return 0.01  # Call this function every 0.01 seconds
 
 
+@run_in_main_thread
 def create_ftrack_menu(tools_list):
     class FTRACK_MT_Menu(bpy.types.Menu):
         bl_label = "ftrack"
@@ -96,11 +98,13 @@ def create_ftrack_menu(tools_list):
     return FTRACK_MT_Menu
 
 
+@run_in_main_thread
 # Function to add the menu to the UI
 def draw_ftrack_menu(self, context):
     self.layout.menu("FTRACK_MT_menu")
 
 
+@run_in_main_thread
 def on_run_tool_callback(
     client_instance,
     tool_name,
@@ -183,10 +187,12 @@ def bootstrap_integration(framework_extensions_path):
     Host(
         event_manager,
         registry=registry_instance,
+        run_in_main_thread_wrapper=run_in_main_thread,
     )
     client_instance = Client(
         event_manager,
         registry=registry_instance,
+        run_in_main_thread_wrapper=run_in_main_thread,
     )
 
     # Init tools
