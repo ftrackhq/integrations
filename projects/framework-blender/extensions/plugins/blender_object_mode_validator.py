@@ -15,11 +15,12 @@ from ftrack_framework_core.exceptions.plugin import (
 class BlenderObjectModeValidatorPlugin(BasePlugin):
     name = "blender_object_mode_validator"
 
-    def set_mesh_objects_to_object_mode(self, store, mesh_objects_in_edit_mode):
+    def set_mesh_objects_to_object_mode(
+        self, store, mesh_objects_in_edit_mode
+    ):
         """
         Set all mesh objects that are currently in edit mode to object mode.
         """
-
 
         active_object = bpy.context.view_layer.objects.active
         try:
@@ -38,9 +39,9 @@ class BlenderObjectModeValidatorPlugin(BasePlugin):
         """
 
         mesh_objects_in_edit_mode = [
-            obj for obj in bpy.context.scene.objects
-            if obj.type == "MESH"
-            and  obj.mode == "EDIT"
+            obj
+            for obj in bpy.context.scene.objects
+            if obj.type == "MESH" and obj.mode == "EDIT"
         ]
 
         if mesh_objects_in_edit_mode:
@@ -48,8 +49,10 @@ class BlenderObjectModeValidatorPlugin(BasePlugin):
                 f'Some objects are still in EDIT mode. {[_.name for _ in mesh_objects_in_edit_mode]}'
             )
             raise PluginValidationError(
-                message="Foobar",
-                on_fix_callback=lambda _: self.set_mesh_objects_to_object_mode(store, mesh_objects_in_edit_mode),
+                message=f"Some objects are still in EDIT mode. Can't export scene.",
+                on_fix_callback=lambda _: self.set_mesh_objects_to_object_mode(
+                    store, mesh_objects_in_edit_mode
+                ),
             )
 
         self.logger.debug("All mesh objects are properly set to object mode.")
