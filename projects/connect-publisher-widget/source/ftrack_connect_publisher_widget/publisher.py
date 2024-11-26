@@ -1,6 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
+import os
 import logging
 
 
@@ -25,6 +26,8 @@ from ftrack_connect.ui.widget import entity_selector
 from ftrack_utils.decorators import asynchronous
 import ftrack_connect.error
 
+import qtawesome as qta
+from functools import partial
 
 class EntitySelector(entity_selector.EntitySelector):
     '''Local representation of EntitySelector to support custom behaviour.'''
@@ -33,6 +36,100 @@ class EntitySelector(entity_selector.EntitySelector):
         '''Overriden method to validate the selected *entity*.'''
         # Prevent selecting projects.
         return entity.entity_type != 'Project'
+
+
+class PlayableComponent(ftrack_connect.ui.widget.component.Component):
+    play = QtCore.Signal(object)
+    supported_formats = [
+        '.pdf', '.jpeg', '.jpg', '.png', '.tiff', '.tif', 
+        '.exr', '.dpx', '.cin', '.sgi',
+        '.mov', '.mp4', '.mkv', '.y4m', '.m4v'
+    ]
+
+    def __init__(
+        self, componentName=None, resourceIdentifier=None, parent=None
+    ):
+        super(PlayableComponent, self).__init__(
+            componentName=componentName,
+            resourceIdentifier=resourceIdentifier,
+            parent=parent
+        )
+
+        if os.path.splitext(resourceIdentifier)[-1].lower() not in self.supported_formats:
+            return
+
+        # TODO: Use clique to get the actual sequence.
+        if os.path.splitext(resourceIdentifier)[-1].lower().split(' ')[0] not in self.supported_formats:
+            return
+
+        play_icon = qta.icon('mdi6.play', color='#FFDD86', scale_factor=1.5)
+        sanitized_resource_identifier = resourceIdentifier.split(' ')[0]
+
+        self.play_action = QtWidgets.QAction(
+            play_icon, 'Play component', self.componentNameEdit,
+            triggered=partial(self.play.emit, sanitized_resource_identifier)
+        )
+
+        self.componentNameEdit.addAction(self.play_action )
+
+
+class PlayableComponentList(_components_list.ComponentsList):
+
+    target_player = 'cinesync'
+
+    def __init__(self, parent=None, session=None):
+        '''Initialise widget with *parent*.'''
+        super(PlayableComponentList, self).__init__(parent=parent)
+        self.session = session
+        self.player = None
+        self.discover_player()
+
+    def on_player_discovered(self, event):
+        for item in event.get('data', {}).get('items', []):
+            if self.target_player in item.get('applicationIdentifier').lower():
+                self.player = item
+                break
+
+    def discover_player(self):
+        fevent = event.base.Event(
+            topic='ftrack.action.discover',
+        )
+        self.session.event_hub.publish(
+            fevent,
+            synchronous=False,
+            on_reply=self.on_player_discovered
+        )
+
+    def play_component(self, resource_identifier):
+        if not self.player:
+            return
+
+        player_item = self.player.copy()
+        player_item['launchArguments'] = [
+            '-a', f"{resource_identifier}"
+        ]
+
+        fevent = event.base.Event(
+            topic='ftrack.action.launch',
+            data=player_item
+        )
+
+        self.session.event_hub.publish(
+            fevent,
+            synchronous=False
+        )
+
+    def _createComponentWidget(self, item):
+        '''Return component widget for *item*.
+        *item* should be a mapping of keyword arguments to pass to
+        :py:class:`ftrack_connect.widget.component.Component`.
+        '''
+        if item is None:
+            item = {}
+
+        component = PlayableComponent(**item)
+        component.play.connect(self.play_component)
+        return component
 
 
 class Publisher(QtWidgets.QWidget):
@@ -69,7 +166,7 @@ class Publisher(QtWidgets.QWidget):
         self.browser.dataSelected.connect(self._onDataSelected)
 
         # Create a components list widget.
-        self.componentsList = _components_list.ComponentsList()
+        self.componentsList = PlayableComponentList(self, self.session)
         self.componentsList.setObjectName('publisher-componentlist')
         self.componentsList.itemsChanged.connect(
             self._onComponentListItemsChanged
