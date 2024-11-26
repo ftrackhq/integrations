@@ -9,6 +9,10 @@ engine:
     options:
       asset_type_name: scene
     ui: publisher_asset_version_selector
+  - type: plugin
+    tags:
+      - validator
+    plugin: blender_object_mode_validator
 
   # Export the snapshot component.
   - type: group
