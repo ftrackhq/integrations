@@ -1,5 +1,0 @@
-/** Return path to image *filename* relative to theme directory. */
- @function theme-image($filename) {
-     $url: ':/ftrack/image/#{$theme}/#{$filename}';
-     @return url($url);
- }
