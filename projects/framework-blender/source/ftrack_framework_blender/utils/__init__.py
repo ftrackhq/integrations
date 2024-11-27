@@ -44,7 +44,17 @@ def blender_operator(f: Callable) -> None:
 
         try:
             bpy.utils.register_class(TemporaryOperator)
-            bpy.ops.ftrack.temp_operator()
+            context_override = None
+            for screen in bpy.data.screens:
+                for area in screen.areas:
+                    if area.type == "VIEW_3D":
+                        context_override = {"area": area, "screen": screen}
+
+            assert context_override, "Context could not be set correctly"
+
+            with bpy.context.temp_override(**context_override):
+                bpy.ops.ftrack.temp_operator()
+
         except Exception as error:
             raise error
         finally:
