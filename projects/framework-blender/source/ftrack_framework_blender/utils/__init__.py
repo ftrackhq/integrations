@@ -30,31 +30,28 @@ def blender_operator(f: Callable) -> None:
         class TemporaryOperator(bpy.types.Operator):
             bl_idname = "ftrack.temp_operator"
             bl_label = "Ftrack Temporary Operator"
-            bl_undo_group = "Ftrack Temporary Operator"
 
             def execute(self, context):
-                try:
-                    bpy.ops.ed.undo_push(message="Temp Undo Group")
+                context_override = {}
+                for screen in bpy.data.screens:
+                    for area in screen.areas:
+                        if area.type == "VIEW_3D":
+                            context_override = {"area": area, "screen": screen}
+
+                # Create a temporary context override as we're not guaranteed
+                # to have that in our engine/plugin execution environment
+                with bpy.context.temp_override(**context_override):
+                    # Undo is in here for now as it also requires a proper
+                    # context. undo has proven to be problematic though, so
+                    # it might have to go.
+                    bpy.ops.ed.undo_push(message="Inner Group")
                     f(*args, **kwargs)
-                except Exception as error:
-                    raise error
-                finally:
                     bpy.ops.ed.undo()
                 return {'FINISHED'}
 
         try:
             bpy.utils.register_class(TemporaryOperator)
-            context_override = None
-            for screen in bpy.data.screens:
-                for area in screen.areas:
-                    if area.type == "VIEW_3D":
-                        context_override = {"area": area, "screen": screen}
-
-            assert context_override, "Context could not be set correctly"
-
-            with bpy.context.temp_override(**context_override):
-                bpy.ops.ftrack.temp_operator()
-
+            bpy.ops.ftrack.temp_operator()
         except Exception as error:
             raise error
         finally:

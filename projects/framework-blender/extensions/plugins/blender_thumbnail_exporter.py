@@ -22,10 +22,6 @@ class BlenderThumbnailExporterPlugin(BasePlugin):
             animation=False, write_still=True, view_context=True
         )
 
-    @blender_operator
-    def blender_undo(self):
-        bpy.ops.ed.undo()
-
     def run(self, store):
         '''
         Create a screenshot from the selected camera given in the *store*.
@@ -45,6 +41,3 @@ class BlenderThumbnailExporterPlugin(BasePlugin):
             raise PluginExecutionError(
                 f"Error trying to create the thumbnail, error: {error}"
             )
-        # finally:
-        #     # bpy.ops.ed.undo()
-        #     self.blender_undo()

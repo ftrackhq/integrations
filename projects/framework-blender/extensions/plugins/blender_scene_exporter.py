@@ -19,16 +19,16 @@ class BlenderSceneExporterPlugin(BasePlugin):
 
         objects = bpy.context.selected_objects
         export_scene = bpy.data.scenes.new(internal_scene_name)
-        for ob in objects:
-            export_scene.collection.objects.link(ob)
+        for obj in objects:
+            export_scene.collection.objects.link(obj)
 
         bpy.context.window.scene = export_scene
 
-        for scn in bpy.data.scenes:
-            if scn != export_scene:
-                bpy.data.scenes.remove(scn)
+        for scene in bpy.data.scenes:
+            if scene != export_scene:
+                bpy.data.scenes.remove(scene, do_unlink=True)
 
-        bpy.data.orphans_purge(do_recursive=True)
+        # bpy.data.orphans_purge(do_recursive=True)
         bpy.ops.wm.save_as_mainfile(filepath=exported_path, copy=True)
 
     def run(self, store):

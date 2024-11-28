@@ -44,10 +44,6 @@ class BlenderPlayblastExporterPlugin(BasePlugin):
             animation=True, use_viewport=False, write_still=True
         )
 
-    @blender_operator
-    def blender_undo(self):
-        bpy.ops.ed.undo()
-
     def run(self, store):
         '''
         Create a playblast from the selected camera given in the *store*.
@@ -67,6 +63,3 @@ class BlenderPlayblastExporterPlugin(BasePlugin):
             raise PluginExecutionError(
                 message=f"Couldn't export playblast to {save_path} due to error:{error}"
             )
-        # finally:
-        #     # bpy.ops.ed.undo()
-        #     self.blender_undo()
