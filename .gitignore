@@ -58,3 +58,6 @@ Thumbs.db
 # Ignore specific resource files
 #**/ftrack_qt_style/resource.py
 libs/resource
+
+# Ignore no_push_* folder contents
+no_push_*/*

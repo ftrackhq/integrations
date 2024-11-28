@@ -1,0 +1,19 @@
+QFrame[ftrackDropZone] {
+    border-radius: 2px;
+    border-width: 2px;
+    border-style: dotted;
+    border-color: $border;
+
+    > QLabel {
+        color: $muted-text ;
+    }
+}
+
+QFrame[ftrackDropZoneState='active'] {
+    border-color: $success;
+}
+
+QFrame[ftrackDropZoneState='invalid'] {
+    border-color: red;
+}
+
