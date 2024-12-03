@@ -26,15 +26,19 @@ def install(package, editable):
         # Otherwise, treat it as a PyPI package name
         package_path = package
 
-    # Prepare the pip install command
-    pip_command = [sys.executable, "-m", "pip", "install"]
+    # TODO: Should we use uv to call pip in here?
+
+    # Prepare the uv pip install command
+    pip_command = ["uv", "pip", "install"]
     if editable and os.path.isdir(package):
         # Add the editable flag if requested and the package is a local directory
         pip_command.append("-e")
     pip_command.append(package_path)
 
     try:
-        result = subprocess.run(pip_command, capture_output=True, text=True)
+        result = subprocess.run(
+            pip_command, capture_output=True, text=True, env=os.environ
+        )
         if result.returncode == 0:
             print(f"Package '{package}' installed successfully.")
         else:
