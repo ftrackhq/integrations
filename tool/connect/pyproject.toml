@@ -1,5 +1,5 @@
 [project]
-name = "ftrack.app.connect"
+name = "ftrack.tool.connect"
 version = "0.1.0"
 description = "A command line tool for connecting integrations."
 authors = [{name = "ftrack Integrations Team", email = "integrations@backlight.co"}]
@@ -9,8 +9,9 @@ dependencies = [
     "click>8.0",
     "uv>0.5.0",
 ]
+
 [project.scripts]
-connect = "ftrack.app.connect.cli:cli"
+connect = "ftrack.tool.connect.cli:cli"
 
 #[build-system]
 #requires = ["hatchling"]

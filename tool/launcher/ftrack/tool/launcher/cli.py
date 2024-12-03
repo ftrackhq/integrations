@@ -2,19 +2,19 @@
 # :copyright: Copyright (c) 2024 ftrack
 
 import click
-from .launcher import launch_application
+from ftrack.library.launch import launch_application
 
 
 @click.group()
-def app_launcher():
+def launcher():
     """
-    App Launcher CLI tool
+    Launcher CLI tool
     """
     pass
 
 
-@app_launcher.command()
+@launcher.command()
 @click.argument("app_name")
-def launch(app_name):
+def start(app_name):
     """Launch the specified app."""
     launch_application(app_name)
