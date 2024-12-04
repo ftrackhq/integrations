@@ -1,57 +1,77 @@
-[tool.poetry]
+[project]
 name = "ftrack-integrations-monorepo"
-version = "0.0.0"
-description='ftrack Integrations Monorepo'
-authors = ["ftrack Integrations Team <integrations@backlight.co>"]
-readme = "README.md"
-license = "Apache-2.0"
-homepage = "https://ftrack.com"
-repository = "https://github.com/ftrackhq/integrations/"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = ["bird-feeder", "tqdm>=4,<5"]
+
+[tool.uv.sources]
+bird-feeder = { workspace = true }
+
+[tool.uv.workspace]
+members = ["packages/*", "lib/app_launcher"]
+exclude = ["packages/seeds"]
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
-
-[tool.poetry.dependencies]
-python = ">= 3.7, < 3.12"
-
-[tool.poetry.group.test.dependencies]
-black = [
-     { version = "23.1.0", python = "<3.8"},
-     { version = "^23.12.0", python = ">=3.8"}
-    ]
-pytest = "^6.0.0"
-pytest-mock = "*"
-coverage = { version = "^7.3.2", python = ">=3.8", extras = ["toml"] }
-ftrack-constants = { path = "libs/constants", develop = true }
-ftrack-utils = { path = "libs/utils", develop = true }
-ftrack-framework-core = { path = "libs/framework-core", develop = true }
-ftrack-framework-qt = { path = "libs/framework-qt", develop = true }
-ftrack-qt = { path = "libs/qt", develop = true }
-ftrack-qt-style = { path = "libs/qt-style", develop = true }
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 
-[tool.black]
-line-length = 79
-skip-string-normalization = true
 
-[tool.pytest.ini_options]
-minversion = "6.0"
-addopts = "--ignore=tests/framework/manual"
-pythonpath = [
-     'libs/constants/source',
-     'libs/utils/source',
-     'libs/framework-core/source',
-     # QT
-     'libs/framework-qt/source',
-     'libs/qt/source',
-     'libs/qt-style/source'
-]
 
-[tool.coverage.run]
-command_line = "-m pytest --disable-pytest-warnings"
-relative_files = true
-
-[tool.coverage.report]
-show_missing = true
+#[tool.poetry]
+#name = "ftrack-integrations-monorepo"
+#version = "0.0.0"
+#description='ftrack Integrations Monorepo'
+#authors = ["ftrack Integrations Team <integrations@backlight.co>"]
+#readme = "README.md"
+#license = "Apache-2.0"
+#homepage = "https://ftrack.com"
+#repository = "https://github.com/ftrackhq/integrations/"
+#
+#[build-system]
+#requires = ["poetry-core"]
+#build-backend = "poetry.core.masonry.api"
+#
+#[tool.poetry.dependencies]
+#python = ">= 3.7, < 3.12"
+#
+#[tool.poetry.group.test.dependencies]
+#black = [
+#     { version = "23.1.0", python = "<3.8"},
+#     { version = "^23.12.0", python = ">=3.8"}
+#    ]
+#pytest = "^6.0.0"
+#pytest-mock = "*"
+#coverage = { version = "^7.3.2", python = ">=3.8", extras = ["toml"] }
+#ftrack-constants = { path = "libs/constants", develop = true }
+#ftrack-utils = { path = "libs/utils", develop = true }
+#ftrack-framework-core = { path = "libs/framework-core", develop = true }
+#ftrack-framework-qt = { path = "libs/framework-qt", develop = true }
+#ftrack-qt = { path = "libs/qt", develop = true }
+#ftrack-qt-style = { path = "libs/qt-style", develop = true }
+#
+#
+#[tool.black]
+#line-length = 79
+#skip-string-normalization = true
+#
+#[tool.pytest.ini_options]
+#minversion = "6.0"
+#addopts = "--ignore=tests/framework/manual"
+#pythonpath = [
+#     'libs/constants/source',
+#     'libs/utils/source',
+#     'libs/framework-core/source',
+#     # QT
+#     'libs/framework-qt/source',
+#     'libs/qt/source',
+#     'libs/qt-style/source'
+#]
+#
+#[tool.coverage.run]
+#command_line = "-m pytest --disable-pytest-warnings"
+#relative_files = true
+#
+#[tool.coverage.report]
+#show_missing = true
 
