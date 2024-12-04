@@ -27,7 +27,7 @@ function Set-EnvironmentVariables($temp_directory, $install_directory) {
 function New-TemporaryDirectory() {
     $parent = [System.IO.Path]::GetTempPath()
     $uid = [System.Guid]::NewGuid()
-    $temp_path = Join-Path $parent "ftrack.${uid}"
+    $temp_path = Join-Path "${parent}" "ftrack.${uid}"
     New-Item -ItemType Directory $temp_path
 }
 
@@ -36,20 +36,36 @@ function New-InstallDirectory() {
     New-Item -ItemType Directory $install_path -Force
 }
 
-function Invoke-UVInstaller($temp_directory) {
+function Invoke-UVInstaller() {
     Invoke-RestMethod -Uri https://astral.sh/uv/install.ps1 | Invoke-Expression
 }
 
-$temp_directory = New-TemporaryDirectory
-$install_directory = New-InstallDirectory
+function New-UVVirtualEnv($temp_directory, $install_directory) {
+    $install_venv_path = Join-Path $install_directory ".venv"
+    $temp_uv_executable_path = Join-Path "${temp_directory}" "uv" "bin" "uv"
 
-Set-EnvironmentVariables $temp_directory $install_directory
+    Start-Process $temp_uv_executable_path -ArgumentList "venv ${install_venv_path} --python 3.11" -NoNewWindow -Wait
+    Start-Process $temp_uv_executable_path -ArgumentList "pip install uv" -WorkingDirectory $install_directory -NoNewWindow -Wait
+}
 
-Invoke-UVInstaller $temp_directory
+function Invoke-InstallPackageIntoVenv($install_directory, $package_name) {
+    $uv_executable_path = Join-Path $install_directory ".venv" "Scripts" "uv"
+    Start-Process $uv_executable_path -ArgumentList "pip install ${package_name}" -WorkingDirectory $install_directory -NoNewWindow -Wait
+}
 
-$uv_executable = Join-Path $temp_directory "uv" "bin" "uv"
-$venv_path = Join-Path $install_directory ".venv"
+function Invoke-ConnectInstaller() {
+    $temp_directory = New-TemporaryDirectory
+    $install_directory = New-InstallDirectory
 
+    Set-EnvironmentVariables $temp_directory $install_directory
 
-Start-Process $uv_executable -ArgumentList "venv ${venv_path} --python 3.10.15" -NoNewWindow
+    Invoke-UVInstaller
 
+    New-UVVirtualEnv $temp_directory $install_directory
+
+    # these packages are just examples for testing purposes
+    Invoke-InstallPackageIntoVenv $install_directory "poetry"
+    Invoke-InstallPackageIntoVenv $install_directory "ftrack-utils"
+}
+
+Invoke-ConnectInstaller

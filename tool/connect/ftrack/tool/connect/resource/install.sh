@@ -176,7 +176,7 @@ function install_connect() {
     # Create the final installation folder.
     mkdir -p "${installation_dir}"
     # Create initial connect venv which we'll use for any further actions
-    ./uv/bin/uv venv $(conform_path "${installation_dir}/.venv") --python 3.10.15
+    ./uv/bin/uv venv "$(conform_path "${installation_dir}/.venv")" --python 3.10.15
     popd
 
     ####################################################################################
