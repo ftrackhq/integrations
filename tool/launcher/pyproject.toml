@@ -1,0 +1,21 @@
+[project]
+name = "ftrack.tool.launcher"
+version = "0.1.0"
+description = "Add your description here"
+authors = [{name = "ftrack Integrations Team", email = "integrations@backlight.co"}]
+readme = "README.md"
+requires-python = ">=3.11, <3.12"
+dependencies = [
+    "click>8.0",
+    "ftrack-library-launch>=0.1.0",
+]
+
+[project.scripts]
+launcher = "ftrack.tool.launcher.cli:launcher"
+
+[project.entry-points."connect.plugins"]
+launcher = "ftrack.tool.launcher.cli:launcher"
+
+[tool.uv.sources]
+ftrack-library-launch = { path = "../../library/launch", editable = true }
+
