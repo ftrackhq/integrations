@@ -1,0 +1,34 @@
+type: launch_config
+name: framework-aftereffects
+priority: 100
+context:
+  - Task
+identifier: ftrack-framework-launch-aftereffects
+applicationIdentifier: aftereffects_{variant}
+integrations:
+  framework:
+    - framework-aftereffects
+label: Adobe After Effects
+icon: after_effects
+variant: "{version}"
+search_path:
+  windows:
+    prefix:
+      - C:\
+      - Program Files.*
+      - Adobe
+    expression:
+      - Adobe After Effects*
+      - Support Files
+      - AfterFX.exe
+  darwin:
+    prefix:
+      - "/"
+      - Applications
+    expression:
+      - Adobe After Effects*
+      - Adobe After Effects .*\.app
+standalone_module: ftrack_framework_aftereffects
+extensions_path:
+  - extensions/common
+  - extensions/aftereffects
