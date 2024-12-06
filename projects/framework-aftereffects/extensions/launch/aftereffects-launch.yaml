@@ -27,7 +27,7 @@ search_path:
       - Applications
     expression:
       - Adobe After Effects*
-      - Adobe After Effects .*\.app
+      - Adobe After Effects (\d+)\.app
 standalone_module: ftrack_framework_aftereffects
 extensions_path:
   - extensions/common

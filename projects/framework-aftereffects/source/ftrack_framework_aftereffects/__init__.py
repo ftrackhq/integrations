@@ -100,7 +100,7 @@ def probe_aftereffects_pid(aftereffects_version):
     :return:
     '''
     if sys.platform == 'darwin':
-        PS_EXECUTABLE = f'Adobe After Effects Pro {str(aftereffects_version)}'
+        PS_EXECUTABLE = f'After Effects'
         logger.info(f'Probing Mac PID (executable: {PS_EXECUTABLE})')
 
         for line in (
@@ -108,7 +108,7 @@ def probe_aftereffects_pid(aftereffects_version):
         ):
             if line.find(f'MacOS/{PS_EXECUTABLE}') > -1:
                 # Expect:
-                #   501 21270     1   0  3:05PM ??         0:36.85 /Applications/Adobe After Effects Pro 2024/Adobe After Effects Pro 2024.app/Contents/MacOS/Adobe After Effects Pro 2024
+                #   501 21270     1   0  3:05PM ??         0:36.85 /Applications/Adobe After Effects 2025/Adobe After Effects 2025.app/Contents/MacOS/After Effects
                 pid = int(re.split(' +', line)[2])
                 logger.info(f'Found pid: {pid}.')
                 return pid
@@ -127,9 +127,8 @@ def probe_aftereffects_pid(aftereffects_version):
         ):
             if line.find(PS_EXECUTABLE) > -1:
                 # Expect:
-                #  Adobe After Effects Pro.exe        4656 RDP-Tcp#0                  2  1,253,924 K
+                #  AfterFX.exe        4656 RDP-Tcp#0                  2  1,253,924 K
                 pid = -1
-                # Support "Adobe After Effects Pro.exe", "After Effects Pro.exe" and just "After Effects.exe" to be safe
                 for idx in reversed(range(1, 4)):
                     try:
                         pid = int(re.split(' +', line)[idx])
