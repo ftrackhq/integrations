@@ -891,6 +891,8 @@ def build_package(invokation_path, pkg_path, args, command=None):
             extendscript_file = 'ps{}.jsx'
         elif DCC_NAME == 'premiere':
             extendscript_file = 'pp{}.jsx'
+        elif DCC_NAME == 'aftereffects':
+            extendscript_file = 'af{}.jsx'
         else:
             raise Exception('Unsupported Adobe DCC: {}'.format(DCC_NAME))
 

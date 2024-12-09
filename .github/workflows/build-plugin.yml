@@ -21,7 +21,7 @@ jobs:
           echo "TAG_NAME=${TAG_NAME}"
           
           # Define an array of supported tag prefixes
-          SUPPORTED_TAG_PREFIXES=("connect-publisher-widget/" "connect-timetracker-widget/" "nuke-studio/" "rv/" "framework-photoshop/" "framework-maya/" "framework-max/" "framework-nuke/" "framework-premiere/" "framework-houdini/" "framework-harmony/" "framework-flame/" "framework-blender/")
+          SUPPORTED_TAG_PREFIXES=("connect-publisher-widget/" "connect-timetracker-widget/" "nuke-studio/" "rv/" "framework-photoshop/" "framework-maya/" "framework-max/" "framework-nuke/" "framework-premiere/" "framework-aftereffects/" "framework-houdini/" "framework-harmony/" "framework-flame/" "framework-blender/")
   
           # Initialize match flag as false
           MATCH_FOUND=false
@@ -75,7 +75,7 @@ jobs:
     needs: set-variables
     concurrency:
       group: ci-${{ github.ref }}
-    if: ${{ needs.set-variables.outputs.package != 'framework-photoshop' && needs.set-variables.outputs.package != 'framework-premiere' && needs.set-variables.outputs.package != 'framework-harmony' && needs.set-variables.outputs.package != 'framework-blender' }}
+    if: ${{ needs.set-variables.outputs.package != 'framework-photoshop' && needs.set-variables.outputs.package != 'framework-premiere' && needs.set-variables.outputs.package != 'framework-aftereffects' && needs.set-variables.outputs.package != 'framework-harmony' && needs.set-variables.outputs.package != 'framework-blender' }}
     runs-on: ubuntu-latest
     outputs:
       package: ${{ needs.set-variables.outputs.package }}
@@ -182,7 +182,7 @@ jobs:
     needs: set-variables
     concurrency:
       group: ci-${{ github.ref }}
-    if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' || needs.set-variables.outputs.package == 'framework-premiere' || needs.set-variables.outputs.package == 'framework-blender' }}
+    if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' || needs.set-variables.outputs.package == 'framework-premiere' || needs.set-variables.outputs.package == 'framework-aftereffects' || needs.set-variables.outputs.package == 'framework-blender' }}
     runs-on: macos-12
     steps:
       - uses: actions/checkout@v3
@@ -217,6 +217,13 @@ jobs:
           pip install -r tools/requirements.txt
           # Use --testpypi or --from_source to change where the deps are picked from
           python tools/build.py --remove_intermediate_folder --include_resources resource/presets build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+      - name: build aftereffects framework DCC integration plugin
+        if: ${{ needs.set-variables.outputs.package == 'framework-aftereffects' }}
+        shell: bash
+        run: |
+          pip install -r tools/requirements.txt
+          # Use --testpypi or --from_source to change where the deps are picked from
+          python tools/build.py --remove_intermediate_folder build_connect_plugin ${{ needs.set-variables.outputs.folder }}
 
       - name: build standard framework DCC integration plugin
         if: ${{ needs.set-variables.outputs.package == 'framework-blender' }}
@@ -227,13 +234,13 @@ jobs:
           python tools/build.py --remove_intermediate_folder --platform_dependent --include_resources resource/bootstrap build_connect_plugin ${{ needs.set-variables.outputs.folder }}
 
       - name: Build CSS resources for CEP extension
-        if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' || needs.set-variables.outputs.package == 'framework-premiere' }}
+        if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' || needs.set-variables.outputs.package == 'framework-premiere'  || needs.set-variables.outputs.package == 'framework-aftereffects'}}
         shell: bash
         run: |
           pip install -r tools/requirements.txt
           python tools/build.py build_qt_resources --css_only libs/qt-style
       - name: build CEP extension
-        if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' || needs.set-variables.outputs.package == 'framework-premiere' }}
+        if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' || needs.set-variables.outputs.package == 'framework-premiere' || needs.set-variables.outputs.package == 'framework-aftereffects'}}
         shell: bash
         run: |
           # Install ZXPsign
