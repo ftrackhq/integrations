@@ -23,7 +23,9 @@ class AfterEffectsMovieExporterPlugin(BasePlugin):
 
         extension = "mp4"
 
-        preset = "H.264 - Match Render Settings - 15 Mbps"
+        template_name = store['components'][component_name].get(
+            'template_name'
+        )
 
         new_file_path = get_temp_path(filename_extension=extension)
 
@@ -32,14 +34,14 @@ class AfterEffectsMovieExporterPlugin(BasePlugin):
             aftereffects_connection = JavascriptRPC.instance()
 
             self.logger.debug(
-                f"Exporting After Effects movie to {new_file_path}, using preset: {preset}"
+                f"Exporting After Effects movie to {new_file_path}, using template_name: {template_name}"
             )
 
             export_result = aftereffects_connection.rpc(
                 "render",
                 [
                     new_file_path.replace("\\", "/"),
-                    preset,
+                    template_name,
                 ],
             )
         except Exception as e:

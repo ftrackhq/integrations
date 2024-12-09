@@ -31,6 +31,7 @@ window.FTRACK_RPC_FUNCTION_MAPPING = {
     getProjectPath:"getProjectPath",
     saveProject:"saveProject",
     saveProjectAs:"saveProjectAs",
+    getOutputModuleTemplateNames:"getOutputModuleTemplateNames",
     render:"render",
     openProject:"openProject",
 };

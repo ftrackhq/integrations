@@ -73,9 +73,25 @@ function saveProjectAs(temp_path) {
     }
 }
 
+function getOutputModuleTemplateNames(){
+    /*
+     * Return list of aviable Output Module templates
+    */
+    var currentOMName;
+    var OMStringsPrefSection = "Output Module Spec Strings Section v28";
+    var OMStringsKeyPrefix = "Output Module Spec Strings Name ";
+    var hiddenPrefixRE = /_HIDDEN/;
+    var OMList = new Array();
+    for(var i = 0; app.preferences.havePref(OMStringsPrefSection, OMStringsKeyPrefix+i, PREFType.PREF_Type_MACHINE_INDEPENDENT_OUTPUT); i++){
+        currentOMName = app.preferences.getPrefAsString(OMStringsPrefSection, OMStringsKeyPrefix+i, PREFType.PREF_Type_MACHINE_INDEPENDENT_OUTPUT);
+        if(currentOMName.match(hiddenPrefixRE)==null) OMList.push(currentOMName);
+    }
+    return OMList;
+}
+
 // Render
 
-function render(output_path, preset) {
+function render(output_path, template) {
     /*
      * Render
     */
@@ -84,7 +100,7 @@ function render(output_path, preset) {
         if (activeComp) {
             var renderQueueItem = app.project.renderQueue.items.add(activeComp);
             var renderQueueOutputModule = renderQueueItem.outputModule(1);
-            renderQueueOutputModule.applyTemplate(preset);
+            renderQueueOutputModule.applyTemplate(template);
             renderQueueOutputModule.file = File(importPath(output_path));
 
             app.beginSuppressDialogs();
