@@ -15,6 +15,23 @@ param (
     [switch]$Help
 )
 
+$global:stdout = [Console]::Out
+$global:stderr = [Console]::Error
+
+function Set-DisableOutput() {
+    $log_path = New-TemporaryFile
+    # Redirect stdout to a file
+    [Console]::Out.SetOutputStream([IO.StreamWriter]::new($log_path))
+    # Redirect stderr to a file
+    [Console]::Error.SetOutputStream([IO.StreamWriter]::new($log_path))
+}
+
+function Set-EnableOutput() {
+    # Restore original output streams
+    [Console]::Out.SetOutputStream($global:stdout)
+    [Console]::Error.SetOutputStream($global:stderr)
+}
+
 function Set-EnvironmentVariables($temp_directory, $install_directory) {
     $env:UV_NO_MODIFY_PATH = 1
     $env:INSTALLER_NO_MODIFY_PATH = 1
@@ -68,4 +85,22 @@ function Invoke-ConnectInstaller() {
     Invoke-InstallPackageIntoVenv $install_directory "ftrack-utils"
 }
 
-Invoke-ConnectInstaller
+try {
+    Invoke-ConnectInstaller
+
+    Write-Host "Environment Variables for UV installation have been set:" -ForegroundColor DarkCyan
+    Write-Host "--------------------------------------------------------" -ForegroundColor DarkCyan
+    @(
+        [PSCustomObject]@{
+            UV_INSTALL_DIR=$env:UV_INSTALL_DIR;
+            UV_CACHE_DIR=$env:UV_CACHE_DIR;
+            UV_PYTHON_INSTALL_DIR=$env:UV_PYTHON_INSTALL_DIR;
+            UV_NO_MODIFY_PATH=$env:UV_NO_MODIFY_PATH;
+            UV_UNMANAGED_INSTALL=$env:UV_UNMANAGED_INSTALL;
+            INSTALLER_NO_MODIFY_PATH=$env:INSTALLER_NO_MODIFY_PATH
+        }
+    ) | Format-List
+}  catch {
+    # Log the error
+    # point to the installation log.
+}
