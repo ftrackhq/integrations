@@ -5,8 +5,7 @@
   </ExtensionList>
   <ExecutionEnvironment>
     <HostList>
-        <Host Name="AEFT" Version="9.0"/>
-        <Host Name="PRLD" Version="4.0"/>
+        <Host Name="AEFT" Version="15.0"/>
     </HostList>
     <LocaleList>
       <Locale Code="All" />

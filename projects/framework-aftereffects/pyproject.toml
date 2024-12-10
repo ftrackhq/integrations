@@ -2,7 +2,7 @@
 name = "ftrack-framework-aftereffects"
 version = "24.11.0"
 description='ftrack After Effects integration'
-authors = ["ftrack Integrations Team <integrations@backlight.co>"]
+authors = ["Mykhailo Datsyk <mikedatsik@gmail.com>"]
 readme = "README.md"
 packages = [{include = "ftrack_framework_aftereffects", from = "source"}]
 license = "Apache-2.0"
