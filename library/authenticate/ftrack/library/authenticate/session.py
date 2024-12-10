@@ -8,7 +8,7 @@ from .util.session import create_api_session
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 
-# TODO: should we separate session and the event hub thread into another library?
+# TODO: should we separate session and the event hub thread into another library? YES
 
 
 class SessionProvider:

@@ -8,6 +8,7 @@ import keyring
 logging.basicConfig(level=logging.INFO)
 
 
+# TODO: Identifier to be used for saving and retrieving credentials should contain the server_url So just use user@ftrack_server_url as the identifier.
 def set_credential(identifier, server_url, api_user, api_key):
     """
     Save credential securely using keyring.
