@@ -1,0 +1,10 @@
+runtime:
+    username: ${lower:${runtime.startup:username}}
+    architecture: ${lower:${runtime.startup:architecture}}
+    platform: ${lower:${runtime.startup:platform}}
+    hostname: ${lower:${runtime.startup:hostname}}
+    python_version: ${runtime.startup:python_version}
+    startup_time: ${runtime.startup:time}
+    current_time: ${runtime.live:time}
+paths:
+    config_dir: ${paths:config,${runtime.platform}}
