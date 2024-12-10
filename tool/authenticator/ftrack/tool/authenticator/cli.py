@@ -24,7 +24,6 @@ def authenticator():
     "server_url",
     type=str,
     metavar="<SERVER_URL>",
-    help="URL of the authentication server.",
 )
 @click.option(
     "--identifier",
