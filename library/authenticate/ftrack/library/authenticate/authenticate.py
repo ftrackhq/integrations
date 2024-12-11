@@ -4,8 +4,8 @@
 import logging
 import webbrowser
 import threading
-from .webserver import WebServer
-from .util.credential import set_credential
+from .helper.webserver import WebServer
+from .util.identifier import generate_url_identifier
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -17,16 +17,16 @@ class Authenticate:
     to capture credential via callback.
     """
 
-    def __init__(self, server_url, identifier, redirect_port=5000):
+    def __init__(self, server_url, credential_provider, redirect_port=5000):
         """
         Initialize the Authenticate instance.
 
         :param server_url: The base URL for the authentication request.
-        :param identifier: A unique identifier for the authentication session.
+        :param credential_provider: The credential provider instance.
         :param redirect_port: The port on which the local web server will run.
         """
         self.server_url = server_url
-        self.identifier = identifier
+        self.credential_provider = credential_provider
         self.redirect_port = redirect_port
         self.redirect_uri = f"http://localhost:{redirect_port}/callback"
         self.server_ready = threading.Event()
@@ -41,7 +41,7 @@ class Authenticate:
         try:
             # Create a web server instance
             self.webserver = WebServer(
-                credential_identifier=self.identifier,
+                credential_provider=self.credential_provider,
                 server_url=self.server_url,
                 port=self.redirect_port,
             )
@@ -54,7 +54,7 @@ class Authenticate:
             self.server_ready.wait()
 
             # Format the authentication URL
-            auth_url = f"{self.server_url}/user/api_credentials?identifier={self.identifier}&redirect_url={self.redirect_uri}"
+            auth_url = f"{self.server_url}/user/api_credentials?identifier={generate_url_identifier('ftrack-connect')}&redirect_url={self.redirect_uri}"
 
             # Log the URL being opened
             logging.info(f"Opening browser for authentication: {auth_url}")
@@ -82,4 +82,4 @@ class Authenticate:
         :param api_user: The username captured during authentication.
         :param api_key: The API key captured during authentication.
         """
-        set_credential(self.identifier, server_url, api_user, api_key)
+        self.credential_provider.set_credential(server_url, api_user, api_key)

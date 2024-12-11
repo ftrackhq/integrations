@@ -8,31 +8,36 @@ import socket
 logging.basicConfig(level=logging.INFO)
 
 
-def generic_identifier(user_name, host_name, tool_name):
+def generate_url_identifier(tool_name):
     """
-    Generate a generic identifier string.
+    Generate a unique identifier.
 
-    :param user_name: User's name.
-    :param host_name: Host machine's name.
     :param tool_name: Tool or application name.
     :return: A formatted identifier string.
-    """
-    identifier = f"{tool_name}-{user_name}@{host_name}"
-    logging.info(f"Generated identifier: {identifier}")
-    return identifier
-
-
-def connect_identifier():
-    # TODO: Maybe as an optional argument we could add id so this way we allow to have 2 different connect open at the same time with different identifiers.
-    """
-    Generate an identifier for ftrack-connect.
-
-    :return: A formatted identifier for ftrack-connect.
     """
     try:
         user_name = getpass.getuser()
         host_name = socket.gethostname()
-        return generic_identifier(user_name, host_name, "ftrack-connect")
+        identifier = f"{tool_name}-{user_name}@{host_name}"
+        logging.info(f"Generated url identifier: {identifier}")
+        return identifier
     except Exception as e:
-        logging.error(f"Failed to generate connect identifier: {e}")
+        logging.error(f"Failed to generate url identifier: {e}")
+        return None
+
+
+def generate_credential_identifier(server_url):
+    """
+    Generate a unique identifier.
+
+    :param tool_name: Tool or application name.
+    :return: A formatted identifier string.
+    """
+    try:
+        user_name = getpass.getuser()
+        identifier = f"{user_name}@{server_url}"
+        logging.info(f"Generated credential identifier: {identifier}")
+        return identifier
+    except Exception as e:
+        logging.error(f"Failed to generate credential identifier: {e}")
         return None

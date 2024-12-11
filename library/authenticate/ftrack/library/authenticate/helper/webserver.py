@@ -4,7 +4,6 @@
 import threading
 import logging
 from flask import Flask, request
-from .util.credential import set_credential
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -13,11 +12,11 @@ logging.basicConfig(level=logging.INFO)
 class WebServer:
     """Simple web server for handling authentication callbacks."""
 
-    def __init__(self, credential_identifier, server_url, port=5000):
+    def __init__(self, credential_provider, server_url, port=5000):
         self.app = Flask(__name__)
         self.server_url = server_url
         self.port = port
-        self.credential_identifier = credential_identifier
+        self.credential_provider = credential_provider
         self.stop_flag = threading.Event()
 
         @self.app.route("/callback")
@@ -29,8 +28,8 @@ class WebServer:
                 api_user = request.args.get("api_user")
                 api_key = request.args.get("api_key")
                 if api_user and api_key:
-                    set_credential(
-                        self.credential_identifier, self.server_url, api_user, api_key
+                    self.credential_provider.set_credential(
+                        self.server_url, api_user, api_key
                     )
                     logging.info("Credential received and saved.")
                     self.stop_flag.set()  # Signal to stop the server
