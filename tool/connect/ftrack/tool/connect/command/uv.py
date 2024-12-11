@@ -13,10 +13,13 @@ def uv(uv_command):
     try:
         result = subprocess.run(["uv", *uv_command], capture_output=True, text=True)
         if result.returncode == 0:
-            print(result.stdout)
+            click.echo(result.stdout)
         else:
-            print(f"Failed to execute uv command: {result.stderr}")
+            click.echo(f"Failed to execute uv command: {result.stderr}", err=True)
     except FileNotFoundError:
-        print("uv is not installed. Install it as a dependency first.")
+        click.echo(
+            "Error: 'uv' command not found. Ensure it is installed and available in PATH.",
+            err=True,
+        )
     except Exception as e:
-        print(f"An error occurred while running the command: {e}")
+        click.echo(f"An unexpected error occurred: {e}", err=True)
