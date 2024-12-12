@@ -1,5 +1,11 @@
 # ftrack Connect release Notes
 
+## v24.11.1
+2024-12-11
+
+* [fix] Connect's context selector widget will fall back to a default icon when it can't find the requested icon for a specific object type.
+ 
+
 ## v24.11.0
 2024-11-21
 
