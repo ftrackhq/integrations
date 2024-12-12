@@ -4,8 +4,12 @@
 import logging
 import webbrowser
 import threading
-from .helper.webserver import WebServer
+from typing import TYPE_CHECKING
 from .util.identifier import generate_url_identifier
+
+if TYPE_CHECKING:
+    from .helper.credential import CredentialProviderFactory
+    from .helper.webserver import WebServerFactory
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -17,21 +21,31 @@ class Authenticate:
     to capture credential via callback.
     """
 
-    def __init__(self, server_url, credential_provider, redirect_port=5000):
+    def __init__(
+        self,
+        server_url: str,
+        credential_provider_factory: "CredentialProviderFactory",
+        web_server_factory: "WebServerFactory",
+        redirect_port: int = 5000,
+    ) -> None:
         """
         Initialize the Authenticate instance.
 
         :param server_url: The base URL for the authentication request.
-        :param credential_provider: The credential provider instance.
+        :param credential_provider_factory: The credential provider factory instance.
+        :param web_server_factory: The web server factory instance.
         :param redirect_port: The port on which the local web server will run.
         """
         self.server_url = server_url
-        self.credential_provider = credential_provider
+        self.credential_provider = (
+            credential_provider_factory.create_credential_provider()
+        )
+        self.web_server_factory = web_server_factory
         self.redirect_port = redirect_port
         self.redirect_uri = f"http://localhost:{redirect_port}/callback"
         self.server_ready = threading.Event()
 
-    def browser_authenticate(self):
+    def browser_authenticate(self) -> None:
         """
         Launch the authentication process:
         - Starts a local web server in a separate thread.
@@ -40,9 +54,9 @@ class Authenticate:
         """
         try:
             # Create a web server instance
-            self.webserver = WebServer(
-                credential_provider=self.credential_provider,
-                server_url=self.server_url,
+            self.web_server_factory.credential_provider = self.credential_provider
+            self.web_server_factory.server_url = self.server_url
+            self.web_server_instance = self.web_server_factory.create_web_server(
                 port=self.redirect_port,
             )
 
@@ -67,14 +81,16 @@ class Authenticate:
         except Exception as e:
             logging.error(f"An error occurred during browser authentication: {e}")
 
-    def run_server(self):
+    def run_server(self) -> None:
         """
         Start the web server and notify the main thread that it's ready.
         """
         self.server_ready.set()
-        self.webserver.run_server()
+        self.web_server_instance.run_server()
 
-    def credential_authenticate(self, server_url, api_user, api_key):
+    def credential_authenticate(
+        self, server_url: str, api_user: str, api_key: str
+    ) -> None:
         """
         Save captured credential securely using the utility method.
 

@@ -2,8 +2,8 @@
 # :copyright: Copyright (c) 2024 ftrack
 
 import click
-from ftrack.library.authenticate.util.identifier import generate_credential_identifier
-from ftrack.library.authenticate.helper.credential import CredentialProvider
+from ftrack.library.authenticate.util.identifier import generate_vault_identifier
+from ftrack.library.authenticate.helper.credential import CredentialProviderFactory
 
 from ftrack.library.session.session import SessionProvider
 
@@ -40,11 +40,9 @@ def start_event_hub(server_url, credential_identifier):
     """
     try:
         if not credential_identifier:
-            credential_identifier = generate_credential_identifier(
-                server_url=server_url
-            )
+            credential_identifier = generate_vault_identifier(server_url=server_url)
 
-        credential_provider = CredentialProvider(credential_identifier)
+        credential_provider = CredentialProviderFactory(credential_identifier)
 
         session_provider = SessionProvider(credential_provider)
         # TODO: we should probably not start the event hub in a new thread ere, but instead in a new process?. We have to review this.

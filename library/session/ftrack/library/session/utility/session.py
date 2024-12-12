@@ -4,6 +4,7 @@
 import threading
 import logging
 import time
+from typing import Optional, TYPE_CHECKING
 from ftrack_api import Session
 from ..helper.event_hub_thread import EventHubThread
 
@@ -11,8 +12,17 @@ from ..helper.event_hub_thread import EventHubThread
 logging.basicConfig(level=logging.INFO)
 
 
-def wait_for_event_hub_connection(session, timeout=30, poll_interval=0.5):
-    """Wait until the event hub is connected, retrying if necessary."""
+def wait_for_event_hub_connection(
+    session: Session, timeout: int = 30, poll_interval: float = 0.5
+) -> None:
+    """
+    Wait until the event hub is connected, retrying if necessary.
+
+    :param session: The session whose event hub to wait for.
+    :param timeout: Maximum time to wait in seconds.
+    :param poll_interval: Interval between connection attempts in seconds.
+    :raises TimeoutError: If the event hub fails to connect within the timeout.
+    """
     start_time = time.time()
     while not session.event_hub.connected:
         if time.time() - start_time > timeout:
@@ -23,12 +33,18 @@ def wait_for_event_hub_connection(session, timeout=30, poll_interval=0.5):
         time.sleep(poll_interval)
 
 
-def create_event_hub_thread(session):
-    """Create or retrieve an EventHubThread for the session."""
+def create_event_hub_thread(session: Session) -> EventHubThread:
+    """
+    Create or retrieve an EventHubThread for the session.
+
+    :param session: The session for which to create or retrieve the thread.
+    :return: An instance of EventHubThread.
+    :raises Exception: If the session event hub is not connected.
+    """
     if not session.event_hub.connected:
         raise Exception("Session event hub is not connected. Connect first.")
 
-    thread = get_event_hub_thread(session)
+    thread: Optional[EventHubThread] = get_event_hub_thread(session)
     if not thread:
         thread = EventHubThread(session)
     if not thread.is_alive():
@@ -36,9 +52,14 @@ def create_event_hub_thread(session):
     return thread
 
 
-def get_event_hub_thread(session):
-    """Retrieve an existing EventHubThread for the session, if any."""
+def get_event_hub_thread(session: Session) -> Optional[EventHubThread]:
+    """
+    Retrieve an existing EventHubThread for the session, if any.
 
+    :param session: The session whose thread to retrieve.
+    :return: An instance of EventHubThread if found, otherwise None.
+    :raises Exception: If the session event hub is not connected.
+    """
     if not session.event_hub.connected:
         raise Exception("Session event hub is not connected. Connect first.")
 
@@ -48,9 +69,19 @@ def get_event_hub_thread(session):
     return None
 
 
-def create_api_session(server_url, api_key, api_user, auto_connect_event_hub=True):
-    """Create an API session and optionally connect the event hub."""
-    session = Session(
+def create_api_session(
+    server_url: str, api_key: str, api_user: str, auto_connect_event_hub: bool = True
+) -> Session:
+    """
+    Create an API session and optionally connect the event hub.
+
+    :param server_url: URL of the server.
+    :param api_key: API key for authentication.
+    :param api_user: API user for authentication.
+    :param auto_connect_event_hub: Whether to automatically connect the event hub.
+    :return: A new Session instance.
+    """
+    session: Session = Session(
         server_url, api_key, api_user, auto_connect_event_hub=auto_connect_event_hub
     )
     if auto_connect_event_hub:
