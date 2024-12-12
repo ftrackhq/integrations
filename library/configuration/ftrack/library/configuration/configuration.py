@@ -10,7 +10,8 @@ import platformdirs
 import re
 import socket
 import time
-import omegaconf
+
+from copy import deepcopy
 from omegaconf import OmegaConf
 from pathlib import Path
 from pydantic.utils import deep_update
@@ -78,28 +79,18 @@ def register_resolvers():
     def _lower(key: str):
         return key.lower()
 
-    def _compose(reference: str, *, _node_, _parent_, _root_):
+    def _compose(references: list[str], *, _node_, _parent_, _root_):
         my_key = _node_._key()
         # We have to remove our current node to not end up in an infinite recursion.
         # The infinite recursion happens because we're hitting the resolver every time we access a key.
         # We can't work around this by using the cache, as caching is not supported in combination with
         # special argument access (_node_, _parent_, _root_).
-        # TODO: Maybe we should do a deepcopy of the parent to avoid potential issues.
-        #  It does not feel right to delete and recreate the key. It's working for now, but it's not ideal.
-        del _parent_[my_key]
+        config = OmegaConf.create({})
+        for reference in references:
+            config = deep_update(config, reference)
 
-        compose_pattern = re.compile(f"\++({my_key})")
-        composable_keys = []
-
-        for key, value in _parent_.items():
-            if re.match(compose_pattern, key):
-                reference = deep_update(reference, value)
-                composable_keys.append(key)
-
-        # Recreate the key that we've deleted earlier.
-        # If we don't do this, OmegaConf will complain about the key not existing.
-        _parent_[my_key] = reference
-        return reference
+        # OmegaConf.resolve(config)
+        return config
 
     OmegaConf.register_new_resolver(
         "runtime.startup", lambda key: _runtime_startup(key), use_cache=True
@@ -117,8 +108,8 @@ def register_resolvers():
     OmegaConf.register_new_resolver("glob", lambda key: _glob(key))
     OmegaConf.register_new_resolver(
         "compose",
-        lambda reference, *, _node_, _parent_, _root_: _compose(
-            reference, _node_=_node_, _parent_=_parent_, _root_=_root_
+        lambda *references, _node_, _parent_, _root_: _compose(
+            references, _node_=_node_, _parent_=_parent_, _root_=_root_
         ),
     )
 
@@ -157,17 +148,20 @@ def compose_configuration_from_files(filepaths: list[Path]):
 
 
 def resolve_configuration_to_dict(configuration, cleanup=True) -> dict:
-    resolved_configuration = OmegaConf.to_container(configuration, resolve=False)
-    # def _recursive_cleanup(root):
-    #     keys_to_delete = []
-    #     for key, value in root:
-    #         if key.startswith("+"):
-    #             keys_to_delete.append(key)
-    #             continue
-    #         if isinstance(value, dict):
-    #             _recursive_cleanup(value)
-    #     for key in keys_to_delete:
-    #         del root[key]
+    resolved_configuration = OmegaConf.to_container(configuration, resolve=True)
+
+    def _recursive_cleanup(root):
+        keys_to_delete = []
+        for key, value in root.items():
+            if key.startswith("+"):
+                keys_to_delete.append(key)
+                continue
+            if isinstance(value, dict):
+                _recursive_cleanup(value)
+        for key in keys_to_delete:
+            del root[key]
+
+    _recursive_cleanup(resolved_configuration)
 
     return resolved_configuration
 
