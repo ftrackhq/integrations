@@ -7,4 +7,6 @@ runtime:
     startup_time: ${runtime.startup:time}
     current_time: ${runtime.live:time}
 paths:
-    config_dir: ${paths:config,${runtime.platform}}
+    config_dir: ${paths:config}
+    connect_installation_dir: ${paths:config}
+    log_dir: ${paths:log}
