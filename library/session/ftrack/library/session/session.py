@@ -29,10 +29,14 @@ class SessionProvider:
 
         :param credential_provider_factory: Credential provider factory instance.
         """
-        self.credential_provider: "CredentialProvider" = (
+        self._credential_provider_instance: "CredentialProvider" = (
             credential_provider_factory.create_credential_provider()
         )
         self._session: Optional["Session"] = None
+
+    @property
+    def credential_provider_instance(self) -> "CredentialProvider":
+        return self._credential_provider_instance
 
     @property
     def session(self) -> Optional["Session"]:
@@ -41,7 +45,9 @@ class SessionProvider:
             self._session = self.load_session()
         return self._session
 
-    def load_session(self, auto_connect_event_hub: bool = True) -> Optional["Session"]:
+    def load_session(
+        self, auto_connect_event_hub: bool = True
+    ) -> Optional["Session"]:
         """
         Load a session using stored credentials.
 
@@ -50,7 +56,9 @@ class SessionProvider:
         """
         try:
             # Retrieve credential securely using the external library
-            credential: Optional[dict] = self.credential_provider.get_credential()
+            credential: Optional[
+                dict
+            ] = self.credential_provider_instance.get_credential()
             if credential:
                 server_url: str = credential["server_url"]
                 api_key: str = credential["api_key"]
@@ -59,7 +67,9 @@ class SessionProvider:
                     server_url, api_key, api_user, auto_connect_event_hub
                 )
             else:
-                logging.warning("No credentials found. Please authenticate first.")
+                logging.warning(
+                    "No credentials found. Please authenticate first."
+                )
                 return None
         except KeyError as e:
             logging.error(f"Malformed credential data: Missing {e}")

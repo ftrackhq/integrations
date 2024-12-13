@@ -8,6 +8,7 @@ requires-python = ">=3.11, <3.12"
 dependencies = [
     "click>8.0",
     "ftrack-library-session>=0.1.0",
+    "ftrack-library-utility>=0.1.0",
 ]
 
 [project.scripts]
@@ -18,4 +19,5 @@ session = "ftrack.tool.session.cli:session"
 
 [tool.uv.sources]
 ftrack-library-session = { path = "../../library/session", editable = true }
+ftrack-library-utility = { path = "../../library/utility", editable = true }
 

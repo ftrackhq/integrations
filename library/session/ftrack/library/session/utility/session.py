@@ -4,7 +4,7 @@
 import threading
 import logging
 import time
-from typing import Optional, TYPE_CHECKING
+from typing import Optional
 from ftrack_api import Session
 from ..helper.event_hub_thread import EventHubThread
 
@@ -23,7 +23,7 @@ def wait_for_event_hub_connection(
     :param poll_interval: Interval between connection attempts in seconds.
     :raises TimeoutError: If the event hub fails to connect within the timeout.
     """
-    start_time = time.time()
+    start_time: float = time.time()
     while not session.event_hub.connected:
         if time.time() - start_time > timeout:
             raise TimeoutError(
@@ -70,7 +70,10 @@ def get_event_hub_thread(session: Session) -> Optional[EventHubThread]:
 
 
 def create_api_session(
-    server_url: str, api_key: str, api_user: str, auto_connect_event_hub: bool = True
+    server_url: str,
+    api_key: str,
+    api_user: str,
+    auto_connect_event_hub: bool = True,
 ) -> Session:
     """
     Create an API session and optionally connect the event hub.
@@ -82,7 +85,10 @@ def create_api_session(
     :return: A new Session instance.
     """
     session: Session = Session(
-        server_url, api_key, api_user, auto_connect_event_hub=auto_connect_event_hub
+        server_url,
+        api_key,
+        api_user,
+        auto_connect_event_hub=auto_connect_event_hub,
     )
     if auto_connect_event_hub:
         try:

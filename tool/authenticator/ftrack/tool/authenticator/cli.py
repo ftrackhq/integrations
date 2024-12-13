@@ -3,9 +3,17 @@
 
 import click
 from ftrack.library.authenticate.authenticate import Authenticate
-from ftrack.library.authenticate.util.identifier import generate_vault_identifier
-from ftrack.library.authenticate.helper.credential import CredentialProviderFactory
+from ftrack.library.authenticate.util.identifier import (
+    generate_vault_identifier,
+)
+from ftrack.library.authenticate.helper.credential import (
+    CredentialProviderFactory,
+)
 from ftrack.library.authenticate.helper.webserver import WebServerFactory
+from ftrack.library.utility.url.checker import (
+    url_checker,
+    ftrack_server_url_checker,
+)
 
 
 @click.group()
@@ -43,7 +51,10 @@ def authenticator():
     help="API username for credential authentication.",
 )
 @click.option(
-    "--api-key", type=str, required=False, help="API key for credential authentication."
+    "--api-key",
+    type=str,
+    required=False,
+    help="API key for credential authentication.",
 )
 def authenticate(method, server_url, credential_identifier, api_user, api_key):
     """
@@ -55,6 +66,7 @@ def authenticate(method, server_url, credential_identifier, api_user, api_key):
     - credential: Authenticate using API credentials (requires --api-user and --api-key).
     """
     try:
+        server_url = url_checker(server_url, [ftrack_server_url_checker])
         # Generate default credential identifier if not provided
         if not credential_identifier:
             credential_identifier = generate_vault_identifier(
@@ -62,7 +74,9 @@ def authenticate(method, server_url, credential_identifier, api_user, api_key):
             )
 
         credential_provider = CredentialProviderFactory(credential_identifier)
-        auth = Authenticate(server_url, credential_provider, WebServerFactory())
+        auth = Authenticate(
+            server_url, credential_provider, WebServerFactory()
+        )
 
         if method == "browser":
             auth.browser_authenticate()

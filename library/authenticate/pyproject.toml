@@ -9,5 +9,9 @@ dependencies = [
     "flask>=3.1.0",
     "keyring>=25",
     "ftrack-python-api>=3.0.0",
+    "ftrack-library-utility>=0.1.0",
 ]
 # TODO: Think how to deal when this library has as dependnecy the ftrack api and for example connect has it as well. How do we make sure we are sync?
+
+[tool.uv.sources]
+ftrack-library-utility = { path = "../../library/utility", editable = true }

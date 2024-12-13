@@ -25,7 +25,9 @@ class CredentialProvider(ABC):
         pass
 
     @abstractmethod
-    def set_credential(self, server_url: str, api_user: str, api_key: str) -> None:
+    def set_credential(
+        self, server_url: str, api_user: str, api_key: str
+    ) -> None:
         """
         Save credentials securely.
 
@@ -39,16 +41,19 @@ class CredentialProvider(ABC):
 class CredentialProviderFactory:
     """Factory class for creating credential provider."""
 
+    def __init__(self, credential_identifier: Optional[str] = None) -> None:
+        self._credential_identifier: Optional[str] = None
+        self.credential_identifier: Optional[str] = credential_identifier
+
     @property
     def credential_identifier(self) -> Optional[str]:
         return self._credential_identifier
 
     @credential_identifier.setter
-    def credential_identifier(self, value: str) -> None:
+    def credential_identifier(self, value: Optional[str]) -> None:
+        if not isinstance(value, str) and value is not None:
+            raise ValueError("Credential identifier must be a string or None.")
         self._credential_identifier = value
-
-    def __init__(self, credential_identifier: Optional[str] = None) -> None:
-        self._credential_identifier: Optional[str] = credential_identifier
 
     def create_credential_provider(self) -> CredentialProvider:
         """
@@ -56,6 +61,8 @@ class CredentialProviderFactory:
 
         :return: Instance of a CredentialProvider.
         """
+        if not self.credential_identifier:
+            raise ValueError("Credential identifier is required.")
         return KeyringCredentialProvider(self.credential_identifier)
 
 
@@ -64,8 +71,12 @@ class KeyringCredentialProvider(CredentialProvider):
     Credential provider that uses the system keyring to store and retrieve credentials.
     """
 
-    def __init__(self, credential_identifier: Optional[str]) -> None:
-        self.credential_identifier: Optional[str] = credential_identifier
+    def __init__(self, credential_identifier: str) -> None:
+        self._credential_identifier: str = credential_identifier
+
+    @property
+    def credential_identifier(self):
+        return self._credential_identifier
 
     def get_credential(self) -> Optional[Dict[str, str]]:
         """
@@ -99,7 +110,9 @@ class KeyringCredentialProvider(CredentialProvider):
             logging.error(f"Failed to retrieve credential: {e}")
             return None
 
-    def set_credential(self, server_url: str, api_user: str, api_key: str) -> None:
+    def set_credential(
+        self, server_url: str, api_user: str, api_key: str
+    ) -> None:
         """
         Save credentials securely using the system keyring.
 
@@ -108,9 +121,15 @@ class KeyringCredentialProvider(CredentialProvider):
         :param api_key: API key for authentication.
         """
         try:
-            keyring.set_password(self.credential_identifier, "server_url", server_url)
-            keyring.set_password(self.credential_identifier, "api_user", api_user)
-            keyring.set_password(self.credential_identifier, "api_key", api_key)
+            keyring.set_password(
+                self.credential_identifier, "server_url", server_url
+            )
+            keyring.set_password(
+                self.credential_identifier, "api_user", api_user
+            )
+            keyring.set_password(
+                self.credential_identifier, "api_key", api_key
+            )
             logging.info(
                 f"Credentials saved for identifier: {self.credential_identifier}."
             )

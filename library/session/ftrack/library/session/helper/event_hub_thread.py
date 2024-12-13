@@ -17,7 +17,7 @@ class EventHubThread(threading.Thread):
     """
 
     def __init__(self, session: "Session") -> None:
-        _name = id(session)
+        _name: int = id(session)
         super().__init__(name=f"EventHub-{_name}")
         self.session: "Session" = session
         logging.debug(f"Initializing new EventHubThread for session {session}")

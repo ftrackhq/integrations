@@ -2,10 +2,18 @@
 # :copyright: Copyright (c) 2024 ftrack
 
 import click
-from ftrack.library.authenticate.util.identifier import generate_vault_identifier
-from ftrack.library.authenticate.helper.credential import CredentialProviderFactory
+from ftrack.library.authenticate.util.identifier import (
+    generate_vault_identifier,
+)
+from ftrack.library.authenticate.helper.credential import (
+    CredentialProviderFactory,
+)
 
 from ftrack.library.session.session import SessionProvider
+from ftrack.library.utility.url.checker import (
+    url_checker,
+    ftrack_server_url_checker,
+)
 
 
 @click.group()
@@ -39,8 +47,11 @@ def start_event_hub(server_url, credential_identifier):
     :param credential_identifier: Unique identifier for the credentials.
     """
     try:
+        server_url = url_checker(server_url, [ftrack_server_url_checker])
         if not credential_identifier:
-            credential_identifier = generate_vault_identifier(server_url=server_url)
+            credential_identifier = generate_vault_identifier(
+                server_url=server_url
+            )
 
         credential_provider = CredentialProviderFactory(credential_identifier)
 

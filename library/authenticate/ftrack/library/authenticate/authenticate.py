@@ -4,12 +4,19 @@
 import logging
 import webbrowser
 import threading
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 from .util.identifier import generate_url_identifier
+from ftrack.library.utility.url.checker import (
+    url_checker,
+    ftrack_server_url_checker,
+)
 
 if TYPE_CHECKING:
-    from .helper.credential import CredentialProviderFactory
-    from .helper.webserver import WebServerFactory
+    from .helper.credential import (
+        CredentialProviderFactory,
+        CredentialProvider,
+    )
+    from .helper.webserver import WebServerFactory, WebServer
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -36,14 +43,45 @@ class Authenticate:
         :param web_server_factory: The web server factory instance.
         :param redirect_port: The port on which the local web server will run.
         """
-        self.server_url = server_url
-        self.credential_provider = (
+        try:
+            self._server_url: str = url_checker(
+                server_url, [ftrack_server_url_checker]
+            )
+        except ValueError as e:
+            logging.error(f"Invalid server URL: {e}")
+            raise
+        self._credential_provider_instance: "CredentialProvider" = (
             credential_provider_factory.create_credential_provider()
         )
-        self.web_server_factory = web_server_factory
-        self.redirect_port = redirect_port
-        self.redirect_uri = f"http://localhost:{redirect_port}/callback"
-        self.server_ready = threading.Event()
+        self._web_server_factory: "WebServerFactory" = web_server_factory
+        self._web_server_instance: Optional["WebServer"] = None
+        self._redirect_port: int = redirect_port
+        self._redirect_uri: str = f"http://localhost:{redirect_port}/callback"
+        self._server_ready: threading.Event = threading.Event()
+
+    @property
+    def server_url(self):
+        return self._server_url
+
+    @property
+    def credential_provider_instance(self):
+        return self._credential_provider_instance
+
+    @property
+    def web_server_factory(self):
+        return self._web_server_factory
+
+    @property
+    def web_server_instance(self):
+        return self._web_server_instance
+
+    @property
+    def redirect_port(self):
+        return self._redirect_port
+
+    @property
+    def redirect_uri(self):
+        return self._redirect_uri
 
     def browser_authenticate(self) -> None:
         """
@@ -54,21 +92,27 @@ class Authenticate:
         """
         try:
             # Create a web server instance
-            self.web_server_factory.credential_provider = self.credential_provider
+            self.web_server_factory.credential_provider = (
+                self.credential_provider_instance
+            )
             self.web_server_factory.server_url = self.server_url
-            self.web_server_instance = self.web_server_factory.create_web_server(
-                port=self.redirect_port,
+            self._web_server_instance = (
+                self.web_server_factory.create_web_server(
+                    port=self.redirect_port,
+                )
             )
 
             # Start the web server in a separate thread
-            server_thread = threading.Thread(target=self.run_server, daemon=True)
+            server_thread: threading.Thread = threading.Thread(
+                target=self.run_server, daemon=True
+            )
             server_thread.start()
 
             # Wait until the server is ready before proceeding
-            self.server_ready.wait()
+            self._server_ready.wait()
 
             # Format the authentication URL
-            auth_url = f"{self.server_url}/user/api_credentials?identifier={generate_url_identifier('ftrack-connect')}&redirect_url={self.redirect_uri}"
+            auth_url: str = f"{self.server_url}/user/api_credentials?identifier={generate_url_identifier('ftrack-connect')}&redirect_url={self.redirect_uri}"
 
             # Log the URL being opened
             logging.info(f"Opening browser for authentication: {auth_url}")
@@ -79,13 +123,15 @@ class Authenticate:
             # Wait for the server to shut down after successful authentication
             server_thread.join()
         except Exception as e:
-            logging.error(f"An error occurred during browser authentication: {e}")
+            logging.error(
+                f"An error occurred during browser authentication: {e}"
+            )
 
     def run_server(self) -> None:
         """
         Start the web server and notify the main thread that it's ready.
         """
-        self.server_ready.set()
+        self._server_ready.set()
         self.web_server_instance.run_server()
 
     def credential_authenticate(
@@ -98,4 +144,6 @@ class Authenticate:
         :param api_user: The username captured during authentication.
         :param api_key: The API key captured during authentication.
         """
-        self.credential_provider.set_credential(server_url, api_user, api_key)
+        self.credential_provider_instance.set_credential(
+            server_url, api_user, api_key
+        )
