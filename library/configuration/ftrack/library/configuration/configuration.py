@@ -76,12 +76,12 @@ def register_resolvers():
     # TODO: maybe we should resolve regex paths into lists using a resolver
     #  this way we can just resolve and see the result within the final yaml config
     def _regex(value, pattern):
-        if isinstance(value, str):
+        if not isinstance(value, list):
             value = [value]
 
         matches = []
         for v in value:
-            if match := re.search(pattern, v):
+            if match := re.search(pattern, str(v)):
                 matches.append(match[0])
 
         return matches
@@ -116,9 +116,7 @@ def register_resolvers():
     OmegaConf.register_new_resolver("glob", lambda key: _glob(key))
     OmegaConf.register_new_resolver(
         "compose",
-        lambda *references, _node_, _parent_, _root_: _compose(
-            references, _node_=_node_, _parent_=_parent_, _root_=_root_
-        ),
+        lambda *references, _node_: _compose(references, _node_=_node_),
     )
 
 
