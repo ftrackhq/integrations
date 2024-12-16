@@ -11,3 +11,6 @@ dependencies = [
     "platformdirs>=4.3.6",
     "pydantic>=2.10.3"
 ]
+
+[project.entry-points."connect.configuration"]
+configuration = "ftrack.library.configuration"

@@ -4,6 +4,7 @@
 import importlib
 import glob
 import os
+import logging
 import pkgutil
 import platform
 import platformdirs
@@ -11,10 +12,15 @@ import re
 import socket
 import time
 
-from copy import deepcopy
-from omegaconf import OmegaConf
 from pathlib import Path
+from types import ModuleType
+from importlib.metadata import entry_points, EntryPoint
+
+from omegaconf import OmegaConf, DictConfig, ListConfig
 from pydantic.v1.utils import deep_update
+
+log = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 
 def register_resolvers():
@@ -44,9 +50,8 @@ def register_resolvers():
             case _:
                 return "None"
 
-    # TODO: Use platformdirs to fill in the platform specific paths
-    def _paths(path_type: str, scope: str):
-        method_name = f"{scope}_{path_type}_path"
+    def _paths(path_type: str, scope: str) -> Path:
+        path_getter_method_name = f"{scope}_{path_type}_path"
         supported_path_types = [
             _.split("_")[1] for _ in dir(platformdirs) if re.match(r"user_.+_path", _)
         ]
@@ -55,12 +60,17 @@ def register_resolvers():
                 f"Path type {path_type} cannot be resolved. Supported path types are {supported_path_types}"
             )
 
-        method = getattr(platformdirs, method_name)
-        assert method
-        return method("ftrack-connect")
+        path_getter_method: callable = getattr(platformdirs, path_getter_method_name)
+        assert path_getter_method
+        return Path(path_getter_method("ftrack-connect"))
 
-    def _glob(key):
-        matches = glob.glob(key)
+    def _glob(key: str) -> list[Path]:
+        """
+        Match all paths that match the given glob pattern.
+        :param key:
+        :return:
+        """
+        matches = [Path(_) for _ in glob.glob(key)]
         return matches
 
     # TODO: maybe we should resolve regex paths into lists using a resolver
@@ -79,8 +89,7 @@ def register_resolvers():
     def _lower(key: str):
         return key.lower()
 
-    def _compose(references: list[str], *, _node_, _parent_, _root_):
-        my_key = _node_._key()
+    def _compose(references: list[str], *, _node_):
         # We have to remove our current node to not end up in an infinite recursion.
         # The infinite recursion happens because we're hitting the resolver every time we access a key.
         # We can't work around this by using the cache, as caching is not supported in combination with
@@ -89,24 +98,7 @@ def register_resolvers():
         for reference in references:
             config = deep_update(config, reference)
 
-        # OmegaConf.resolve(config)
         return config
-
-    def _compose2(*, _node_, _parent_, _root_):
-        my_parent_key = _parent_._key()
-        grandparent = _parent_._get_parent()
-
-        # don't copy ourselves, otherwise we end up in recursion hell
-        # parent = OmegaConf.create(deepcopy(_parent_[1:]))
-        del grandparent[my_parent_key]
-        grandparent[my_parent_key] = {}
-
-        # new_parent = OmegaConf.create({my_parent_key: parent[1]})
-        # new_parent.merge_with(parent[2])
-
-        # print(new_parent)
-        # _parent_ = new_parent
-        return None
 
     OmegaConf.register_new_resolver(
         "runtime.startup", lambda key: _runtime_startup(key), use_cache=True
@@ -128,17 +120,18 @@ def register_resolvers():
             references, _node_=_node_, _parent_=_parent_, _root_=_root_
         ),
     )
-    OmegaConf.register_new_resolver(
-        "compose2",
-        lambda *, _node_, _parent_, _root_: _compose2(
-            _node_=_node_, _parent_=_parent_, _root_=_root_
-        ),
-    )
 
 
 def get_configuration_files_from_namespace(
     namespace: str = "ftrack.library",
 ) -> list[Path]:
+    """
+    Get all configuration files from a given namespace.
+
+    :param namespace: The namespace within the available packages to search for configuration files.
+    :return: A list of paths to the configuration files.
+    """
+
     configuration_files = []
     root_namespace_package = importlib.import_module(namespace)
     packages = pkgutil.walk_packages(
@@ -161,15 +154,56 @@ def get_configuration_files_from_namespace(
     return configuration_files
 
 
-def compose_configuration_from_files(filepaths: list[Path]):
+def get_configuration_files_from_entrypoint(
+    name: str = "connect.configuration",
+) -> list[Path]:
+    """
+    Get all configuration files from a given entrypoint.
+
+    :param name: The name of the entry point to look for configuration files.
+    :return: A list of paths to the configuration files.
+    """
+
+    configuration_files: list[Path] = []
+    for entrypoint in entry_points()[name]:  # type: EntryPoint
+        # load the configuration entry point so we execute and initialise any custom resolvers
+        configuration_package: ModuleType = entrypoint.load()
+
+        module_path: Path = Path(configuration_package.__file__).parent
+        for _file in os.listdir(module_path):  # type: str
+            if re.match(r".*\.(yml|yaml)$", _file):
+                full_path: Path = module_path / _file
+                configuration_files.append(full_path)
+
+    return configuration_files
+
+
+def compose_configuration_from_files(filepaths: list[Path]) -> DictConfig:
+    """
+    Given a list of configuration file paths, load and merge them into a single configuration object.
+
+    :param filepaths: A list of Path objects pointing to the configuration files.
+    :return: A DictConfig object containing the merged configuration.
+    """
+
     merged_configuration = OmegaConf.create()
     for filepath in filepaths:
         configuration = OmegaConf.load(filepath)
         merged_configuration = OmegaConf.merge(merged_configuration, configuration)
+    print(type(merged_configuration))
     return merged_configuration
 
 
 def resolve_configuration_to_dict(configuration, cleanup=True) -> dict:
+    """
+    Resolves the given configuration object into a dictionary.
+    This will also flatten/resolve all individual keys to their final values.
+
+    :param configuration: The configuration object to resolve.
+    :param cleanup: Whether to delete all keys starting with a "+".
+    :return: The resolved and possibly cleaned up configuration as a dictionary.
+    """
+
     resolved_configuration = OmegaConf.to_container(configuration, resolve=True)
 
     def _recursive_cleanup(root):
@@ -186,16 +220,3 @@ def resolve_configuration_to_dict(configuration, cleanup=True) -> dict:
     _recursive_cleanup(resolved_configuration)
 
     return resolved_configuration
-
-
-def interpolate_configuration_values():
-    pass
-
-
-def inject_builtin_configuration_values():
-    # TODO: This might not be needed when using resolvers
-    pass
-
-
-def inject_named_regex_groups():
-    pass
