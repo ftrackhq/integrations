@@ -14,7 +14,7 @@ import time
 from copy import deepcopy
 from omegaconf import OmegaConf
 from pathlib import Path
-from pydantic.utils import deep_update
+from pydantic.v1.utils import deep_update
 
 
 def register_resolvers():
@@ -92,6 +92,22 @@ def register_resolvers():
         # OmegaConf.resolve(config)
         return config
 
+    def _compose2(*, _node_, _parent_, _root_):
+        my_parent_key = _parent_._key()
+        grandparent = _parent_._get_parent()
+
+        # don't copy ourselves, otherwise we end up in recursion hell
+        # parent = OmegaConf.create(deepcopy(_parent_[1:]))
+        del grandparent[my_parent_key]
+        grandparent[my_parent_key] = {}
+
+        # new_parent = OmegaConf.create({my_parent_key: parent[1]})
+        # new_parent.merge_with(parent[2])
+
+        # print(new_parent)
+        # _parent_ = new_parent
+        return None
+
     OmegaConf.register_new_resolver(
         "runtime.startup", lambda key: _runtime_startup(key), use_cache=True
     )
@@ -110,6 +126,12 @@ def register_resolvers():
         "compose",
         lambda *references, _node_, _parent_, _root_: _compose(
             references, _node_=_node_, _parent_=_parent_, _root_=_root_
+        ),
+    )
+    OmegaConf.register_new_resolver(
+        "compose2",
+        lambda *, _node_, _parent_, _root_: _compose2(
+            _node_=_node_, _parent_=_parent_, _root_=_root_
         ),
     )
 
