@@ -1,6 +1,21 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
+"""
+This module provides functionality to load, merge, resolve and save configuration files.
+The utilities in this module are designed to work nicely together.
+They are supposed to be run in sequence. For example:
+
+>>> register_resolvers()
+>>> config_files = get_configuration_files_from_entrypoint("connect.configuration")
+>>> more_config_files = get_configuration_files_from_namespace("ftrack.library")
+>>> all_config_files = config_files.union(more_config_files)
+
+>>> composed_configuration = compose_configuration_from_files(config_files)
+>>> resolved_configuration = resolve_configuration(composed_configuration)
+>>> save_configuration_to_yaml(resolved_configuration, Path("C:/Users/dennis.weil/Desktop/resolved.yaml"))
+"""
+
 import importlib
 import glob
 import logging
