@@ -35,7 +35,7 @@ def register_resolvers() -> None:
 
     # TODO: Filling in the runtime args like this is up for discussion as we could also handle it differently.
     # These will be lazily evaluated when the config is accessed
-    def _runtime_startup(key: str):
+    def _runtime_cached(key: str):
         # All of these will be cached and only evaluated once.
         match key:
             case "architecture":
@@ -120,21 +120,21 @@ def register_resolvers() -> None:
         return config
 
     OmegaConf.register_new_resolver(
-        "runtime.startup", lambda key: _runtime_startup(key), use_cache=True
+        "ft.runtime.cached", lambda key: _runtime_cached(key), use_cache=True
     )
-    OmegaConf.register_new_resolver("runtime.live", lambda key: _runtime_live(key))
+    OmegaConf.register_new_resolver("ft.runtime.live", lambda key: _runtime_live(key))
     OmegaConf.register_new_resolver(
-        "paths",
+        "ft.paths",
         lambda path_type, scope="user": _paths(path_type, scope),
         use_cache=True,
     )
-    OmegaConf.register_new_resolver("lower", lambda key: _lower(key))
+    OmegaConf.register_new_resolver("ft.lower", lambda key: _lower(key))
     OmegaConf.register_new_resolver(
-        "regex", lambda value, pattern: _regex(value, pattern)
+        "ft.regex", lambda value, pattern: _regex(value, pattern)
     )
-    OmegaConf.register_new_resolver("glob", lambda key: _glob(key))
+    OmegaConf.register_new_resolver("ft.glob", lambda key: _glob(key))
     OmegaConf.register_new_resolver(
-        "compose",
+        "ft.compose",
         lambda *references, _node_, _root_: _compose(
             references, _node_=_node_, _root_=_root_
         ),
