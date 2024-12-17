@@ -309,7 +309,7 @@ def convert_configuration_to_dict(
     return resolved_configuration
 
 
-def safe_configuration_to_yaml(configuration: DictConfig, path: Path) -> None:
+def save_configuration_to_yaml(configuration: DictConfig, path: Path) -> None:
     """
     Safely write the configuration to a yaml file.
     This will not automatically resolve the configuration.
