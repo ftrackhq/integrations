@@ -133,6 +133,20 @@ def register_resolvers() -> None:
         """
         Composes the given references into a single configuration object.
 
+        Example:
+        launch: "${ft.compose: ${configuration.maya-default.launch}, ${.my_override}, ${.my_other_override}}"
+        my_override::
+          delete_after_compose: True
+          discovery-hook: "my_override"
+        my_other_override:
+          windows: "C:\*"
+
+        The above example will compose configuration.maya-default.launch, my_override and my_other_override.
+        The composition is done in order and sparsely, meaning we'll match and add/replace the lowest possible
+        node in the hierarchy.
+        Additionally, we will delete the my_override key after composing it due to it having the delete_after_compose
+        flag set to True.
+
         :param references: A List of references.
         :param _node_: The implicitly provided current node.
         :param _root_: The implicitly provided root node of the configuration.
