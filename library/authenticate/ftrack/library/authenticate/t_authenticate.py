@@ -3,8 +3,10 @@
 
 import logging
 from ftrack.library.authenticate.authenticate import Authenticate
-from ftrack.library.authenticate.util.identifier import generate_vault_identifier
-from ftrack.library.authenticate.helper.credential import CredentialProviderFactory
+from ftrack.library.authenticate.util.identifier import (
+    generate_vault_identifier,
+)
+from ftrack.library.authenticate.helper.credential import CredentialFactory
 from ftrack.library.authenticate.helper.webserver import WebServerFactory
 
 # Configure logging for detailed output
@@ -20,7 +22,7 @@ def main() -> None:
     logging.info("Starting authentication...")
     auth = Authenticate(
         server_url=TEST_URL,
-        credential_provider_factory=CredentialProviderFactory(CREDENTIAL_IDENTIFIER),
+        credential_factory=CredentialFactory(CREDENTIAL_IDENTIFIER),
         web_server_factory=WebServerFactory(),
     )
     auth.browser_authenticate()

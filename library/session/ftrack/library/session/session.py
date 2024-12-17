@@ -7,8 +7,8 @@ from .utility.session import create_api_session
 
 if TYPE_CHECKING:
     from ftrack.library.authenticate.helper.credential import (
-        CredentialProviderFactory,
-        CredentialProvider,
+        CredentialFactory,
+        CredentialInterface,
     )
     from ftrack_api import Session
 
@@ -21,50 +21,48 @@ class SessionProvider:
     High-level session provider that uses external utilities and handles credential lookup.
     """
 
-    def __init__(
-        self, credential_provider_factory: "CredentialProviderFactory"
-    ) -> None:
+    def __init__(self, credential_factory: "CredentialFactory") -> None:
         """
         Initialize the session provider with a credential provider.
 
-        :param credential_provider_factory: Credential provider factory instance.
+        :param credential_factory: Credential factory instance.
         """
-        self._credential_provider_instance: "CredentialProvider" = (
-            credential_provider_factory.create_credential_provider()
+        self._credential_instance: "CredentialInterface" = (
+            credential_factory.make()
         )
         self._session: Optional["Session"] = None
 
     @property
-    def credential_provider_instance(self) -> "CredentialProvider":
-        return self._credential_provider_instance
+    def credential_instance(self) -> "CredentialInterface":
+        return self._credential_instance
 
     @property
     def session(self) -> Optional["Session"]:
         """Lazily initialize and return the API session."""
         if not self._session:
-            self._session = self.load_session()
+            self._session = self.new_session_from_stored_credentials()
         return self._session
 
-    def load_session(
-        self, auto_connect_event_hub: bool = True
+    def new_session_from_stored_credentials(
+        self, spread_event_hub_thread: bool = True
     ) -> Optional["Session"]:
         """
         Load a session using stored credentials.
 
-        :param auto_connect_event_hub: Whether to automatically connect to the event hub.
+        :param spread_event_hub_thread: Whether to automatically connect to the event hub.
         :return: An API session or None if credentials are missing or invalid.
         """
         try:
             # Retrieve credential securely using the external library
             credential: Optional[
                 dict
-            ] = self.credential_provider_instance.get_credential()
+            ] = self.credential_instance.get_credential()
             if credential:
-                server_url: str = credential["server_url"]
-                api_key: str = credential["api_key"]
-                api_user: str = credential["api_user"]
+                server_url = credential["server_url"]
+                api_key = credential["api_key"]
+                api_user = credential["api_user"]
                 return create_api_session(
-                    server_url, api_key, api_user, auto_connect_event_hub
+                    server_url, api_key, api_user, spread_event_hub_thread
                 )
             else:
                 logging.warning(

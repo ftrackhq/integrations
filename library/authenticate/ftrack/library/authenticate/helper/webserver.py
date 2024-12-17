@@ -5,17 +5,33 @@ import threading
 import logging
 from flask import Flask, request
 from abc import ABC, abstractmethod
-from typing import Optional
-from .credential import CredentialProvider
+from typing import Optional, Dict, Type
+from .credential import CredentialInterface
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 
 
-class WebServer(ABC):
+class WebServerInterface(ABC):
     """
     Abstract base class for web servers.
     """
+
+    @abstractmethod
+    def __init__(
+        self,
+        credential_instance: "CredentialInterface",
+        server_url: str,
+        port: int = 5000,
+    ) -> None:
+        """
+        Initialize the web server instance.
+
+        :param credential_instance: Credential instance.
+        :param server_url: Server URL.
+        :param port: Port for the server.
+        """
+        pass
 
     @abstractmethod
     def run_server(self) -> None:
@@ -26,32 +42,41 @@ class WebServer(ABC):
 
 
 class WebServerFactory:
-    """Factory class for creating WebServer instances."""
+    """Factory class for creating WebServerInterface instances."""
 
     def __init__(
         self,
-        credential_provider: Optional[CredentialProvider] = None,
+        credential_instance: Optional["CredentialInterface"] = None,
         server_url: Optional[str] = None,
+        port: int = 5000,
+        variant: str = "FlaskWebServer",
     ) -> None:
-        self._credential_provider: Optional[CredentialProvider] = None
+        self._credential_instance: Optional["CredentialInterface"] = None
         self._server_url: Optional[str] = None
+        self._port: int = port
+        self._variant: str = variant
+        self._available_variant: Dict[str, Type["WebServerInterface"]] = {
+            'FlaskWebServer': FlaskWebServer
+        }
 
-        self.credential_provider: Optional[
-            CredentialProvider
-        ] = credential_provider
+        self.credential_instance: Optional[
+            "CredentialInterface"
+        ] = credential_instance
         self.server_url: Optional[str] = server_url
 
     @property
-    def credential_provider(self) -> Optional[CredentialProvider]:
-        return self._credential_provider
+    def credential_instance(self) -> Optional["CredentialInterface"]:
+        return self._credential_instance
 
-    @credential_provider.setter
-    def credential_provider(self, value: Optional[CredentialProvider]) -> None:
-        if value is not None and not isinstance(value, CredentialProvider):
+    @credential_instance.setter
+    def credential_instance(
+        self, value: Optional["CredentialInterface"]
+    ) -> None:
+        if value is not None and not isinstance(value, CredentialInterface):
             raise ValueError(
-                "Credential provider must be an instance of CredentialProvider or None."
+                "Credential must be an instance of CredentialInterface or None."
             )
-        self._credential_provider = value
+        self._credential_instance = value
 
     @property
     def server_url(self) -> Optional[str]:
@@ -63,27 +88,58 @@ class WebServerFactory:
             raise ValueError("Server URL must be a string or None.")
         self._server_url = value
 
-    def create_web_server(self, port: int = 5000) -> WebServer:
-        if not self.credential_provider:
-            raise ValueError("Credential provider is required.")
+    @property
+    def port(self) -> int:
+        return self._port
+
+    @port.setter
+    def port(self, value: int) -> None:
+        if not isinstance(value, int):
+            raise ValueError("Port must be an integer.")
+        self._port = value
+
+    @property
+    def variant(self) -> str:
+        return self._variant
+
+    @variant.setter
+    def variant(self, value: str) -> None:
+        if not isinstance(value, str):
+            raise ValueError("Variant must be a string.")
+        self._variant = value
+
+    @property
+    def available_variant(self) -> Dict[str, Type["WebServerInterface"]]:
+        return self._available_variant
+
+    def make(self) -> "WebServerInterface":
+        """
+        Create and return a WebServerInterface-based web server instance.
+
+        :return: Instance of a WebServerInterface.
+        """
+        if not self.credential_instance:
+            raise ValueError("Credential instance is required.")
         if not self.server_url:
             raise ValueError("Server URL is required.")
-        return FlaskWebServer(self.credential_provider, self.server_url, port)
+        return self.available_variant[self.variant](
+            self.credential_instance, self.server_url, self.port
+        )
 
 
-class FlaskWebServer(WebServer):
+class FlaskWebServer(WebServerInterface):
     """Simple web server for handling authentication callbacks."""
 
     def __init__(
         self,
-        credential_provider: CredentialProvider,
+        credential_instance: "CredentialInterface",
         server_url: str,
         port: int = 5000,
     ) -> None:
         self._app: Flask = Flask(__name__)
         self._server_url: str = server_url
         self._port: int = port
-        self._credential_provider: CredentialProvider = credential_provider
+        self._credential_instance: "CredentialInterface" = credential_instance
         self._stop_flag: threading.Event = threading.Event()
 
         @self._app.route("/callback")
@@ -95,7 +151,7 @@ class FlaskWebServer(WebServer):
                 api_user: Optional[str] = request.args.get("api_user")
                 api_key: Optional[str] = request.args.get("api_key")
                 if api_user and api_key:
-                    self._credential_provider.set_credential(
+                    self._credential_instance.set_credential(
                         self._server_url, api_user, api_key
                     )
                     logging.info("Credential received and saved.")

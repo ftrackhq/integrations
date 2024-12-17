@@ -6,14 +6,11 @@ from ftrack.library.authenticate.util.identifier import (
     generate_vault_identifier,
 )
 from ftrack.library.authenticate.helper.credential import (
-    CredentialProviderFactory,
+    CredentialFactory,
 )
 
 from ftrack.library.session.session import SessionProvider
-from ftrack.library.utility.url.checker import (
-    url_checker,
-    ftrack_server_url_checker,
-)
+from ftrack.library.utility.url.checker import ftrack_server_url_checker
 
 
 @click.group()
@@ -47,17 +44,23 @@ def start_event_hub(server_url, credential_identifier):
     :param credential_identifier: Unique identifier for the credentials.
     """
     try:
-        server_url = url_checker(server_url, [ftrack_server_url_checker])
+        server_url = ftrack_server_url_checker(server_url)
         if not credential_identifier:
             credential_identifier = generate_vault_identifier(
                 server_url=server_url
             )
 
-        credential_provider = CredentialProviderFactory(credential_identifier)
+        credential_factory_instance = CredentialFactory(credential_identifier)
 
-        session_provider = SessionProvider(credential_provider)
+        session_provider_instance = SessionProvider(
+            credential_factory_instance
+        )
         # TODO: we should probably not start the event hub in a new thread ere, but instead in a new process?. We have to review this.
-        session = session_provider.load_session(auto_connect_event_hub=True)
+        session = (
+            session_provider_instance.new_session_from_stored_credentials(
+                spread_event_hub_thread=True
+            )
+        )
         click.echo(f"Event hub thread started for session {session}")
 
     except click.BadParameter as e:

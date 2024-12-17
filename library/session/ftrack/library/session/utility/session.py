@@ -12,7 +12,7 @@ from ..helper.event_hub_thread import EventHubThread
 logging.basicConfig(level=logging.INFO)
 
 
-def wait_for_event_hub_connection(
+def connect_to_ftrack_event_hub(
     session: Session, timeout: int = 30, poll_interval: float = 0.5
 ) -> None:
     """
@@ -33,7 +33,7 @@ def wait_for_event_hub_connection(
         time.sleep(poll_interval)
 
 
-def create_event_hub_thread(session: Session) -> EventHubThread:
+def listen_for_events_on_thread(session: Session) -> EventHubThread:
     """
     Create or retrieve an EventHubThread for the session.
 
@@ -44,7 +44,7 @@ def create_event_hub_thread(session: Session) -> EventHubThread:
     if not session.event_hub.connected:
         raise Exception("Session event hub is not connected. Connect first.")
 
-    thread: Optional[EventHubThread] = get_event_hub_thread(session)
+    thread: Optional[EventHubThread] = get_event_hub_thread_of_session(session)
     if not thread:
         thread = EventHubThread(session)
     if not thread.is_alive():
@@ -52,7 +52,9 @@ def create_event_hub_thread(session: Session) -> EventHubThread:
     return thread
 
 
-def get_event_hub_thread(session: Session) -> Optional[EventHubThread]:
+def get_event_hub_thread_of_session(
+    session: Session,
+) -> Optional[EventHubThread]:
     """
     Retrieve an existing EventHubThread for the session, if any.
 
@@ -73,7 +75,7 @@ def create_api_session(
     server_url: str,
     api_key: str,
     api_user: str,
-    auto_connect_event_hub: bool = True,
+    spread_event_hub_thread: bool = True,
 ) -> Session:
     """
     Create an API session and optionally connect the event hub.
@@ -81,19 +83,16 @@ def create_api_session(
     :param server_url: URL of the server.
     :param api_key: API key for authentication.
     :param api_user: API user for authentication.
-    :param auto_connect_event_hub: Whether to automatically connect the event hub.
+    :param spread_event_hub_thread: Whether to automatically connect the event hub.
     :return: A new Session instance.
     """
     session: Session = Session(
-        server_url,
-        api_key,
-        api_user,
-        auto_connect_event_hub=auto_connect_event_hub,
+        server_url, api_key, api_user, auto_connect_event_hub=False
     )
-    if auto_connect_event_hub:
+    if spread_event_hub_thread:
         try:
-            wait_for_event_hub_connection(session)
-            create_event_hub_thread(session)
+            connect_to_ftrack_event_hub(session)
+            listen_for_events_on_thread(session)
         except Exception as e:
             logging.error(f"Failed to initialize event hub: {e}")
     return session

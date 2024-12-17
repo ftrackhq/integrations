@@ -4,16 +4,25 @@
 import logging
 import keyring
 from abc import ABC, abstractmethod
-from typing import Optional, Dict
+from typing import Optional, Dict, Type
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 
 
-class CredentialProvider(ABC):
+class CredentialInterface(ABC):
     """
-    Abstract base class for credential providers.
+    Abstract base class for credential.
     """
+
+    @abstractmethod
+    def __init__(self, credential_identifier: str) -> None:
+        """
+        Initialize the credential with a credential identifier.
+
+        :param credential_identifier: Unique identifier for credentials.
+        """
+        pass
 
     @abstractmethod
     def get_credential(self) -> Optional[Dict[str, str]]:
@@ -38,11 +47,19 @@ class CredentialProvider(ABC):
         pass
 
 
-class CredentialProviderFactory:
-    """Factory class for creating credential provider."""
+class CredentialFactory:
+    """Factory class for creating credential."""
 
-    def __init__(self, credential_identifier: Optional[str] = None) -> None:
+    def __init__(
+        self,
+        credential_identifier: Optional[str] = None,
+        variant: str = "keyring",
+    ) -> None:
         self._credential_identifier: Optional[str] = None
+        self._variant: str = variant
+        self._available_variant: Dict[str, Type["CredentialInterface"]] = {
+            'keyring': KeyringCredential
+        }
         self.credential_identifier: Optional[str] = credential_identifier
 
     @property
@@ -55,27 +72,41 @@ class CredentialProviderFactory:
             raise ValueError("Credential identifier must be a string or None.")
         self._credential_identifier = value
 
-    def create_credential_provider(self) -> CredentialProvider:
-        """
-        Create and return a keyring-based credential provider.
+    @property
+    def variant(self) -> str:
+        return self._variant
 
-        :return: Instance of a CredentialProvider.
+    @variant.setter
+    def variant(self, value: str) -> None:
+        if not isinstance(value, str):
+            raise ValueError("Variant must be a string.")
+        self._variant = value
+
+    @property
+    def available_variant(self) -> Dict[str, Type["CredentialInterface"]]:
+        return self._available_variant
+
+    def make(self) -> "CredentialInterface":
+        """
+        Create and return a CredentialInterface-based credential.
+
+        :return: Instance of a CredentialInterface.
         """
         if not self.credential_identifier:
             raise ValueError("Credential identifier is required.")
-        return KeyringCredentialProvider(self.credential_identifier)
+        return self.available_variant[self.variant](self.credential_identifier)
 
 
-class KeyringCredentialProvider(CredentialProvider):
+class KeyringCredential(CredentialInterface):
     """
-    Credential provider that uses the system keyring to store and retrieve credentials.
+    Credential that uses the system keyring to store and retrieve credentials.
     """
 
     def __init__(self, credential_identifier: str) -> None:
         self._credential_identifier: str = credential_identifier
 
     @property
-    def credential_identifier(self):
+    def credential_identifier(self) -> str:
         return self._credential_identifier
 
     def get_credential(self) -> Optional[Dict[str, str]]:
@@ -85,13 +116,13 @@ class KeyringCredentialProvider(CredentialProvider):
         :return: Dictionary containing server_url, api_user, and api_key, or None if not found.
         """
         try:
-            server_url: Optional[str] = keyring.get_password(
+            server_url = keyring.get_password(
                 self.credential_identifier, "server_url"
             )
-            api_user: Optional[str] = keyring.get_password(
+            api_user = keyring.get_password(
                 self.credential_identifier, "api_user"
             )
-            api_key: Optional[str] = keyring.get_password(
+            api_key = keyring.get_password(
                 self.credential_identifier, "api_key"
             )
 

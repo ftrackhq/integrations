@@ -4,24 +4,6 @@
 from urllib.parse import urlparse, urlunparse
 
 
-# Generic URL Checker Dispatcher
-def url_checker(url: str, checkers: list) -> str:
-    """
-    Dispatches the URL to the appropriate checkers until one validates it.
-    :param url: Input URL.
-    :param checkers: A list of checker functions.
-    :return: The validated URL.
-    :raises ValueError: If no checker validates the URL.
-    """
-    for checker in checkers:
-        try:
-            return checker(url)
-        except ValueError as e:
-            # Log or handle the exception if necessary
-            continue
-    raise ValueError(f"No valid checker found for the URL: {url}")
-
-
 def ftrack_server_url_checker(url: str) -> str:
     """
     Validates and constructs a proper Ftrack server URL, ensuring it uses HTTPS.
