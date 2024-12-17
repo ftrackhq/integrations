@@ -25,11 +25,12 @@ log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 
-def register_resolvers():
+def register_resolvers() -> None:
     """
     Defines and registers all custom resolvers that can be used in the configuration files.
+    We namespace our internal resolvers with ft.* to avoid conflicts with other resolvers.
 
-    :return:
+    :return: None
     """
 
     # TODO: Filling in the runtime args like this is up for discussion as we could also handle it differently.
@@ -99,7 +100,7 @@ def register_resolvers():
     def _lower(key: str) -> str:
         return key.lower()
 
-    def _compose(references: list[Any], *, _node_) -> DictConfig:
+    def _compose(references: list[Any], *, _node_, _root_) -> DictConfig:
         # We have to remove our current node to not end up in an infinite recursion.
         # The infinite recursion happens because we're hitting the resolver every time we access a key.
         # We can't work around this by using the cache, as caching is not supported in combination with
@@ -107,6 +108,14 @@ def register_resolvers():
         config = OmegaConf.create({})
         for reference in references:
             config = deep_update(config, reference)
+            full_reference_key = reference._parent._get_full_key(reference._key())
+            if (
+                reference.get("delete_after_compose")
+                and not full_reference_key in reference
+            ):
+                _root_._delete_after_compose.append(full_reference_key)
+                # Delete this key from the final composed config
+                del config.delete_after_compose
 
         return config
 
@@ -126,11 +135,21 @@ def register_resolvers():
     OmegaConf.register_new_resolver("glob", lambda key: _glob(key))
     OmegaConf.register_new_resolver(
         "compose",
-        lambda *references, _node_: _compose(references, _node_=_node_),
+        lambda *references, _node_, _root_: _compose(
+            references, _node_=_node_, _root_=_root_
+        ),
     )
 
 
 def _get_files_from_path(path: Path, pattern=r".*\.(yml|yaml)$") -> list[Path]:
+    """
+    Get all files from a given path that match the given pattern.
+    We will only return top level files, no recursion is done.
+
+    :param path: The parent path to search for files.
+    :param pattern: The regex pattern to apply to the filenames.
+    :return: A list of paths to the files that match the pattern.
+    """
     files = []
     for _file in os.listdir(path):
         if re.match(pattern, _file):
@@ -144,6 +163,7 @@ def get_configuration_files_from_namespace(
 ) -> set[Path]:
     """
     Get all configuration files from a given namespace.
+    We will not search recursively, only the top level of the given paths will be searched.
 
     :param namespace: The namespace within the available packages to search for configuration files.
     :return: A list of paths to the configuration files.
@@ -173,11 +193,11 @@ def get_configuration_files_from_entrypoint(
 ) -> set[Path]:
     """
     Get all configuration files from a given entrypoint.
+    We will not search recursively, only the top level of the given paths will be searched.
 
     :param name: The name of the entry point to look for configuration files.
     :return: A list of paths to the configuration files.
     """
-
     configuration_files = []
     for entrypoint in entry_points()[name]:
         # load the configuration entry point so we execute and initialise any custom resolvers
@@ -192,6 +212,13 @@ def get_configuration_files_from_entrypoint(
 def get_configuration_files_from_paths(
     paths: set[Path] = "connect.configuration",
 ) -> set[Path]:
+    """
+    Get all configuration files from a given set of paths.
+    We will not search recursively, only the top level of the given paths will be searched.
+
+    :param paths: A set of parent paths to search for configuration files.
+    :return: A list of paths to the configuration files.
+    """
     configuration_files = []
     for path in paths:
         configuration_files.extend(_get_files_from_path(path))
@@ -207,7 +234,6 @@ def compose_configuration_from_files(
     :param filepaths: A list of Path objects pointing to the configuration files.
     :return: A DictConfig object containing the merged configuration.
     """
-
     merged_configuration = OmegaConf.create()
     for filepath in filepaths:
         configuration = OmegaConf.load(filepath)
@@ -217,14 +243,41 @@ def compose_configuration_from_files(
 
 # TODO: we should MAYBE not only take DictConfig, but also Listconfig into account
 def resolve_configuration(configuration: DictConfig) -> DictConfig:
+    """
+    Resolves all interpolation keys and executes all resolvers in the given configuration object.
+    We will also delete all keys that are marked for deletion after composition.
+
+    :param configuration: The configuration object to resolve.
+    :return: The resolved configuration object.
+    """
     resolved_configuration = deepcopy(configuration)
+    resolved_configuration = OmegaConf.merge(
+        resolved_configuration, DictConfig({"_delete_after_compose": ListConfig([])})
+    )
     OmegaConf.resolve(resolved_configuration)
+
+    for value in resolved_configuration._delete_after_compose:
+        reference = OmegaConf.select(resolved_configuration, value)
+        if reference:
+            parent = reference._parent
+            del parent[reference._key()]
+
+    del resolved_configuration._delete_after_compose
+
     return resolved_configuration
 
 
 def remove_keys_from_configuration(
     configuration: DictConfig, pattern: str = "+"
 ) -> DictConfig:
+    """
+    Remove all keys from the configuration that match the given pattern.
+
+    :param configuration: The configuration object to remove keys from.
+    :param pattern: The pattern to match the keys against.
+    :return: A cleaned up configuration object.
+    """
+
     def _recursive_cleanup(root):
         keys_to_delete = []
         for key, value in root.items():
@@ -252,6 +305,17 @@ def convert_configuration_to_dict(
     :param resolve: Whether to resolve the configuration or not.
     :return: The resolved and possibly cleaned up configuration as a dictionary.
     """
-
     resolved_configuration = OmegaConf.to_container(configuration, resolve=resolve)
     return resolved_configuration
+
+
+def safe_configuration_to_yaml(configuration: DictConfig, path: Path) -> None:
+    """
+    Safely write the configuration to a yaml file.
+    This will not automatically resolve the configuration.
+
+    :param configuration: The configuration object to write.
+    :param path: The path to write the configuration to.
+    :return: None
+    """
+    OmegaConf.save(configuration, path)
