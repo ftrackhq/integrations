@@ -3,8 +3,8 @@
 
 import importlib
 import glob
-import os
 import logging
+import os
 import pkgutil
 import platform
 import platformdirs
@@ -13,10 +13,13 @@ import socket
 import time
 
 from copy import deepcopy
+from importlib.metadata import entry_points
 from pathlib import Path
 from types import ModuleType
-from typing import Any, Union
-from importlib.metadata import entry_points, EntryPoint
+from typing import (
+    Any,
+    Union,
+)
 
 from omegaconf import OmegaConf, DictConfig, ListConfig
 from pydantic.v1.utils import deep_update
@@ -35,9 +38,9 @@ def register_resolvers() -> None:
 
     # TODO: Filling in the runtime args like this is up for discussion as we could also handle it differently.
     # These will be lazily evaluated when the config is accessed
-    def _runtime_cached(key: str):
+    def _runtime_cached(value: str):
         # All of these will be cached and only evaluated once.
-        match key:
+        match value:
             case "architecture":
                 return platform.architecture()[0]
             case "platform":
@@ -53,15 +56,15 @@ def register_resolvers() -> None:
             case _:
                 return "None"
 
-    def _runtime_live(key: str):
+    def _runtime_live(value: str):
         # All of these will be evaluated every time the config value is accessed.
-        match key:
+        match value:
             case "time":
                 return time.time()
             case _:
                 return "None"
 
-    def _paths(path_type: str, scope: str) -> Path:
+    def _paths(path_type: str, scope: str) -> str:
         path_getter_method_name = f"{scope}_{path_type}_path"
         supported_path_types = [
             _.split("_")[1] for _ in dir(platformdirs) if re.match(r"user_.+_path", _)
@@ -71,22 +74,28 @@ def register_resolvers() -> None:
                 f"Path type {path_type} cannot be resolved. Supported path types are {supported_path_types}"
             )
 
-        path_getter_method: callable = getattr(platformdirs, path_getter_method_name)
+        path_getter_method = getattr(platformdirs, path_getter_method_name)
         assert path_getter_method
-        return Path(path_getter_method("ftrack-connect"))
+        return path_getter_method("ftrack-connect").as_posix()
 
-    def _glob(key: str) -> ListConfig:
+    def _glob(value: str) -> ListConfig:
         """
         Match all paths that match the given glob pattern.
-        :param key:
-        :return:
+
+        :param value:
+        :return: A ListConfig object containing all the matched paths.
         """
-        matches = glob.glob(key)
+        matches = glob.glob(value)
         return OmegaConf.create(matches)
 
-    # TODO: maybe we should resolve regex paths into lists using a resolver
-    #  this way we can just resolve and see the result within the final yaml config
     def _regex(value, pattern) -> ListConfig:
+        """
+        Match all values that match the given regex pattern.
+
+        :param value: The value to match against.
+        :param pattern: The regex pattern for matching.
+        :return: A ListConfig object containing all the matched values.
+        """
         if not isinstance(value, list):
             value = [value]
 
@@ -97,14 +106,23 @@ def register_resolvers() -> None:
 
         return OmegaConf.create(matches)
 
-    def _lower(key: str) -> str:
-        return key.lower()
+    def _lower(value: str) -> str:
+        """
+        Lowercases the given value.
+        :param key:
+        :return:
+        """
+        return value.lower()
 
     def _compose(references: list[Any], *, _node_, _root_) -> DictConfig:
-        # We have to remove our current node to not end up in an infinite recursion.
-        # The infinite recursion happens because we're hitting the resolver every time we access a key.
-        # We can't work around this by using the cache, as caching is not supported in combination with
-        # special argument access (_node_, _parent_, _root_).
+        """
+        Composes the given references into a single configuration object.
+
+        :param references: A List of references.
+        :param _node_: The implicitly provided current node.
+        :param _root_: The implicitly provided root node of the configuration.
+        :return: A DictConfig object containing the composed configuration.
+        """
         config = OmegaConf.create({})
         for reference in references:
             config = deep_update(config, reference)
@@ -294,18 +312,16 @@ def remove_keys_from_configuration(
     return cleaned_configuration
 
 
-def convert_configuration_to_dict(
-    configuration: DictConfig, resolve: bool = True
-) -> dict:
+def convert_configuration_to_dict(configuration: DictConfig) -> dict:
     """
     Resolves the given configuration object into a dictionary.
-    This will also flatten/resolve all individual keys to their final values.
+    This will not automatically resolve the configuration.
 
     :param configuration: The configuration object to resolve.
     :param resolve: Whether to resolve the configuration or not.
     :return: The resolved and possibly cleaned up configuration as a dictionary.
     """
-    resolved_configuration = OmegaConf.to_container(configuration, resolve=resolve)
+    resolved_configuration = OmegaConf.to_container(configuration, resolve=False)
     return resolved_configuration
 
 
