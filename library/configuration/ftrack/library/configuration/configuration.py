@@ -13,11 +13,12 @@ They are supposed to be run in sequence. For example:
 
 >>> composed_configuration = compose_configuration_from_files(config_files)
 >>> resolved_configuration = resolve_configuration(composed_configuration)
->>> save_configuration_to_yaml(resolved_configuration, Path("C:/Users/dennis.weil/Desktop/resolved.yaml"))
+>>> save_configuration_to_yaml(resolved_configuration, Path("resolved.yaml"))
 """
 
-import importlib
 import glob
+import importlib
+import itertools
 import logging
 import os
 import pkgutil
@@ -67,6 +68,8 @@ def register_resolvers() -> None:
             case "python_version":
                 return platform.python_version()
             case "time":
+                return time.time()
+            case "file":
                 return time.time()
             case _:
                 return "None"
@@ -157,12 +160,15 @@ def register_resolvers() -> None:
             config = deep_update(config, reference)
             full_reference_key = reference._parent._get_full_key(reference._key())
             if (
-                reference.get("delete_after_compose")
-                and not full_reference_key in reference
+                reference.get("_metadata", {}).get("delete-after-compose", False)
+                and full_reference_key
+                not in _root_["_metadata"]["delete-after-compose"]
             ):
-                _root_._delete_after_compose.append(full_reference_key)
+                _root_["_metadata"]["delete-after-compose"][
+                    full_reference_key
+                ] = reference
                 # Delete this key from the final composed config
-                del config.delete_after_compose
+                del config["_metadata"]
 
         return config
 
@@ -273,7 +279,7 @@ def get_configuration_files_from_paths(
 
 
 def compose_configuration_from_files(
-    filepaths: Union[list[Path], set[Path]]
+    filepaths: Union[list[Path], set[Path]],
 ) -> DictConfig:
     """
     Given a list of configuration file paths, load and merge them into a single configuration object.
@@ -281,9 +287,32 @@ def compose_configuration_from_files(
     :param filepaths: A list of Path objects pointing to the configuration files.
     :return: A DictConfig object containing the merged configuration.
     """
-    merged_configuration = OmegaConf.create()
-    for filepath in filepaths:
+
+    def _check_for_conflicts(d1, d2, ignore_keys=["_metadata", "configuration"]):
+        conflict_detected = False
+        for key in d1:
+            if key in d2:
+                conflict_detected = True
+            elif isinstance(d1[key], dict) and isinstance(d2[key], dict):
+                conflict_detected = (
+                    _check_for_conflicts(d1[key], d2[key]) or conflict_detected
+                )
+        return conflict_detected
+
+    merged_configuration = OmegaConf.create(
+        {"_metadata": {"sources": [], "delete-after-compose": DictConfig({})}}
+    )
+    configurations = [OmegaConf.load(filepath) for filepath in filepaths]
+    configurations = [_ for _ in configurations if _]
+    combinations_for_conflict_checking = list(itertools.combinations(configurations, 2))
+    for a, b in combinations_for_conflict_checking:
+        if _check_for_conflicts(a, b):
+            log.error(f"Configuration files {a} and {b} have conflicting keys.")
+    for filepath in sorted(filepaths):
         configuration = OmegaConf.load(filepath)
+        if configuration.get("_metadata"):
+            del configuration["_metadata"]
+        merged_configuration["_metadata"]["sources"].append(str(filepath.as_posix()))
         merged_configuration = OmegaConf.merge(merged_configuration, configuration)
     return merged_configuration
 
@@ -298,18 +327,18 @@ def resolve_configuration(configuration: DictConfig) -> DictConfig:
     :return: The resolved configuration object.
     """
     resolved_configuration = deepcopy(configuration)
-    resolved_configuration = OmegaConf.merge(
-        resolved_configuration, DictConfig({"_delete_after_compose": ListConfig([])})
-    )
+    # resolved_configuration = OmegaConf.merge(
+    #     resolved_configuration, DictConfig({"_delete_after_compose": ListConfig([])})
+    # )
     OmegaConf.resolve(resolved_configuration)
 
-    for value in resolved_configuration._delete_after_compose:
-        reference = OmegaConf.select(resolved_configuration, value)
+    for key in resolved_configuration["_metadata"]["delete-after-compose"]:
+        reference = OmegaConf.select(resolved_configuration, key)
         if reference:
             parent = reference._parent
             del parent[reference._key()]
 
-    del resolved_configuration._delete_after_compose
+    # del resolved_configuration._delete_after_compose
 
     return resolved_configuration
 
