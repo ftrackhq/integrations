@@ -2,12 +2,13 @@
 # :copyright: Copyright (c) 2024 ftrack
 
 import logging
+from typing import Optional
+
+from ftrack.library.authenticate.helper.credential import CredentialFactory
 from ftrack.library.authenticate.util.identifier import (
     generate_vault_identifier,
 )
-from ftrack.library.authenticate.helper.credential import CredentialFactory
 from ftrack.library.session.session import SessionProvider
-from typing import Optional
 
 # Configure logging for detailed output
 logging.basicConfig(level=logging.INFO)

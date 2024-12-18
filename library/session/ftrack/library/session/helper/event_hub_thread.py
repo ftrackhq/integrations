@@ -1,8 +1,8 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
-import threading
 import logging
+import threading
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:

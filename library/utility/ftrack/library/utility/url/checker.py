@@ -13,7 +13,7 @@ def ftrack_server_url_checker(url: str) -> str:
     :raises ValueError: If the URL is invalid.
     """
     # Strip leading and trailing slashes and spaces
-    url = url.strip('/ ')
+    url = url.strip("/ ")
 
     # If URL is empty after stripping
     if not url:
@@ -23,11 +23,11 @@ def ftrack_server_url_checker(url: str) -> str:
         )
 
     # If 'http' is not in the URL, construct the URL
-    if 'http' not in url:
-        if url.endswith('ftrackapp.com'):
-            url = 'https://' + url
+    if "http" not in url:
+        if url.endswith("ftrackapp.com"):
+            url = "https://" + url
         else:
-            url = f'https://{url}.ftrackapp.com'
+            url = f"https://{url}.ftrackapp.com"
 
     # Parse the URL
     parsed_url = urlparse(url)
@@ -37,12 +37,12 @@ def ftrack_server_url_checker(url: str) -> str:
         )
 
     # Enforce HTTPS scheme
-    if parsed_url.scheme != 'https':
-        parsed_url = parsed_url._replace(scheme='https')
+    if parsed_url.scheme != "https":
+        parsed_url = parsed_url._replace(scheme="https")
         url = urlunparse(parsed_url)
 
     # Ensure the URL ends with 'ftrackapp.com'
-    if not parsed_url.netloc.endswith('ftrackapp.com'):
+    if not parsed_url.netloc.endswith("ftrackapp.com"):
         raise ValueError(
             "The server URL must end with 'ftrackapp.com'. "
             "For example: https://server-name.ftrackapp.com"

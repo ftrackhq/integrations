@@ -1,11 +1,13 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
-import threading
 import logging
+import threading
 import time
 from typing import Optional
+
 from ftrack_api import Session
+
 from ..helper.event_hub_thread import EventHubThread
 
 # Configure logging

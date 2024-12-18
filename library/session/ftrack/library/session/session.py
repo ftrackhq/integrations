@@ -2,7 +2,8 @@
 # :copyright: Copyright (c) 2024 ftrack
 
 import logging
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
+
 from .utility.session import create_api_session
 
 if TYPE_CHECKING:
