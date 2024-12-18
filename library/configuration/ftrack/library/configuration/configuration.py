@@ -48,6 +48,7 @@ logging.basicConfig(level=logging.INFO)
 METADATA_ROOT_KEY = "_metadata"
 METADATA_SOURCES_KEY = "sources"
 METADATA_DELETE_KEY = "delete-after-compose"
+METADATA_CONFLICTS_KEY = "conflicts"
 
 
 class Configuration:
@@ -320,22 +321,19 @@ def compose_configuration_from_configurations(
     :return: A DictConfig object containing the merged configuration.
     """
 
-    def _check_for_conflicts(d1, d2, ignore_keys=["_metadata", "configuration"]):
-        conflict_detected = False
-        for key in d1:
-            if key in d2:
-                conflict_detected = True
-            elif isinstance(d1[key], dict) and isinstance(d2[key], dict):
-                conflict_detected = (
-                    _check_for_conflicts(d1[key], d2[key]) or conflict_detected
-                )
-        return conflict_detected
+    def _check_for_conflicts(lhs, rhs, root_key):
+        conflicting_keys = []
+        for key in lhs.get(root_key, []):
+            if key in rhs.get(root_key, []):
+                conflicting_keys.append(f"{root_key}.{key}")
+        return conflicting_keys
 
     merged_configuration = OmegaConf.create(
         {
             METADATA_ROOT_KEY: {
                 METADATA_SOURCES_KEY: ListConfig([]),
                 METADATA_DELETE_KEY: DictConfig({}),
+                METADATA_CONFLICTS_KEY: DictConfig({}),
             }
         }
     )
@@ -345,20 +343,41 @@ def compose_configuration_from_configurations(
         configuration.configuration = OmegaConf.load(configuration.file_path)
 
     # remove any empty configuration from the list
-    configurations = [_ for _ in configurations if _.configuration]
+    non_empty_configurations = [_ for _ in configurations if _.configuration]
 
     # create all possible combinations of two configurations to compare them against
     # each other for conflicts
-    combinations_for_conflict_checking = list(itertools.combinations(configurations, 2))
+    combinations_for_conflict_checking = list(
+        itertools.combinations(non_empty_configurations, 2)
+    )
 
+    # we will check for conflicts and report on them, but not attempt any automatic conflict resolution
+    from collections import defaultdict
+
+    conflicts = defaultdict(list)
     for lhs, rhs in combinations_for_conflict_checking:
-        if _check_for_conflicts(lhs.configuration, rhs.configuration):
-            logging.error("Configuration conflict:")
-            logging.error(f"{lhs.package_name}:{lhs.file_path}")
-            logging.error(f"{rhs.package_name}:{rhs.file_path}")
+        if configuration_conflict_keys := _check_for_conflicts(
+            lhs.configuration, rhs.configuration, "configuration"
+        ):
+            logging.error(
+                "Configurations with overlapping keys have been found. "
+                "Please make sure to explicitly set a resolution order.:"
+            )
+            lhs_identifier = f"{lhs.package_name}:{lhs.file_path.name}"
+            rhs_identifier = f"{rhs.package_name}:{rhs.file_path.name}"
+            logging.error(lhs_identifier)
+            logging.error(rhs_identifier)
+            logging.error(f"{configuration_conflict_keys}")
+            for configuration_conflict_key in configuration_conflict_keys:
+                conflicts[configuration_conflict_key].extend(
+                    [lhs_identifier, rhs_identifier]
+                )
+    # Make sure that the root level entries in conflicts are unique by a transient conversion to a set.
+    conflicts = {key: list(set(value)) for key, value in conflicts.items()}
+    merged_configuration[METADATA_ROOT_KEY][METADATA_CONFLICTS_KEY] = dict(conflicts)
 
     for configuration in sorted(
-        configurations, key=lambda x: f"{x.package_name}:{x.file_path}"
+        non_empty_configurations, key=lambda x: f"{x.package_name}:{x.file_path}"
     ):
         filepath = configuration.file_path
         configuration = OmegaConf.load(filepath)
@@ -376,6 +395,7 @@ def resolve_configuration(configuration: DictConfig) -> DictConfig:
     """
     Resolves all interpolation keys and executes all resolvers in the given configuration object.
     We will also delete all keys that are marked for deletion after composition.
+    Deleted keys are "moved" into the global _metadata key for later reference.
 
     :param configuration: The configuration object to resolve.
     :return: The resolved configuration object.
