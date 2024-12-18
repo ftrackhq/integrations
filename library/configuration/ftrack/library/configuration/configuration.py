@@ -7,11 +7,11 @@ The utilities in this module are designed to work nicely together.
 They are supposed to be run in sequence. For example:
 
 >>> register_resolvers()
->>> config_files = get_configuration_files_from_entrypoint("connect.configuration")
->>> more_config_files = get_configuration_files_from_namespace("ftrack.library")
->>> all_config_files = config_files.extend(more_config_files)
+>>> config_files = get_configurations_from_entrypoint("connect.configuration")
+>>> more_config_files = get_configurations_from_namespace("ftrack.library")
+>>> all_config_files = config_files.union(more_config_files)
 
->>> composed_configuration = compose_configuration_from_files(config_files)
+>>> composed_configuration = compose_configuration_from_configurations(config_files)
 >>> resolved_configuration = resolve_configuration(composed_configuration)
 >>> save_configuration_to_yaml(resolved_configuration, Path("resolved.yaml"))
 """
@@ -61,6 +61,16 @@ class Configuration:
         self.package_name = package_name
         self.file_path = file_path
         self.configuration = configuration
+
+    # TODO: This should probably just be the string representation
+    @property
+    def identifier(self):
+        if self.package_name and self.file_path:
+            return f"{self.package_name}:{self.file_path.name}"
+        elif self.file_path:
+            return self.file_path
+        else:
+            return None
 
     def __hash__(self):
         return hash(self.file_path)
@@ -363,14 +373,12 @@ def compose_configuration_from_configurations(
                 "Configurations with overlapping keys have been found. "
                 "Please make sure to explicitly set a resolution order.:"
             )
-            lhs_identifier = f"{lhs.package_name}:{lhs.file_path.name}"
-            rhs_identifier = f"{rhs.package_name}:{rhs.file_path.name}"
-            logging.error(lhs_identifier)
-            logging.error(rhs_identifier)
+            logging.error(lhs.identifier)
+            logging.error(rhs.identifier)
             logging.error(f"{configuration_conflict_keys}")
             for configuration_conflict_key in configuration_conflict_keys:
                 conflicts[configuration_conflict_key].extend(
-                    [lhs_identifier, rhs_identifier]
+                    [lhs.identifier, rhs.identifier]
                 )
     # Make sure that the root level entries in conflicts are unique by a transient conversion to a set.
     conflicts = {key: list(set(value)) for key, value in conflicts.items()}
@@ -379,14 +387,14 @@ def compose_configuration_from_configurations(
     for configuration in sorted(
         non_empty_configurations, key=lambda x: f"{x.package_name}:{x.file_path}"
     ):
-        filepath = configuration.file_path
-        configuration = OmegaConf.load(filepath)
-        if configuration.get(METADATA_ROOT_KEY):
-            del configuration[METADATA_ROOT_KEY]
+        if configuration.configuration.get(METADATA_ROOT_KEY):
+            del configuration.configuration[METADATA_ROOT_KEY]
         merged_configuration[METADATA_ROOT_KEY][METADATA_SOURCES_KEY].append(
-            str(filepath.as_posix())
+            configuration.identifier
         )
-        merged_configuration = OmegaConf.merge(merged_configuration, configuration)
+        merged_configuration = OmegaConf.merge(
+            merged_configuration, configuration.configuration
+        )
     return merged_configuration
 
 
