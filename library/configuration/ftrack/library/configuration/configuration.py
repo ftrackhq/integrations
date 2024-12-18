@@ -9,7 +9,7 @@ They are supposed to be run in sequence. For example:
 >>> register_resolvers()
 >>> config_files = get_configuration_files_from_entrypoint("connect.configuration")
 >>> more_config_files = get_configuration_files_from_namespace("ftrack.library")
->>> all_config_files = config_files.union(more_config_files)
+>>> all_config_files = config_files.extend(more_config_files)
 
 >>> composed_configuration = compose_configuration_from_files(config_files)
 >>> resolved_configuration = resolve_configuration(composed_configuration)
@@ -23,6 +23,7 @@ import logging
 import os
 import pkgutil
 import platform
+
 import platformdirs
 import re
 import socket
@@ -40,13 +41,28 @@ from typing import (
 from omegaconf import OmegaConf, DictConfig, ListConfig
 from pydantic.v1.utils import deep_update
 
-log = logging.getLogger(__name__)
+# log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 
 METADATA_ROOT_KEY = "_metadata"
 METADATA_SOURCES_KEY = "sources"
 METADATA_DELETE_KEY = "delete-after-compose"
+
+
+class Configuration:
+    def __init__(
+        self,
+        package_name: str = "",
+        file_path: Path = "",
+        configuration: DictConfig = OmegaConf.create({}),
+    ):
+        self.package_name = package_name
+        self.file_path = file_path
+        self.configuration = configuration
+
+    def __hash__(self):
+        return hash(self.file_path)
 
 
 def register_resolvers() -> None:
@@ -216,9 +232,9 @@ def _get_files_from_path(path: Path, pattern=r".*\.(yml|yaml)$") -> list[Path]:
     return files
 
 
-def get_configuration_files_from_namespace(
+def get_configurations_from_namespace(
     namespace: str = "ftrack.library",
-) -> set[Path]:
+) -> set[Configuration]:
     """
     Get all configuration files from a given namespace.
     We will not search recursively, only the top level of the given paths will be searched.
@@ -227,7 +243,7 @@ def get_configuration_files_from_namespace(
     :return: A list of paths to the configuration files.
     """
 
-    configuration_files = []
+    configuration_sources = []
     root_namespace_package: ModuleType = importlib.import_module(namespace)
     packages = pkgutil.walk_packages(
         root_namespace_package.__path__, prefix=root_namespace_package.__name__ + "."
@@ -241,14 +257,17 @@ def get_configuration_files_from_namespace(
             and module_spec.name.split(".")[-1] == "configuration"
         ):
             module_path = Path(module_spec.origin).parent
-            configuration_files.extend(_get_files_from_path(module_path))
+            for _file in _get_files_from_path(module_path):
+                configuration_sources.append(
+                    Configuration(package_name=package.name, file_path=_file)
+                )
 
-    return set(configuration_files)
+    return set(configuration_sources)
 
 
-def get_configuration_files_from_entrypoint(
+def get_configurations_from_entrypoint(
     name: str = "connect.configuration",
-) -> set[Path]:
+) -> set[Configuration]:
     """
     Get all configuration files from a given entrypoint.
     We will not search recursively, only the top level of the given paths will be searched.
@@ -256,20 +275,25 @@ def get_configuration_files_from_entrypoint(
     :param name: The name of the entry point to look for configuration files.
     :return: A list of paths to the configuration files.
     """
-    configuration_files = []
+    configuration_sources = []
     for entrypoint in entry_points()[name]:
         # load the configuration entry point so we execute and initialise any custom resolvers
         configuration_package = entrypoint.load()
 
         module_path = Path(configuration_package.__file__).parent
-        configuration_files.extend(_get_files_from_path(module_path))
+        for _file in _get_files_from_path(module_path):
+            configuration_sources.append(
+                Configuration(
+                    package_name=configuration_package.__name__, file_path=_file
+                )
+            )
 
-    return set(configuration_files)
+    return set(configuration_sources)
 
 
-def get_configuration_files_from_paths(
-    paths: set[Path] = "connect.configuration",
-) -> set[Path]:
+def get_configurations_from_paths(
+    paths: list[Path] = "connect.configuration",
+) -> set[Configuration]:
     """
     Get all configuration files from a given set of paths.
     We will not search recursively, only the top level of the given paths will be searched.
@@ -277,14 +301,17 @@ def get_configuration_files_from_paths(
     :param paths: A set of parent paths to search for configuration files.
     :return: A list of paths to the configuration files.
     """
-    configuration_files = []
+    configuration_sources = []
     for path in paths:
-        configuration_files.extend(_get_files_from_path(path))
-    return set(configuration_files)
+        for _file in _get_files_from_path(path):
+            configuration_sources.append(
+                Configuration(package_name="", file_path=_file)
+            )
+    return set(configuration_sources)
 
 
-def compose_configuration_from_files(
-    filepaths: Union[list[Path], set[Path]],
+def compose_configuration_from_configurations(
+    configurations: list[Configuration],
 ) -> DictConfig:
     """
     Given a list of configuration file paths, load and merge them into a single configuration object.
@@ -312,13 +339,28 @@ def compose_configuration_from_files(
             }
         }
     )
-    configurations = [OmegaConf.load(filepath) for filepath in filepaths]
-    configurations = [_ for _ in configurations if _]
+
+    # add the actual configuration
+    for configuration in configurations:
+        configuration.configuration = OmegaConf.load(configuration.file_path)
+
+    # remove any empty configuration from the list
+    configurations = [_ for _ in configurations if _.configuration]
+
+    # create all possible combinations of two configurations to compare them against
+    # each other for conflicts
     combinations_for_conflict_checking = list(itertools.combinations(configurations, 2))
-    for a, b in combinations_for_conflict_checking:
-        if _check_for_conflicts(a, b):
-            log.error(f"Configuration files {a} and {b} have conflicting keys.")
-    for filepath in sorted(filepaths):
+
+    for lhs, rhs in combinations_for_conflict_checking:
+        if _check_for_conflicts(lhs.configuration, rhs.configuration):
+            logging.error("Configuration conflict:")
+            logging.error(f"{lhs.package_name}:{lhs.file_path}")
+            logging.error(f"{rhs.package_name}:{rhs.file_path}")
+
+    for configuration in sorted(
+        configurations, key=lambda x: f"{x.package_name}:{x.file_path}"
+    ):
+        filepath = configuration.file_path
         configuration = OmegaConf.load(filepath)
         if configuration.get(METADATA_ROOT_KEY):
             del configuration[METADATA_ROOT_KEY]
@@ -366,19 +408,19 @@ def remove_keys_from_configuration(
     :return: A cleaned up configuration object.
     """
 
-    def _recursive_cleanup(root):
+    def _recursive_remove(root):
         keys_to_delete = []
         for key, value in root.items():
             if key.startswith(pattern):
                 keys_to_delete.append(key)
                 continue
             if isinstance(value, dict):
-                _recursive_cleanup(value)
+                _recursive_remove(value)
         for key in keys_to_delete:
             del root[key]
 
     cleaned_configuration = deepcopy(configuration)
-    _recursive_cleanup(cleaned_configuration)
+    _recursive_remove(cleaned_configuration)
     return cleaned_configuration
 
 
