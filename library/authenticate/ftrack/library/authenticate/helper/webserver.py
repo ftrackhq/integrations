@@ -151,7 +151,7 @@ class FlaskWebServer(WebServerInterface):
                 api_user: Optional[str] = request.args.get("api_user")
                 api_key: Optional[str] = request.args.get("api_key")
                 if api_user and api_key:
-                    self._credential_instance.set_credential(
+                    self._credential_instance.credential_store(
                         self._server_url, api_user, api_key
                     )
                     logging.info("Credential received and saved.")
@@ -164,7 +164,7 @@ class FlaskWebServer(WebServerInterface):
                     return "Missing api_user or api_key."
             except Exception as e:
                 logging.error(f"Error during callback processing: {e}")
-                return "An error occurred during authentication."
+                raise
 
     def run_server(self) -> None:
         """Run Flask server and wait for stop flag."""

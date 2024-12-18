@@ -78,7 +78,7 @@ class Authenticate:
     def redirect_uri(self):
         return self._redirect_uri
 
-    def browser_authenticate(self) -> None:
+    def authenticate_browser(self) -> None:
         """
         Launch the authentication process:
         - Starts a local web server in a separate thread.
@@ -127,7 +127,7 @@ class Authenticate:
         self._server_ready.set()
         self.web_server_instance.run_server()
 
-    def credential_authenticate(
+    def authenticate_credential(
         self, server_url: str, api_user: str, api_key: str
     ) -> None:
         """
@@ -137,4 +137,6 @@ class Authenticate:
         :param api_user: The username captured during authentication.
         :param api_key: The API key captured during authentication.
         """
-        self.credential_instance.set_credential(server_url, api_user, api_key)
+        self.credential_instance.credential_store(
+            server_url, api_user, api_key
+        )

@@ -58,7 +58,7 @@ def start_event_hub(server_url, credential_identifier):
         # TODO: we should probably not start the event hub in a new thread ere, but instead in a new process?. We have to review this.
         session = (
             session_provider_instance.new_session_from_stored_credentials(
-                spread_event_hub_thread=True
+                spawn_event_hub_thread=True
             )
         )
         click.echo(f"Event hub thread started for session {session}")

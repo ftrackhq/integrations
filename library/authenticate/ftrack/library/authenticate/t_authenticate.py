@@ -25,7 +25,7 @@ def main() -> None:
         credential_factory=CredentialFactory(CREDENTIAL_IDENTIFIER),
         web_server_factory=WebServerFactory(),
     )
-    auth.browser_authenticate()
+    auth.authenticate_browser()
 
 
 if __name__ == "__main__":

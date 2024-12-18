@@ -25,7 +25,7 @@ class CredentialInterface(ABC):
         pass
 
     @abstractmethod
-    def get_credential(self) -> Optional[Dict[str, str]]:
+    def credential_load(self) -> Optional[Dict[str, str]]:
         """
         Retrieve credentials.
 
@@ -34,7 +34,7 @@ class CredentialInterface(ABC):
         pass
 
     @abstractmethod
-    def set_credential(
+    def credential_store(
         self, server_url: str, api_user: str, api_key: str
     ) -> None:
         """
@@ -109,7 +109,7 @@ class KeyringCredential(CredentialInterface):
     def credential_identifier(self) -> str:
         return self._credential_identifier
 
-    def get_credential(self) -> Optional[Dict[str, str]]:
+    def credential_load(self) -> Optional[Dict[str, str]]:
         """
         Retrieve credentials from the keyring.
 
@@ -139,9 +139,9 @@ class KeyringCredential(CredentialInterface):
             return None
         except Exception as e:
             logging.error(f"Failed to retrieve credential: {e}")
-            return None
+            raise
 
-    def set_credential(
+    def credential_store(
         self, server_url: str, api_user: str, api_key: str
     ) -> None:
         """
@@ -166,3 +166,4 @@ class KeyringCredential(CredentialInterface):
             )
         except Exception as e:
             logging.error(f"Failed to save credential: {e}")
+            raise

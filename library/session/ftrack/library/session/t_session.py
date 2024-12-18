@@ -31,7 +31,7 @@ def main() -> None:
     session: Optional[
         object
     ] = session_provider.new_session_from_stored_credentials(
-        spread_event_hub_thread=True
+        spawn_event_hub_thread=True
     )
 
     if session:

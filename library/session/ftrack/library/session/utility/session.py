@@ -75,7 +75,7 @@ def create_api_session(
     server_url: str,
     api_key: str,
     api_user: str,
-    spread_event_hub_thread: bool = True,
+    spawn_event_hub_thread: bool = True,
 ) -> Session:
     """
     Create an API session and optionally connect the event hub.
@@ -83,16 +83,17 @@ def create_api_session(
     :param server_url: URL of the server.
     :param api_key: API key for authentication.
     :param api_user: API user for authentication.
-    :param spread_event_hub_thread: Whether to automatically connect the event hub.
+    :param spawn_event_hub_thread: Whether to automatically connect the event hub.
     :return: A new Session instance.
     """
     session: Session = Session(
         server_url, api_key, api_user, auto_connect_event_hub=False
     )
-    if spread_event_hub_thread:
+    if spawn_event_hub_thread:
         try:
             connect_to_ftrack_event_hub(session)
             listen_for_events_on_thread(session)
         except Exception as e:
             logging.error(f"Failed to initialize event hub: {e}")
+            raise
     return session

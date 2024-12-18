@@ -27,5 +27,6 @@ class EventHubThread(threading.Thread):
         try:
             logging.info(f"Listening for events on session {self.session}")
             self.session.event_hub.wait()
-        except Exception as e:
-            logging.error(f"Error in EventHubThread: {e}")
+        except Exception:
+            logging.error(f"Error in EventHubThread", exc_info=True)
+            raise

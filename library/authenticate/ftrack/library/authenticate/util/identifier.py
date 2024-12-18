@@ -24,7 +24,7 @@ def generate_url_identifier(tool_name: str) -> Optional[str]:
         return identifier
     except Exception as e:
         logging.error(f"Failed to generate url identifier: {e}")
-        return None
+        raise
 
 
 def generate_vault_identifier(server_url: str) -> Optional[str]:
@@ -41,4 +41,4 @@ def generate_vault_identifier(server_url: str) -> Optional[str]:
         return identifier
     except Exception as e:
         logging.error(f"Failed to generate credential identifier: {e}")
-        return None
+        raise

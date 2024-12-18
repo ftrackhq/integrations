@@ -44,25 +44,25 @@ class SessionProvider:
         return self._session
 
     def new_session_from_stored_credentials(
-        self, spread_event_hub_thread: bool = True
+        self, spawn_event_hub_thread: bool = True
     ) -> Optional["Session"]:
         """
         Load a session using stored credentials.
 
-        :param spread_event_hub_thread: Whether to automatically connect to the event hub.
+        :param spawn_event_hub_thread: Whether to automatically connect to the event hub.
         :return: An API session or None if credentials are missing or invalid.
         """
         try:
             # Retrieve credential securely using the external library
             credential: Optional[
                 dict
-            ] = self.credential_instance.get_credential()
+            ] = self.credential_instance.credential_load()
             if credential:
                 server_url = credential["server_url"]
                 api_key = credential["api_key"]
                 api_user = credential["api_user"]
                 return create_api_session(
-                    server_url, api_key, api_user, spread_event_hub_thread
+                    server_url, api_key, api_user, spawn_event_hub_thread
                 )
             else:
                 logging.warning(
@@ -71,6 +71,8 @@ class SessionProvider:
                 return None
         except KeyError as e:
             logging.error(f"Malformed credential data: Missing {e}")
+            raise
         except Exception as e:
             logging.error(f"An unexpected error occurred: {e}")
+            raise
         return None

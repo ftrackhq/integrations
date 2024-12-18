@@ -76,13 +76,13 @@ def authenticate(method, server_url, credential_identifier, api_user, api_key):
         )
 
         if method == "browser":
-            auth.browser_authenticate()
+            auth.authenticate_browser()
         elif method == "credential":
             if not api_user or not api_key:
                 raise click.BadParameter(
                     "Both --api-user and --api-key are required for credential authentication."
                 )
-            auth.credential_authenticate(server_url, api_user, api_key)
+            auth.authenticate_credential(server_url, api_user, api_key)
     except click.BadParameter as e:
         click.echo(f"Error: {e}", err=True)
     except Exception as e:
