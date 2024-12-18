@@ -1,11 +1,13 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
-import threading
 import logging
-from flask import Flask, request
+import threading
 from abc import ABC, abstractmethod
-from typing import Optional, Dict, Type
+from typing import Dict, Optional, Type
+
+from flask import Flask, request
+
 from .credential import CredentialInterface
 
 # Configure logging
@@ -56,12 +58,10 @@ class WebServerFactory:
         self._port: int = port
         self._variant: str = variant
         self._available_variant: Dict[str, Type["WebServerInterface"]] = {
-            'FlaskWebServer': FlaskWebServer
+            "FlaskWebServer": FlaskWebServer
         }
 
-        self.credential_instance: Optional[
-            "CredentialInterface"
-        ] = credential_instance
+        self.credential_instance: Optional["CredentialInterface"] = credential_instance
         self.server_url: Optional[str] = server_url
 
     @property
@@ -69,9 +69,7 @@ class WebServerFactory:
         return self._credential_instance
 
     @credential_instance.setter
-    def credential_instance(
-        self, value: Optional["CredentialInterface"]
-    ) -> None:
+    def credential_instance(self, value: Optional["CredentialInterface"]) -> None:
         if value is not None and not isinstance(value, CredentialInterface):
             raise ValueError(
                 "Credential must be an instance of CredentialInterface or None."
@@ -156,9 +154,7 @@ class FlaskWebServer(WebServerInterface):
                     )
                     logging.info("Credential received and saved.")
                     self._stop_flag.set()  # Signal to stop the server
-                    return (
-                        "Authentication successful! You can close this window."
-                    )
+                    return "Authentication successful! You can close this window."
                 else:
                     logging.warning("Incomplete credential received.")
                     return "Missing api_user or api_key."

@@ -2,11 +2,13 @@
 # :copyright: Copyright (c) 2024 ftrack
 
 import logging
-import webbrowser
 import threading
+import webbrowser
 from typing import TYPE_CHECKING, Optional
-from .util.identifier import generate_url_identifier
+
 from ftrack.library.utility.url.checker import ftrack_server_url_checker
+
+from .util.identifier import generate_url_identifier
 
 if TYPE_CHECKING:
     from .helper.credential import (
@@ -45,9 +47,7 @@ class Authenticate:
         except ValueError as e:
             logging.error(f"Invalid server URL: {e}")
             raise
-        self._credential_instance: "CredentialInterface" = (
-            credential_factory.make()
-        )
+        self._credential_instance: "CredentialInterface" = credential_factory.make()
         self._web_server_factory: "WebServerFactory" = web_server_factory
         self._web_server_instance: Optional["WebServerInterface"] = None
         self._redirect_port: int = redirect_port
@@ -87,9 +87,7 @@ class Authenticate:
         """
         try:
             # Create a web server instance
-            self.web_server_factory.credential_instance = (
-                self.credential_instance
-            )
+            self.web_server_factory.credential_instance = self.credential_instance
             self.web_server_factory.server_url = self.server_url
             self.web_server_factory.port = self.redirect_port
             self._web_server_instance = self.web_server_factory.make()
@@ -115,9 +113,7 @@ class Authenticate:
             # Wait for the server to shut down after successful authentication
             server_thread.join()
         except Exception as e:
-            logging.error(
-                f"An error occurred during browser authentication: {e}"
-            )
+            logging.error(f"An error occurred during browser authentication: {e}")
             raise
 
     def run_server(self) -> None:
@@ -137,6 +133,4 @@ class Authenticate:
         :param api_user: The username captured during authentication.
         :param api_key: The API key captured during authentication.
         """
-        self.credential_instance.credential_store(
-            server_url, api_user, api_key
-        )
+        self.credential_instance.credential_store(server_url, api_user, api_key)

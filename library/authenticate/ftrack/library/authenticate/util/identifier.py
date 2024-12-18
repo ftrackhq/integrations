@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
-import logging
 import getpass
+import logging
 import socket
 from typing import Optional
 

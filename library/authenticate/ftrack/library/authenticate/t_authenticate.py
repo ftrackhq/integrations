@@ -2,12 +2,13 @@
 # :copyright: Copyright (c) 2024 ftrack
 
 import logging
+
 from ftrack.library.authenticate.authenticate import Authenticate
+from ftrack.library.authenticate.helper.credential import CredentialFactory
+from ftrack.library.authenticate.helper.webserver import WebServerFactory
 from ftrack.library.authenticate.util.identifier import (
     generate_vault_identifier,
 )
-from ftrack.library.authenticate.helper.credential import CredentialFactory
-from ftrack.library.authenticate.helper.webserver import WebServerFactory
 
 # Configure logging for detailed output
 logging.basicConfig(level=logging.INFO)

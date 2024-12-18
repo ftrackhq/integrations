@@ -2,9 +2,10 @@
 # :copyright: Copyright (c) 2024 ftrack
 
 import logging
-import keyring
 from abc import ABC, abstractmethod
-from typing import Optional, Dict, Type
+from typing import Dict, Optional, Type
+
+import keyring
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -34,9 +35,7 @@ class CredentialInterface(ABC):
         pass
 
     @abstractmethod
-    def credential_store(
-        self, server_url: str, api_user: str, api_key: str
-    ) -> None:
+    def credential_store(self, server_url: str, api_user: str, api_key: str) -> None:
         """
         Save credentials securely.
 
@@ -58,7 +57,7 @@ class CredentialFactory:
         self._credential_identifier: Optional[str] = None
         self._variant: str = variant
         self._available_variant: Dict[str, Type["CredentialInterface"]] = {
-            'keyring': KeyringCredential
+            "keyring": KeyringCredential
         }
         self.credential_identifier: Optional[str] = credential_identifier
 
@@ -116,15 +115,9 @@ class KeyringCredential(CredentialInterface):
         :return: Dictionary containing server_url, api_user, and api_key, or None if not found.
         """
         try:
-            server_url = keyring.get_password(
-                self.credential_identifier, "server_url"
-            )
-            api_user = keyring.get_password(
-                self.credential_identifier, "api_user"
-            )
-            api_key = keyring.get_password(
-                self.credential_identifier, "api_key"
-            )
+            server_url = keyring.get_password(self.credential_identifier, "server_url")
+            api_user = keyring.get_password(self.credential_identifier, "api_user")
+            api_key = keyring.get_password(self.credential_identifier, "api_key")
 
             if server_url and api_user and api_key:
                 return {
@@ -141,9 +134,7 @@ class KeyringCredential(CredentialInterface):
             logging.error(f"Failed to retrieve credential: {e}")
             raise
 
-    def credential_store(
-        self, server_url: str, api_user: str, api_key: str
-    ) -> None:
+    def credential_store(self, server_url: str, api_user: str, api_key: str) -> None:
         """
         Save credentials securely using the system keyring.
 
@@ -152,15 +143,9 @@ class KeyringCredential(CredentialInterface):
         :param api_key: API key for authentication.
         """
         try:
-            keyring.set_password(
-                self.credential_identifier, "server_url", server_url
-            )
-            keyring.set_password(
-                self.credential_identifier, "api_user", api_user
-            )
-            keyring.set_password(
-                self.credential_identifier, "api_key", api_key
-            )
+            keyring.set_password(self.credential_identifier, "server_url", server_url)
+            keyring.set_password(self.credential_identifier, "api_user", api_user)
+            keyring.set_password(self.credential_identifier, "api_key", api_key)
             logging.info(
                 f"Credentials saved for identifier: {self.credential_identifier}."
             )
