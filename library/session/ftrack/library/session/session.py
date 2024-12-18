@@ -28,9 +28,7 @@ class SessionProvider:
 
         :param credential_factory: Credential factory instance.
         """
-        self._credential_instance: "CredentialInterface" = (
-            credential_factory.make()
-        )
+        self._credential_instance: "CredentialInterface" = credential_factory.make()
         self._session: Optional["Session"] = None
 
     @property
@@ -55,9 +53,7 @@ class SessionProvider:
         """
         try:
             # Retrieve credential securely using the external library
-            credential: Optional[
-                dict
-            ] = self.credential_instance.credential_load()
+            credential: Optional[dict] = self.credential_instance.credential_load()
             if credential:
                 server_url = credential["server_url"]
                 api_key = credential["api_key"]
@@ -66,9 +62,7 @@ class SessionProvider:
                     server_url, api_key, api_user, spawn_event_hub_thread
                 )
             else:
-                logging.warning(
-                    "No credentials found. Please authenticate first."
-                )
+                logging.warning("No credentials found. Please authenticate first.")
                 return None
         except KeyError as e:
             logging.error(f"Malformed credential data: Missing {e}")

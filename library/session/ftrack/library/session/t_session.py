@@ -14,7 +14,9 @@ from ftrack.library.session.session import SessionProvider
 logging.basicConfig(level=logging.INFO)
 
 # Test variables (replace with real or mock values for testing)
-TEST_URL: str = "https://ftrack-integrations.ftrackapp.com"  # Mock authentication server URL
+TEST_URL: str = (
+    "https://ftrack-integrations.ftrackapp.com"  # Mock authentication server URL
+)
 CREDENTIAL_IDENTIFIER: str = generate_vault_identifier(TEST_URL)
 
 
@@ -29,9 +31,7 @@ def main() -> None:
     # Step 2: Test Session Loading
     logging.info("Loading session...")
     session_provider = SessionProvider(credential_provider)
-    session: Optional[
-        object
-    ] = session_provider.new_session_from_stored_credentials(
+    session: Optional[object] = session_provider.new_session_from_stored_credentials(
         spawn_event_hub_thread=True
     )
 

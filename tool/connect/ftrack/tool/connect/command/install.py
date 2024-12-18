@@ -1,15 +1,18 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
-import click
-import subprocess
-import sys
 import os
+import subprocess
+
+import click
 
 
 @click.command()
 @click.argument("package")
 @click.option(
-    "-e", "--editable", is_flag=True, help="Install the package in editable mode"
+    "-e",
+    "--editable",
+    is_flag=True,
+    help="Install the package in editable mode",
 )
 def install(package, editable):
     """

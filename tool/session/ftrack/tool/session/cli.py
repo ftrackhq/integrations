@@ -2,13 +2,12 @@
 # :copyright: Copyright (c) 2024 ftrack
 
 import click
-from ftrack.library.authenticate.util.identifier import (
-    generate_vault_identifier,
-)
 from ftrack.library.authenticate.helper.credential import (
     CredentialFactory,
 )
-
+from ftrack.library.authenticate.util.identifier import (
+    generate_vault_identifier,
+)
 from ftrack.library.session.session import SessionProvider
 from ftrack.library.utility.url.checker import ftrack_server_url_checker
 
@@ -46,20 +45,14 @@ def start_event_hub(server_url, credential_identifier):
     try:
         server_url = ftrack_server_url_checker(server_url)
         if not credential_identifier:
-            credential_identifier = generate_vault_identifier(
-                server_url=server_url
-            )
+            credential_identifier = generate_vault_identifier(server_url=server_url)
 
         credential_factory_instance = CredentialFactory(credential_identifier)
 
-        session_provider_instance = SessionProvider(
-            credential_factory_instance
-        )
+        session_provider_instance = SessionProvider(credential_factory_instance)
         # TODO: we should probably not start the event hub in a new thread ere, but instead in a new process?. We have to review this.
-        session = (
-            session_provider_instance.new_session_from_stored_credentials(
-                spawn_event_hub_thread=True
-            )
+        session = session_provider_instance.new_session_from_stored_credentials(
+            spawn_event_hub_thread=True
         )
         click.echo(f"Event hub thread started for session {session}")
 

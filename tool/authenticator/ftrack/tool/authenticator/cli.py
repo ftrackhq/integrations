@@ -3,13 +3,13 @@
 
 import click
 from ftrack.library.authenticate.authenticate import Authenticate
-from ftrack.library.authenticate.util.identifier import (
-    generate_vault_identifier,
-)
 from ftrack.library.authenticate.helper.credential import (
     CredentialFactory,
 )
 from ftrack.library.authenticate.helper.webserver import WebServerFactory
+from ftrack.library.authenticate.util.identifier import (
+    generate_vault_identifier,
+)
 from ftrack.library.utility.url.checker import ftrack_server_url_checker
 
 
@@ -71,9 +71,7 @@ def authenticate(method, server_url, credential_identifier, api_user, api_key):
             )
 
         credential_factory_instance = CredentialFactory(credential_identifier)
-        auth = Authenticate(
-            server_url, credential_factory_instance, WebServerFactory()
-        )
+        auth = Authenticate(server_url, credential_factory_instance, WebServerFactory())
 
         if method == "browser":
             auth.authenticate_browser()
