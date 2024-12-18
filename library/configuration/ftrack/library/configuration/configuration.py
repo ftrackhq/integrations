@@ -44,6 +44,11 @@ log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 
+METADATA_ROOT_KEY = "_metadata"
+METADATA_SOURCES_KEY = "sources"
+METADATA_DELETE_KEY = "delete-after-compose"
+
+
 def register_resolvers() -> None:
     """
     Defines and registers all custom resolvers that can be used in the configuration files.
@@ -160,15 +165,15 @@ def register_resolvers() -> None:
             config = deep_update(config, reference)
             full_reference_key = reference._parent._get_full_key(reference._key())
             if (
-                reference.get("_metadata", {}).get("delete-after-compose", False)
+                reference.get(METADATA_ROOT_KEY, {}).get(METADATA_DELETE_KEY, False)
                 and full_reference_key
-                not in _root_["_metadata"]["delete-after-compose"]
+                not in _root_[METADATA_ROOT_KEY][METADATA_DELETE_KEY]
             ):
-                _root_["_metadata"]["delete-after-compose"][
+                _root_[METADATA_ROOT_KEY][METADATA_DELETE_KEY][
                     full_reference_key
                 ] = reference
                 # Delete this key from the final composed config
-                del config["_metadata"]
+                del config[METADATA_ROOT_KEY]
 
         return config
 
@@ -300,7 +305,12 @@ def compose_configuration_from_files(
         return conflict_detected
 
     merged_configuration = OmegaConf.create(
-        {"_metadata": {"sources": [], "delete-after-compose": DictConfig({})}}
+        {
+            METADATA_ROOT_KEY: {
+                METADATA_SOURCES_KEY: ListConfig([]),
+                METADATA_DELETE_KEY: DictConfig({}),
+            }
+        }
     )
     configurations = [OmegaConf.load(filepath) for filepath in filepaths]
     configurations = [_ for _ in configurations if _]
@@ -310,9 +320,11 @@ def compose_configuration_from_files(
             log.error(f"Configuration files {a} and {b} have conflicting keys.")
     for filepath in sorted(filepaths):
         configuration = OmegaConf.load(filepath)
-        if configuration.get("_metadata"):
-            del configuration["_metadata"]
-        merged_configuration["_metadata"]["sources"].append(str(filepath.as_posix()))
+        if configuration.get(METADATA_ROOT_KEY):
+            del configuration[METADATA_ROOT_KEY]
+        merged_configuration[METADATA_ROOT_KEY][METADATA_SOURCES_KEY].append(
+            str(filepath.as_posix())
+        )
         merged_configuration = OmegaConf.merge(merged_configuration, configuration)
     return merged_configuration
 
@@ -332,7 +344,7 @@ def resolve_configuration(configuration: DictConfig) -> DictConfig:
     # )
     OmegaConf.resolve(resolved_configuration)
 
-    for key in resolved_configuration["_metadata"]["delete-after-compose"]:
+    for key in resolved_configuration[METADATA_ROOT_KEY][METADATA_DELETE_KEY]:
         reference = OmegaConf.select(resolved_configuration, key)
         if reference:
             parent = reference._parent
