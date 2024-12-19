@@ -1,0 +1,19 @@
+#TODO: Session or session provider?
+[project]
+name = "ftrack.library.session"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11, <3.12"
+dependencies = [
+    "requests>=2.32.3",
+    "flask>=3.1.0",
+    "keyring>=25",
+    "ftrack-python-api>=3.0.0",
+    "ftrack-library-authenticate>=0.1.0",
+]
+# TODO: Think how to deal when this library has as dependnecy the ftrack api and for example connect has it as well. How do we make sure we are sync?
+
+[tool.uv.sources]
+ftrack-library-authenticate = { path = "../../library/authenticate", editable = true }
+
