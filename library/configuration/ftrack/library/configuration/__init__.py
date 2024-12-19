@@ -2,6 +2,7 @@
 # :copyright: Copyright (c) 2024 ftrack
 
 # TODO:
+#  - keys to be deleted should be deleted and moved by a separate function
 #  - implement optional ordering mechanism:
 #    - the ordering.yaml file can be created automatically
 #    - ordering will only be required if an actual confict is discovered

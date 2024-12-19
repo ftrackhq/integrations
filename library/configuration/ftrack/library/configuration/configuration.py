@@ -101,7 +101,7 @@ def register_resolvers() -> None:
                 return platform.python_version()
             case "time":
                 return time.time()
-            case "file":
+            case "time":
                 return time.time()
             case _:
                 return "None"
@@ -189,18 +189,15 @@ def register_resolvers() -> None:
         """
         config = OmegaConf.create({})
         for reference in references:
-            config = deep_update(config, reference)
             full_reference_key = reference._parent._get_full_key(reference._key())
-            if (
-                reference.get(METADATA_ROOT_KEY, {}).get(METADATA_DELETE_KEY, False)
-                and full_reference_key
-                not in _root_[METADATA_ROOT_KEY][METADATA_DELETE_KEY]
-            ):
+            if reference.get(METADATA_ROOT_KEY, {}).get(METADATA_DELETE_KEY, False):
+                # Delete the metadata key from this reference so it won't show up in the
+                # final composed key or in the metadata.
+                del reference[METADATA_ROOT_KEY]
                 _root_[METADATA_ROOT_KEY][METADATA_DELETE_KEY][
                     full_reference_key
                 ] = reference
-                # Delete this key from the final composed config
-                del config[METADATA_ROOT_KEY]
+            config = deep_update(config, reference)
 
         return config
 
@@ -244,13 +241,15 @@ def _get_files_from_path(path: Path, pattern=r".*\.(yml|yaml)$") -> list[Path]:
 
 
 def get_configurations_from_namespace(
-    namespace: str = "ftrack.library",
+    namespace: str = "",
+    module_name: str = "",
 ) -> set[Configuration]:
     """
     Get all configuration files from a given namespace.
     We will not search recursively, only the top level of the given paths will be searched.
 
     :param namespace: The namespace within the available packages to search for configuration files.
+    :param module_name: The name of the module within the package to search for configuration files.
     :return: A list of paths to the configuration files.
     """
 
@@ -265,7 +264,7 @@ def get_configurations_from_namespace(
         # check if this is a package (non-packages will have a submodule_search_locations attribute of None)
         if (
             module_spec.submodule_search_locations
-            and module_spec.name.split(".")[-1] == "configuration"
+            and module_spec.name.split(".")[-1] == module_name
         ):
             module_path = Path(module_spec.origin).parent
             for _file in _get_files_from_path(module_path):
@@ -409,9 +408,6 @@ def resolve_configuration(configuration: DictConfig) -> DictConfig:
     :return: The resolved configuration object.
     """
     resolved_configuration = deepcopy(configuration)
-    # resolved_configuration = OmegaConf.merge(
-    #     resolved_configuration, DictConfig({"_delete_after_compose": ListConfig([])})
-    # )
     OmegaConf.resolve(resolved_configuration)
 
     for key in resolved_configuration[METADATA_ROOT_KEY][METADATA_DELETE_KEY]:
@@ -419,8 +415,6 @@ def resolve_configuration(configuration: DictConfig) -> DictConfig:
         if reference:
             parent = reference._parent
             del parent[reference._key()]
-
-    # del resolved_configuration._delete_after_compose
 
     return resolved_configuration
 
