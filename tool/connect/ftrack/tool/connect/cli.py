@@ -3,8 +3,9 @@
 
 import click
 import pkg_resources
-from .commands.install import install
-from .commands.uv import uv
+
+from .command.install import install
+from .command.uv import uv
 
 
 @click.group()
@@ -30,7 +31,7 @@ def load_plugins():
             command = entry_point.load()
             cli.add_command(command, name=entry_point.name)
         except Exception as e:
-            print(f"Failed to load plugin '{entry_point.name}': {e}")
+            click.echo(f"Failed to load plugin {entry_point.name}: {e}", err=True)
 
 
 # Call load_plugins to ensure new commands are added

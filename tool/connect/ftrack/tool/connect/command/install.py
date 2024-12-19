@@ -1,15 +1,18 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
-import click
-import subprocess
-import sys
 import os
+import subprocess
+
+import click
 
 
 @click.command()
 @click.argument("package")
 @click.option(
-    "-e", "--editable", is_flag=True, help="Install the package in editable mode"
+    "-e",
+    "--editable",
+    is_flag=True,
+    help="Install the package in editable mode",
 )
 def install(package, editable):
     """
@@ -40,8 +43,8 @@ def install(package, editable):
             pip_command, capture_output=True, text=True, env=os.environ
         )
         if result.returncode == 0:
-            print(f"Package '{package}' installed successfully.")
+            click.echo(f"Successfully installed: {package}")
         else:
-            print(f"Failed to install '{package}': {result.stderr}")
+            click.echo(f"Failed to install {package}: {result.stderr}", err=True)
     except Exception as e:
-        print(f"An error occurred during installation: {e}")
+        click.echo(f"An unexpected error occurred: {e}", err=True)

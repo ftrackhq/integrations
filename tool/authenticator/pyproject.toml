@@ -1,0 +1,21 @@
+[project]
+name = "ftrack.tool.authenticator"
+version = "0.1.0"
+description = "Add your description here"
+authors = [{name = "ftrack Integrations Team", email = "integrations@backlight.co"}]
+readme = "README.md"
+requires-python = ">=3.11, <3.12"
+dependencies = [
+    "click>8.0",
+    "ftrack-library-authenticate>=0.1.0",
+]
+
+[project.scripts]
+authenticator = "ftrack.tool.authenticator.cli:authenticator"
+
+[project.entry-points."connect.plugins"]
+authenticator = "ftrack.tool.authenticator.cli:authenticator"
+
+[tool.uv.sources]
+ftrack-library-authenticate = { path = "../../library/authenticate", editable = true }
+
