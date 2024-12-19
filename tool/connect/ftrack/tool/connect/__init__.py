@@ -2,10 +2,10 @@
 # :copyright: Copyright (c) 2024 ftrack
 
 # Import the CLI tool from the ftrack.app.connect.cli module
-from .cli import cli
-
 # Check if virtual environment is activated
 import os
+
+from .cli import cli
 
 if not os.getenv("VIRTUAL_ENV"):
     print(
