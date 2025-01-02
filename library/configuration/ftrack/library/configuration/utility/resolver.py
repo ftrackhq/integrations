@@ -10,12 +10,12 @@ from typing import Any
 from omegaconf import OmegaConf, ListConfig, DictConfig
 from pydantic.v1.utils import deep_update
 
-from ..helper.metadata import METADATA
+from ..helper.enum import METADATA
 
 
 def register_ft_resolvers() -> None:
     """
-    Registers all default ftrack resolvers.
+    Registers all default ftrack resolvers within the ft namespace.
 
     :return: None
     """
@@ -44,8 +44,6 @@ def register_runtime_cached():
                 return socket.gethostname()
             case "python_version":
                 return platform.python_version()
-            case "time":
-                return time.time()
             case "time":
                 return time.time()
             case _:

@@ -6,3 +6,11 @@ class METADATA(Enum):
     SOURCES = "sources"
     DELETE = "delete-after-compose"
     CONFLICTS = "conflicts"
+
+
+class CONFLICT_RESOLUTION(Enum):
+    IGNORE = "ignore"
+    WARN = "warn"
+    FAIL = "fail"
+    EXPLICIT = "explicit"
+    ORDER = "order"

@@ -29,7 +29,7 @@ from types import ModuleType
 from omegaconf import OmegaConf, DictConfig, ListConfig
 
 from ..helper.spec import ConfigurationSpec
-from ..helper.metadata import METADATA
+from ..helper.enum import METADATA
 
 
 logging.basicConfig(level=logging.INFO)
@@ -81,7 +81,9 @@ def get_configurations_from_namespace(
             module_path = Path(module_spec.origin).parent
             for _file in _get_files_from_path(module_path):
                 configuration_sources.append(
-                    ConfigurationSpec(package_name=package.name, file_path=_file)
+                    ConfigurationSpec(
+                        loader="namespace", package_name=package.name, file_path=_file
+                    )
                 )
 
     return set(configuration_sources)
@@ -106,7 +108,9 @@ def get_configurations_from_entrypoint(
         for _file in _get_files_from_path(module_path):
             configuration_sources.append(
                 ConfigurationSpec(
-                    package_name=configuration_package.__name__, file_path=_file
+                    loader="entrypoint",
+                    package_name=configuration_package.__name__,
+                    file_path=_file,
                 )
             )
 
@@ -127,9 +131,14 @@ def get_configurations_from_paths(
     for path in paths:
         for _file in _get_files_from_path(path):
             configuration_sources.append(
-                ConfigurationSpec(package_name="", file_path=_file)
+                ConfigurationSpec(loader="path", package_name="", file_path=_file)
             )
     return set(configuration_sources)
+
+
+def get_configurations_from_metadata(metadata: DictConfig) -> set[ConfigurationSpec]:
+    print("test")
+    pass
 
 
 def check_configurations_for_conflicts(
@@ -154,27 +163,25 @@ def check_configurations_for_conflicts(
             ):
                 logging.error(
                     "Configurations with overlapping keys have been found. "
-                    "Please make sure to explicitly set a resolution order.:"
+                    "Please make sure to explicitly set a resolution method and/or order.:"
                 )
-                logging.error(lhs.identifier)
-                logging.error(rhs.identifier)
+                logging.error(lhs)
+                logging.error(rhs)
                 logging.error(f"{configuration_conflict_keys}")
                 for configuration_conflict_key in configuration_conflict_keys:
-                    conflicts[configuration_conflict_key].extend(
-                        [lhs.identifier, rhs.identifier]
-                    )
+                    conflicts[configuration_conflict_key].extend([str(lhs), str(rhs)])
     # Make sure that the root level entries in conflicts are unique by a transient conversion to a set.
     conflicts = {key: list(set(value)) for key, value in conflicts.items()}
     return conflicts
 
 
-def create_metadata_from_configuration_specs(
-    configurations: set[ConfigurationSpec],
+def get_metadata_from_configuration_specs(
+    configurations: set[ConfigurationSpec], conflict_resolution_metho: str = "warn"
 ) -> DictConfig:
     metadata_configuration = OmegaConf.create(
         {
             METADATA.ROOT.value: {
-                METADATA.SOURCES.value: ListConfig([]),
+                METADATA.SOURCES.value: DictConfig({}),
                 METADATA.DELETE.value: ListConfig([]),
                 METADATA.CONFLICTS.value: DictConfig({}),
             }
@@ -196,13 +203,17 @@ def create_metadata_from_configuration_specs(
         conflicts
     )
 
-    sources = []
-    for configuration in sorted(
-        non_empty_configurations, key=lambda x: f"{x.package_name}:{x.file_path}"
-    ):
-        sources.append(configuration.identifier)
+    for configuration in sorted(non_empty_configurations, key=lambda x: repr(x)):
+        metadata_configuration[METADATA.ROOT.value][METADATA.SOURCES.value][
+            str(configuration)
+        ] = configuration.to_dict()
 
-    metadata_configuration[METADATA.ROOT.value][METADATA.SOURCES.value] = sources
+    return metadata_configuration
+
+
+def get_metadata_from_configuration_file(filepath) -> DictConfig:
+    configuration = OmegaConf.load(filepath)
+    metadata_configuration = configuration["_metadata"]
     return metadata_configuration
 
 
@@ -212,7 +223,7 @@ def compose_configuration_from_configurations(
     """
     Given a list of configuration file paths, load and merge them into a single configuration object.
 
-    :param filepaths: A list of Path objects pointing to the configuration files.
+    :param configurations: A list of Path objects pointing to the configuration files.
     :return: A DictConfig object containing the merged configuration.
     """
 
@@ -220,7 +231,7 @@ def compose_configuration_from_configurations(
     for configuration in configurations:
         configuration.configuration = OmegaConf.load(configuration.file_path)
 
-    merged_configuration = create_metadata_from_configuration_specs(configurations)
+    merged_configuration = get_metadata_from_configuration_specs(configurations)
 
     for configuration in sorted(
         configurations, key=lambda x: f"{x.package_name}:{x.file_path}"
