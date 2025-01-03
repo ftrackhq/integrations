@@ -13,10 +13,12 @@ They are supposed to be run in sequence. For example:
 >>> save_configuration_to_yaml(resolved_configuration, Path("resolved.yaml"))
 """
 
+import base64
 import importlib
 import itertools
 import logging
 import os
+import pickle
 import pkgutil
 import re
 
@@ -82,7 +84,13 @@ def get_configurations_from_namespace(
             for _file in _get_files_from_path(module_path):
                 configuration_sources.append(
                     ConfigurationSpec(
-                        loader="namespace", package_name=package.name, file_path=_file
+                        loader="namespace",
+                        loader_arguments={
+                            "namespace": namespace,
+                            "module_name": module_name,
+                        },
+                        package_name=package.name,
+                        file_path=_file,
                     )
                 )
 
@@ -109,6 +117,7 @@ def get_configurations_from_entrypoint(
             configuration_sources.append(
                 ConfigurationSpec(
                     loader="entrypoint",
+                    loader_arguments={"name": name},
                     package_name=configuration_package.__name__,
                     file_path=_file,
                 )
@@ -131,14 +140,14 @@ def get_configurations_from_paths(
     for path in paths:
         for _file in _get_files_from_path(path):
             configuration_sources.append(
-                ConfigurationSpec(loader="path", package_name="", file_path=_file)
+                ConfigurationSpec(
+                    loader="path",
+                    loader_arguments={"paths": paths},
+                    package_name="",
+                    file_path=_file,
+                )
             )
     return set(configuration_sources)
-
-
-def get_configurations_from_metadata(metadata: DictConfig) -> set[ConfigurationSpec]:
-    print("test")
-    pass
 
 
 def check_configurations_for_conflicts(
@@ -175,7 +184,7 @@ def check_configurations_for_conflicts(
     return conflicts
 
 
-def get_metadata_from_configuration_specs(
+def create_metadata_from_configuration_specs(
     configurations: set[ConfigurationSpec], conflict_resolution_metho: str = "warn"
 ) -> DictConfig:
     metadata_configuration = OmegaConf.create(
@@ -211,13 +220,39 @@ def get_metadata_from_configuration_specs(
     return metadata_configuration
 
 
+def get_configuration_keys_by_pattern(configuration: DictConfig, pattern: re.Pattern):
+    def _recursive_walk(parent):
+        matched_keys = []
+
+        for idx, key in enumerate(parent):
+            if isinstance(parent, (list, ListConfig)):
+                key = idx
+            node = parent._get_node(key)
+            full_key = parent._get_full_key(key)
+            if not node:
+                # FIXME: A reference can currently not be obtained for weird keys like the ones
+                #  we have in the metadata sources e.g. 'LOADER:namespace|PACKAGE:ftrack.library.configuration|PATH:runtime.yaml'
+                continue
+            if re.match(pattern, full_key):
+                matched_keys.append(full_key)
+            if isinstance(node, (list, dict, ListConfig, DictConfig)):
+                matched_keys.extend(_recursive_walk(node))
+        return matched_keys
+
+    return _recursive_walk(configuration)
+
+
 def get_metadata_from_configuration_file(filepath) -> DictConfig:
     configuration = OmegaConf.load(filepath)
     metadata_configuration = configuration["_metadata"]
     return metadata_configuration
 
 
-def compose_configuration_from_configurations(
+def compose_configuration_from_metadata(metadata: DictConfig) -> DictConfig:
+    raise NotImplementedError
+
+
+def compose_configuration_from_configuration_specs(
     configurations: set[ConfigurationSpec],
 ) -> DictConfig:
     """
@@ -231,10 +266,14 @@ def compose_configuration_from_configurations(
     for configuration in configurations:
         configuration.configuration = OmegaConf.load(configuration.file_path)
 
-    merged_configuration = get_metadata_from_configuration_specs(configurations)
+    merged_configuration = create_metadata_from_configuration_specs(configurations)
 
     for configuration in sorted(
-        configurations, key=lambda x: f"{x.package_name}:{x.file_path}"
+        # We'll only use the package_name and file_path instead of the full str representation
+        # to make sure we're deduplicating configurations that are the same but have been
+        # loaded through different loaders (entrypoint, namespace, path).
+        configurations,
+        key=lambda x: f"{x.package_name}:{x.file_path}",
     ):
         if configuration.configuration.get(METADATA.ROOT.value):
             del configuration.configuration[METADATA.ROOT.value]
@@ -256,17 +295,35 @@ def resolve_configuration(configuration: DictConfig) -> DictConfig:
     """
     resolved_configuration = deepcopy(configuration)
     OmegaConf.resolve(resolved_configuration)
-
-    for key in resolved_configuration[METADATA.ROOT.value][METADATA.DELETE.value]:
-        reference = OmegaConf.select(resolved_configuration, key)
-        if reference:
-            parent = reference._parent
-            del parent[reference._key()]
-
     return resolved_configuration
 
 
-def remove_keys_from_configuration(
+def remove_keys_marked_for_deletion_from_configuration(
+    configuration: DictConfig,
+) -> DictConfig:
+    clean_configuration = deepcopy(configuration)
+    # FIXME: Somehow we're not selecting the +launch and ++launch keys here.
+    #  this is probably happening because we're removing these metadata keys during composition...
+    #  we should probably not delete them from the original key though
+    candidate_keys = get_configuration_keys_by_pattern(
+        clean_configuration, r"^.*_metadata.marked_for_deletion"
+    )
+    chosen_keys = [
+        key for key in candidate_keys if OmegaConf.select(configuration, key) is True
+    ]
+    # FIXME: This is a temporary workaround. Ideally the remove_keys_from_configuration functino should be
+    #  able to handle this properly. This is currently used to get from foo.bar._metadata.marked_for_deletion
+    #  to foo to be able to delete the child bar
+    grandparent_keys = [
+        ".".join(key.split(".")[:-2]) for key in chosen_keys if "." in key
+    ]
+    clean_configuration = remove_keys_from_configuration(
+        clean_configuration, grandparent_keys
+    )
+    return clean_configuration
+
+
+def remove_keys_by_pattern_from_configuration(
     configuration: DictConfig, pattern: str = "+"
 ) -> DictConfig:
     """
@@ -293,6 +350,25 @@ def remove_keys_from_configuration(
     return cleaned_configuration
 
 
+def remove_keys_from_configuration(
+    configuration: DictConfig, keys: list[str]
+) -> DictConfig:
+    # TODO: get the highest level key and ignore lower level keys (alternativevely we could sort by depth)
+    cleaned_configuration = deepcopy(configuration)
+    for full_key in keys:
+        # FIXME: a node can only be selected when the result is a Config object (not plain old data)
+        node = OmegaConf.select(cleaned_configuration, full_key)
+        if not node:
+            continue
+        key = node._key()
+        parent = node._parent
+        if parent is None:
+            del node._root[key]
+        else:
+            del parent[key]
+    return cleaned_configuration
+
+
 def convert_configuration_to_dict(configuration: DictConfig) -> dict:
     """
     Resolves the given configuration object into a dictionary.
@@ -316,3 +392,24 @@ def save_configuration_to_yaml(configuration: DictConfig, path: Path) -> None:
     :return: None
     """
     OmegaConf.save(configuration, path)
+
+
+# TODO: Test this functionality properly
+def serialize_configuration_to_base64_hex(configuration: DictConfig) -> str:
+    # Serialize the object to a pickle byte stream
+    pickled_data = pickle.dumps(configuration)
+    # Encode the byte stream to a base64 string
+    base64_encoded = base64.b64encode(pickled_data).decode("utf-8")
+    # Convert the base64 string to a hexdump
+    hexdump = base64_encoded.encode("utf-8").hex()
+    return hexdump
+
+
+def deserialize_configuration_from_base64_hex(hexdump: str) -> DictConfig:
+    # Convert the hexdump back to a base64 string
+    base64_encoded = bytes.fromhex(hexdump).decode("utf-8")
+    # Decode the base64 string to a pickle byte stream
+    pickled_data = base64.b64decode(base64_encoded)
+    # Deserialize the pickle byte stream to an object
+    configuration = pickle.loads(pickled_data)
+    return configuration

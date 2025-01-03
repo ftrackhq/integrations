@@ -4,13 +4,10 @@ from enum import Enum
 class METADATA(Enum):
     ROOT = "_metadata"
     SOURCES = "sources"
-    DELETE = "delete-after-compose"
+    DELETE = "marked_for_deletion"
     CONFLICTS = "conflicts"
 
 
-class CONFLICT_RESOLUTION(Enum):
-    IGNORE = "ignore"
+class CONFLICT_HANDLING(Enum):
     WARN = "warn"
-    FAIL = "fail"
-    EXPLICIT = "explicit"
-    ORDER = "order"
+    RAISE = "raise"

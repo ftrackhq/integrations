@@ -165,7 +165,7 @@ def register_compose():
         config = OmegaConf.create({})
         for reference in references:
             full_reference_key = reference._parent._get_full_key(reference._key())
-            if reference.get(METADATA.ROOT.value, {}).get(METADATA.ROOT.value, False):
+            if reference.get(METADATA.ROOT.value, {}).get(METADATA.DELETE.value, False):
                 # Delete the metadata key from this reference so it won't show up in the
                 # final composed key or in the metadata.
                 del reference[METADATA.ROOT.value]

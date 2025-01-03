@@ -10,11 +10,13 @@ class ConfigurationSpec:
     def __init__(
         self,
         loader: str = "",
+        loader_arguments: dict = None,
         package_name: str = "",
         file_path: Path = "",
         configuration: DictConfig = None,
     ):
         self.loader = loader
+        self.loader_arguments = loader_arguments or {}
         self.package_name = package_name
         self.file_path = file_path
         # We're setting the default value here instead of the argument list
@@ -62,6 +64,7 @@ class ConfigurationSpec:
     def to_dict(self) -> dict:
         return {
             "loader": self.loader,
+            "loader_arguments": self.loader_arguments,
             "package_name": self.package_name,
             "file_path": str(self.file_path),
             "configuration": self.config_as_base64(),
@@ -69,22 +72,8 @@ class ConfigurationSpec:
 
     def from_dict(self, state: dict) -> Self:
         self.loader = state["loader"]
+        self.loader_arguments = state["loader_arguments"]
         self.package_name = state["package_name"]
         self.file_path = Path(state["file_path"])
         self.configuration = self.config_from_base64(state["configuration"])
         return self
-
-    def __getstate__(self):
-        state = {
-            "loader": self.loader,
-            "package_name": self.package_name,
-            "file_path": self.file_path,
-            # "configuration": OmegaConf.to_container(self.configuration, resolve=False),
-        }
-        return state
-
-    def __setstate__(self, state):
-        self.loader = state["loader"]
-        self.package_name = state["package_name"]
-        self.file_path = Path(state["file_path"])
-        # self.configuration = OmegaConf.create(state["configuration"])
