@@ -23,6 +23,7 @@ def register_ft_resolvers() -> None:
     register_runtime_cached()
     register_runtime_live()
     register_compose()
+    register_exec()
     register_glob()
     register_lower()
     register_regex()
@@ -86,6 +87,32 @@ def register_paths():
         "ft.paths",
         lambda path_type, scope="user": _paths(path_type, scope),
         use_cache=True,
+    )
+
+
+def register_exec():
+    def _exec(executables: list[str], *arguments: list[str]) -> ListConfig:
+        """
+        Execute the given executables with the given arguments.
+        NOTE: The arguments list will be applied to all executables in the same way.
+        This resolver is built to run the same type of executable with the same arguments.
+
+        :param executables: A list of executables to run.
+        :param arguments: A list of arguments to apply to the executables.
+        :return:
+        """
+        import subprocess
+
+        results = OmegaConf.create([])
+        for executable in executables:
+            result = subprocess.run(
+                [executable, *arguments], capture_output=True, text=True
+            )
+            results.append(result.stdout.strip("\n"))
+        return results
+
+    OmegaConf.register_new_resolver(
+        "ft.exec", lambda executable, *arguments: _exec(executable, *arguments)
     )
 
 
