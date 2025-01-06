@@ -188,29 +188,16 @@ def create_metadata_from_configuration_specs(
     configurations: set[ConfigurationSpec], conflict_resolution_metho: str = "warn"
 ) -> DictConfig:
     metadata_configuration = OmegaConf.create(
-        {
-            METADATA.ROOT.value: {
-                METADATA.SOURCES.value: DictConfig({}),
-                METADATA.DELETE.value: ListConfig([]),
-                METADATA.CONFLICTS.value: DictConfig({}),
-            }
-        }
+        {METADATA.ROOT.value: {METADATA.SOURCES.value: OmegaConf.create({})}}
     )
 
     # add the actual configuration
+    # TODO: This should probably be already done and only loaded from the hexdump.
     for configuration in configurations:
         configuration.configuration = OmegaConf.load(configuration.file_path)
 
     # remove any empty configuration from the list
     non_empty_configurations = set([_ for _ in configurations if _.configuration])
-
-    conflicts = check_configurations_for_conflicts(
-        non_empty_configurations, root_keys=["configuration"]
-    )
-
-    metadata_configuration[METADATA.ROOT.value][METADATA.CONFLICTS.value] = dict(
-        conflicts
-    )
 
     for configuration in sorted(non_empty_configurations, key=lambda x: repr(x)):
         metadata_configuration[METADATA.ROOT.value][METADATA.SOURCES.value][
@@ -248,8 +235,13 @@ def get_metadata_from_configuration_file(filepath) -> DictConfig:
     return metadata_configuration
 
 
-def compose_configuration_from_metadata(metadata: DictConfig) -> DictConfig:
-    raise NotImplementedError
+def create_configuration_specs_from_metadata(
+    metadata: DictConfig,
+) -> set[ConfigurationSpec]:
+    specs = set()
+    for key, value in metadata[METADATA.SOURCES.value].items():
+        specs.add(ConfigurationSpec.from_dict(value))
+    return specs
 
 
 def compose_configuration_from_configuration_specs(
@@ -266,7 +258,7 @@ def compose_configuration_from_configuration_specs(
     for configuration in configurations:
         configuration.configuration = OmegaConf.load(configuration.file_path)
 
-    merged_configuration = create_metadata_from_configuration_specs(configurations)
+    merged_configuration = OmegaConf.create({})
 
     for configuration in sorted(
         # We'll only use the package_name and file_path instead of the full str representation
@@ -317,15 +309,11 @@ def remove_keys_marked_for_deletion_from_configuration(
     grandparent_keys = [
         ".".join(key.split(".")[:-2]) for key in chosen_keys if "." in key
     ]
-    clean_configuration = remove_keys_from_configuration(
-        clean_configuration, grandparent_keys
-    )
+    clean_configuration = remove_keys_by_full_key(clean_configuration, grandparent_keys)
     return clean_configuration
 
 
-def remove_keys_by_pattern_from_configuration(
-    configuration: DictConfig, pattern: str = "+"
-) -> DictConfig:
+def remove_keys_by_pattern(configuration: DictConfig, pattern: str = "+") -> DictConfig:
     """
     Remove all keys from the configuration that match the given pattern.
 
@@ -345,19 +333,17 @@ def remove_keys_by_pattern_from_configuration(
         for key in keys_to_delete:
             del root[key]
 
-    cleaned_configuration = deepcopy(configuration)
-    _recursive_remove(cleaned_configuration)
-    return cleaned_configuration
+    clean_configuration = deepcopy(configuration)
+    _recursive_remove(clean_configuration)
+    return clean_configuration
 
 
-def remove_keys_from_configuration(
-    configuration: DictConfig, keys: list[str]
-) -> DictConfig:
+def remove_keys_by_full_key(configuration: DictConfig, keys: list[str]) -> DictConfig:
     # TODO: get the highest level key and ignore lower level keys (alternativevely we could sort by depth)
-    cleaned_configuration = deepcopy(configuration)
+    clean_configuration = deepcopy(configuration)
     for full_key in keys:
         # FIXME: a node can only be selected when the result is a Config object (not plain old data)
-        node = OmegaConf.select(cleaned_configuration, full_key)
+        node = OmegaConf.select(clean_configuration, full_key)
         if not node:
             continue
         key = node._key()
@@ -366,7 +352,7 @@ def remove_keys_from_configuration(
             del node._root[key]
         else:
             del parent[key]
-    return cleaned_configuration
+    return clean_configuration
 
 
 def convert_configuration_to_dict(configuration: DictConfig) -> dict:

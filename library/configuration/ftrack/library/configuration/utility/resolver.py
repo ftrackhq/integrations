@@ -6,6 +6,7 @@ import re
 import socket
 import time
 
+from copy import deepcopy
 from typing import Any
 from omegaconf import OmegaConf, ListConfig, DictConfig
 from pydantic.v1.utils import deep_update
@@ -117,7 +118,10 @@ def register_regex():
         matches = []
         for v in value:
             if match := re.search(pattern, str(v)):
-                matches.append(match[0])
+                if match.groups():
+                    matches.append(match.groups()[0])
+                else:
+                    matches.append(match[0])
 
         return OmegaConf.create(matches)
 
@@ -164,15 +168,14 @@ def register_compose():
         """
         config = OmegaConf.create({})
         for reference in references:
-            full_reference_key = reference._parent._get_full_key(reference._key())
+            # We need to create a copy of the reference to ensure we'll only remove the metadata
+            # key from the final composed configuration keys, but retain it for the original source key.
+            reference_duplicate = deepcopy(reference)
             if reference.get(METADATA.ROOT.value, {}).get(METADATA.DELETE.value, False):
                 # Delete the metadata key from this reference so it won't show up in the
                 # final composed key or in the metadata.
-                del reference[METADATA.ROOT.value]
-                _root_[METADATA.ROOT.value][METADATA.DELETE.value].append(
-                    full_reference_key
-                )
-            config = deep_update(config, reference)
+                del reference_duplicate[METADATA.ROOT.value]
+            config = deep_update(config, reference_duplicate)
 
         return config
 

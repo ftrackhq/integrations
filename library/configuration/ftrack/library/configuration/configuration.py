@@ -13,7 +13,7 @@ import tempfile
 from pathlib import Path
 from typing import Self
 
-from omegaconf import DictConfig
+from omegaconf import OmegaConf, DictConfig
 
 from .helper.spec import ConfigurationSpec
 from .utility.configuration import (
@@ -22,12 +22,14 @@ from .utility.configuration import (
     get_configurations_from_paths,
     get_configuration_keys_by_pattern,
     create_metadata_from_configuration_specs,
+    create_configuration_specs_from_metadata,
+    check_configurations_for_conflicts,
     save_configuration_to_yaml,
     convert_configuration_to_dict,
     compose_configuration_from_configuration_specs,
     resolve_configuration,
     remove_keys_marked_for_deletion_from_configuration,
-    remove_keys_from_configuration,
+    remove_keys_by_full_key,
 )
 
 logging.basicConfig(level=logging.INFO)
@@ -45,13 +47,18 @@ class Configuration:
         # TODO: when we generate the metadata from the specs, we'll always stop on conflicts
         #  when metadata is provided by the user, we'll use the CONFLICT_HANDLING
         self._specs: set[ConfigurationSpec] = set()
-        self._metadata: DictConfig = DictConfig({})
-        self._composed: DictConfig = DictConfig({})
-        self._resolved: DictConfig = DictConfig({})
+        self._metadata: DictConfig = OmegaConf.create({})
+        self._conflicts: DictConfig = OmegaConf.create({})
+        self._composed: DictConfig = OmegaConf.create({})
+        self._resolved: DictConfig = OmegaConf.create({})
 
     @property
     def metadata(self) -> DictConfig:
         return self._metadata
+
+    @property
+    def conflicts(self) -> DictConfig:
+        return self._conflicts
 
     @property
     def composed(self) -> DictConfig:
@@ -64,6 +71,7 @@ class Configuration:
     def load_from_entrypoint(self, entrypoint: str) -> Self:
         self._specs = self._specs.union(get_configurations_from_entrypoint(entrypoint))
         self._generate_metadata_from_specs()
+        self._check_configurations_for_conflicts()
         return self
 
     def load_from_namespace(self, namespace: str, module_name: str) -> Self:
@@ -71,20 +79,32 @@ class Configuration:
             get_configurations_from_namespace(namespace, module_name)
         )
         self._generate_metadata_from_specs()
+        self._check_configurations_for_conflicts()
         return self
 
     def load_from_paths(self, paths: list[Path]) -> Self:
         self._specs = self._specs.union(get_configurations_from_paths(paths))
         self._generate_metadata_from_specs()
+        self._check_configurations_for_conflicts()
         return self
-
-    # def load_from_metadata(self, metadata: DictConfig) -> Self:
-    #     self._specs = self._specs.union(create_configurations_from_metadata(metadata))
-    #     return self
 
     def _generate_metadata_from_specs(self) -> Self:
         self._metadata = create_metadata_from_configuration_specs(self._specs)
         return self
+
+    def _check_configurations_for_conflicts(self) -> Self:
+        self._conflicts["conflicts"] = check_configurations_for_conflicts(
+            self._specs, ["configuration"]
+        )
+        return self
+
+    def validate_conflicts(self) -> bool:
+        """
+        Compares the conflicts with the metadata and returns True if they are in alignment.
+
+        :return:
+        """
+        raise NotImplementedError
 
     # TODO: validate if the specs and metadata are in alignment to each other
     def validate(self) -> bool:
@@ -92,14 +112,14 @@ class Configuration:
 
     def clear(self) -> Self:
         self._specs = set()
-        self._metadata = DictConfig({})
-        self._composed = DictConfig({})
-        self._resolved = DictConfig({})
+        self._metadata = OmegaConf.create({})
+        self._composed = OmegaConf.create({})
+        self._resolved = OmegaConf.create({})
         return self
 
-    def compose(self, clean=False) -> Self:
-        self._composed = compose_configuration_from_configuration_specs(self._specs)
-        # self._metadata = DictConfig({})
+    def compose(self) -> Self:
+        specs = create_configuration_specs_from_metadata(self._metadata["_metadata"])
+        self._composed = compose_configuration_from_configuration_specs(specs)
         return self
 
     def resolve(self, clean=True) -> Self:
@@ -111,10 +131,7 @@ class Configuration:
             metadata_keys = get_configuration_keys_by_pattern(
                 self._resolved, r"^.*_metadata$"
             )
-            self._resolved = remove_keys_from_configuration(
-                self._resolved, metadata_keys
-            )
-        # self._composed = DictConfig({})
+            self._resolved = remove_keys_by_full_key(self._resolved, metadata_keys)
         return self
 
     @staticmethod
@@ -144,6 +161,7 @@ class Configuration:
             return False
 
         save_configuration_to_yaml(self._metadata, folder / "metadata.yaml")
+        save_configuration_to_yaml(self._conflicts, folder / "conflcts.yaml")
         save_configuration_to_yaml(self._composed, folder / "composed.yaml")
         save_configuration_to_yaml(self._resolved, folder / "resolved.yaml")
 

@@ -3,7 +3,7 @@ import pickle
 
 from typing import Self
 from pathlib import Path
-from omegaconf import DictConfig
+from omegaconf import OmegaConf, DictConfig
 
 
 class ConfigurationSpec:
@@ -21,7 +21,7 @@ class ConfigurationSpec:
         self.file_path = file_path
         # We're setting the default value here instead of the argument list
         # to avoid having a reference type as the default.
-        self.configuration = configuration or DictConfig({})
+        self.configuration = configuration or OmegaConf.create({})
 
     def __str__(self):
         if self.package_name:
@@ -52,14 +52,15 @@ class ConfigurationSpec:
         hexdump = base64_encoded.encode("utf-8").hex()
         return hexdump
 
-    def config_from_base64(self, hexdump: str) -> Self:
+    @staticmethod
+    def config_from_base64(hexdump: str) -> DictConfig:
         # Convert the hexdump back to a base64 string
         base64_encoded = bytes.fromhex(hexdump).decode("utf-8")
         # Decode the base64 string to a pickle byte stream
         pickled_data = base64.b64decode(base64_encoded)
         # Deserialize the pickle byte stream to an object
-        self.configuration = pickle.loads(pickled_data)
-        return self
+        configuration = pickle.loads(pickled_data)
+        return configuration
 
     def to_dict(self) -> dict:
         return {
@@ -70,10 +71,12 @@ class ConfigurationSpec:
             "configuration": self.config_as_base64(),
         }
 
-    def from_dict(self, state: dict) -> Self:
-        self.loader = state["loader"]
-        self.loader_arguments = state["loader_arguments"]
-        self.package_name = state["package_name"]
-        self.file_path = Path(state["file_path"])
-        self.configuration = self.config_from_base64(state["configuration"])
-        return self
+    @staticmethod
+    def from_dict(state: dict) -> Self:
+        spec = ConfigurationSpec()
+        spec.loader = state["loader"]
+        spec.loader_arguments = state["loader_arguments"]
+        spec.package_name = state["package_name"]
+        spec.file_path = Path(state["file_path"])
+        spec.configuration = spec.config_from_base64(state["configuration"])
+        return spec
