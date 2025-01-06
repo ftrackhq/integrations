@@ -153,6 +153,15 @@ def get_configurations_from_paths(
 def check_configurations_for_conflicts(
     configurations: set[ConfigurationSpec], root_keys: list[str]
 ) -> dict[str, list[str]]:
+    """
+    Will compare each pair of the provided, non-empty configurations with each other and returns
+    a dictionary with conflicting configurations grouped by conflicting keys.
+
+    :param configurations: The configurations specs to compare.
+    :param root_keys: The root keys to compare.
+    :return: dictionary with conflicting configurations grouped by conflicting keys
+    """
+
     def _compare(lhs, rhs, root_key):
         conflicting_keys = []
         for key in lhs.get(root_key, []):
@@ -185,7 +194,7 @@ def check_configurations_for_conflicts(
 
 
 def create_metadata_from_configuration_specs(
-    configurations: set[ConfigurationSpec], conflict_resolution_metho: str = "warn"
+    configurations: set[ConfigurationSpec], conflict_resolution_method: str = "warn"
 ) -> DictConfig:
     metadata_configuration = OmegaConf.create(
         {METADATA.ROOT.value: {METADATA.SOURCES.value: OmegaConf.create({})}}

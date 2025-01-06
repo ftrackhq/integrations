@@ -92,7 +92,10 @@ class Configuration:
         assert (
             loaded_metadata == computed_metadata
         ), "The loaded metadata does not match the generated metadata."
-        self._metadata = loaded_metadata
+        # TODO: We might want to avoid storing the specs and compute everything directly
+        #  on-the-fly from the metadata.
+        self._specs = specs
+        self._metadata = computed_metadata
         return self
 
     def _generate_metadata_from_specs(self) -> Self:
@@ -113,6 +116,8 @@ class Configuration:
 
         :return:
         """
+        # WARN: Only warn about potential conflicts, but use the order of the metadata to resolve them.
+        # RAISE: Raise as long as we have conflicts.
         raise NotImplementedError
 
     def clear(self) -> Self:
@@ -126,6 +131,8 @@ class Configuration:
         self._check_configurations_for_conflicts()
         if self._conflicts and not conflict_resolution_file:
             raise ValueError("Conflicts detected in the configuration.")
+        # TODO: We're already creating the specs when loading the metadata from a file.
+        #  We should be more consistent and either ONLY use the metadata, or ONLY use the specs.
         specs = create_configuration_specs_from_metadata(self._metadata["_metadata"])
         self._composed = compose_configuration_from_configuration_specs(specs)
         return self
