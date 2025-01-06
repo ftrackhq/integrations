@@ -43,7 +43,6 @@ class Configuration:
     """
 
     def __init__(self):
-        # TODO: at each stage, we should store the hash of the configuration to be able to check if it has changed
         # TODO: when we generate the metadata from the specs, we'll always stop on conflicts
         #  when metadata is provided by the user, we'll use the CONFLICT_HANDLING
         self._specs: set[ConfigurationSpec] = set()
@@ -71,7 +70,6 @@ class Configuration:
     def load_from_entrypoint(self, entrypoint: str) -> Self:
         self._specs = self._specs.union(get_configurations_from_entrypoint(entrypoint))
         self._generate_metadata_from_specs()
-        self._check_configurations_for_conflicts()
         return self
 
     def load_from_namespace(self, namespace: str, module_name: str) -> Self:
@@ -79,13 +77,22 @@ class Configuration:
             get_configurations_from_namespace(namespace, module_name)
         )
         self._generate_metadata_from_specs()
-        self._check_configurations_for_conflicts()
         return self
 
     def load_from_paths(self, paths: list[Path]) -> Self:
         self._specs = self._specs.union(get_configurations_from_paths(paths))
         self._generate_metadata_from_specs()
-        self._check_configurations_for_conflicts()
+        return self
+
+    def load_from_metadata_file(self, path: Path) -> Self:
+        loaded_metadata = OmegaConf.load(path)
+        specs = create_configuration_specs_from_metadata(loaded_metadata["_metadata"])
+        computed_metadata = create_metadata_from_configuration_specs(specs)
+        # TODO: Be more specific in the handling of this case.
+        assert (
+            loaded_metadata == computed_metadata
+        ), "The loaded metadata does not match the generated metadata."
+        self._metadata = loaded_metadata
         return self
 
     def _generate_metadata_from_specs(self) -> Self:
@@ -101,13 +108,11 @@ class Configuration:
     def validate_conflicts(self) -> bool:
         """
         Compares the conflicts with the metadata and returns True if they are in alignment.
+        This is mostly useful when either the metadata or conflict resolution file
+        have been loaded manually.
 
         :return:
         """
-        raise NotImplementedError
-
-    # TODO: validate if the specs and metadata are in alignment to each other
-    def validate(self) -> bool:
         raise NotImplementedError
 
     def clear(self) -> Self:
@@ -117,7 +122,10 @@ class Configuration:
         self._resolved = OmegaConf.create({})
         return self
 
-    def compose(self) -> Self:
+    def compose(self, conflict_resolution_file: Path) -> Self:
+        self._check_configurations_for_conflicts()
+        if self._conflicts and not conflict_resolution_file:
+            raise ValueError("Conflicts detected in the configuration.")
         specs = create_configuration_specs_from_metadata(self._metadata["_metadata"])
         self._composed = compose_configuration_from_configuration_specs(specs)
         return self

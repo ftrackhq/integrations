@@ -22,6 +22,7 @@ class ConfigurationSpec:
         # We're setting the default value here instead of the argument list
         # to avoid having a reference type as the default.
         self.configuration = configuration or OmegaConf.create({})
+        self.order = -1
 
     def __str__(self):
         if self.package_name:
