@@ -27,6 +27,7 @@ from collections import defaultdict
 from importlib.metadata import entry_points
 from pathlib import Path
 from types import ModuleType
+from typing import Any, Iterable
 
 from omegaconf import OmegaConf, DictConfig, ListConfig
 
@@ -189,8 +190,23 @@ def check_configurations_for_conflicts(
                 for configuration_conflict_key in configuration_conflict_keys:
                     conflicts[configuration_conflict_key].extend([str(lhs), str(rhs)])
     # Make sure that the root level entries in conflicts are unique by a transient conversion to a set.
-    conflicts = {key: list(set(value)) for key, value in conflicts.items()}
+    conflicts = {
+        key: _ordered_deduplication(_deterministic_ordering(value))
+        for key, value in conflicts.items()
+    }
     return conflicts
+
+
+def _deterministic_ordering(items: Iterable[Any]) -> list[Any]:
+    return list(sorted(items, key=lambda x: repr(x)))
+
+
+def _ordered_deduplication(items: Iterable[Any]) -> list[Any]:
+    deduplicated_items = []
+    for item in items:
+        if item not in deduplicated_items:
+            deduplicated_items.append(item)
+    return deduplicated_items
 
 
 def create_metadata_from_configuration_specs(
@@ -208,7 +224,9 @@ def create_metadata_from_configuration_specs(
     # remove any empty configuration from the list
     non_empty_configurations = set([_ for _ in configurations if _.configuration])
 
-    for configuration in sorted(non_empty_configurations, key=lambda x: repr(x)):
+    for configuration in _ordered_deduplication(
+        _deterministic_ordering(non_empty_configurations)
+    ):
         metadata_configuration[METADATA.ROOT.value][METADATA.SOURCES.value][
             str(configuration)
         ] = configuration.to_dict()
@@ -269,13 +287,10 @@ def compose_configuration_from_configuration_specs(
 
     merged_configuration = OmegaConf.create({})
 
-    for configuration in sorted(
-        # We'll only use the package_name and file_path instead of the full str representation
-        # to make sure we're deduplicating configurations that are the same but have been
-        # loaded through different loaders (entrypoint, namespace, path).
-        configurations,
-        key=lambda x: f"{x.package_name}:{x.file_path}",
+    for configuration in _ordered_deduplication(
+        _deterministic_ordering(configurations)
     ):
+        logging.info(f"Merging configuration: {configuration}")
         if configuration.configuration.get(METADATA.ROOT.value):
             del configuration.configuration[METADATA.ROOT.value]
         merged_configuration = OmegaConf.merge(
