@@ -1,0 +1,29 @@
+[project]
+name = "ftrack.configuration.maya"
+version = "0.1.0"
+description = "Add your description here"
+authors = [{name = "ftrack Integrations Team", email = "integrations@backlight.co"}]
+readme = "README.md"
+requires-python = ">=3.11, <3.12"
+dependencies = [
+    "click>8.0",
+    "ftrack-configurator>=0.1.0",
+]
+
+[project.optional-dependencies]
+py37_framework = [
+    "ftrack-framework-maya; python_version == '3.7'"
+]
+
+[project.entry-points."launcher.configuration"]
+ftrack-configuration-maya-discovery = "configuration.maya"
+#ftrack-configuration-maya-resolve = "ftrack-configurator:resolve"
+
+
+
+
+
+
+
+
+my_package = "my_package.config_loader:get_config_files"
