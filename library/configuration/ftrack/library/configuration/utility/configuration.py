@@ -4,8 +4,8 @@ The utilities in this module are designed to work nicely together.
 They are supposed to be run in sequence. For example:
 
 >>> register_resolvers()
->>> config_files = get_configurations_from_entrypoint("connect.configuration")
->>> more_config_files = get_configurations_from_namespace("ftrack.library")
+>>> config_files = get_configuration_specs_from_entrypoint("connect.configuration")
+>>> more_config_files = get_configuration_specs_from_namespace("ftrack.library")
 >>> all_config_files = config_files.union(more_config_files)
 
 >>> composed_configuration = compose_configuration_from_configurations(config_files)
@@ -33,11 +33,35 @@ from typing import Any, Iterable
 
 from omegaconf import OmegaConf, DictConfig, ListConfig
 
-from ..helper.spec import ConfigurationSpec
+from ..helper.types import ConfigurationSpec
 from ..helper.enum import METADATA
 
 
 logging.basicConfig(level=logging.INFO)
+
+
+def _deterministic_ordering(items: Iterable[Any]) -> list[Any]:
+    """
+    Sort the given items in a deterministic order.
+
+    :param items: Iterable container/collection.
+    :return: Sorted list of items.
+    """
+    return list(sorted(items, key=lambda x: repr(x)))
+
+
+def _ordered_deduplication(items: Iterable[Any]) -> list[Any]:
+    """
+    Deduplicate the given items while maintaining the order.
+
+    :param items: Collection of items to deduplicate.
+    :return:  List of deduplicated items.
+    """
+    deduplicated_items = []
+    for item in items:
+        if item not in deduplicated_items:
+            deduplicated_items.append(item)
+    return deduplicated_items
 
 
 def _get_files_from_path(path: Path, pattern=r".*\.(yml|yaml)$") -> list[Path]:
@@ -57,7 +81,7 @@ def _get_files_from_path(path: Path, pattern=r".*\.(yml|yaml)$") -> list[Path]:
     return files
 
 
-def get_configurations_from_namespace(
+def get_configuration_specs_from_namespace(
     namespace: str = "",
     module_name: str = "",
 ) -> set[ConfigurationSpec]:
@@ -69,7 +93,6 @@ def get_configurations_from_namespace(
     :param module_name: The name of the module within the package to search for configuration files.
     :return: A list of paths to the configuration files.
     """
-
     configuration_sources = []
     root_namespace_package: ModuleType = importlib.import_module(namespace)
     packages = pkgutil.walk_packages(
@@ -100,7 +123,7 @@ def get_configurations_from_namespace(
     return set(configuration_sources)
 
 
-def get_configurations_from_entrypoint(
+def get_configuration_specs_from_entrypoint(
     name: str = "connect.configuration",
 ) -> set[ConfigurationSpec]:
     """
@@ -129,7 +152,7 @@ def get_configurations_from_entrypoint(
     return set(configuration_sources)
 
 
-def get_configurations_from_paths(
+def get_configuration_specs_from_paths(
     paths: list[Path] = "connect.configuration",
 ) -> set[ConfigurationSpec]:
     """
@@ -153,7 +176,7 @@ def get_configurations_from_paths(
     return set(configuration_sources)
 
 
-def check_configurations_for_conflicts(
+def get_conflicts_from_configuration_specs(
     configurations: set[ConfigurationSpec], root_keys: list[str]
 ) -> dict[str, list[str]]:
     """
@@ -199,21 +222,15 @@ def check_configurations_for_conflicts(
     return conflicts
 
 
-def _deterministic_ordering(items: Iterable[Any]) -> list[Any]:
-    return list(sorted(items, key=lambda x: repr(x)))
-
-
-def _ordered_deduplication(items: Iterable[Any]) -> list[Any]:
-    deduplicated_items = []
-    for item in items:
-        if item not in deduplicated_items:
-            deduplicated_items.append(item)
-    return deduplicated_items
-
-
 def create_metadata_from_configuration_specs(
-    configurations: set[ConfigurationSpec], conflict_resolution_method: str = "warn"
+    configurations: set[ConfigurationSpec],
 ) -> DictConfig:
+    """
+    Create a metadata configuration from the given configuration specs.
+
+    :param configurations: The configuration specs to create the metadata from.
+    :return: The metadata configuration.
+    """
     metadata_configuration = OmegaConf.create(
         {METADATA.ROOT.value: {METADATA.SOURCES.value: OmegaConf.create({})}}
     )
@@ -236,7 +253,17 @@ def create_metadata_from_configuration_specs(
     return metadata_configuration
 
 
-def get_configuration_keys_by_pattern(configuration: DictConfig, pattern: re.Pattern):
+def get_configuration_keys_by_pattern(
+    configuration: DictConfig, pattern: re.Pattern
+) -> list[str]:
+    """
+    Get all keys from the configuration that match the given pattern.
+
+    :param configuration: The configuration object to search for keys.
+    :param pattern: The regex pattern to match the keys against.
+    :return: A list of full keys (dot-separated) of matched keys.
+    """
+
     def _recursive_walk(parent):
         matched_keys = []
 
@@ -259,6 +286,12 @@ def get_configuration_keys_by_pattern(configuration: DictConfig, pattern: re.Pat
 
 
 def get_metadata_from_configuration_file(filepath) -> DictConfig:
+    """
+    Load the root metadata from a configuration file.
+
+    :param filepath: The path to the configuration file.
+    :return: The metadata configuration.
+    """
     configuration = OmegaConf.load(filepath)
     metadata_configuration = configuration["_metadata"]
     return metadata_configuration
@@ -267,6 +300,12 @@ def get_metadata_from_configuration_file(filepath) -> DictConfig:
 def create_configuration_specs_from_metadata(
     metadata: DictConfig,
 ) -> set[ConfigurationSpec]:
+    """
+    Create a set of configuration specs from the given metadata.
+
+    :param metadata: The metadata object to create the configuration specs from.
+    :return: Set of configuration specs.
+    """
     specs = set()
     for key, value in metadata[METADATA.SOURCES.value].items():
         specs.add(ConfigurationSpec.from_dict(value))
@@ -282,7 +321,6 @@ def compose_configuration_from_configuration_specs(
     :param configurations: A list of Path objects pointing to the configuration files.
     :return: A DictConfig object containing the merged configuration.
     """
-
     # TODO: Maybe we already have the configuration as a hexdump and we should load it from there?
     # add the actual configuration
     for configuration in configurations:
@@ -313,7 +351,6 @@ def compose_conflict_keys_in_specific_order_onto_configuration(
     :param conflicts: This object contains the conflicts that need to be resolved and defines their order.
     :return: The original configuration file with the composed keys on top of it.
     """
-
     composed_configuration = deepcopy(configuration)
     sources = metadata["_metadata"]["sources"]
     conflicts = conflicts["conflicts"]
@@ -352,7 +389,7 @@ def resolve_configuration(configuration: DictConfig) -> DictConfig:
     return resolved_configuration
 
 
-def remove_keys_marked_for_deletion_from_configuration(
+def remove_keys_marked_for_deletion(
     configuration: DictConfig,
 ) -> DictConfig:
     clean_configuration = deepcopy(configuration)
@@ -442,7 +479,6 @@ def save_configuration_to_yaml(configuration: DictConfig, path: Path) -> None:
     OmegaConf.save(configuration, path)
 
 
-# TODO: Test this functionality properly
 def serialize_configuration_to_base64_hex(configuration: DictConfig) -> str:
     # Serialize the object to a pickle byte stream
     pickled_data = pickle.dumps(configuration)

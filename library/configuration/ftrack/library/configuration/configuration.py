@@ -15,21 +15,21 @@ from typing import Self
 
 from omegaconf import OmegaConf, DictConfig
 
-from .helper.spec import ConfigurationSpec
+from .helper.types import ConfigurationSpec
 from .utility.configuration import (
-    get_configurations_from_entrypoint,
-    get_configurations_from_namespace,
-    get_configurations_from_paths,
+    get_configuration_specs_from_entrypoint,
+    get_configuration_specs_from_namespace,
+    get_configuration_specs_from_paths,
+    get_conflicts_from_configuration_specs,
     get_configuration_keys_by_pattern,
     create_metadata_from_configuration_specs,
     create_configuration_specs_from_metadata,
-    check_configurations_for_conflicts,
     save_configuration_to_yaml,
     convert_configuration_to_dict,
     compose_conflict_keys_in_specific_order_onto_configuration,
     compose_configuration_from_configuration_specs,
     resolve_configuration,
-    remove_keys_marked_for_deletion_from_configuration,
+    remove_keys_marked_for_deletion,
     remove_keys_by_full_key,
 )
 
@@ -69,19 +69,21 @@ class Configuration:
         return self._resolved
 
     def load_from_entrypoint(self, entrypoint: str) -> Self:
-        self._specs = self._specs.union(get_configurations_from_entrypoint(entrypoint))
+        self._specs = self._specs.union(
+            get_configuration_specs_from_entrypoint(entrypoint)
+        )
         self._generate_metadata_from_specs()
         return self
 
     def load_from_namespace(self, namespace: str, module_name: str) -> Self:
         self._specs = self._specs.union(
-            get_configurations_from_namespace(namespace, module_name)
+            get_configuration_specs_from_namespace(namespace, module_name)
         )
         self._generate_metadata_from_specs()
         return self
 
     def load_from_paths(self, paths: list[Path]) -> Self:
-        self._specs = self._specs.union(get_configurations_from_paths(paths))
+        self._specs = self._specs.union(get_configuration_specs_from_paths(paths))
         self._generate_metadata_from_specs()
         return self
 
@@ -103,23 +105,11 @@ class Configuration:
         self._metadata = create_metadata_from_configuration_specs(self._specs)
         return self
 
-    def _check_configurations_for_conflicts(self) -> Self:
-        self._conflicts["conflicts"] = check_configurations_for_conflicts(
+    def _check_configuration_specs_for_conflicts(self) -> Self:
+        self._conflicts["conflicts"] = get_conflicts_from_configuration_specs(
             self._specs, ["configuration"]
         )
         return self
-
-    def validate_conflicts(self) -> bool:
-        """
-        Compares the conflicts with the metadata and returns True if they are in alignment.
-        This is mostly useful when either the metadata or conflict resolution file
-        have been loaded manually.
-
-        :return:
-        """
-        # WARN: Only warn about potential conflicts, but use the order of the metadata to resolve them.
-        # RAISE: Raise as long as we have conflicts.
-        raise NotImplementedError
 
     def clear(self) -> Self:
         self._specs = set()
@@ -129,7 +119,7 @@ class Configuration:
         return self
 
     def compose(self, conflict_resolution_file: Path) -> Self:
-        self._check_configurations_for_conflicts()
+        self._check_configuration_specs_for_conflicts()
         specs = create_configuration_specs_from_metadata(self._metadata["_metadata"])
         self._composed = compose_configuration_from_configuration_specs(specs)
         if self._conflicts and not conflict_resolution_file:
@@ -141,15 +131,12 @@ class Configuration:
             self._composed = compose_conflict_keys_in_specific_order_onto_configuration(
                 self._composed, self._metadata, conflicts
             )
-
         return self
 
     def resolve(self, clean=True) -> Self:
         self._resolved = resolve_configuration(self._composed)
         if clean:
-            self._resolved = remove_keys_marked_for_deletion_from_configuration(
-                self._resolved
-            )
+            self._resolved = remove_keys_marked_for_deletion(self._resolved)
             metadata_keys = get_configuration_keys_by_pattern(
                 self._resolved, r"^.*_metadata$"
             )
