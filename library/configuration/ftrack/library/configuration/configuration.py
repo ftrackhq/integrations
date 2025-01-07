@@ -26,6 +26,7 @@ from .utility.configuration import (
     check_configurations_for_conflicts,
     save_configuration_to_yaml,
     convert_configuration_to_dict,
+    compose_conflict_keys_in_specific_order_onto_configuration,
     compose_configuration_from_configuration_specs,
     resolve_configuration,
     remove_keys_marked_for_deletion_from_configuration,
@@ -129,12 +130,18 @@ class Configuration:
 
     def compose(self, conflict_resolution_file: Path) -> Self:
         self._check_configurations_for_conflicts()
+        specs = create_configuration_specs_from_metadata(self._metadata["_metadata"])
+        self._composed = compose_configuration_from_configuration_specs(specs)
         if self._conflicts and not conflict_resolution_file:
             raise ValueError("Conflicts detected in the configuration.")
         # TODO: We're already creating the specs when loading the metadata from a file.
         #  We should be more consistent and either ONLY use the metadata, or ONLY use the specs.
-        specs = create_configuration_specs_from_metadata(self._metadata["_metadata"])
-        self._composed = compose_configuration_from_configuration_specs(specs)
+        else:
+            conflicts = OmegaConf.load(conflict_resolution_file)
+            self._composed = compose_conflict_keys_in_specific_order_onto_configuration(
+                self._composed, self._metadata, conflicts
+            )
+
         return self
 
     def resolve(self, clean=True) -> Self:
@@ -176,7 +183,7 @@ class Configuration:
             return False
 
         save_configuration_to_yaml(self._metadata, folder / "metadata.yaml")
-        save_configuration_to_yaml(self._conflicts, folder / "conflcts.yaml")
+        save_configuration_to_yaml(self._conflicts, folder / "conflicts.yaml")
         save_configuration_to_yaml(self._composed, folder / "composed.yaml")
         save_configuration_to_yaml(self._resolved, folder / "resolved.yaml")
 

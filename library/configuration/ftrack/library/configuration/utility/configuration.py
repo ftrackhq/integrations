@@ -11,6 +11,8 @@ They are supposed to be run in sequence. For example:
 >>> composed_configuration = compose_configuration_from_configurations(config_files)
 >>> resolved_configuration = resolve_configuration(composed_configuration)
 >>> save_configuration_to_yaml(resolved_configuration, Path("resolved.yaml"))
+
+TODO: be more effecient in the usage of deepcopy (can we reduce the usage?)
 """
 
 import base64
@@ -281,6 +283,7 @@ def compose_configuration_from_configuration_specs(
     :return: A DictConfig object containing the merged configuration.
     """
 
+    # TODO: Maybe we already have the configuration as a hexdump and we should load it from there?
     # add the actual configuration
     for configuration in configurations:
         configuration.configuration = OmegaConf.load(configuration.file_path)
@@ -291,12 +294,47 @@ def compose_configuration_from_configuration_specs(
         _deterministic_ordering(configurations)
     ):
         logging.info(f"Merging configuration: {configuration}")
-        if configuration.configuration.get(METADATA.ROOT.value):
-            del configuration.configuration[METADATA.ROOT.value]
         merged_configuration = OmegaConf.merge(
             merged_configuration, configuration.configuration
         )
     return merged_configuration
+
+
+def compose_conflict_keys_in_specific_order_onto_configuration(
+    configuration: DictConfig, metadata: DictConfig, conflicts: DictConfig
+) -> DictConfig:
+    """
+    Compose/merge conflicting keys from a conflict config onto a given configuration.
+    Conflict data/keys will be merged in the order they are defined in the conflict data.
+    The conflict data will be loaded from the hexdump in the metadata (it will NOT be loaded from disk).
+
+    :param configuration: The base configuration to merge the conflicts  keys into.
+    :param metadata: The metadata object that contains the source and hexdump of the actual configs.
+    :param conflicts: This object contains the conflicts that need to be resolved and defines their order.
+    :return: The original configuration file with the composed keys on top of it.
+    """
+
+    composed_configuration = deepcopy(configuration)
+    sources = metadata["_metadata"]["sources"]
+    conflicts = conflicts["conflicts"]
+    for conflict_key, conflict_sources in conflicts.items():
+        root_key, child_key = conflict_key.split(".")
+        del composed_configuration[root_key][child_key]
+        for conflict_source in conflict_sources:
+            config = deserialize_configuration_from_base64_hex(
+                sources[conflict_source][root_key]
+            )
+            to_update = OmegaConf.create(
+                {
+                    root_key: OmegaConf.masked_copy(
+                        config[root_key],
+                        child_key,
+                    )
+                }
+            )
+            composed_configuration = OmegaConf.merge(composed_configuration, to_update)
+
+    return composed_configuration
 
 
 # TODO: we should MAYBE not only take DictConfig, but also Listconfig into account

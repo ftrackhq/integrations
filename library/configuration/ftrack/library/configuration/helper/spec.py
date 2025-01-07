@@ -26,9 +26,9 @@ class ConfigurationSpec:
 
     def __str__(self):
         if self.package_name:
-            return f"LOADER:{self.loader}|PACKAGE:{self.package_name}|PATH:{self.file_path.name}"
+            return f"LOADER-{self.loader}-PACKAGE-{self.package_name}-PATH-{self.file_path.name}"
         else:
-            return f"LOADER:{self.loader}|PATH:{self.file_path}"
+            return f"LOADER-{self.loader}-PATH-{self.file_path}"
 
     def __repr__(self):
         return str(self)
