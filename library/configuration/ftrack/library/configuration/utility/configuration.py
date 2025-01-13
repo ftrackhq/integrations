@@ -153,14 +153,14 @@ def get_configuration_specs_from_entrypoint(
 
 
 def get_configuration_specs_from_paths(
-    paths: list[Path] = "connect.configuration",
+    paths: list[Path],
 ) -> set[ConfigurationSpec]:
     """
     Get all configuration files from a given set of paths.
     We will not search recursively, only the top level of the given paths will be searched.
 
     :param paths: A set of parent paths to search for configuration files.
-    :return: A list of paths to the configuration files.
+    :return: A list of configuration specs.
     """
     configuration_sources = []
     for path in paths:
@@ -169,6 +169,29 @@ def get_configuration_specs_from_paths(
                 ConfigurationSpec(
                     loader="path",
                     loader_arguments={"paths": paths},
+                    package_name="",
+                    file_path=_file,
+                )
+            )
+    return set(configuration_sources)
+
+
+def get_configuration_specs_from_files(files: list[Path]) -> set[ConfigurationSpec]:
+    """
+    Load the given configuration files.[
+
+    :param files: The provided configuration files.
+    :return: A list of configuration specs.
+    """
+    configuration_sources = []
+    for _file in files:
+        if not isinstance(_file, Path):
+            _file = Path(_file)
+        if _file.is_file():
+            configuration_sources.append(
+                ConfigurationSpec(
+                    loader="file",
+                    loader_arguments={"files": files},
                     package_name="",
                     file_path=_file,
                 )

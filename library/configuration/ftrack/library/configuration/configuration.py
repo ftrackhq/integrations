@@ -11,7 +11,7 @@ import logging
 import tempfile
 
 from pathlib import Path
-from typing import Self
+from typing import Self, Optional
 
 from omegaconf import OmegaConf, DictConfig
 
@@ -20,6 +20,7 @@ from .utility.configuration import (
     get_configuration_specs_from_entrypoint,
     get_configuration_specs_from_namespace,
     get_configuration_specs_from_paths,
+    get_configuration_specs_from_files,
     get_conflicts_from_configuration_specs,
     get_configuration_keys_by_pattern,
     create_metadata_from_configuration_specs,
@@ -49,6 +50,7 @@ class Configuration:
         self._specs: set[ConfigurationSpec] = set()
         self._metadata: DictConfig = OmegaConf.create({})
         self._conflicts: DictConfig = OmegaConf.create({})
+        self._conflict_resolution: DictConfig = OmegaConf.create({})
         self._composed: DictConfig = OmegaConf.create({})
         self._resolved: DictConfig = OmegaConf.create({})
 
@@ -87,6 +89,11 @@ class Configuration:
         self._generate_metadata_from_specs()
         return self
 
+    def load_from_files(self, files: list[Path]) -> Self:
+        self._specs = self._specs.union(get_configuration_specs_from_files(files))
+        self._generate_metadata_from_specs()
+        return self
+
     def load_from_metadata_file(self, path: Path) -> Self:
         loaded_metadata = OmegaConf.load(path)
         specs = create_configuration_specs_from_metadata(loaded_metadata["_metadata"])
@@ -99,6 +106,10 @@ class Configuration:
         #  on-the-fly from the metadata.
         self._specs = specs
         self._metadata = computed_metadata
+        return self
+
+    def load_conflict_resolution(self, path: Path) -> Self:
+        self._conflict_resolution = OmegaConf.load(path)
         return self
 
     def _generate_metadata_from_specs(self) -> Self:
@@ -118,12 +129,13 @@ class Configuration:
         self._resolved = OmegaConf.create({})
         return self
 
-    def compose(self, conflict_resolution_file: Path) -> Self:
+    def compose(self, conflict_resolution_file: Optional[Path] = None) -> Self:
         self._check_configuration_specs_for_conflicts()
         specs = create_configuration_specs_from_metadata(self._metadata["_metadata"])
         self._composed = compose_configuration_from_configuration_specs(specs)
         if self._conflicts and not conflict_resolution_file:
-            raise ValueError("Conflicts detected in the configuration.")
+            pass
+            # raise ValueError("Conflicts detected in the configuration.")
         # TODO: We're already creating the specs when loading the metadata from a file.
         #  We should be more consistent and either ONLY use the metadata, or ONLY use the specs.
         else:

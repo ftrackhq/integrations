@@ -1,6 +1,8 @@
 import glob
 import os
 import platform
+
+import omegaconf
 import platformdirs
 import re
 import socket
@@ -25,9 +27,12 @@ def register_ft_resolvers() -> None:
     register_compose()
     register_exec()
     register_glob()
+    register_join()
+    register_key()
     register_lower()
     register_regex()
     register_paths()
+    register_zip()
 
 
 def register_runtime_cached():
@@ -131,7 +136,7 @@ def register_glob():
 
 
 def register_regex():
-    def _regex(value, pattern) -> ListConfig:
+    def _regex_search(value, pattern, default="") -> ListConfig:
         """
         Match all values that match the given regex pattern.
 
@@ -139,21 +144,48 @@ def register_regex():
         :param pattern: The regex pattern for matching.
         :return: A ListConfig object containing all the matched values.
         """
+        # TODO: handle case for non-list values
         if not isinstance(value, (ListConfig, list)):
             value = [value]
 
         matches = []
         for v in value:
-            if match := re.search(pattern, str(v)):
-                if match.groups():
-                    matches.append(match.groups()[0])
+            if re_result := re.search(pattern, str(v)):
+                if groups := re_result.groups():
+                    match = groups[0]
                 else:
-                    matches.append(match[0])
+                    match = re_result[0]
+
+                matches.append(match or default)
+
+        return OmegaConf.create(matches)
+
+    def _regex_sub(value, replacement, pattern) -> ListConfig:
+        """
+        Replace all values that match the given regex pattern with the given replacement.
+
+        :param value: The value to match against.
+        :param replacement: The replacement string.
+        :param pattern: The regex pattern to match.
+        :return: If a match is found we return the replaced value, otherwise we return an empty string.
+        """
+        if not isinstance(value, (ListConfig, list)):
+            value = [value]
+
+        matches = []
+        for v in value:
+            replaced = re.sub(pattern, str(replacement), str(v))
+            matches.append(replaced if replaced != v else "")
 
         return OmegaConf.create(matches)
 
     OmegaConf.register_new_resolver(
-        "ft.regex", lambda value, pattern: _regex(value, pattern)
+        "ft.regex.search",
+        lambda value, pattern, default="": _regex_search(value, pattern, default),
+    )
+    OmegaConf.register_new_resolver(
+        "ft.regex.sub",
+        lambda value, replacement, pattern: _regex_sub(value, replacement, pattern),
     )
 
 
@@ -161,8 +193,9 @@ def register_lower():
     def _lower(value: str) -> str:
         """
         Lowercases the given value.
-        :param key:
-        :return:
+
+        :param value: The value to lowercase.
+        :return: Lowercased string/value.
         """
         return value.lower()
 
@@ -211,4 +244,79 @@ def register_compose():
         lambda *references, _node_, _root_: _compose(
             references, _node_=_node_, _root_=_root_
         ),
+    )
+
+
+def register_zip():
+    def _zip_dict(reference: DictConfig) -> DictConfig:
+        """
+        Will create a new list of dictionaries by zipping the values of the given reference dictionary.
+
+        :param reference: The root of the input dictionary.
+        :return: The list of dictionaries created by zipping the values of the input dictionary.
+        """
+        config = deepcopy(reference)
+        if METADATA.ROOT.value in config:
+            del config[METADATA.ROOT.value]
+
+        zipped_lists = zip(*config.values())
+        result = [dict(zip(config.keys(), values)) for values in zipped_lists]
+        zipped_config = OmegaConf.create(result)
+        return zipped_config
+
+    def _zip_list(references: list[ListConfig]) -> ListConfig:
+        """
+        Will create a new list by zipping the values of the given references.
+
+        :param references: The reference input lists to zip.
+        :return: A new list created by zipping the values of the input lists.
+        """
+        references = list(references)
+        max_len = max(len(reference) for reference in references)
+        for idx, reference in enumerate(references):
+            if not isinstance(reference, (list, ListConfig)):
+                references[idx] = [reference] * max_len
+        config = OmegaConf.create(list(zip(*references)))
+        return config
+
+    OmegaConf.register_new_resolver(
+        "ft.zip.list", lambda *references: _zip_list(references)
+    )
+    OmegaConf.register_new_resolver("ft.zip.dict", lambda key: _zip_dict(key))
+
+
+def register_join():
+    def _join(references: list[ListConfig]) -> ListConfig:
+        """
+        Joins the given values into a single string. If the input is a list, it will join
+        each item in the list and return a list with the joined items. This will work similarly
+        to a `map` function.
+
+        :param references: Input list of references to join.
+        :return: A list with joined values.
+        """
+        config = OmegaConf.create([])
+        for reference in references:
+            config.append("_".join(reference))
+        return config
+
+    OmegaConf.register_new_resolver("ft.join", lambda references: _join(references))
+
+
+def register_key():
+    def _key(level, *, _node_: omegaconf.AnyNode) -> str:
+        """
+        Get the name of the key at the given parent level.
+
+        :param level: The levels to go up in the hierarchy from the current node.
+        :param _node_: Implicitly provided node at the current level (provided by OmegaConf).
+        :return: The name of the parent at the given level.
+        """
+        parent = _node_
+        for i in range(level):
+            parent = parent._parent
+        return parent._key()
+
+    OmegaConf.register_new_resolver(
+        "ft.key", lambda level, *, _node_: _key(level, _node_=_node_)
     )
