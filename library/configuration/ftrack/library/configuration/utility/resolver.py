@@ -31,6 +31,7 @@ def register_ft_resolvers() -> None:
     register_key()
     register_lower()
     register_regex()
+    register_select()
     register_paths()
     register_zip()
 
@@ -319,4 +320,28 @@ def register_key():
 
     OmegaConf.register_new_resolver(
         "ft.key", lambda level, *, _node_: _key(level, _node_=_node_)
+    )
+
+
+def register_select():
+    def _select(root: DictConfig, selections: list[str]) -> ListConfig:
+        """
+        Selects from a provided DictConfig based on the provided selection keys.
+
+        :param root: The root DictConfig from which to select.
+        :param selections: The selection keys.
+        :return: A list of selected values.
+        """
+        result = OmegaConf.create([])
+        for selection in selections:
+            if selection in root:
+                result.append(root[selection])
+            elif selection == "any":
+                result.append(root[any])
+            else:
+                result.append("")
+        return result
+
+    OmegaConf.register_new_resolver(
+        "ft.select", lambda root, selections: _select(root, selections)
     )

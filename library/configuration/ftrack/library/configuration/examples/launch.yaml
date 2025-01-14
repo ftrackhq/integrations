@@ -1,0 +1,118 @@
+_metadata:
+  ignore: True # ignore this config file
+
+connect:
+
+
+launcher:
+  common:
+    _metadata:
+        marked_for_deletion: true
+    context:
+      - Task
+      - Shot
+    environment-variables:
+      ARNOLD_PLUGIN_PATH: "/path/to/arnold/plugin"
+      TRACTOR_SERVER: "http://trartor:80"
+
+
+  houdini-default:
+    icon: houdini
+    context: ${..common.context}
+    environment-variables: ${..common.environment-variables}
+    application-collect:
+      _metadata:
+        marked_for_deletion: true
+      python-packages:
+        any:
+          - name: ftrack-utilities
+            version: 1.4.8
+        "3.7":
+          - name: ftrack-connect-package
+            version: 1.0.0
+          - name: ftrack-framework
+            version: 3.0.0
+        "3.9":
+          - name: ftrack-connect-package
+            version: 2.0.0
+          - name: ftrack-framework
+            version: 3.5.0
+      windows:
+        executable: ${ft.glob:C:\Program Files\Side Effects Software\Houdini*\bin\houdini*.exe}
+        version: ${ft.regex.search:${.executable}, "(\d+\.\d+\.\d+)", "0.0.0"}
+        variant: ${ft.regex.search:${.executable}, ".*bin\\houdini(.*)\.exe", "default"}
+        python: ${ft.regex.sub:${.executable}, "hython.exe", "(houdini.*?\.exe)"}
+        python-version: ${ft.regex.search:${ft.exec:${.python},--version},"(\d+\.\d+\.\d+)"}
+        identifier: ${ft.join:${ft.zip.list:${ft.key:3},${.version},${.variant},${.python-version}}}
+        python-packages: ${ft.select:${..python-packages}, ${ft.regex.search:${.python-version}, "(\d+\.\d+)", "any"}}
+      linux:
+        executable: ${ft.glob:C:\Program Files\Side Effects Software\Houdini*\bin\houdini*.exe}
+        version: ${ft.regex.search:${.executable}, "(\d+\.\d+\.\d+)", "0.0.0"}
+        variant: ${ft.regex.search:${.executable}, ".*bin\\houdini(.*)\.exe", "default"}
+        python: ${ft.regex.sub:${.executable}, "hython.exe", "(houdini.*?\.exe)"}
+        python-version: ${ft.regex.search:${ft.exec:${.python},--version},"(\d+\.\d+\.\d+)"}
+        identifier: ${ft.join:${ft.zip.list:${ft.key:3},${.version},${.variant},${.python-version}}}
+        python-packages: ${ft.select:${..python-packages}, ${ft.regex.search:${.python-version}, "(\d+\.\d+)", "any"}}
+
+    # TODO: can we push the identifier to the top level?
+    platform:
+      windows: ${ft.zip.dict:${..application-collect.windows}}
+      linux: ${ft.zip.dict:${..application-collect.linux}}
+
+  maya-default:
+    icon: maya
+    context: ${..common.context}
+    environment-variables: ${..common.environment-variables}
+    application-collect:
+      _metadata:
+        marked_for_deletion: true
+      executable: ${ft.glob:C:\Program Files\Autodesk\Maya*\bin\maya.exe}
+      version: ${ft.regex.search:${.executable}, "\d{4}"}
+      variant: ${ft.regex.search:${.executable}, ".*bin\\maya(.*)\.exe", "default"}
+      python: ${ft.regex.sub:${.executable}, "mayapy.exe", "(maya.*?\.exe)"}
+      python-version: ${ft.regex.search:${ft.exec:${.python},--version},"(\d+\.\d+\.\d+)"}
+      identifier: ${ft.join:${ft.zip.list:${ft.key:2},${.version},${.variant},${.python-version}}}
+
+    application: ${ft.zip.dict:${.application-collect}}
+
+  blender-default:
+    icon: blender
+    context: ${..common.context}
+    application-collect:
+      _metadata:
+        marked_for_deletion: true
+      # TODO: When we have multiple search patterns, we need to be able to flatten the list of lists.
+      executable: ${ft.glob:"${environment.HOME}\scoop\persist\blender-launcher\stable\blender-*\blender.exe"}
+      version: ${ft.regex.search:${.executable}, "\d+\.\d+\.\d+"}
+      variant: ${ft.regex.search:${.executable}, ".*(lts|stable).*\\blender.exe", "default"}
+      python: ${ft.glob:"${environment.HOME}\scoop\persist\blender-launcher\stable\blender-*\*\python\bin\python.exe"}
+      python-version: ${ft.regex.search:${ft.exec:${.python},--version},"(\d+\.\d+\.\d+)"}
+      identifier: ${ft.join:${ft.zip.list:${ft.key:2},${.version},${.variant},${.python-version}}}
+    application: ${ft.zip.dict:${.application-collect}}
+
+authenticator:
+    username: ${ft.runtime.cached:username}
+    password: ${ft.runtime.cached:password}
+
+framework:
+  tool:
+
+# TODO: Figure out how to NOT resolve these until explicitly asking for it.
+runtime:
+  username: ${ft.lower:${ft.runtime.cached:username}}
+  architecture: ${ft.lower:${ft.runtime.cached:architecture}}
+  platform: ${ft.lower:${ft.runtime.cached:platform}}
+  hostname: ${ft.lower:${ft.runtime.cached:hostname}}
+  python_version: ${ft.runtime.cached:python_version}
+  startup_time: ${ft.runtime.cached:time}
+  current_time: ${ft.runtime.live:time}
+
+path:
+  config: ${ft.paths:config}
+  connect-installation: ${ft.paths:config}
+  tool-installation: ${ft.paths:config}
+  log: ${ft.paths:log}
+
+environment:
+  HOME: ${oc.env:HOME}
+
