@@ -1,6 +1,5 @@
 configuration:
   maya-animation: # Compose maya default
-
     #tools: # This should be handled later when we tackle the framework.Probably, we should be able to set sepecific version of those tools as well.
       #- maya_framework_publisher
       #- maya_framework_opener
@@ -11,22 +10,23 @@ configuration:
       # I think providing the integration here is better than as an optional dependency because you don't need to re-install the config in the integration venv
       venv:
         2025:
-          # TODO: It should resolve the name on the background with {config_name}_{python_version}_{app_name}_{integration_version}
-          name: maya_animation_maya_2025_3.11
-          # TODO: also expecting the resolved venv_path
-          path: C:\Users\lluis\venvs\maya_animation_maya_2025_3.11
-          python_version: 3.11 # Could this contain a list?
-          # This key should be removed if we separate the tools from the integration later on, and the integration will simply be a dependnency of the tool.
-          #integration: maya-framework==3.1.1
-          #tools: framework-opener==3.2.1
-          packages:
-            - ftrack-maya-framework==3.0.0
+          any: # This is the variant
+            # TODO: It should resolve the name on the background with {config_name}_{python_version}_{app_name}_{integration_version}
+            name: maya_animation_maya_2025_any_3.11
+            # TODO: also expecting the resolved venv_path
+            path: C:\Users\lluis\venvs\maya_animation_maya_2025_any_3.11
+            python_version: 3.11 # Could this contain a list?
+            # This key should be removed if we separate the tools from the integration later on, and the integration will simply be a dependnency of the tool.
+            #integration: maya-framework==3.1.1
+            #tools: framework-opener==3.2.1
+            packages:
+              - ftrack-maya-framework==3.0.0
         2024:
           python_version: 3.11
           # This key should be removed if we separate the tools from the integration later on, and the integration will simply be a dependnency of the tool.
           integration: maya-framework==3.0.0
           #tools: framework-opener==3.2.1
-        all: # Seems that * is not accepted in yaml
+        any: # Seems that * is not accepted in yaml
           python_version: 3.9
           integration: maya-framework==3.0.0
           #tools: framework-opener==3.1.0
