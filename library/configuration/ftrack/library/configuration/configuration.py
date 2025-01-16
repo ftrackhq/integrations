@@ -33,6 +33,7 @@ from .utility.configuration import (
     remove_keys_marked_for_deletion,
     remove_keys_by_full_key,
 )
+from .utility.resolver import register_ft_resolvers
 
 logging.basicConfig(level=logging.INFO)
 
@@ -47,6 +48,7 @@ class Configuration:
     def __init__(self):
         # TODO: when we generate the metadata from the specs, we'll always stop on conflicts
         #  when metadata is provided by the user, we'll use the CONFLICT_HANDLING
+        self._register_constructors_and_resolvers()
         self._specs: set[ConfigurationSpec] = set()
         self._metadata: DictConfig = OmegaConf.create({})
         self._conflicts: DictConfig = OmegaConf.create({})
@@ -69,6 +71,12 @@ class Configuration:
     @property
     def resolved(self) -> DictConfig:
         return self._resolved
+
+    @staticmethod
+    def _register_constructors_and_resolvers() -> None:
+        register_ft_resolvers()
+        register_ft_resolvers()
+        # extend_omegaconf_loader()
 
     def load_from_entrypoint(self, entrypoint: str) -> Self:
         self._specs = self._specs.union(

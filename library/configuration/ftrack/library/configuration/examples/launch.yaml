@@ -3,7 +3,6 @@ _metadata:
 
 connect:
 
-
 launcher:
   common:
     _metadata:
@@ -18,6 +17,7 @@ launcher:
 
   houdini-default:
     icon: houdini
+    application-name: houdini
     context: ${..common.context}
     environment-variables: ${..common.environment-variables}
     application-collect:
@@ -61,6 +61,7 @@ launcher:
 
   maya-default:
     icon: maya
+    application-name: maya
     context: ${..common.context}
     environment-variables: ${..common.environment-variables}
     application-collect:
@@ -77,6 +78,7 @@ launcher:
 
   blender-default:
     icon: blender
+    application-name: blender
     context: ${..common.context}
     application-collect:
       _metadata:

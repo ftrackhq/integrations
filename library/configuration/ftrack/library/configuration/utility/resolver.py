@@ -1,4 +1,6 @@
+import functools
 import glob
+import logging
 import os
 import platform
 
@@ -15,7 +17,34 @@ from pydantic.v1.utils import deep_update
 
 from ..helper.enum import METADATA
 
+logging.basicConfig(level=logging.INFO)
 
+
+# TODO: This decorator should go into a more generalized uitiliy module.
+def once(function):
+    """
+    This decorator ensures that a function is only executed once.
+    """
+
+    logging.debug(
+        f"Function {function.__module__}:{function.__qualname__} is decorated with the `once` decorator."
+    )
+
+    @functools.wraps(function)
+    def wrapper(*args, **kwargs):
+        if not wrapper.has_run:
+            wrapper.has_run = True
+            return function(*args, **kwargs)
+        else:
+            logging.warning(
+                f"Trying to execute function {function.__module__}:{function.__qualname__} more than once."
+            )
+
+    wrapper.has_run = False
+    return wrapper
+
+
+@once
 def register_ft_resolvers() -> None:
     """
     Registers all default ftrack resolvers within the ft namespace.
