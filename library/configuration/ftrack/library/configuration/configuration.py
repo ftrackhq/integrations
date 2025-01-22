@@ -75,7 +75,7 @@ class Configuration:
     @staticmethod
     def _register_constructors_and_resolvers() -> None:
         register_ft_resolvers()
-        register_ft_resolvers()
+        # register_ft_resolvers()
         # extend_omegaconf_loader()
 
     def load_from_entrypoint(self, entrypoint: str) -> Self:
