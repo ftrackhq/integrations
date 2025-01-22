@@ -19,9 +19,11 @@ launcher:
     environment-variables: ${..common.environment-variables}
     application-collect:
       _metadata:
-        marked_for_deletion: false
+        marked_for_deletion: true
       python-packages:
         any:
+          - name: json
+            version: 1.1.1
           - name: pyyaml
             version: 6.0.2
         "3.7":
@@ -29,7 +31,7 @@ launcher:
             version: 1.0.0
           - name: ftrack-framework
             version: 3.0.0
-        "3.9":
+        "3.11":
           - name: ftrack-connect-package
             version: 2.0.0
           - name: ftrack-framework
@@ -48,12 +50,14 @@ launcher:
         variant: ${ft.regex.search:${.executable}, ".*bin/maya(.*)", "default"}
         python: ${ft.regex.sub:${.executable}, "mayapy", "Maya$"}
         python-version: ${ft.regex.search:${ft.exec:${.python},--version},"(\d+\.\d+\.\d+)"}
-        identifier: ${ft.join:${ft.zip.list:${ft.key:2},${.version},${.variant},${.python-version}}}
+        # ft.key goes on reverse direction, so key0 is identifier, darwin, application-collect, and so on.
+        identifier: ${ft.join:${ft.zip.list:${ft.key:3},${.version},${.variant},${.python-version}}}
         python-packages:
-          - name: pyyaml
-            version: 6.0.2
-          - name: click
-            version: 8.1.7
+        # Setting this on a list otherwise it will not resolve correctly everything is a list and is mathing items.
+          - - name: pyyaml
+              version: 6.0.2
+            - name: click
+              version: 8.1.7
 
     platform:
       windows: ${ft.zip.dict:${..application-collect.windows}}

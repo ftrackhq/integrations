@@ -8,9 +8,17 @@ import platform
 
 
 def create_virtual_environment_on_path(
-    venv_base_path, env_name, python_version, force_refresh=False
-):
-    """Create a virtual environment on the specified path."""
+    venv_base_path: str, env_name: str, python_version: str, force_refresh: bool = False
+) -> None:
+    """
+    Create a virtual environment at the specified path.
+
+    :param venv_base_path: The base directory for the virtual environment.
+    :param env_name: Name of the virtual environment.
+    :param python_version: Python version to use for the environment.
+    :param force_refresh: Whether to recreate the environment if it already exists.
+    :return: None
+    """
     venv_path = os.path.join(venv_base_path, env_name)
 
     if not os.path.exists(venv_base_path):
@@ -43,9 +51,18 @@ def create_virtual_environment_on_path(
     )
 
 
-def install_packages_on_virtual_environment(venv_path, python_packages):
-    """Install packages on the specified virtual environment."""
+def install_packages_on_virtual_environment(
+    venv_path: str, python_packages: list[dict]
+) -> None:
+    """
+    Install specified Python packages in the virtual environment.
+
+    :param venv_path: Path to the virtual environment.
+    :param python_packages: List of dictionaries with packages to install.
+    :return: None
+    """
     # Check platform bild folder
+    print(python_packages)
     if platform.system().lower().startswith("win"):
         bin_folder = "Scripts"
     else:

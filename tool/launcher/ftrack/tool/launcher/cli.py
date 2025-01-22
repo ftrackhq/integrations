@@ -4,10 +4,13 @@
 import click
 import os
 import platform
+import subprocess
+from pathlib import Path
 from ftrack.library.utility.configuration import yaml_reader
 from ftrack.library.utility.click import prompt
 from ftrack.library.utility.uv import environment
 from ftrack.library.configuration.configuration import Configuration
+from ftrack.library.launch.launch import launch_application
 
 
 @click.group()
@@ -22,7 +25,14 @@ def launcher():
 @click.argument("resolved_configuration_file")
 @click.argument("identifier")
 def start(resolved_configuration_file, identifier):
-    """Launch the specified app."""
+    """
+    Launch a specified application using a configuration file and identifier.
+
+    :param resolved_configuration_file: Path to the resolved configuration file.
+    :param identifier: Identifier for the launcher to start.
+    :raises click.Abort: If no launcher is found or the launcher configuration is invalid.
+    :raises FileNotFoundError: If the Python version directory cannot be determined.
+    """
 
     yaml_content = yaml_reader.parse_configuration(resolved_configuration_file)
 
@@ -41,12 +51,52 @@ def start(resolved_configuration_file, identifier):
         click.echo("Could not found a matching launcher config.")
         raise click.Abort()
 
-    # launch_application(app_name)
+    venv_base_path = yaml_content["path"].get("venv-installation", "/tmp/venvs")
+    venv_path = os.path.join(venv_base_path, identifier)
+
+    # Find the Python version directory (e.g., python3.11)
+    lib_path = Path(venv_path) / "lib"
+    python_version_dir = next(lib_path.glob("python*"), None)
+    if not python_version_dir:
+        raise FileNotFoundError(
+            f"Cannot determine Python version in virtual environment: {venv_path}"
+        )
+    site_packages = f"{python_version_dir}/site-packages"
+
+    # env = os.environ.copy() # No need for now if just pythonpath is needed
+    # Minimal environment with only PYTHONPATH
+    env = {"PYTHONPATH": site_packages}
+
+    executable = launch_configuration[0][1]["executable"]
+
+    system = platform.system()
+
+    kwargs = {}
+    kwargs["env"] = env
+    if system == "Windows":
+        kwargs.update(
+            creationflags=subprocess.DETACHED_PROCESS
+            | subprocess.CREATE_NEW_PROCESS_GROUP
+        )
+    elif system == "Darwin":
+        kwargs.update(start_new_session=True)
+    elif system == "Linux":
+        kwargs.update(start_new_session=True)
+    else:
+        raise OSError(f"Unsupported platform: {system}")
+
+    launch_application(executable, **kwargs)
 
 
 @launcher.command()
 @click.argument("resolved_configuration_file", type=str)
 def list_available_launchers(resolved_configuration_file):
+    """
+    List all available launchers defined in the configuration file.
+
+    :param resolved_configuration_file: Path to the resolved configuration file.
+    :raises click.Abort: If no launcher is found or the launcher key is missing in the configuration file.
+    """
     yaml_content = yaml_reader.parse_configuration(resolved_configuration_file)
 
     try:
@@ -97,6 +147,14 @@ def list_available_launchers(resolved_configuration_file):
     help="Override the resolution folder provided in the config file",
 )
 def discover_configurations(conflict_resolution_file, resolution_folder):
+    """
+    Discover and resolve configurations based on provided parameters.
+
+    :param conflict_resolution_file: Path to the pre-defined conflict resolution file.
+    :param resolution_folder: Folder to override the configuration folder in the config file.
+    :raises click.Abort: If no resolution folder is provided or if the folder cannot be created.
+    """
+
     configuration = Configuration()
     configuration.load_from_entrypoint("connect.configuration")
     if conflict_resolution_file:
@@ -117,6 +175,11 @@ def discover_configurations(conflict_resolution_file, resolution_folder):
             "WARNING: No resolution folder provided. Skipping resolution dump. This will not allow you to launch the application as needs a resolved configuration file."
         )
         raise click.Abort()
+    if not os.path.exists(resolution_folder):
+        click.echo(
+            f"Configuration folder doesn't exists, creating configuration folder: {resolution_folder}"
+        )
+        os.makedirs(resolution_folder, exist_ok=True)
     configuration.dump(resolution_folder)
     click.echo(f"Resolved configurations are saved at: {resolution_folder}")
     # TODO: maybe show each of the resolved files.
@@ -150,7 +213,17 @@ def make_launch_environment(
     application_variant,
     force_refresh,
 ):
-    """Create a virtual environment for the selected configuration."""
+    """
+    Create a virtual environment for a specified launcher configuration.
+
+    :param resolved_configuration_file: Path to the resolved configuration file.
+    :param launcher_name: Name of the launcher to use.
+    :param python_version: Python version to use.
+    :param application_version: Application version to use.
+    :param application_variant: Application variant to use.
+    :param force_refresh: Whether to force refresh the virtual environment.
+    :raises click.Abort: If no matching launcher or platform configuration is found.
+    """
 
     # Load the resolved configuration file with yaml library
     yaml_content = yaml_reader.parse_configuration(resolved_configuration_file)

@@ -5,8 +5,14 @@ import yaml
 import logging
 
 
-def parse_configuration(configuration_file):
-    """Parse the configuration file."""
+def parse_configuration(configuration_file: str) -> dict:
+    """
+    Parse a YAML configuration file.
+
+    :param configuration_file: Path to the YAML configuration file.
+    :return: Parsed configuration content as a dictionary.
+    :raises yaml.YAMLError: If the YAML file is invalid.
+    """
     with open(configuration_file, "r") as yaml_file:
         try:
             yaml_content = yaml.safe_load(yaml_file)

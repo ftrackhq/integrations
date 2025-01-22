@@ -366,8 +366,8 @@ def register_select():
         for selection in selections:
             if selection in root:
                 result.append(root[selection])
-            elif selection == "any":
-                result.append(root[any])
+            elif selection == "any" or "any" in root:
+                result.append(root["any"])
             else:
                 result.append("")
         return result
