@@ -1,5 +1,5 @@
 import base64
-import pickle
+import yaml
 
 from typing import Self
 from pathlib import Path
@@ -46,11 +46,9 @@ class ConfigurationSpec:
 
     def config_as_base64(self) -> str:
         # Serialize the object to a pickle byte stream
-        pickled_data = pickle.dumps(self.configuration)
-        # Encode the byte stream to a base64 string
-        base64_encoded = base64.b64encode(pickled_data).decode("utf-8")
-        # Convert the base64 string to a hexdump
-        hexdump = base64_encoded.encode("utf-8").hex()
+        encoded_bytes = bytes(OmegaConf.to_yaml(self.configuration).encode("utf-8"))
+        # Encode the byte stream to a base64 string and dump as hex
+        hexdump = base64.b64encode(encoded_bytes).hex()
         return hexdump
 
     @staticmethod
@@ -58,9 +56,11 @@ class ConfigurationSpec:
         # Convert the hexdump back to a base64 string
         base64_encoded = bytes.fromhex(hexdump).decode("utf-8")
         # Decode the base64 string to a pickle byte stream
-        pickled_data = base64.b64decode(base64_encoded)
-        # Deserialize the pickle byte stream to an object
-        configuration = pickle.loads(pickled_data)
+        decoded_string = base64.b64decode(base64_encoded)
+        # Load the string as yaml and convert it to an OmegaConf Configuration
+        configuration = OmegaConf.create(
+            yaml.load(decoded_string, Loader=yaml.FullLoader)
+        )
         return configuration
 
     def to_dict(self) -> dict:
