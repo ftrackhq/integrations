@@ -1,4 +1,3 @@
-import base64
 import yaml
 
 from typing import Self
