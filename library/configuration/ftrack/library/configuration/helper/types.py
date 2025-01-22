@@ -59,7 +59,7 @@ class ConfigurationSpec:
         decoded_string = base64.b64decode(base64_encoded)
         # Load the string as yaml and convert it to an OmegaConf Configuration
         configuration = OmegaConf.create(
-            yaml.load(decoded_string, Loader=yaml.FullLoader)
+            yaml.load(decoded_string, Loader=yaml.SafeLoader)
         )
         return configuration
 
