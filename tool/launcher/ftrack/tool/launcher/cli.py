@@ -2,14 +2,12 @@
 # :copyright: Copyright (c) 2024 ftrack
 
 import click
-import subprocess
-
-# import Configuration
 import os
-import logging
-import yaml
 import platform
-import shutil
+from ftrack.library.utility.configuration import yaml_reader
+from ftrack.library.utility.click import prompt
+from ftrack.library.utility.uv import environment
+from ftrack.library.configuration.configuration import Configuration
 
 
 @click.group()
@@ -21,38 +19,107 @@ def launcher():
 
 
 @launcher.command()
-@click.argument("app_name")
-@click.argument("configuration")
-def start(
-    app_name,
-    configuration,
-):  # app_version, app_variant, configuration_file, config_name, refresh_configuration=False):
+@click.argument("resolved_configuration_file")
+@click.argument("identifier")
+def start(resolved_configuration_file, identifier):
     """Launch the specified app."""
-    pass
-    # launchers = Configuration.get_resolved_configuration(
-    #     configuration_file=configuration_file,
-    #     config_name=config_name,
-    #     python=python_version,
-    #     app_version=app_version,
-    #     app_variant=app_variant,
-    # )
+
+    yaml_content = yaml_reader.parse_configuration(resolved_configuration_file)
+
+    try:
+        if not yaml_content["launcher"]:
+            click.echo("No launchers found.")
+            raise click.Abort()
+    except KeyError:
+        click.echo("launcher key is missing")
+        raise click.Abort()
+
+    launch_configuration = yaml_reader.recursive_find_in_nested_dictionary(
+        yaml_content, {"identifier": identifier}
+    )
+    if not launch_configuration:
+        click.echo("Could not found a matching launcher config.")
+        raise click.Abort()
+
     # launch_application(app_name)
 
 
-@click.argument("conflict_resolution_file", default="~/conflict_resolution.yaml")
-@click.argument("resolution_folder", default="~/resolved")
 @launcher.command()
+@click.argument("resolved_configuration_file", type=str)
+def list_available_launchers(resolved_configuration_file):
+    yaml_content = yaml_reader.parse_configuration(resolved_configuration_file)
+
+    try:
+        if not yaml_content["launcher"]:
+            click.echo("No launchers found.")
+            raise click.Abort()
+    except KeyError:
+        click.echo("launcher key is missing")
+        raise click.Abort()
+
+    # 1. Determine current platform
+    current_platform = platform.system().lower()
+
+    # 2. Loop through launchers
+    launchers = yaml_content.get("launcher", {})
+    for launcher_key, launcher_data in launchers.items():
+        application_name = launcher_data.get("application-name")
+        if not application_name:
+            # If there's no application-name, skip or handle differently
+            continue
+
+        # 3. Look for sub-entries under launcher_data["platform"][current_platform]
+        platform_entries = launcher_data.get("platform", {}).get(current_platform, [])
+        if not platform_entries:
+            # Skip if no entries for this OS
+            continue
+
+        # 4. Print data in the desired format
+        click.echo(f"{application_name}:")
+        click.echo(f"  {launcher_key}")
+        for entry in platform_entries:
+            identifier = entry.get("identifier")
+            if identifier:
+                click.echo(f"    {identifier}")
+
+
+@launcher.command()
+@click.option(
+    "--conflict_resolution_file",
+    type=str,
+    required=False,
+    help="Pre-defined conflict resolution file",
+)
+@click.option(
+    "--resolution_folder",
+    type=str,
+    required=False,
+    help="Override the resolution folder provided in the config file",
+)
 def discover_configurations(conflict_resolution_file, resolution_folder):
-    pass
-    # configuration = Configuration()
-    # configuration.load_from_entrypoint("launcher.configuration")
-    # if conflict_resolution_file:
-    #     configuration.compose(conflict_resolution_file=conflict_resolution_file)
-    # else:
-    #     configuration.compose()
-    # configuration.resolve()
-    # configuration.dump(resolution_folder)
-    # click.echo(f"Resolved configurations are saved at: {resolution_folder}")
+    configuration = Configuration()
+    configuration.load_from_entrypoint("connect.configuration")
+    if conflict_resolution_file:
+        configuration.compose(conflict_resolution_file=conflict_resolution_file)
+    else:
+        configuration.compose()
+    configuration.resolve()
+    if not resolution_folder:
+        resolution_folder = configuration.resolved.get("path", {}).get(
+            "configuration-installation"
+        )
+    else:
+        click.echo(
+            f"Overriding resolution folder from config file with provided {resolution_folder}"
+        )
+    if not resolution_folder:
+        click.echo(
+            "WARNING: No resolution folder provided. Skipping resolution dump. This will not allow you to launch the application as needs a resolved configuration file."
+        )
+        raise click.Abort()
+    configuration.dump(resolution_folder)
+    click.echo(f"Resolved configurations are saved at: {resolution_folder}")
+    # TODO: maybe show each of the resolved files.
 
 
 @launcher.command()
@@ -84,43 +151,25 @@ def make_launch_environment(
     force_refresh,
 ):
     """Create a virtual environment for the selected configuration."""
-    # TODO:
-    #   1. Load the resolved configuration yaml file
-    #   2. isolate the launcher configuration based on the configuration name, python version and app version
-    #   3. Create a virtual environment with the specified python version if doesn't exists or if force_refresh is True
 
     # Load the resolved configuration file with yaml library
-    with open(resolved_configuration_file, "r") as yaml_file:
-        try:
-            yaml_content = yaml.safe_load(yaml_file)
-        except yaml.YAMLError as exc:
-            # Log an error if the yaml file is invalid.
-            logging.error(
-                logging.error(
-                    f"Invalid .yaml file\nFile: {resolved_configuration_file}\nError: {exc}"
-                )
-            )
-            raise click.Abort()
+    yaml_content = yaml_reader.parse_configuration(resolved_configuration_file)
 
     try:
-        launcher_configuration = yaml_content["launcher"].get(launcher_name)
+        if not yaml_content["launcher"]:
+            click.echo("No launchers found.")
+            raise click.Abort()
     except KeyError:
         click.echo("launcher key is missing")
         raise click.Abort()
 
-    if not launcher_configuration:
-        if not yaml_content["launcher"]:
-            click.echo("No launchers found.")
-            raise click.Abort()
-        click.echo("Available launchers:")
-        for idx, ver in enumerate(list(yaml_content["launcher"].keys()), start=1):
-            click.echo(f"{idx}. {ver}")
-        choice = click.prompt(
-            "Enter the id of the launcher you want to use",
-            type=click.IntRange(1, len(yaml_content["launcher"])),
-        )
-        launcher_name = list(yaml_content["launcher"].keys())[choice - 1]
-        launcher_configuration = yaml_content["launcher"][launcher_name]
+    launcher_name = prompt.prompt_for_choice(
+        list(yaml_content["launcher"].keys()),
+        launcher_name,
+        "launcher",
+        allow_custom=False,
+    )
+    launcher_configuration = yaml_content["launcher"][launcher_name]
 
     # Determine platform (windows, linux, etc.)
     platform_config = launcher_configuration.get("platform", {}).get(
@@ -130,18 +179,11 @@ def make_launch_environment(
         click.echo(f"No platform configuration for '{platform.system().lower()}'.")
         raise click.Abort()
 
-    # Step 1: Prompt for application_version if not provided (or 0)
+    # Step 1: Prompt for application_version if not provided
     all_versions = sorted(set(item["version"] for item in platform_config))
-    if not application_version or application_version not in all_versions:
-        click.echo("Available versions:")
-        for idx, ver in enumerate(all_versions, start=1):
-            click.echo(f"{idx}. {ver}")
-
-        choice = click.prompt(
-            "Enter the number of the version you want to use",
-            type=click.IntRange(1, len(all_versions)),
-        )
-        application_version = all_versions[choice - 1]
+    application_version = prompt.prompt_for_choice(
+        all_versions, application_version, "application version", allow_custom=False
+    )
 
     # Step 2: Prompt for application_variant if not provided or invalid
     # Filter the platform_config to only items with the chosen version
@@ -149,18 +191,9 @@ def make_launch_environment(
         item for item in platform_config if item["version"] == application_version
     ]
     all_variants = sorted(set(item["variant"] for item in version_config))
-
-    # If user didn't provide variant or it's invalid, prompt
-    if not application_variant or application_variant not in all_variants:
-        click.echo("Available variants:")
-        for idx, var in enumerate(all_variants, start=1):
-            click.echo(f"{idx}. {var}")
-
-        choice = click.prompt(
-            "Enter the number of the variant you want to use",
-            type=click.IntRange(1, len(all_variants)),
-        )
-        application_variant = all_variants[choice - 1]
+    application_variant = prompt.prompt_for_choice(
+        all_variants, application_variant, "application variant", allow_custom=False
+    )
 
     # Step 3: Prompt for python_version if not provided or invalid
     # Filter again for the selected version + variant
@@ -170,17 +203,9 @@ def make_launch_environment(
     all_python_versions = sorted(
         set(item["python-version"] for item in version_variant_config)
     )
-
-    if not python_version or python_version not in all_python_versions:
-        click.echo("Available Python versions:")
-        for idx, py_ver in enumerate(all_python_versions, start=1):
-            click.echo(f"{idx}. {py_ver}")
-
-        choice = click.prompt(
-            "Enter the number of the Python version you want to use",
-            type=click.IntRange(1, len(all_python_versions)),
-        )
-        python_version = all_python_versions[choice - 1]
+    python_version = prompt.prompt_for_choice(
+        all_python_versions, python_version, "python version", allow_custom=False
+    )
 
     # Finally, pick the matching config
     environment_config = None
@@ -197,6 +222,9 @@ def make_launch_environment(
 
     # Create the virtual environment
     env_name = environment_config["identifier"]
+    # TODO: make sure not to use the maya python provider to create the
+    #  environment always use the python version instead of
+    #  the python executable key
     # python_executable = environment_config["python"]
     python_packages = environment_config.get("python-packages", [])
 
@@ -205,58 +233,13 @@ def make_launch_environment(
     venv_path = os.path.join(venv_base_path, env_name)
     click.echo(f"Creating virtual environment at {venv_path}...")
 
-    if not os.path.exists(venv_base_path):
-        os.makedirs(venv_base_path, exist_ok=True)
-
-    # Check existence
-    if os.path.exists(venv_path):
-        if force_refresh:
-            # Remove the existing venv
-            click.echo(f"Removing existing environment at {venv_path}...")
-            shutil.rmtree(venv_path)
-        else:
-            # Skip creation if not forced
-            click.echo(
-                f"Environment '{env_name}' already exists at {venv_path}, skipping creation."
-            )
-            return
-
-    # 1. Create environment with uv
-    # TODO: make sure not to use the maya python provider to create the environment so using the python version instead of the python executable key
-    subprocess.run(
-        [
-            "uv",
-            "venv",
-            f"--python={python_version}",
-            f"--directory={venv_base_path}",
-            env_name,
-        ],
-        check=True,
+    environment.create_virtual_environment_on_path(
+        venv_base_path, env_name, python_version, force_refresh
     )
 
-    # 2. Install any packages
-    if platform.system().lower().startswith("win"):
-        bin_folder = "Scripts"
-    else:
-        # Linux, macOS, etc.
-        bin_folder = "bin"
-
-    python_in_venv = os.path.join(venv_path, bin_folder, "python")
     if python_packages:
-        for pkg in python_packages:
-            name = pkg["name"]
-            version = pkg.get("version")
-            package_str = f"{name}=={version}" if version else name
-            subprocess.run(
-                [
-                    "uv",
-                    "pip",
-                    "install",
-                    f"{package_str}",
-                    f"--python={python_in_venv}",
-                ],
-                check=True,
-            )
+        click.echo(f"Installing packages on virtual environment at {venv_path}...")
+        environment.install_packages_on_virtual_environment(venv_path, python_packages)
     else:
         click.echo("No Python packages to install.")
 
