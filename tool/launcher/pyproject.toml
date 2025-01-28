@@ -8,6 +8,7 @@ requires-python = ">=3.11, <3.12"
 dependencies = [
     "click>8.0",
     "ftrack-library-launch>=0.1.0",
+    "uv>0.5.0",
 ]
 
 [project.scripts]

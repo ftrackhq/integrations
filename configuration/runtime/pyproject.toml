@@ -1,0 +1,12 @@
+[project]
+name = "ftrack.configuration.runtime"
+version = "0.1.0"
+description = "Add your description here"
+authors = [{name = "ftrack Integrations Team", email = "integrations@backlight.co"}]
+readme = "README.md"
+requires-python = ">=3.11, <3.12"
+dependencies = [
+]
+
+[project.entry-points."connect.configuration"]
+ftrack-configuration-runtime-discovery = "ftrack.configuration.runtime"

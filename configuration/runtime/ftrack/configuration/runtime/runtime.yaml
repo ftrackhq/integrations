@@ -1,0 +1,21 @@
+runtime:
+  username: ${ft.lower:${ft.runtime.cached:username}}
+  architecture: ${ft.lower:${ft.runtime.cached:architecture}}
+  platform: ${ft.lower:${ft.runtime.cached:platform}}
+  hostname: ${ft.lower:${ft.runtime.cached:hostname}}
+  python_version: ${ft.runtime.cached:python_version}
+  startup_time: ${ft.runtime.cached:time}
+  current_time: ${ft.runtime.live:time}
+
+connect:
+    installation_folder: ftrack-connect
+
+path:
+  configuration-installation: ${ft.paths:config}/${..connect.installation_folder}/configuration
+  #connect-installation: ${ft.paths:config}
+  #tool-installation: ${ft.paths:config}
+  venv-installation: ${ft.paths:config}/${..connect.installation_folder}/venv
+  log: ${ft.paths:log}/${..connect.installation_folder}
+
+environment:
+  HOME: ${oc.env:HOME}

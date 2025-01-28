@@ -2,7 +2,9 @@
 # :copyright: Copyright (c) 2024 ftrack
 
 import click
-import pkg_resources
+from importlib.metadata import entry_points
+# from importlib_metadata import entry_points  # for python <3.8 Requires `importlib_metadata` package
+
 
 from .command.install import install
 from .command.uv import uv
@@ -26,7 +28,7 @@ def load_plugins():
     """
     Load plugins dynamically from the installed packages using entry points.
     """
-    for entry_point in pkg_resources.iter_entry_points("connect.plugins"):
+    for entry_point in entry_points(group="connect.plugins"):
         try:
             command = entry_point.load()
             cli.add_command(command, name=entry_point.name)

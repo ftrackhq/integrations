@@ -116,7 +116,7 @@ def register_paths():
 
         path_getter_method = getattr(platformdirs, path_getter_method_name)
         assert path_getter_method
-        return path_getter_method("ftrack-connect").as_posix()
+        return path_getter_method().as_posix()
 
     OmegaConf.register_new_resolver(
         "ft.paths",
@@ -180,13 +180,14 @@ def register_regex():
 
         matches = []
         for v in value:
+            match = None
             if re_result := re.search(pattern, str(v)):
                 if groups := re_result.groups():
                     match = groups[0]
                 else:
                     match = re_result[0]
 
-                matches.append(match or default)
+            matches.append(match or default)
 
         return OmegaConf.create(matches)
 
@@ -365,8 +366,8 @@ def register_select():
         for selection in selections:
             if selection in root:
                 result.append(root[selection])
-            elif selection == "any":
-                result.append(root[any])
+            elif selection == "any" or "any" in root:
+                result.append(root["any"])
             else:
                 result.append("")
         return result

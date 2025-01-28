@@ -1,0 +1,16 @@
+[project]
+name = "ftrack.configuration.maya"
+version = "0.1.0"
+description = "Add your description here"
+authors = [{name = "ftrack Integrations Team", email = "integrations@backlight.co"}]
+readme = "README.md"
+requires-python = ">=3.11, <3.12"
+dependencies = [
+#    "click>8.0",
+#    "ftrack-configurator>=0.1.0",
+]
+
+[project.entry-points."connect.configuration"]
+ftrack-configuration-maya-discovery = "ftrack.configuration.maya"
+
+
