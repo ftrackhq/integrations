@@ -1,0 +1,17 @@
+[project]
+name = "ftrack.library.configuration"
+version = "0.1.0"
+description = "Add your description here"
+authors = [{name = "ftrack Integrations Team", email = "integrations@backlight.co"}]
+readme = "README.md"
+requires-python = ">=3.11, <3.12"
+dependencies = [
+    "pyyaml>=6.0.2",
+    "omegaconf>=2.3.0",
+    "platformdirs>=4.3.6",
+    "pydantic>=2.10.3"
+]
+
+[tool.uv.sources]
+ftrack-library-utility = { path = "../../library/configuration", editable = true }
+

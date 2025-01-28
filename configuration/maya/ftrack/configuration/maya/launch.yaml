@@ -1,0 +1,64 @@
+#_metadata:
+  #ignore: True # ignore this config file
+
+launcher:
+  common:
+    _metadata:
+        marked_for_deletion: true
+    context:
+      - Task
+      - Shot
+    environment-variables:
+      MAYA_PLUGIN_PATH: "/path/to/arnold/plugin"
+      TRACTOR_SERVER: "http://trartor:80"
+
+  maya-default:
+    icon: maya
+    application-name: maya
+    context: ${..common.context}
+    environment-variables: ${..common.environment-variables}
+    application-collect:
+      _metadata:
+        marked_for_deletion: true
+      python-packages:
+        any:
+          - name: json
+            version: 1.1.1
+          - name: pyyaml
+            version: 6.0.2
+        "3.7":
+          - name: ftrack-connect-package
+            version: 1.0.0
+          - name: ftrack-framework
+            version: 3.0.0
+        "3.11":
+          - name: ftrack-connect-package
+            version: 2.0.0
+          - name: ftrack-framework
+            version: 3.5.0
+      windows:
+        executable: ${ft.glob:C:\Program Files\Autodesk\Maya*\bin\maya.exe}
+        version: ${ft.regex.search:${.executable}, "\d{4}"}
+        variant: ${ft.regex.search:${.executable}, ".*bin\\maya(.*)\.exe", "default"}
+        python: ${ft.regex.sub:${.executable}, "mayapy.exe", "(maya.*?\.exe)"}
+        python-version: ${ft.regex.search:${ft.exec:${.python},--version},"(\d+\.\d+\.\d+)"}
+        identifier: ${ft.join:${ft.zip.list:${ft.key:2},${.version},${.variant},${.python-version}}}
+        python-packages: ${ft.select:${..python-packages}, ${ft.regex.search:${.python-version}, "(\d+\.\d+)", "any"}}
+      darwin:
+        executable: ${ft.glob:/Applications/Autodesk/maya2025/Maya.app/Contents/MacOS/Maya}
+        version: ${ft.regex.search:${.executable}, "\d{4}"}
+        variant: ${ft.regex.search:${.executable}, ".*bin/maya(.*)", "default"}
+        python: ${ft.regex.sub:${.executable}, "mayapy", "Maya$"}
+        python-version: ${ft.regex.search:${ft.exec:${.python},--version},"(\d+\.\d+\.\d+)"}
+        # ft.key goes on reverse direction, so key0 is identifier, darwin, application-collect, and so on.
+        identifier: ${ft.join:${ft.zip.list:${ft.key:3},${.version},${.variant},${.python-version}}}
+        python-packages:
+        # Setting this on a list otherwise it will not resolve correctly everything is a list and is mathing items.
+          - - name: pyyaml
+              version: 6.0.2
+            - name: click
+              version: 8.1.7
+
+    platform:
+      windows: ${ft.zip.dict:${..application-collect.windows}}
+      darwin: ${ft.zip.dict:${..application-collect.darwin}}
