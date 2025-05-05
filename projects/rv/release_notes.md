@@ -1,5 +1,10 @@
 # ftrack RV integration release Notes
 
+
+## Upcoming
+* [fixed] RvPkg not containing dependencies.zip.
+* [fixed] Test suite failing.
+
 ## v24.0
 2024-04-02
 

@@ -144,7 +144,7 @@ class RvApplicationStore(ApplicationStore):
             applications.extend(
                 self._search_filesystem(
                     expression=prefix
-                    + ['[Tweak|Shotgun|ShotGrid]', 'RV.\d.+', 'bin', 'rv.exe'],
+                    + ['[Autodesk|Tweak|Shotgun|ShotGrid]', 'RV.\d.+', 'bin', 'rv.exe'],
                     label='Review with RV',
                     variant='{version}',
                     applicationIdentifier='rv_{variant}_with_review',

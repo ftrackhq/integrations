@@ -48,7 +48,7 @@ Create the RV plugin, it will read the version number from pyproject.toml:
 
 ```bash
   cd integrations
-  python tools/build.py --output_path /tmp build_rvpkg  projects/rv
+  python tools/build.py --output_path . build_rvpkg  projects/rv
 ```
 
 
@@ -56,7 +56,7 @@ Go to the root of the Monorepo and create the Connect plugin:
 
 ```bash
   cd integrations
-  python tools/build.py --include_assets /tmp/ftrack-24.0.rvpkg  build_connect_plugin projects/rv
+  python tools/build.py --include_assets ./ftrack-24.0.rvpkg  build_connect_plugin projects/rv
 ```
 
 
