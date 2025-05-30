@@ -1,0 +1,41 @@
+type: launch_config
+name: hiero
+context:
+  - Project
+identifier: ftrack-connect-launch-hiero
+applicationIdentifier: hiero_{variant}
+label: Hiero
+icon: hiero
+variant: "{version}"
+integrations:
+  legacy:
+    - ftrack-nuke-studio
+search_path:
+  linux:
+    prefix:
+      - "/"
+      - usr
+      - local
+      - Nuke.*
+    expression:
+      - Nuke\d.+
+    version_expression: "Nuke(?P<version>.*)\/.+$"
+    launch_arguments:
+      - "--hiero"
+  windows:
+    prefix:
+      - C:\
+      - Program Files.*
+    expression:
+      - Nuke.*
+      - Nuke\d.+.exe
+    version_expression: "(?P<version>[\\d.]+[vabc]+[\\dvabc.]*)"
+    launch_arguments:
+      - "--hiero"
+  darwin:
+    prefix:
+      - "/"
+      - Applications
+    expression:
+      - Nuke.*
+      - NukeStudio\d[\w.]+.app
