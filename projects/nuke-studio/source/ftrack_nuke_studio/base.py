@@ -30,16 +30,11 @@ class FtrackBase(object):
     path_separator = '/'
 
     _components = {}
-    _properties = {}
 
     def __init__(self, *args, **kwargs):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
-
-    @property
-    def properties(self):
-        return self._properties
     
     @property
     def session(self):
