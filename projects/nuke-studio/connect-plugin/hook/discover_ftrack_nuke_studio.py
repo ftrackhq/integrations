@@ -51,7 +51,7 @@ def on_launch_nuke_studio_integration(session, event):
     ns_base_data['integration']['env'] = {
         'PYTHONPATH.prepend': python_dependencies,
         'FTRACK_EVENT_PLUGIN_PATH.prepend': application_hooks_path,
-        'HIERO_PLUGIN_PATH.prepend': ftrack_nuke_studio_path,
+        'NUKE_PATH.prepend': ftrack_nuke_studio_path,
         'FTRACK_CONTEXTID.set': project['id'],
         'QT_PREFERRED_BINDING.set': os.pathsep.join(['PySide2', 'PySide']),
     }
