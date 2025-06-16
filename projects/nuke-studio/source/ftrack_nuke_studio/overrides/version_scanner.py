@@ -3,7 +3,7 @@
 
 import logging
 
-from Qt import QtGui
+from PySide6 import QtGui
 
 import hiero
 from ftrack_nuke_studio.session import get_shared_session
