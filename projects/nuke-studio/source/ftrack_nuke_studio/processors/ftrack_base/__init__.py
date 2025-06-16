@@ -27,9 +27,10 @@ class FtrackProcessorValidationError(FtrackProcessorError):
 
 
 class FtrackBasePreset(FtrackBase):
-    def __init__(self, name, properties, **kwargs):
+    def __init__(self, name=None, properties=None, **kwargs):
+        properties = properties or {}
         '''Initialise class with *name* and *properties*,'''
-        super(FtrackBasePreset, self).__init__(name, properties)
+        super(FtrackBasePreset, self).__init__(name=name, properties=properties)
         current_location = self.ftrack_location
         if current_location['name'] in self.ingored_locations:
             message = (

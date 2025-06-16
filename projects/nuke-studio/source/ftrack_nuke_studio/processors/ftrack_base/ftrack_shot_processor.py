@@ -117,8 +117,8 @@ class FtrackShotProcessorPreset(ShotProcessorPreset, FtrackProcessorPreset):
 
     def __init__(self, name, properties):
         '''Initialise processor preset with *name* and *properties*.'''
-        ShotProcessorPreset.__init__(self, name, properties)
-        FtrackProcessorPreset.__init__(self, name, properties)
+        ShotProcessorPreset.__init__(self, name=name, properties=properties)
+        FtrackProcessorPreset.__init__(self, name=name, properties=properties)
 
         self._parentType = FtrackShotProcessor
 
