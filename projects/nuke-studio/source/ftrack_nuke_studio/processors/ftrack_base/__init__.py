@@ -27,6 +27,7 @@ class FtrackProcessorValidationError(FtrackProcessorError):
 
 
 class FtrackBasePreset(FtrackBase):
+    
     def __init__(self, name, properties, **kwargs):
         properties = properties or {}
         '''Initialise class with *name* and *properties*,'''
