@@ -8,7 +8,10 @@ from hiero.exporters.FnShotProcessorUI import ShotProcessorUI
 from hiero.core.FnProcessor import _expandTaskGroup
 from ftrack_nuke_studio.config import report_exception
 
-from PySide6 import QtWidgets
+try:
+    from Qt import QtWidgets
+except:
+    from PySide6 import QtWidgets
 
 from ftrack_nuke_studio.processors.ftrack_base.ftrack_base_processor import (
     FtrackProcessorPreset,

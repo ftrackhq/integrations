@@ -10,7 +10,11 @@ import logging
 import foundry.ui
 import uuid
 import hiero.core
-from PySide6 import QtWidgets, QtCore, QtGui
+
+try:
+    from Qt import QtWidgets, QtCore, QtGui
+except:
+    from PySide6 import QtWidgets, QtCore, QtGui
 
 
 from hiero.ui.FnTaskUIFormLayout import TaskUIFormLayout

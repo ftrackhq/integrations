@@ -2,8 +2,10 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 
 import hiero.core
-from PySide6 import QtWidgets, QtCore, QtGui
-
+try:
+    from Qt import QtWidgets, QtCore, QtGui
+except:
+    from PySide6 import QtWidgets, QtCore, QtGui
 
 from ftrack_nuke_studio import config
 
@@ -25,7 +27,10 @@ import ftrack_qt
 def populate_ftrack(event):
     '''Populate the ftrack menu with items.'''
     import hiero.ui
-    from PySide6 import QtWidgets, QtCore, QtGui
+    try:
+        from Qt import QtWidgets, QtCore, QtGui
+    except:
+        from PySide6 import QtWidgets, QtCore, QtGui
 
     menu_bar = hiero.ui.menuBar()
     ftrack_menu = menu_bar.addMenu(

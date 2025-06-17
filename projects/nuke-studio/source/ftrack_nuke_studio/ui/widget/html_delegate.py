@@ -1,7 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 
-from PySide6 import QtWidgets, QtCore, QtGui
+try:
+    from Qt import QtWidgets, QtCore, QtGui
+except:
+    from PySide6 import QtWidgets, QtCore, QtGui
 
 
 class HtmlDelegate(QtWidgets.QStyledItemDelegate):
