@@ -47,11 +47,11 @@ def register_processors():
     # this could be moved to a discover function
     shot_name = 'Ftrack Shot Preset'
 
-    nuke_script_processor = FtrackNukeShotExporterPreset('', {})
+    nuke_script_processor = FtrackNukeShotExporterPreset(name='', properties={})
 
     reviewable_processor = FtrackReviewableExporterPreset(
-        '',
-        {
+        name='',
+        properties={
             'file_type': 'mov',
             'mov': {
                 'encoder': 'mov64',
@@ -64,12 +64,12 @@ def register_processors():
     )
 
     nuke_render_processor = FtrackNukeRenderExporterPreset(
-        '', {'file_type': 'dpx', 'dpx': {'datatype': '10 bit'}}
+        name='', properties={'file_type': 'dpx', 'dpx': {'datatype': '10 bit'}}
     )
 
-    audio_processor = FtrackAudioExporterPreset('', {})
+    audio_processor = FtrackAudioExporterPreset(name='', properties={})
 
-    copy_processor = FtrackCopyExporterPreset('', {})
+    copy_processor = FtrackCopyExporterPreset(name='', properties={})
 
     shot_properties = {
         'exportTemplate': (
@@ -82,13 +82,13 @@ def register_processors():
         'cutLength': True,
     }
 
-    shot_preset = FtrackShotProcessorPreset(shot_name, shot_properties)
+    shot_preset = FtrackShotProcessorPreset(name=shot_name, properties=shot_properties)
 
     # Register the base preset for ftrack timeline processor.
     # this could be moved to a discover function
     timeline_name = 'Ftrack Timeline Preset'
 
-    edl_processor = FtrackOTIOExporterPreset('', {})
+    edl_processor = FtrackOTIOExporterPreset(name='', properties={})
 
     timeline_properties = {
         'exportTemplate': ((FTRACK_PROJECT_STRUCTURE, edl_processor),),
@@ -96,7 +96,7 @@ def register_processors():
     }
 
     timeline_preset = FtrackTimelineProcessorPreset(
-        timeline_name, timeline_properties
+        name=timeline_name, properties=timeline_properties
     )
 
     registers = [
