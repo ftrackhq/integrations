@@ -8,7 +8,7 @@ from hiero.exporters.FnTimelineProcessorUI import TimelineProcessorUI
 from ftrack_nuke_studio.config import report_exception
 
 try:
-    from Qt import QtWidgets
+    from PySide2 import QtWidgets
 except:
     from PySide6 import QtWidgets
     

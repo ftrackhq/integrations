@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 
 try:
-    from Qt import QtWidgets, QtCore, QtGui
+    from PySide2 import QtWidgets, QtCore, QtGui
 except:
     from PySide6 import QtWidgets, QtCore, QtGui
 

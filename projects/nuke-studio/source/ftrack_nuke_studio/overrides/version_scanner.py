@@ -4,7 +4,7 @@
 import logging
 
 try:
-    from Qt import QtGui
+    from PySide2 import QtGui
 except:
     from PySide6 import QtGui
 

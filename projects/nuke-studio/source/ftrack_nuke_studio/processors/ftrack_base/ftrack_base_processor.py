@@ -12,7 +12,7 @@ import uuid
 import hiero.core
 
 try:
-    from Qt import QtWidgets, QtCore, QtGui
+    from PySide2 import QtWidgets, QtCore, QtGui
 except:
     from PySide6 import QtWidgets, QtCore, QtGui
 
