@@ -166,9 +166,9 @@ class FtrackSettingsValidator(QtWidgets.QDialog):
 class FtrackProcessorPreset(FtrackBasePreset):
     '''Base Processor/task preset.'''
 
-    def __init__(self, name=None, properties=None):
+    def __init__(self, name, properties):
         '''Initialise with *preset* and *properties*.'''
-        super(FtrackProcessorPreset, self).__init__(name=name, properties=properties)
+        super(FtrackProcessorPreset, self).__init__(name, properties)
 
     def set_ftrack_properties(self, properties):
         '''Set ftrack specific *properties* for processor.'''
@@ -1236,9 +1236,9 @@ class FtrackProcessor(FtrackBase):
 class FtrackProcessorUI(FtrackBase):
     '''Base processor/task Ui.'''
 
-    def __init__(self, preset=None):
+    def __init__(self, preset):
         '''Initialise with *preset*.'''
-        super(FtrackProcessorUI, self).__init__(preset=preset)
+        super(FtrackProcessorUI, self).__init__(preset)
         self._nodeSelectionWidget = None
 
         # Variable placeholders for ui fragments.
