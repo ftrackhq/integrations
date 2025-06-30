@@ -329,7 +329,7 @@ name = "ftrack-constants"
 version = "3.0.0"
 description = "ftrack constants library"
 optional = false
-python-versions = ">= 3.7, < 3.12"
+python-versions = ">= 3.9, < 3.12"
 files = []
 develop = true
 
@@ -350,7 +350,7 @@ files = []
 develop = true
 
 [package.dependencies]
-ftrack-python-api = "^3.0.0"
+ftrack-python-api = "3.0.0"
 platformdirs = "^4.0.0"
 pyyaml = "^6.0.1"
 six = ">= 1, < 2"
@@ -367,7 +367,7 @@ name = "ftrack-framework-qt"
 version = "3.0.0"
 description = "ftrack framework qt library"
 optional = false
-python-versions = ">= 3.7, < 3.12"
+python-versions = ">= 3.9, < 3.12"
 files = []
 develop = true
 
@@ -375,7 +375,7 @@ develop = true
 framework-libs = ["ftrack-framework-core (>=3.0.0,<4.0.0)"]
 ftrack-libs = ["ftrack-constants (>=3.0.0,<4.0.0)", "ftrack-qt (>=3.0.0,<4.0.0)", "ftrack-utils (>=3.0.0,<4.0.0)"]
 pyside2 = ["PySide2 (>=5.13.2,<6.0.0)"]
-pyside6 = ["PySide6 (>=6.5,<7.0)"]
+pyside6 = ["PySide6 (>=6.9,<7.0)"]
 
 [package.source]
 type = "directory"
@@ -441,7 +441,7 @@ name = "ftrack-utils"
 version = "3.2.0"
 description = "ftrack utils library"
 optional = false
-python-versions = ">= 3.7, < 3.12"
+python-versions = ">= 3.9, < 3.12"
 files = []
 develop = true
 
