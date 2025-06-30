@@ -24,7 +24,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.dependencies]
 python = ">= 3.9, < 3.12"
-PySide6 = "6.6.3"
+PySide6 = "6.9.1"
 clique = "1.6.1"
 Riffle = ">= 2.0.0" # Remove this one when possible
 arrow = ">= 0.4.6, < 1"
@@ -32,7 +32,7 @@ platformdirs = "^4.0.0"
 requests = ">= 2, <3"
 qtawesome = "*"
 darkdetect = "*"
-certifi = ">=2022,<2023"
+certifi = "*"
 urllib3 = "<2"
 pyyaml = "^6.0.1"
 

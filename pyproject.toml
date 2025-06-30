@@ -16,6 +16,7 @@ build-backend = "poetry.core.masonry.api"
 python = ">= 3.9, < 3.12"
 ftrack-python-api = "3.0.0"
 pyside6 = "6.9.1"
+future = "1.0.0"
 
 [tool.poetry.group.test.dependencies]
 black = [

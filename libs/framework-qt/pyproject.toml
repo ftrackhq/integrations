@@ -23,9 +23,9 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.dependencies]
-python = ">= 3.7, < 3.12"
+python = ">= 3.9, < 3.12"
 PySide2 = { version = "^5.13.2", optional = true }
-PySide6 = { version = "^6.5", optional = true }
+PySide6 = { version = "^6.9", optional = true }
 #ftrack
 ftrack-constants= {  version = "^3.0.0", optional = true }
 ftrack-utils = { version = "^3.0.0", optional = true }

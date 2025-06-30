@@ -24,7 +24,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.dependencies]
 python = ">= 3.9, < 3.12"
-ftrack-python-api = "^3.0.0"
+ftrack-python-api = "3.0.0"
 six = ">= 1, < 2" # TODO: remove this ASAP
 platformdirs = "^4.0.0"
 pyyaml = "^6.0.1"
