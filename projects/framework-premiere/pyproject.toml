@@ -25,7 +25,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry.dependencies]
 python = ">= 3.7, < 3.11"
 # ftrack
-ftrack-python-api = "^3.0.0"
+ftrack-python-api = "3.0.0"
 
 ftrack-constants = {  version = "^3.0.0", optional = true }
 ftrack-utils = {  version = "^3.0.0", optional = true }

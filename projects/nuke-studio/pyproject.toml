@@ -26,7 +26,7 @@ build-backend = "poetry.core.masonry.api"
 # Limiting python version due problems with opentimelineio
 # TODO: check opentimelineio compatibility
 python = ">= 3.7, < 3.8"
-ftrack-python-api = "^3.0.0"
+ftrack-python-api = "3.0.0"
 
 clique = "1.6.1"
 platformdirs = "^4.0.0"
