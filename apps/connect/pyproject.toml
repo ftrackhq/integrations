@@ -37,7 +37,7 @@ urllib3 = "<2"
 pyyaml = "^6.0.1"
 
 #ftrack
-ftrack-python-api = "^2.5.4"
+ftrack-python-api = "3.0.0"
 ftrack-action-handler = "*"
 ftrack-utils = {  version = "^3.0.0"}
 ftrack-framework-core = {  version = "^3.0.0"}

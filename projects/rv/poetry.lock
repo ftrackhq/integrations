@@ -166,7 +166,7 @@ files = [
 appdirs = ">=1,<2"
 arrow = ">=0.4.4,<1"
 clique = "1.6.1"
-future = ">=0.16.0,<1"
+future="^1.0.0"
 pyparsing = ">=2.0,<3"
 requests = ">=2,<3"
 six = ">=1.13.0,<2"
