@@ -2,12 +2,15 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 
 import hiero.core
-from Qt import QtWidgets, QtCore, QtGui
 
+try:
+    from PySide2 import QtWidgets, QtCore, QtGui
+except:
+    from PySide6 import QtWidgets, QtCore, QtGui
 
 from ftrack_nuke_studio import config
 
-config.configure_logging('ftrack_nuke_studio', level='WARNING')
+config.configure_logging("ftrack_nuke_studio", level="WARNING")
 
 from ftrack_nuke_studio.actions.build_track import FtrackBuildTrack
 from ftrack_nuke_studio.tags.tag_drop_handler import TagDropHandler
@@ -23,22 +26,26 @@ import ftrack_qt
 
 
 def populate_ftrack(event):
-    '''Populate the ftrack menu with items.'''
+    """Populate the ftrack menu with items."""
     import hiero.ui
-    from Qt import QtWidgets, QtCore, QtGui
+
+    try:
+        from PySide2 import QtWidgets, QtCore, QtGui
+    except:
+        from PySide6 import QtWidgets, QtCore, QtGui
 
     menu_bar = hiero.ui.menuBar()
     ftrack_menu = menu_bar.addMenu(
-        QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor'), 'ftrack'
+        QtGui.QPixmap(":ftrack/image/default/ftrackLogoColor"), "ftrack"
     )
 
 
 if (not hiero.core.isHieroPlayer()) and isinstance(
     QtCore.QCoreApplication.instance(), QtWidgets.QApplication
 ):
-    hiero.core.events.registerInterest('kStartup', TagManager)
+    hiero.core.events.registerInterest("kStartup", TagManager)
 
-    hiero.core.events.registerInterest('kStartup', populate_ftrack)
+    hiero.core.events.registerInterest("kStartup", populate_ftrack)
 
     ftrackBuildExternalMediaTrackAction = FtrackBuildTrack()
     tag_handler = TagDropHandler()
