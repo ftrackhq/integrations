@@ -19,7 +19,7 @@ from ftrack_nuke_studio.processors.ftrack_base.ftrack_base_processor import (
 )
 
 
-class FtrackAudioExporter(AudioExportTask, FtrackProcessor):
+class FtrackAudioExporter(FtrackProcessor, AudioExportTask):
     '''Audio Task exporter.'''
 
     @report_exception
@@ -42,7 +42,7 @@ class FtrackAudioExporter(AudioExportTask, FtrackProcessor):
         pass
 
 
-class FtrackAudioExporterPreset(AudioExportPreset, FtrackProcessorPreset):
+class FtrackAudioExporterPreset(FtrackProcessorPreset, AudioExportPreset):
     '''Audio Task preset.'''
 
     @report_exception
@@ -105,7 +105,7 @@ class FtrackAudioExporterPreset(AudioExportPreset, FtrackProcessorPreset):
         )
 
 
-class FtrackAudioExporterUI(AudioExportUI, FtrackProcessorUI):
+class FtrackAudioExporterUI(FtrackProcessorUI, AudioExportUI):
     '''Audio Task Ui.'''
 
     @report_exception

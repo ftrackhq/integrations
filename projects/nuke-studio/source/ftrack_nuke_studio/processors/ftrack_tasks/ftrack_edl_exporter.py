@@ -17,7 +17,7 @@ from ftrack_nuke_studio.processors.ftrack_base.ftrack_base_processor import (
 )
 
 
-class FtrackEDLExporter(EDLExportTask, FtrackProcessor):
+class FtrackEDLExporter(FtrackProcessor, EDLExportTask):
     '''EDL Task exporter.'''
 
     @report_exception
@@ -42,7 +42,7 @@ class FtrackEDLExporter(EDLExportTask, FtrackProcessor):
         pass
 
 
-class FtrackEDLExporterPreset(EDLExportPreset, FtrackProcessorPreset):
+class FtrackEDLExporterPreset(FtrackProcessorPreset, EDLExportPreset):
     '''EDL Task preset.'''
 
     @report_exception
@@ -82,7 +82,7 @@ class FtrackEDLExporterPreset(EDLExportPreset, FtrackProcessorPreset):
         )
 
 
-class FtrackEDLExporterUI(EDLExportUI, FtrackProcessorUI):
+class FtrackEDLExporterUI(FtrackProcessorUI, EDLExportUI):
     '''EDL Task Ui.'''
 
     @report_exception
