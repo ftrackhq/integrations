@@ -83,7 +83,7 @@ def register(session):
     session.event_hub.subscribe(
         "topic=ftrack.connect.application.discover"
         " and (data.application.identifier=nuke-studio* or data.application.identifier=hiero*)"
-        " and data.application.version >= 13",
+        " and data.application.version >= 14",
         handle_discovery_event,
         priority=20,
     )
@@ -95,7 +95,7 @@ def register(session):
     session.event_hub.subscribe(
         "topic=ftrack.connect.application.launch"
         " and (data.application.identifier=nuke-studio* or data.application.identifier=hiero*)"
-        " and data.application.version >= 13",
+        " and data.application.version >= 14",
         handle_launch_event,
         priority=20,
     )

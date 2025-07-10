@@ -1,5 +1,12 @@
 # ftrack Nuke Studio integration release Notes
 
+## v25.7.0
+2025-07-10
+
+* [fix] Support Nuke Studio 16
+* [changed] Minimum supported version bumped from Nuke Studio 13 to 14.
+* [changed] ftrack specific tags are stored differently. Old workfiles need to be updated.
+
 ## v24.11.0
 2024-11-21
 
