@@ -1050,7 +1050,13 @@ class FtrackProcessor(FtrackBase):
             "setting poster frame to {} for {}".format(mid_frame, source)
         )
 
-        thumbnail_qimage = source.thumbnail(mid_frame)
+        # layer defaults to "colour" in NS < 16 and "rgb" in NS >= 16
+        # to ensure compatibiity, we'll try both
+        try:
+            thumbnail_qimage = source.thumbnail(mid_frame, "rgb")
+        except RuntimeError:
+            thumbnail_qimage = source.thumbnail(mid_frame, "colour")
+
         thumbnail_file = tempfile.NamedTemporaryFile(
             prefix="hiero_ftrack_thumbnail", suffix=".png", delete=False
         ).name
