@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ftrack-framework-core"
-version = "3.2.1"
+version = "3.2.2"
 description='ftrack Framework Core library'
 authors = ["ftrack Integrations Team <integrations@backlight.co>"]
 readme = "README.md"
@@ -24,11 +24,11 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.dependencies]
 python = ">= 3.7, < 3.12"
-ftrack-python-api = "^2.5.4"
 six = ">= 1, < 2" # TODO: remove this ASAP
 platformdirs = "^4.0.0"
 pyyaml = "^6.0.1"
 #ftrack
+ftrack-python-api = "^3.0.0"
 ftrack-constants= {  version = "^3.0.0", optional = true }
 ftrack-utils = {  version = "^3.0.0", optional = true }
 

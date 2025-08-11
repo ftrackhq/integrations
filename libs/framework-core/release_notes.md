@@ -1,5 +1,9 @@
 # ftrack Framework Core library release Notes
 
+## v3.2.2rc1
+2025-08-11
+
+* [changed] Dependencies; Use ftrack-python-api 3.0.0 and above
 
 ## v3.2.1
 2024-11-20
