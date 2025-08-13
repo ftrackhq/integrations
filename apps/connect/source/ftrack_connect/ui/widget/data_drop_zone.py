@@ -208,13 +208,13 @@ class DataDropZone(QtWidgets.QFrame):
 
         # Use frames pattern instead of default digits pattern to only match
         # frame sequences.
-        
+
         #: Override pattern to take in account all padding options
         DIGITS_PATTERN = r'(?P<index>(?P<padding>\d*)\d+)'
         PATTERNS = {
             'frames': r'\.{0}\.\D+\d?$'.format(DIGITS_PATTERN),
         }
-                
+
         framesPattern = PATTERNS.get('frames')
         sequences, remainders = clique.assemble(
             paths, patterns=[framesPattern]
