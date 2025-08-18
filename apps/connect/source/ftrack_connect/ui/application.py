@@ -64,7 +64,7 @@ from ftrack_connect.utils.plugin import create_target_plugin_directory
 class ConnectWidgetPlugin(object):
     topic = 'ftrack.connect.plugin.connect-widget'
 
-    def __init__(self, connect_widget):
+    def __init__(self, connect_widget, kwargs=None):
         '''Initialise class with non initialised connect_widget.'''
         if not isinstance(connect_widget, type):
             raise Exception(
@@ -74,9 +74,12 @@ class ConnectWidgetPlugin(object):
             )
 
         self._connect_widget = connect_widget
+        self._kwargs = kwargs
 
     def _return_widget(self, event):
         '''Return stored widget class.'''
+        if self._kwargs:
+            return [self._connect_widget, self._kwargs]
         return self._connect_widget
 
     def register(self, session, priority):
@@ -883,9 +886,17 @@ class Application(QtWidgets.QMainWindow):
         load_fonts_resource()
 
         for plugin_class in self._builtin_widget_plugins + responses:
+            # First check if returned plugin class has other arguments.
+            kwargs = None
+            if isinstance(plugin_class, list):
+                kwargs = plugin_class[1]
+                plugin_class = plugin_class[0]
             widget_plugin = None
             try:
-                widget_plugin = plugin_class(self.session)
+                if kwargs:
+                    widget_plugin = plugin_class(self.session, **kwargs)
+                else:
+                    widget_plugin = plugin_class(self.session)
 
             except Exception:
                 self.logger.exception(
