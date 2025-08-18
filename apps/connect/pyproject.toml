@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ftrack-connect"
-version = "24.11.0"
+version = "25.8.0rc1"
 description='ftrack Connect desktop application.'
 authors = ["ftrack Integrations Team <integrations@backlight.co>"]
 readme = "README.md"
@@ -37,10 +37,10 @@ urllib3 = "<2"
 pyyaml = "^6.0.1"
 
 #ftrack
-ftrack-python-api = "^2.5.4"
+ftrack-python-api = "^3.0.0"
 ftrack-action-handler = "*"
-ftrack-utils = {  version = "^3.0.0"}
-ftrack-framework-core = {  version = "^3.0.0"}
+ftrack-utils = { version = "^3.0.0" }
+ftrack-framework-core = { version = "^3.0.0" }
 
 [tool.poetry.group.dev]
 optional = true
@@ -72,7 +72,7 @@ optional = true
 
 [tool.poetry.group.documentation.dependencies]
 pyScss = ">= 1.2.0, < 2"
-sphinx = ">= 1.8.5, < 4"
+sphinx = ">= 1.8.5, <= 5"
 Jinja2 = ">2, <=3.0.3"
 sphinx_rtd_theme = ">= 0.1.6, < 1"
 lowdown = ">= 0.1.0, < 1"

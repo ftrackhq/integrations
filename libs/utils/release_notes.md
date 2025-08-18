@@ -1,5 +1,10 @@
 # ftrack Utils library release Notes
 
+## v3.2.1rc1
+2025-08-11
+
+* [changed] Dependencies; Use ftrack-python-api 3.0.0 and above
+
 ## v3.2.0
 2024-11-19
 
