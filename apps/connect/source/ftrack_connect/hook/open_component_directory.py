@@ -33,9 +33,7 @@ class OpenComponentDirectoryAction(object):
                 'items': [
                     {
                         'label': 'Open directory',
-                        'actionIdentifier': self.identifier,
-                        'host': self.node,
-                    }
+                        'actionIdentifier': self.identifier,                    }
                 ]
             }
 
@@ -111,15 +109,17 @@ class OpenComponentDirectoryAction(object):
         '''Register to event hub.'''
         self.session.event_hub.subscribe(
             u'topic=ftrack.action.discover and '
-            u'source.user.username="{0}"'.format(self.session.api_user),
+            u'source.user.username="{0}" and '.format(self.session.api_user),
+            u'source.host="{1}"'.format(self.node)
             self.discover,
         )
 
+        # source.host requires API >= 3.0.5
         self.session.event_hub.subscribe(
             u'topic=ftrack.action.launch and '
             u'data.actionIdentifier={0} and '
             u'source.user.username="{1}" and '
-            u'data.host={2}'.format(
+            u'source.host="{2}"'.format(
                 self.identifier, self.session.api_user, self.node
             ),
             self.launch,
