@@ -31,7 +31,7 @@ Base = FtrackBase()
 hiero_version_tuple = Base.hiero_version_tuple
 
 
-class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
+class FtrackReviewableExporter(FtrackProcessor, TranscodeExporter):
     '''Reviewable Task exporter.'''
 
     @report_exception
@@ -169,7 +169,7 @@ class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
         pass
 
 
-class FtrackReviewableExporterPreset(TranscodePreset, FtrackProcessorPreset):
+class FtrackReviewableExporterPreset(FtrackProcessorPreset, TranscodePreset):
     '''Reviewable Task preset.'''
 
     @report_exception
@@ -237,7 +237,7 @@ class FtrackReviewableExporterPreset(TranscodePreset, FtrackProcessorPreset):
         )
 
 
-class FtrackReviewableExporterUI(TranscodeExporterUI, FtrackProcessorUI):
+class FtrackReviewableExporterUI(FtrackProcessorUI, TranscodeExporterUI):
     '''Reviewable Task Ui.'''
 
     @report_exception

@@ -1,15 +1,19 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 
-from Qt import QtWidgets, QtCore, QtGui
+try:
+    from PySide2 import QtWidgets, QtCore, QtGui
+except:
+    from PySide6 import QtWidgets, QtCore, QtGui
+
 import ftrack_nuke_studio.ui.widget.html_delegate
 
 
 class HtmlComboBox(QtWidgets.QComboBox):
-    '''Combo box that draws items with html.'''
+    """Combo box that draws items with html."""
 
     def __init__(self, formatter, *args, **kwargs):
-        '''Initialise combo box.
+        """Initialise combo box.
 
         *formatter* should be a callable that accepts item data and returns a
         string of HTML to render entry with.
@@ -18,7 +22,7 @@ class HtmlComboBox(QtWidgets.QComboBox):
 
             :class:`ftrack_nuke_studio.ui.widget.html_delegate.HtmlDelegate`
 
-        '''
+        """
         self.format = formatter
         self._resize_occurred = False
         super(HtmlComboBox, self).__init__(*args, **kwargs)
@@ -28,7 +32,7 @@ class HtmlComboBox(QtWidgets.QComboBox):
         self.setSizeAdjustPolicy(QtWidgets.QComboBox.AdjustToContents)
 
     def paintEvent(self, event):
-        '''Handle paint *event*.'''
+        """Handle paint *event*."""
         itemData = self.itemData(self.currentIndex())
 
         if itemData:
@@ -65,7 +69,7 @@ class HtmlComboBox(QtWidgets.QComboBox):
             super(HtmlComboBox, self).paintEvent(event)
 
     def resizeEvent(self, *args, **kwargs):
-        '''Handle resize event.'''
+        """Handle resize event."""
         # Record a resize has occurred in order to fix issue in popup. See
         # showPopup for details.
         self._resize_occurred = True
@@ -76,7 +80,7 @@ class HtmlComboBox(QtWidgets.QComboBox):
         super(HtmlComboBox, self).resizeEvent(*args, **kwargs)
 
     def showPopup(self, *args, **kwargs):
-        '''Show popup.'''
+        """Show popup."""
         super(HtmlComboBox, self).showPopup(*args, **kwargs)
 
         # Fix bug where popup is not correctly updated after a resize (the
@@ -89,7 +93,7 @@ class HtmlComboBox(QtWidgets.QComboBox):
             super(HtmlComboBox, self).showPopup(*args, **kwargs)
 
     def sizeHint(self):
-        '''Return preferred size hint.'''
+        """Return preferred size hint."""
         option = QtWidgets.QStyleOptionComboBox()
         self.initStyleOption(option)
 

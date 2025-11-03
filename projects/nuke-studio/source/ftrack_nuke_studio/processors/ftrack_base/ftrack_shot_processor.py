@@ -8,7 +8,10 @@ from hiero.exporters.FnShotProcessorUI import ShotProcessorUI
 from hiero.core.FnProcessor import _expandTaskGroup
 from ftrack_nuke_studio.config import report_exception
 
-from Qt import QtWidgets
+try:
+    from PySide2 import QtWidgets
+except:
+    from PySide6 import QtWidgets
 
 from ftrack_nuke_studio.processors.ftrack_base.ftrack_base_processor import (
     FtrackProcessorPreset,
@@ -17,7 +20,7 @@ from ftrack_nuke_studio.processors.ftrack_base.ftrack_base_processor import (
 )
 
 
-class FtrackShotProcessor(ShotProcessor, FtrackProcessor):
+class FtrackShotProcessor(FtrackProcessor, ShotProcessor):
     '''Ftrack shot processor.'''
 
     @report_exception
@@ -59,7 +62,7 @@ class FtrackShotProcessor(ShotProcessor, FtrackProcessor):
                 task.setDuplicate()
 
 
-class FtrackShotProcessorUI(ShotProcessorUI, FtrackProcessorUI):
+class FtrackShotProcessorUI(FtrackProcessorUI, ShotProcessorUI):
     '''Ftrack shot processor Ui.'''
 
     def __init__(self, preset):
@@ -112,7 +115,7 @@ class FtrackShotProcessorUI(ShotProcessorUI, FtrackProcessorUI):
         self.add_reviewable_options(form_layout)
 
 
-class FtrackShotProcessorPreset(ShotProcessorPreset, FtrackProcessorPreset):
+class FtrackShotProcessorPreset(FtrackProcessorPreset, ShotProcessorPreset):
     '''Ftrack shot processor preset.'''
 
     def __init__(self, name, properties):
