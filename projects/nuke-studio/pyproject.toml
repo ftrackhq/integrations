@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ftrack-nuke-studio"
-version = "25.7.0rc1"
+version = "25.11.0rc1"
 description='ftrack Connect integration with Nuke Studio'
 authors = ["ftrack Integrations Team <integrations@backlight.co>"]
 readme = "README.md"
@@ -34,6 +34,9 @@ opentimelineio = ">= 0.11"
 ftrack-utils = {  version = "^3.0.0", optional = true }
 ftrack-qt = { version = "^3.0.0", optional = true }
 ftrack-qt-style = { version = "^3.0.0", optional = true }
+
+[tool.poetry.requires-plugins]
+poetry-plugin-export = ">=1.8"
 
 [tool.poetry.extras]
 ftrack-libs = ["ftrack-utils", "ftrack-qt", "ftrack-qt-style"]
