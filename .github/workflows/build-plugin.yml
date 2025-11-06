@@ -96,7 +96,7 @@ jobs:
       - name: install poetry
         shell: bash
         run: |
-          pip install poetry==1.5.1
+          pip install poetry==2.1.3
       - name: poetry build
         shell: bash
         run: |
@@ -158,7 +158,7 @@ jobs:
       - name: install poetry
         shell: bash
         run: |
-          pip install poetry==1.5.1
+          pip install poetry==2.1.3
       - name: poetry build
         shell: bash
         run: |
@@ -197,7 +197,7 @@ jobs:
       - name: install poetry
         shell: bash
         run: |
-          pip install poetry==1.5.1
+          pip install poetry==2.1.3
       - name: poetry build
         shell: bash
         run: |
