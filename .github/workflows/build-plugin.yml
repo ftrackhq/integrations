@@ -124,6 +124,7 @@ jobs:
         shell: bash
         run: |
           cd ${{ needs.set-variables.outputs.folder }}
+          poetry install
           poetry build
       - name: build standard connect plugin
         if: ${{
