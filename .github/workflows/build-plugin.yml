@@ -17,7 +17,7 @@ jobs:
     steps:
       - name: Check tag pattern
         run: |
-          TAG_NAME=$(echo ${{ github.ref }} | sed 's|refs/tags/||')
+          TAG_NAME=$(echo ${{ github.event.ref || github.ref }} | sed 's|refs/tags/||')
           echo "TAG_NAME=${TAG_NAME}"
           
           # Define an array of supported tag prefixes
@@ -54,9 +54,9 @@ jobs:
       - name: set environments on full release
         shell: bash
         run: |
-          echo "PACKAGE=$(echo ${{ github.ref }} | cut -d/ -f 3-3)" >> $GITHUB_ENV
-          echo "VERSION=$(echo ${{ github.ref }} | cut -d/ -f 4-4)" >> $GITHUB_ENV
-          echo "TAG=$(echo ${{ github.ref }} | cut -d/ -f 3-4)" >> $GITHUB_ENV
+          echo "PACKAGE=$(echo ${{ github.event.ref || github.ref }} | cut -d/ -f 3-3)" >> $GITHUB_ENV
+          echo "VERSION=$(echo ${{ github.event.ref || github.ref }} | cut -d/ -f 4-4)" >> $GITHUB_ENV
+          echo "TAG=$(echo ${{ github.event.ref || github.ref }} | cut -d/ -f 3-4)" >> $GITHUB_ENV
       - name: set projects folder
         shell: bash
         run: |
@@ -74,43 +74,78 @@ jobs:
     name: Build platform independent artifacts, and Linux specific artifacts
     needs: set-variables
     concurrency:
-      group: ci-${{ github.ref }}
-    if: ${{ needs.set-variables.outputs.package != 'framework-photoshop' && needs.set-variables.outputs.package != 'framework-premiere' && needs.set-variables.outputs.package != 'framework-harmony' && needs.set-variables.outputs.package != 'framework-blender' }}
+      group: ci-${{ github.event.ref || github.ref }}
+    if: ${{
+        needs.set-variables.outputs.package != 'framework-photoshop' &&
+        needs.set-variables.outputs.package != 'framework-premiere' &&
+        needs.set-variables.outputs.package != 'framework-harmony' &&
+        needs.set-variables.outputs.package != 'framework-blender'
+      }}
     runs-on: ubuntu-22.04
     outputs:
       package: ${{ needs.set-variables.outputs.package }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
-        if: ${{ needs.set-variables.outputs.package != 'framework-harmony' && needs.set-variables.outputs.package != 'framework-houdini' && needs.set-variables.outputs.package != 'framework-blender' && needs.set-variables.outputs.package != 'framework-max'}}
+        if: ${{
+            needs.set-variables.outputs.package != 'nuke-studio' &&
+            needs.set-variables.outputs.package != 'framework-harmony' && 
+            needs.set-variables.outputs.package != 'framework-houdini' &&
+            needs.set-variables.outputs.package != 'framework-blender' &&
+            needs.set-variables.outputs.package != 'framework-max'
+          }}
         with:
           python-version: '3.7'
       - uses: actions/setup-python@v4
-        if: ${{ needs.set-variables.outputs.package == 'framework-harmony' || needs.set-variables.outputs.package == 'framework-flame'}}
+        if: ${{
+            needs.set-variables.outputs.package == 'framework-harmony' ||
+            needs.set-variables.outputs.package == 'framework-flame'
+          }}
         with:
           python-version: '3.9'
       - uses: actions/setup-python@v4
-        if: ${{ needs.set-variables.outputs.package == 'framework-houdini' || needs.set-variables.outputs.package == 'framework-blender' || needs.set-variables.outputs.package == 'framework-max'}}
+        if: ${{
+            needs.set-variables.outputs.package == 'nuke-studio' ||
+            needs.set-variables.outputs.package == 'framework-houdini' ||
+            needs.set-variables.outputs.package == 'framework-blender' ||
+            needs.set-variables.outputs.package == 'framework-max'
+          }}
         with:
           python-version: '3.11'
       - name: install poetry
         shell: bash
         run: |
-          pip install poetry==1.5.1
+          if python3 --version | grep -q "3\.11"; then
+            pip install poetry==2.1.3
+          else
+            pip install poetry==1.5.1
+          fi
       - name: poetry build
         shell: bash
         run: |
           cd ${{ needs.set-variables.outputs.folder }}
+          poetry install
           poetry build
       - name: build standard connect plugin
-        if: ${{ needs.set-variables.outputs.package == 'connect-publisher-widget' || needs.set-variables.outputs.package == 'connect-timetracker-widget' }}
+        if: ${{
+            needs.set-variables.outputs.package == 'connect-publisher-widget' ||
+            needs.set-variables.outputs.package == 'connect-timetracker-widget'
+          }}
         shell: bash
         run: |
           pip install -r tools/requirements.txt
           # Use --testpypi or --from_source to change where the deps are picked from
           python tools/build.py --remove_intermediate_folder build_connect_plugin ${{ needs.set-variables.outputs.folder }}
       - name: build standard framework DCC integration plugin
-        if: ${{ needs.set-variables.outputs.package == 'framework-maya' || needs.set-variables.outputs.package == 'framework-nuke' || needs.set-variables.outputs.package == 'framework-harmony' || needs.set-variables.outputs.package == 'framework-houdini' || needs.set-variables.outputs.package == 'framework-flame' || needs.set-variables.outputs.package == 'framework-blender' || needs.set-variables.outputs.package == 'framework-max'}}
+        if: ${{
+            needs.set-variables.outputs.package == 'framework-maya' ||
+            needs.set-variables.outputs.package == 'framework-nuke' ||
+            needs.set-variables.outputs.package == 'framework-harmony' ||
+            needs.set-variables.outputs.package == 'framework-houdini' ||
+            needs.set-variables.outputs.package == 'framework-flame' ||
+            needs.set-variables.outputs.package == 'framework-blender' ||
+            needs.set-variables.outputs.package == 'framework-max'
+          }}
         shell: bash
         run: |
           pip install -r tools/requirements.txt
@@ -120,8 +155,9 @@ jobs:
         if: ${{ needs.set-variables.outputs.package == 'nuke-studio' }}
         shell: bash
         run: |
-          pip install -r tools/requirements.txt
-          python tools/build.py --remove_intermediate_folder --include_resources resource/plugin,resource/application_hook build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+          cd ${{ needs.set-variables.outputs.folder }}
+          poetry run pip install -r ../../tools/requirements.txt
+          poetry run python ../../tools/build.py --remove_intermediate_folder --include_resources ../../resource/plugin,../../resource/application_hook build_connect_plugin .
       - name: build rv connect plugin
         if: ${{ needs.set-variables.outputs.package == 'rv' }}
         shell: bash
@@ -147,7 +183,7 @@ jobs:
     name: Build Windows platform dependent artifacts
     needs: set-variables
     concurrency:
-      group: ci-${{ github.ref }}
+      group: ci-${{ github.event.ref || github.ref }}
     if: ${{ needs.set-variables.outputs.package == 'framework-blender' }}
     runs-on: windows-latest
     steps:
@@ -181,7 +217,7 @@ jobs:
     name: Build Mac platform dependent artifacts
     needs: set-variables
     concurrency:
-      group: ci-${{ github.ref }}
+      group: ci-${{ github.event.ref || github.ref }}
     if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' || needs.set-variables.outputs.package == 'framework-premiere' || needs.set-variables.outputs.package == 'framework-blender' }}
     runs-on: macos-12
     steps:
