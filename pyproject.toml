@@ -1,39 +1,54 @@
-[tool.poetry]
+[project]
 name = "ftrack-integrations-monorepo"
 version = "0.0.0"
-description='ftrack Integrations Monorepo'
-authors = ["ftrack Integrations Team <integrations@backlight.co>"]
+description = "ftrack Integrations Monorepo"
 readme = "README.md"
-license = "Apache-2.0"
+license = { text = "Apache-2.0" }
+requires-python = ">= 3.8, < 3.13"
+authors = [
+  { name = "ftrack Integrations Team", email = "integrations@backlight.co" }
+]
+
+[project.urls]
 homepage = "https://ftrack.com"
 repository = "https://github.com/ftrackhq/integrations/"
 
+[project.optional-dependencies]
+test = [
+  'pytest >= 6.0.0, < 7.0.0',
+  'pytest-mock',
+  'coverage[toml] >= 7.3.2, < 8.0.0; python_version >= "3.8"',
+]
+
+dev = [
+  'ruff >= 0.4.4',
+  'pre-commit >= 3.0.0, < 4.0.0',
+
+  "ftrack-constants",
+  "ftrack-utils",
+  "ftrack-framework-core",
+  "ftrack-framework-qt",
+  "ftrack-qt",
+  "ftrack-qt-style",
+]
+
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
-[tool.poetry.dependencies]
-python = ">= 3.7, < 3.12"
+[tool.hatch.build]
+include = [
+    "README.md",
+    "pyproject.toml"
+]
 
-[tool.poetry.group.test.dependencies]
-black = [
-     { version = "23.1.0", python = "<3.8"},
-     { version = "^23.12.0", python = ">=3.8"}
-    ]
-pytest = "^6.0.0"
-pytest-mock = "*"
-coverage = { version = "^7.3.2", python = ">=3.8", extras = ["toml"] }
-ftrack-constants = { path = "libs/constants", develop = true }
-ftrack-utils = { path = "libs/utils", develop = true }
-ftrack-framework-core = { path = "libs/framework-core", develop = true }
-ftrack-framework-qt = { path = "libs/framework-qt", develop = true }
-ftrack-qt = { path = "libs/qt", develop = true }
-ftrack-qt-style = { path = "libs/qt-style", develop = true }
-
-
-[tool.black]
-line-length = 79
-skip-string-normalization = true
+[tool.uv.sources]
+ftrack-constants = { path = "libs/constants" }
+ftrack-utils = { path = "libs/utils" }
+ftrack-framework-core = { path = "libs/framework-core" }
+ftrack-framework-qt = { path = "libs/framework-qt" }
+ftrack-qt = { path = "libs/qt" }
+ftrack-qt-style = { path = "libs/qt-style" }
 
 [tool.pytest.ini_options]
 minversion = "6.0"
@@ -55,3 +70,7 @@ relative_files = true
 [tool.coverage.report]
 show_missing = true
 
+[tool.ruff.format]
+line-length = 79
+quote-style = "double"
+skip-magic-trailing-comma = true
