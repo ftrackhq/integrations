@@ -70,7 +70,9 @@ relative_files = true
 [tool.coverage.report]
 show_missing = true
 
-[tool.ruff.format]
+[tool.ruff]
 line-length = 79
+
+[tool.ruff.format]
 quote-style = "double"
-skip-magic-trailing-comma = true
+indent-style = "space"
