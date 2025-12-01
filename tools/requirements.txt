@@ -1,2 +1,2 @@
-pyScss >= 1.4
+libsass == 0.23.0
 PySide2 == 5.13.2

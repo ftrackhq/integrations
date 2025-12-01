@@ -1,7 +1,7 @@
 # 1. PEP 621 Project Metadata (replaces [tool.poetry])
 [project]
 name = "ftrack-connect"
-version = "24.11.0"
+version = "25.11.0rc1"
 description = "ftrack Connect desktop application."
 readme = "README.md"
 license = { text = "Apache-2.0" }
@@ -72,6 +72,9 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 # This tells hatch to look for the package in the 'source' directory
 packages = ["source/ftrack_connect"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"installer.py" = "installer.py"
 
 # 8. UV-specific configuration for local path dependencies
 [tool.uv.sources]
