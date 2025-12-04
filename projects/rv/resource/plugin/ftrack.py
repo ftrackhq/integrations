@@ -1,0 +1,793 @@
+import sys
+import json
+import tempfile
+import base64
+import traceback
+import os
+from uuid import uuid1 as uuid
+import logging
+import platform
+
+from PySide2 import QtCore
+from PySide2 import QtGui
+from PySide2 import QtWidgets
+from PySide2 import QtWebEngineWidgets
+
+
+# setup logging
+from ftrack_logging import configure_logging
+
+configure_logging('ftrack-rv')
+logger = logging.getLogger('ftrack-rv')
+
+# Setup dependencies path.
+dependencies_path = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), 'dependencies.zip')
+)
+
+logger.debug('Adding {} to PATH'.format(dependencies_path))
+sys.path.insert(0, dependencies_path)
+
+# import ftrack_api
+try:
+    import ftrack_api
+    from ftrack_api.symbol import ORIGIN_LOCATION_ID, SERVER_LOCATION_ID
+except ImportError as error:
+    raise ImportError('Could not import ftrack api, aborting.')
+
+# import RV related modules
+import rv
+from rv import rvtypes as rvt
+from rv import commands as rvc
+from rv import extra_commands as rve
+from rv import qtutils as rvq
+import rv.rvui as rvui
+from pymu import MuSymbol
+
+
+# print(help(rvc))
+
+from rv.commands import NeutralMenuState
+
+
+class FtrackMode(rv.rvtypes.MinorMode):
+    "A simple example that shows how to make shift-Z start/stop playback"
+
+    def __init__(self, name):
+        logger.warning('init')
+
+        rv.rvtypes.MinorMode.__init__(self)
+        self.mainWindow = rvq.sessionWindow()
+        self._firstRender = True
+        self._name = name
+        self.setup_variables()
+        self.check_envs()
+        self.create_session()
+        self.create_bindings()
+        self.initUi()
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def session(self):
+        return self._session
+
+    def togglePlayback(self, event):
+        if rvc.isPlaying():
+            rvc.stop()
+        else:
+            rvc.play()
+
+    def create_session(self):
+        self._session = ftrack_api.Session(auto_connect_event_hub=False)
+
+        # Get some useful locations.
+        self.origin_location = self._session.get(
+            'Location', ORIGIN_LOCATION_ID
+        )
+        self.server_location = self._session.get(
+            'Location', SERVER_LOCATION_ID
+        )
+        print(self._session)
+
+    def check_envs(self):
+        logger.warning('check_envs')
+        commandline_url = rvc.commandLineFlag('ftrackUrl', None)
+
+        print(f'command line url {commandline_url}')
+        if not commandline_url:
+            # Check for base environment presence.
+            required_envs = ['FTRACK_SERVER', 'FTRACK_API_KEY']
+            for env in required_envs:
+                if env not in os.environ:
+                    logger.error('{0} environment not found!'.format(env))
+        else:
+            os.environ['FTRACK_SERVER'] = commandline_url
+
+        # Setup ssl certificate path.
+        cacert_path = os.path.join(os.path.dirname(__file__), 'cacert.pem')
+        os.environ['REQUESTS_CA_BUNDLE'] = cacert_path
+
+        logger.info(f'env FTRACK_SERVER: {os.getenv("FTRACK_SERVER")}')
+        logger.info(f'env FTRACK_API_KEY: {os.getenv("FTRACK_API_KEY")}')
+        logger.info(
+            f'env REQUESTS_CA_BUNDLE: {os.getenv("REQUESTS_CA_BUNDLE")}'
+        )
+
+    def createActionWindow(self):
+        logger.warning('createActionWindow')
+
+        title = ''
+        startSize = 500
+
+        if self._dockActionWidget:
+            return
+
+        url = self._generateURL(
+            rvc.commandLineFlag("params", None), "review_action"
+        )
+        self._dockActionWidget = QtWidgets.QDockWidget(
+            title, self.mainWindow, QtCore.Qt.Widget
+        )
+
+        self._baseActionWidget = self.makeit()
+
+        self._webActionWidget = self._baseActionWidget.findChild(
+            QtCore.QObject, self.name
+        )
+
+        # QtCore.Qt.connect(_webNavigationWidget, QWebEngineView.loadFinished, viewLoaded(_baseActionWidget,));
+
+        self._webActionWidget.load(QtCore.QUrl(url))
+        rvq.javascriptExport(self._webActionWidget.page())
+        self._dockActionWidget.setWidget(self._baseActionWidget)
+
+        self._titleActionWidget = self._dockActionWidget.titleBarWidget()
+        # if (!showTitle) _dockActionWidget.setTitleBarWidget(QWidget(mainWindowWidget(), 0));
+        # connect(_dockActionWidget, QDockWidget.topLevelChanged, toggleTitleBar(_dockActionWidget, _titleActionWidget,));
+
+        self._dockActionWidget.setFeatures(
+            QtWidgets.QDockWidget.DockWidgetFloatable
+            | QtWidgets.QDockWidget.DockWidgetMovable
+        )
+
+        self.mainWindow.addDockWidget(
+            QtCore.Qt.RightDockWidgetArea, self._dockActionWidget
+        )
+
+        self._baseActionWidget.setMaximumWidth(startSize)
+        self._baseActionWidget.setMinimumWidth(startSize)
+
+        self._baseActionWidget.show()
+        self._dockActionWidget.show()
+
+    def makeit(self):
+        logger.warning('makeit')
+
+        form = QtWidgets.QWidget(self.mainWindow, QtCore.Qt.Widget)
+        verticalLayout = QtWidgets.QVBoxLayout(form)
+        verticalLayout.setSpacing(0)
+        verticalLayout.setContentsMargins(4, 4, 4, 4)
+        verticalLayout.setObjectName("verticalLayout")
+
+        webView = QtWebEngineWidgets.QWebEngineView(form)
+        webView.setObjectName(self.name)
+        verticalLayout.addWidget(webView)
+        return form
+
+    def toggleFloating(self, event):
+        index = int(event.contents())
+
+        dockWidget = QtWidgets.QDockWidget()
+        titleWidget = QtWidgets.QWidget()
+
+        if index == 3:
+            dockWidget = self._dockNavigationWidget
+            titleWidget = self._titleNavigationWidget
+
+        else:
+            dockWidget = self._dockActionWidget
+            titleWidget = self._titleActionWidget
+
+        if dockWidget.floating():
+            dockWidget.setFloating(False)
+
+        else:
+            dockWidget.setFloating(True)
+
+        self.toggleTitleBar(dockWidget, titleWidget, True)
+
+    def shutdown(self, event):
+        event.reject()
+
+        if self._webNavigationWidget:
+            self._webNavigationWidget.page().setHtml("", QtCore.Qt.QUrl())
+
+        if self._webActionWidget:
+            self._webActionWidget.page().setHtml("", QtCore.Qt.QUrl())
+
+    def ftrackEvent(self, event):
+        logger.warning('ftrackEvent')
+
+        try:
+            self._webNavigationWidget.page().runJavaScript(
+                "FT.updateFtrack(\"" + event.contents() + "\")"
+            )
+        except Exception as e:
+            logger.error(e)
+        try:
+            self._webActionWidget.page().runJavaScript(
+                "FT.updateFtrack(\"" + event.contents() + "\")"
+            )
+        except Exception as e:
+            logger.error(e)
+
+    def toggleTitleBar(self, dockWidget, titleWidget, ok):
+        logger.warning('toggleTitleBar')
+
+        if not dockWidget.floating():
+            dockWidget.setTitleBarWidget(QtWidgets.QWidget(self.mainWindow, 0))
+
+        else:
+            dockWidget.setTitleBarWidget(titleWidget)
+
+    def viewLoaded(self, view):
+        logger.warning('viewLoaded')
+
+        view.setMaximumWidth(16777215)
+        view.setMinimumWidth(0)
+        view.setMaximumHeight(16777215)
+        view.setMinimumHeight(250)
+
+    def initUi(self):
+        if not self._firstRender:
+            return
+
+        logger.warning('initUI')
+
+        self._dockActionWidget = None
+        self._firstRender = False
+        print(sys.argv[5])
+        params = MuSymbol('commands.commandLineFlag("params", nil)')
+        # params = rvc.commandLineFlag("params", None)
+        print(f'params {params} {type(params)}')
+        url = self._generateURL(params, 'review_navigation')
+
+        print(f'result url {url}')
+        showTitle = False
+        showProg = False
+        startSize = 500
+
+        if not url:
+            noServer = os.path.join(
+                os.path.dirname(os.path.dirname(__file__)),
+                "SupportFiles",
+                'noserver.html',
+            )
+            urlPrefix = (
+                "file:///" if (platform.system() == "Windows") else "file://"
+            )
+            url = os.path.join(urlPrefix, noServer).replace('\\', '\\\\')
+
+        logger.info(f'url: {url}')
+
+        title = ''
+        self._dockNavigationWidget = QtWidgets.QDockWidget(
+            title, self.mainWindow, QtCore.Qt.Widget
+        )
+
+        self._baseNavigationWidget = self.makeit()
+        self._webNavigationWidget = self._baseNavigationWidget.findChild(
+            QtCore.QObject, self.name
+        )
+        # QtCore.QObject.connect(_webNavigationWidget, QtWebEngineWidgets.QWebEngineView.loadFinished, self.viewLoaded(_baseNavigationWidget))
+
+        self._webNavigationWidget.load(QtCore.QUrl(str(url)))
+        rvq.javascriptExport(self._webNavigationWidget.page())
+        self._dockNavigationWidget.setWidget(self._baseNavigationWidget)
+
+        self._titleNavigationWidget = (
+            self._dockNavigationWidget.titleBarWidget()
+        )
+        # if not showTitle: _dockNavigationWidget.setTitleBarWidget(self.mainWindow)
+
+        # QtCore.QObject.connect(_dockNavigationWidget, QtWidgets.QDockWidget.topLevelChanged, self.toggleTitleBar(_dockNavigationWidget, _titleNavigationWidget,))
+
+        self._dockNavigationWidget.setFeatures(
+            QtWidgets.QDockWidget.DockWidgetFloatable
+            | QtWidgets.QDockWidget.DockWidgetMovable
+        )
+
+        self.mainWindow.addDockWidget(
+            QtCore.Qt.BottomDockWidgetArea, self._dockNavigationWidget
+        )
+
+        self._baseNavigationWidget.setMaximumHeight(startSize)
+        self._baseNavigationWidget.setMinimumHeight(startSize)
+
+        self._baseNavigationWidget.show()
+        self._dockNavigationWidget.show()
+
+        self.mainWindow.show()
+
+    def create_bindings(self):
+        logger.warning('create_bindings')
+
+        self._showPanelsOnStartup = rvc.readSettings(
+            "ftrackMode", "showPanelsOnStartUp", True
+        )
+        self._debugBool = rvc.readSettings("ftrackMode", "debug", True)
+
+        rvc.bind(
+            "default",
+            "global",
+            "ftrack-event",
+            self.ftrackEvent,
+            "Update action window",
+        )
+        rvc.bind(
+            "default",
+            "global",
+            "ftrack-timeline-loaded",
+            self.createActionWindow,
+            "User is logged in, create action window",
+        )
+
+        rvc.bind(
+            "default",
+            "global",
+            "ftrack-toggle-floating",
+            self.toggleFloating,
+            "Toggle floating panel",
+        )
+
+        # rvc.bind("default", "global","ftrack-upload-frame", self.ftrackExportAll, "Upload frame to FTrack")
+        # rvc.bind("default", "global","ftrack-upload-frames", self.ftrackExportAll, "Upload all annotated frames to FTrack")
+        # rvc.bind("default", "global","frame-changed", self.frameChanged, "New frame")
+        # rvc.bind("default", "global","ftrack-changed-group", self.navGroupChanged,"New group selected")
+
+        # menu = [
+        #     ("ftrackReview", [
+        #             ("Toggle panels", self.ftrackToggle, "control shift t" , lambda: NeutralMenuState),
+        #             # ("Preferences", [
+        #             #     ("Show panels on startup", self.showPanelsOnStartupToggle, "", self.showPanelsOnStartupState),
+        #             # ])
+        #     ])
+        # ]
+
+        # self.init(self.name, [ ("before-session-deletion", self.shutdown, "")], None, menu)
+
+    def setup_variables(self):
+        # Cache to keep track of filesystem path for components.
+        # This will cause the component to use the same filesystem path
+        # during the entire session.
+        logger.warning('setup_variables')
+
+        self.componentFilesystemPaths = {}
+
+        self.sequenceSourceNode = None
+        self.stackSourceNode = None
+        self.layoutSourceNode = None
+
+        # Store references to annotation components being uploaded between methods.
+        self.annotation_components = {}
+        self.globalBindings = None  # [("Event-Name", self.eventCallback, "DescriptionOfBinding")]
+        self.localBindings = None
+
+        self._showPanelsOnStartup = None
+        self._debugBool = None
+
+    def runExample(self, event):
+        print("DEBUG: Example Ran.")
+
+    def createMode():
+        "Required to initialize the module. RV will call this function to create your mode."
+        return FtrackMode()
+
+    # ----------------------------------- CODE FROM OLD ftrack_rv_api --------------------------------------------------
+
+    def _getFilePath(self, componentId):
+        '''Return a single access path based on *source* and *location*'''
+
+        path = self.componentFilesystemPaths.get(componentId, None)
+
+        if path is None:
+            ftrack_component = self.session.get('Component', componentId)
+            location = self.session.pick_location(component=ftrack_component)
+            path = location.get_filesystem_path(ftrack_component)
+            self.componentFilesystemPaths[componentId] = path
+
+        return path
+
+    def _setWipeMode(self, state):
+        '''Util to set the state of wipes instead of toggle.'''
+        if (
+            rv.runtime.eval('rvui.wipeShown()', ['rvui']) != -1
+            and state is False
+        ):
+            rv.runtime.eval('rvui.toggleWipe()', ['rvui'])
+
+        if (
+            rv.runtime.eval('rvui.wipeShown()', ['rvui']) == -1
+            and state is True
+        ):
+            rv.runtime.eval('rvui.toggleWipe()', ['rvui'])
+
+    def _getSourceNode(self, nodeType='sequence'):
+        '''Return source node of *nodeType*.'''
+
+        if nodeType == 'sequence':
+            if self.sequenceSourceNode is None:
+                self.sequenceSourceNode = rvc.newNode(
+                    'RVSequenceGroup', 'Sequence'
+                )
+
+                rv.extra_commands.setUIName(
+                    self.sequenceSourceNode, 'SequenceNode'
+                )
+
+            return self.sequenceSourceNode
+
+        elif nodeType == 'stack':
+            if stackSourceNode is None:
+                stackSourceNode = rvc.newNode('RVStackGroup', 'Stack')
+
+                rv.extra_commands.setUIName(stackSourceNode, 'StackNode')
+
+            return stackSourceNode
+
+        elif nodeType == 'layout':
+            if layoutSourceNode is None:
+                layoutSourceNode = rvc.newNode('RVLayoutGroup', 'Layout')
+
+                rv.extra_commands.setUIName(layoutSourceNode, 'LayoutNode')
+
+            return layoutSourceNode
+
+    def _ftrackAddVersion(track, layout):
+        stackInputs = rvc.nodeConnections(layout, False)[0]
+        newSource = rvc.addSourceVerbose([track], None)
+        rvc.setNodeInputs(layout, stackInputs)
+        rve.setUIName(rvc.nodeGroup(newSource), track)
+
+        return newSource
+
+    def _ftrackCreateGroup(self, tracks, sourceNode, layout):
+        singleSources = []
+        for track in tracks:
+            try:
+                singleSources.append(
+                    rvc.nodeGroup(self._ftrackAddVersion(track, layout))
+                )
+            except Exception as error:
+                logger.exception(error)
+
+        rvc.setNodeInputs(sourceNode, singleSources)
+
+    def loadPlaylist(self, playlist, index=None, includeFrame=None):
+        '''Load a playlist into RV.
+
+        Load a specified *playlist* into RV and jump to an optional *index*. If
+        *includeFrame* is an optional frame reference.
+
+        '''
+        self._setWipeMode(False)
+        startFrame = 1
+
+        if not includeFrame == 'false':
+            startFrame = rve.sourceFrame(rvc.frame(), None)
+
+        for oldSource in rvc.nodesOfType('RVSourceGroup'):
+            rvc.deleteNode(oldSource)
+
+        sources = []
+        for item in playlist:
+            sources.append(self._getFilePath(item.get('componentId')))
+
+        sequenceSourceNode = self._getSourceNode('sequence')
+
+        self._ftrackCreateGroup(sources, sequenceSourceNode, 'defaultLayout')
+        rvc.setViewNode(sequenceSourceNode)
+
+        if index:
+            self.ftrackJumpTo(index, startFrame)
+
+    def validateComponentLocation(self, componentId, versionId):
+        '''Return if the *componentId* is accessible in a local location.'''
+        try:
+            self._getFilePath(componentId)
+        except Exception:
+            logger.warning(
+                'Component with Id "{0}" is not available in any location.'.format(
+                    componentId
+                )
+            )
+            try:
+                rvc.sendInternalEvent(
+                    'ftrack-event',
+                    base64.b64encode(
+                        json.dumps(
+                            {'type': 'breakItem', 'versionId': versionId}
+                        ).encode("utf-8")
+                    ).decode('ascii'),
+                    None,
+                )
+            except Exception:
+                logger.error('Could not send internal event to ftrack.')
+
+    def ftrackCompare(self, data):
+        '''Activate compare mode in RV
+
+        Activiate compare mode of *type* between *componentIdA* and *componentIdB*
+
+        '''
+        self._setWipeMode(False)
+        startFrame = 1
+        try:
+            startFrame = rve.sourceFrame(rvc.frame(), None)
+        except Exception:
+            pass
+
+        componentIdA = data.get('componentIdA')
+        componentIdB = data.get('componentIdB')
+        mode = data.get('mode')
+
+        trackA = self._getFilePath(componentIdA)
+
+        layout = 'defaultStack' if mode == 'wipe' else 'defaultLayout'
+
+        if not mode == 'load':
+            trackB = self._getFilePath(componentIdB)
+
+            try:
+                if mode == 'wipe':
+                    sourceNode = self._getSourceNode('stack')
+                    self._ftrackCreateGroup(
+                        [trackA, trackB], sourceNode, layout
+                    )
+                    rvc.setViewNode(sourceNode)
+                    rv.runtime.eval('rvui.toggleWipe()', ['rvui'])
+                else:
+                    sourceNode = self._getSourceNode('layout')
+                    self._ftrackCreateGroup(
+                        [trackA, trackB], sourceNode, layout
+                    )
+                    rvc.setViewNode(sourceNode)
+            except Exception:
+                print(traceback.format_exc())
+        else:
+            sourceNode = self._getSourceNode('layout')
+            self._ftrackCreateGroup([trackA], sourceNode, layout)
+            rvc.setViewNode(sourceNode)
+
+        if startFrame > 1:
+            rvc.setFrame(startFrame)
+
+    def _getEntityFromEnvironment(self):
+        # Check for environment variable specifying additional information to
+        # use when loading.
+        eventEnvironmentVariable = 'FTRACK_CONNECT_EVENT'
+
+        eventData = os.environ.get(eventEnvironmentVariable)
+
+        if eventData is not None:
+            try:
+                decodedEventData = json.loads(base64.b64decode(eventData))
+            except (TypeError, ValueError):
+                logger.error(
+                    'Failed to decode {0}: {1}'.format(
+                        eventEnvironmentVariable, eventData
+                    )
+                )
+            else:
+                selection = decodedEventData.get('selection', [])
+                logger.info('selection {}'.format(selection))
+                # At present only a single entity which should represent an
+                # ftrack List is supported.
+                if selection:
+                    try:
+                        entity = selection[0]
+                        entityId = entity.get('entityId')
+                        entityType = entity.get('entityType')
+                        return entityId, entityType
+                    except (IndexError, AttributeError, KeyError):
+                        logger.error(
+                            'Failed to extract selection information from: {0}'.format(
+                                selection
+                            )
+                        )
+        else:
+            logger.debug(
+                'No event data retrieved. {0} not set.'.format(
+                    eventEnvironmentVariable
+                )
+            )
+
+        return None, None
+
+    def getNavigationURL(self, params=None):
+        '''Return URL to navigation panel based on *params*.'''
+        return self._generateURL(params, 'review_navigation')
+
+    def getActionURL(self, params=None):
+        '''Return URL to action panel based on *params*.'''
+        return self._generateURL(params, 'review_action')
+
+    def _translateEntityType(self, entityType):
+        '''Return translated entity type tht can be used with API.'''
+        # Get entity type and make sure it is lower cased. Most places except
+        # the component tab in the Sidebar will use lower case notation.
+        entity_type = entityType.replace('_', '').lower()
+
+        for schema in self.session.schemas:
+            alias_for = schema.get('alias_for')
+
+            if (
+                alias_for
+                and isinstance(alias_for, str)
+                and alias_for.lower() == entity_type
+            ):
+                return schema['id']
+
+        for schema in self.session.schemas:
+            if schema['id'].lower() == entity_type:
+                return schema['id']
+
+        raise ValueError(
+            'Unable to translate entity type: {0}.'.format(entity_type)
+        )
+
+    def _get_temp_data_url(self, name, temp_data_id):
+        operation = {
+            'action': 'get_widget_url',
+            'name': name,
+            'theme': None,
+        }
+
+        result = self.session.call([operation])
+        url = result[0]['widget_url']
+        full_url = '{}&entityType=tempdata&entityId={}'.format(
+            url, temp_data_id
+        )
+        return full_url
+
+    # CURRENT ERROR IN DECODING PARAMS
+    def _generateURL(self, params, panelName=None):
+        '''Return URL to panel in ftrack based on *params* or *panel*.'''
+        logger.info('_generateURL with params: {}'.format(params))
+        url = ''
+
+        try:
+            entityId = None
+            entityType = None
+
+            if params:
+                panelName = panelName or params
+                try:
+                    params = json.loads(params)
+                    print(f'params : {params} , {type(params)}')
+                    entityId = params['entityId'][0]
+                    entityType = params['entityType'][0]
+
+                except Exception as e:
+                    logger.error(e)
+                    print(e)
+                    entityId, entityType = self._getEntityFromEnvironment()
+
+                print(f'entityId:  {entityId}')
+                print(f'entityType:  {entityType}')
+
+                if entityId and entityType:
+                    if entityType != 'tempdata':
+                        new_entity_type = self._translateEntityType(entityType)
+                        new_entity = self.session.get(
+                            new_entity_type, entityId
+                        )
+                        try:
+                            url = self.session.get_widget_url(
+                                panelName, entity=new_entity
+                            )
+                        except Exception as exception:
+                            logger.error(str(exception))
+                    else:
+                        try:
+                            url = self._get_temp_data_url(panelName, entityId)
+                        except Exception as exception:
+                            logger.error(str(exception))
+            logger.info('Returning url "{0}"'.format(url))
+        except Exception as error:
+            logger.exception('Failed to generate URL. {}'.format(error))
+
+        return url
+
+    def ftrackFilePath(self, id):
+        try:
+            if id != "":
+                filename = "%s.jpg" % id
+                filepath = os.path.join(tempfile.gettempdir(), filename)
+            else:
+                filepath = tempfile.gettempdir()
+            return filepath
+        except Exception:
+            logger.exception('Failed to get file path.')
+            return ''
+
+    def ftrackUUID(self, short):
+        '''Retun a uuid based on uuid1'''
+        return str(uuid())
+
+    def ftrackJumpTo(self, index=0, startFrame=1):
+        '''Move playhead to an index
+
+        Moves the RV playhead to the specified *index*
+
+        '''
+        try:
+            index = int(index)
+            frameNumber = 0
+
+            for idx, source in enumerate(rvc.nodesOfType('RVFileSource')):
+                if not idx >= index:
+                    data = rvc.sourceMediaInfoList(source)[0]
+                    add = (
+                        data.get('endFrame', 0) - data.get('startFrame', 0)
+                    ) + 1
+                    add = 1 if add == 0 else add
+                    frameNumber += add
+
+            rvc.setFrame(frameNumber + startFrame)
+        except Exception:
+            logger.exception('Failed to jump to index.')
+
+    def create_component(self, encoded_args):
+        '''Create component without adding it to a location.
+
+        *encoded_args* should be a JSON encoded dictionary containing file_name and
+        frame.
+
+        Store reference in annotation_components.
+        '''
+        component_id = None
+        try:
+            args = json.loads(encoded_args)
+            file_name = args['file_name']
+            frame = args['frame']
+
+            component_name = 'Frame_{0}'.format(frame)
+            file_path = os.path.join(self.ftrackFilePath(''), file_name)
+            logger.info(u'Creating component: {0!r}'.format(file_path))
+            component = self.session.create_component(
+                path=file_path, data=dict(name=component_name), location=None
+            )
+            component_id = component['id']
+            self.annotation_components[component_id] = component
+        except Exception:
+            logger.exception('Failed to create component.')
+
+        return component_id
+
+    def upload_component(self, component_id):
+        '''Add component with *component_id* to ftrack server location.'''
+        try:
+            logger.info(
+                u'Adding component {0!r} to ftrack server location.'.format(
+                    component_id
+                )
+            )
+            component = self.annotation_components[component_id]
+            self.server_location.add_component(component, self.origin_location)
+            del self.annotation_components[component_id]
+        except Exception:
+            logger.exception('Failed to upload component')
+        else:
+            return component_id
+
+
+def createMode():
+    return FtrackMode('webview')
+
+
+def theMode():
+    return FtrackMode("webview")

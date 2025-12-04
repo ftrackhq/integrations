@@ -9,7 +9,7 @@ rv: 7.5.0
 requires: ''
 
 modes:
-  - file: ftrack.mu
+  - file: ftrack
     load: immediate
 files:
   - file: noserver.html
