@@ -249,9 +249,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
 
         self._dockActionWidget = None
         self._firstRender = False
-        print(sys.argv[5])
-        params = MuSymbol('commands.commandLineFlag("params", nil)')
-        # params = rvc.commandLineFlag("params", None)
+        params = rvc.commandLineFlag("params", None)
         print(f'params {params} {type(params)}')
         url = self._generateURL(params, 'review_navigation')
 
