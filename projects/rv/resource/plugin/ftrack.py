@@ -58,6 +58,9 @@ class FtrackMode(rv.rvtypes.MinorMode):
 
         rv.rvtypes.MinorMode.__init__(self)
         self.mainWindow = rvq.sessionWindow()
+
+        self._dockActionWidget = None
+        self._dockNavigationWidget = None
         self._firstRender = True
         self._name = name
         self.setup_variables()
@@ -116,7 +119,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
             f'env REQUESTS_CA_BUNDLE: {os.getenv("REQUESTS_CA_BUNDLE")}'
         )
 
-    def createActionWindow(self):
+    def createActionWindow(self, args):
         logger.warning('createActionWindow')
 
         title = ''
@@ -244,13 +247,11 @@ class FtrackMode(rv.rvtypes.MinorMode):
     def initUi(self):
         if not self._firstRender:
             return
+        self._firstRender = False
 
         logger.warning('initUI')
 
-        self._dockActionWidget = None
-        self._firstRender = False
         params = rvc.commandLineFlag("params", None)
-        print(f'params {params} {type(params)}')
         url = self._generateURL(params, 'review_navigation')
 
         print(f'result url {url}')
@@ -267,7 +268,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
             urlPrefix = (
                 "file:///" if (platform.system() == "Windows") else "file://"
             )
-            url = os.path.join(urlPrefix, noServer).replace('\\', '\\\\')
+            url = os.path.join(urlPrefix, noServer)
 
         logger.info(f'url: {url}')
 
@@ -280,7 +281,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
         self._webNavigationWidget = self._baseNavigationWidget.findChild(
             QtCore.QObject, self.name
         )
-        # QtCore.QObject.connect(_webNavigationWidget, QtWebEngineWidgets.QWebEngineView.loadFinished, self.viewLoaded(_baseNavigationWidget))
+        # QtCore.QObject.connect(self._webNavigationWidget, QtWebEngineWidgets.QWebEngineView.loadFinished, self.viewLoaded(self._baseNavigationWidget))
 
         self._webNavigationWidget.load(QtCore.QUrl(str(url)))
         rvq.javascriptExport(self._webNavigationWidget.page())
