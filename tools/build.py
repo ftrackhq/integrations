@@ -10,6 +10,7 @@ official CI/CD build implementation in place.
 
 Changelog:
 
+0.5.0 [25.11.0] Replace poetry with uv; Use dmgbuild to avoid npm dependency; use proper toml parser tomli/tomllib
 0.4.24 [24.11.08] platform_dependent flag in build script.
 0.4.23 [24.05.20] Fixed bug when building qt-style from sources.
 0.4.22 [24.05.14] CEP build; Support for JS include folder, overriding extensions/js folder.
@@ -52,7 +53,13 @@ import subprocess
 from distutils.spawn import find_executable
 import fileinput
 import tempfile
-import tomllib
+
+# tomli has been integrated into python 3.11+
+# and renamed to tomllib
+if sys.version_info >= (3, 11):
+    import tomllib
+else:
+    import tomli as tomllib
 
 __version__ = "0.4.23"
 

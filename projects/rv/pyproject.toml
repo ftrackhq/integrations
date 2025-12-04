@@ -7,7 +7,7 @@ version = "24.0"
 description = "ftrack Connect RV integration"
 readme = "README.md"
 license = { text = "Apache-2.0" }
-requires-python = ">= 3.7, < 3.12"
+requires-python = ">= 3.10, < 3.12"
 authors = [
   { name = "ftrack Integrations Team", email = "integrations@backlight.co" }
 ]
@@ -24,6 +24,9 @@ repository = "https://github.com/ftrackhq/integrations/tree/main/projects/rv"
 [project.optional-dependencies]
 ftrack-libs = [
   "ftrack-utils>=2.0.0, <3.0.0",
+]
+dev = [
+    "tomli>=2.3.0",
 ]
 
 # 4. Build System (using hatchling)
