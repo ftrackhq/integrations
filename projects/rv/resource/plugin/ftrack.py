@@ -31,7 +31,7 @@ dependencies_path = os.path.abspath(
 logger.debug('Adding {} to PATH'.format(dependencies_path))
 sys.path.insert(0, dependencies_path)
 
-# import ftrack_api
+
 try:
     import ftrack_api
     from ftrack_api.symbol import ORIGIN_LOCATION_ID, SERVER_LOCATION_ID
@@ -46,10 +46,6 @@ from rv import extra_commands as rve
 from rv import qtutils as rvq
 from rv import rvui
 from pymu import MuSymbol
-
-
-# print(help(rvc))
-
 from rv.commands import NeutralMenuState
 
 
@@ -63,6 +59,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
         self.mainWindow = rvq.sessionWindow()
         self._firstRender = True
         self._name = name
+        self._isHidden = False
         self.setup_variables()
         self.check_envs()
         self.create_session()
@@ -357,6 +354,39 @@ class FtrackMode(rv.rvtypes.MinorMode):
                 + "\")"
             )
 
+    def navGroupChanged(self, event):
+        self.setViewNode("sourceGroup00000" + event.contents())
+
+    def ftrackToggle(self, event):
+        if self._isHidden:
+            self._isHidden = False
+            self.showPanels()
+            self.initUi()
+        else:
+            self._isHidden = True
+            self.hidePanels()
+
+    def hidePanels(self):
+        if self._baseNavigationWidget:
+            self._baseNavigationWidget.hide()
+        if self._dockNavigationWidget:
+            self._dockNavigationWidget.hide()
+        if self._baseActionWidget:
+            self._baseActionWidget.hide()
+        if self._dockActionWidget:
+            self._dockActionWidget.hide()
+
+    def showPanels(self):
+        if self._baseNavigationWidget:
+            self._baseNavigationWidget.show()
+        if self._dockNavigationWidget:
+            self._dockNavigationWidget.show()
+
+        if self._baseActionWidget:
+            self._baseActionWidget.show()
+        if self._dockActionWidget:
+            self._dockActionWidget.show()
+
     def create_bindings(self):
         logger.warning('create_bindings')
 
@@ -394,21 +424,40 @@ class FtrackMode(rv.rvtypes.MinorMode):
             self.frameChanged,
             "New frame",
         )
+        rvc.bind(
+            "default",
+            "global",
+            "ftrack-changed-group",
+            self.navGroupChanged,
+            "New group selected",
+        )
 
         # rvc.bind("default", "global","ftrack-upload-frame", self.ftrackExportAll, "Upload frame to FTrack")
         # rvc.bind("default", "global","ftrack-upload-frames", self.ftrackExportAll, "Upload all annotated frames to FTrack")
-        # rvc.bind("default", "global","ftrack-changed-group", self.navGroupChanged,"New group selected")
 
-        # menu = [
-        #     ("ftrackReview", [
-        #             ("Toggle panels", self.ftrackToggle, "control shift t" , lambda: NeutralMenuState),
-        #             # ("Preferences", [
-        #             #     ("Show panels on startup", self.showPanelsOnStartupToggle, "", self.showPanelsOnStartupState),
-        #             # ])
-        #     ])
-        # ]
+        menu = [
+            (
+                "ftrackReview",
+                [
+                    (
+                        "Toggle panels",
+                        self.ftrackToggle,
+                        "control shift t",
+                        lambda: NeutralMenuState,
+                    ),
+                    # ("Preferences", [
+                    #     ("Show panels on startup", self.showPanelsOnStartupToggle, "", self.showPanelsOnStartupState),
+                    # ])
+                ],
+            )
+        ]
 
-        # self.init(self.name, [ ("before-session-deletion", self.shutdown, "")], None, menu)
+        self.init(
+            self.name,
+            [("before-session-deletion", self.shutdown, "")],
+            None,
+            menu,
+        )
 
     def setup_variables(self):
         # Cache to keep track of filesystem path for components.
