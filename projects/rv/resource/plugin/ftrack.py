@@ -153,8 +153,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
 
         self._dockActionWidget.topLevelChanged.connect(
             lambda: self.toggleTitleBar(
-                self._dockActionWidget,
-                self._titleActionWidget,
+                self._dockActionWidget, self._titleActionWidget, False
             )
         )
 
@@ -203,7 +202,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
             dockWidget = self._dockActionWidget
             titleWidget = self._titleActionWidget
 
-        if dockWidget.floating():
+        if dockWidget.isFloating():
             dockWidget.setFloating(False)
 
         else:
@@ -242,7 +241,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
     def toggleTitleBar(self, dockWidget, titleWidget, ok):
         logger.debug('toggleTitleBar')
 
-        if not dockWidget.floating():
+        if not dockWidget.isFloating():
             dockWidget.setTitleBarWidget(QtWidgets.QWidget(self.mainWindow))
 
         else:
@@ -311,8 +310,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
 
         self._dockNavigationWidget.topLevelChanged.connect(
             lambda: self.toggleTitleBar(
-                self._dockNavigationWidget,
-                self._titleNavigationWidget,
+                self._dockNavigationWidget, self._titleNavigationWidget, False
             )
         )
 
@@ -890,6 +888,8 @@ class FtrackMode(rv.rvtypes.MinorMode):
         )
 
     def _get_temp_data_url(self, name, temp_data_id):
+        logger.debug(f'_get_temp_data_url: {name} {temp_data_id}')
+
         operation = {
             'action': 'get_widget_url',
             'name': name,
@@ -906,7 +906,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
     # CURRENT ERROR IN DECODING PARAMS
     def _generateURL(self, params, panelName=None):
         '''Return URL to panel in ftrack based on *params* or *panel*.'''
-        logger.info('_generateURL with params: {}'.format(params))
+        logger.debug(f'_generateURL with params: {params}')
         url = ''
 
         try:
@@ -946,13 +946,16 @@ class FtrackMode(rv.rvtypes.MinorMode):
                             url = self._get_temp_data_url(panelName, entityId)
                         except Exception as exception:
                             logger.error(str(exception))
-            logger.info('Returning url "{0}"'.format(url))
+
         except Exception as error:
             logger.exception('Failed to generate URL. {}'.format(error))
 
+        logger.info('Returning url "{0}"'.format(url))
         return url
 
     def ftrackFilePath(self, id):
+        logger.debug(f'ftrackFilePath {id}')
+
         try:
             if id != "":
                 filename = "%s.jpg" % id
@@ -966,6 +969,8 @@ class FtrackMode(rv.rvtypes.MinorMode):
 
     def ftrackUUID(self, short):
         '''Retun a uuid based on uuid1'''
+        logger.debug(f'ftrackUUID {short}')
+
         return str(uuid())
 
     def ftrackJumpTo(self, index=0, startFrame=1):
@@ -974,6 +979,8 @@ class FtrackMode(rv.rvtypes.MinorMode):
         Moves the RV playhead to the specified *index*
 
         '''
+        logger.debug(f'ftrackJumpTo {index} {startFrame}')
+
         try:
             index = int(index)
             frameNumber = 0
