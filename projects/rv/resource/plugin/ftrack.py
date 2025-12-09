@@ -63,7 +63,6 @@ class FtrackMode(rv.rvtypes.MinorMode):
         self.check_envs()
         self.create_session()
         self.create_bindings()
-        self.initUi()
 
     @property
     def name(self):
@@ -190,6 +189,8 @@ class FtrackMode(rv.rvtypes.MinorMode):
         return form
 
     def toggleFloating(self, event):
+        logger.warning('toggleFloating')
+
         index = int(event.contents())
 
         dockWidget = QtWidgets.QDockWidget()
@@ -212,6 +213,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
         self.toggleTitleBar(dockWidget, titleWidget, True)
 
     def shutdown(self, event):
+        logger.warning('shutdown')
         event.reject()
 
         if self._webNavigationWidget:
@@ -221,8 +223,9 @@ class FtrackMode(rv.rvtypes.MinorMode):
             self._webActionWidget.page().setHtml("", QtCore.Qt.QUrl())
 
     def ftrackEvent(self, event):
-        logger.warning('ftrackEvent')
+        content = base64.b64decode(event.contents())
 
+        logger.warning(f'ftrackEvent {content}')
         try:
             self._webNavigationWidget.page().runJavaScript(
                 "FT.updateFtrack(\"" + event.contents() + "\")"
@@ -331,6 +334,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
         self.mainWindow.show()
 
     def frameChanged(self, event):
+        logger.debug(f'FrameChanged {event}')
         source = int(
             re.smatch(
                 "[a-zA-Z]+([0-9]+)", rvc.sourcesAtFrame(rvc.frame())[0]
@@ -345,6 +349,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
             )
             data = data_string.encode('utf-8')
             data = base64.b64encode(data)
+            logger.debug(data)
             self._webNavigationWidget.page().runJavaScript(
                 "FT.updateFtrack(\""
                 + data.encode('latin-1').decode('utf-8')
@@ -430,7 +435,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
         self._showPanelsOnStartup = rvc.readSettings(
             "ftrackMode", "showPanelsOnStartUp", True
         )
-        self._debug = rvc.readSettings("ftrackMode", "debug", True)
+        self._debug = rvc.readSettings("ftrackMode", "debug", False)
 
         rvc.bind(
             "default",
@@ -509,6 +514,30 @@ class FtrackMode(rv.rvtypes.MinorMode):
             None,
             menu,
         )
+
+        rvc.sendInternalEvent("key-down--`")
+
+        rvc.bind(
+            "default",
+            "global",
+            "key-down--control--T",
+            self.ftrackToggle,
+            "Toggle ftrackReview panels",
+        )
+        rvc.bind(
+            "default",
+            "global",
+            "key-down--control--D",
+            self.debugToggle,
+            "Toggle ftrackReview debug prints",
+        )
+
+        if self._showPanelsOnStartup:
+            self._isHidden = False
+            self.initUi()
+
+        else:
+            self._isHidden = True
 
     def setup_variables(self):
         # Cache to keep track of filesystem path for components.
