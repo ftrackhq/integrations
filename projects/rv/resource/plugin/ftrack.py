@@ -336,27 +336,26 @@ class FtrackMode(rv.rvtypes.MinorMode):
         self.mainWindow.show()
 
     def frameChanged(self, event):
-        logger.debug(f'FrameChanged {event}')
-        source = int(
-            re.smatch(
-                "[a-zA-Z]+([0-9]+)", rvc.sourcesAtFrame(rvc.frame())[0]
-            ).back()
+        logger.debug(f'FrameChanged | evt : {event}')
+
+        frame = rvc.sourcesAtFrame(rvc.frame())[0]
+        source = int(re.match("[a-zA-Z]+([0-9]+)", frame).group(1))
+        logger.debug(
+            f'FrameChanged | _currentSource : {self._currentSource} , source {source}'
         )
+
         if self._currentSource != source:
             _currentSource = source
             data_string = (
                 "{\"type\":\"changedGroup\",\"index\":\""
-                + _currentSource
+                + str(_currentSource)
                 + "\"}"
             )
             data = data_string.encode('utf-8')
             data = base64.b64encode(data)
             logger.debug(data)
-            self._webNavigationWidget.page().runJavaScript(
-                "FT.updateFtrack(\""
-                + data.encode('latin-1').decode('utf-8')
-                + "\")"
-            )
+            jsData = f'FT.updateFtrack("{data}")'
+            self._webNavigationWidget.page().runJavaScript(jsData)
 
     def navGroupChanged(self, event):
         logger.debug(f'navGroupChanged {event}')
