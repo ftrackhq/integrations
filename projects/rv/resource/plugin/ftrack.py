@@ -259,9 +259,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
 
         logger.warning('initUI')
 
-        self._dockActionWidget = None
         self._firstRender = False
-        self._currentSource = 1
         showTitle = False
         startSize = 500
 
@@ -388,12 +386,12 @@ class FtrackMode(rv.rvtypes.MinorMode):
 
     def showPanelsOnStartupToggle(self, event):
         if not self._showPanelsOnStartup:
-            rvc.commands.writeSetting("ftrack", "showPanelsOnStartUp", True)
+            rvc.writeSetting("ftrack", "showPanelsOnStartUp", True)
             self._showPanelsOnStartup = True
             logger.debug("show on startup: %s" % self._showPanelsOnStartup)
 
         else:
-            rvc.commands.writeSetting("ftrack", "showPanelsOnStartUp", False)
+            rvc.writeSetting("ftrack", "showPanelsOnStartUp", False)
             self._showPanelsOnStartup = False
             logger.debug("show on startup: %s" % self._showPanelsOnStartup)
 
@@ -522,6 +520,8 @@ class FtrackMode(rv.rvtypes.MinorMode):
         self._isHidden = False
         self._debug = False
 
+        self._dockActionWidget = None
+        self._currentSource = 1
         self.componentFilesystemPaths = {}
 
         self.sequenceSourceNode = None
