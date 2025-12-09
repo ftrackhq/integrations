@@ -12,6 +12,7 @@ from PySide2 import QtCore
 from PySide2 import QtGui
 from PySide2 import QtWidgets
 from PySide2 import QtWebEngineWidgets
+from PySide2.QtCore import SIGNAL, SLOT
 
 
 # setup logging
@@ -137,16 +138,27 @@ class FtrackMode(rv.rvtypes.MinorMode):
         self._webActionWidget = self._baseActionWidget.findChild(
             QtCore.QObject, self.name
         )
-
-        # QtCore.Qt.connect(_webNavigationWidget, QWebEngineView.loadFinished, viewLoaded(_baseActionWidget,));
+        self._webNavigationWidget.loadFinished.connect(
+            lambda: self.viewLoaded(
+                self._baseActionWidget,
+            )
+        )
 
         self._webActionWidget.load(QtCore.QUrl(url))
         rvq.javascriptExport(self._webActionWidget.page())
         self._dockActionWidget.setWidget(self._baseActionWidget)
 
         self._titleActionWidget = self._dockActionWidget.titleBarWidget()
-        # if (!showTitle) _dockActionWidget.setTitleBarWidget(QWidget(mainWindowWidget(), 0));
-        # connect(_dockActionWidget, QDockWidget.topLevelChanged, toggleTitleBar(_dockActionWidget, _titleActionWidget,));
+
+        # NOTE: this seems to break the UI
+        # if not title: self._dockActionWidget.setTitleBarWidget(QWidget(mainWindowWidget(), 0));
+
+        self._dockActionWidget.topLevelChanged.connect(
+            lambda: self.toggleTitleBar(
+                self._dockActionWidget,
+                self._titleActionWidget,
+            )
+        )
 
         self._dockActionWidget.setFeatures(
             QtWidgets.QDockWidget.DockWidgetFloatable
@@ -269,7 +281,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
             urlPrefix = (
                 "file:///" if (platform.system() == "Windows") else "file://"
             )
-            url = os.path.join(urlPrefix, noServer).replace('\\', '\\\\')
+            url = ''.join([urlPrefix, noServer])
 
         logger.info(f'url: {url}')
 
@@ -282,7 +294,10 @@ class FtrackMode(rv.rvtypes.MinorMode):
         self._webNavigationWidget = self._baseNavigationWidget.findChild(
             QtCore.QObject, self.name
         )
-        # QtCore.QObject.connect(_webNavigationWidget, QtWebEngineWidgets.QWebEngineView.loadFinished, self.viewLoaded(_baseNavigationWidget))
+
+        self._webNavigationWidget.loadFinished.connect(
+            lambda: self.viewLoaded(self._baseNavigationWidget)
+        )
 
         self._webNavigationWidget.load(QtCore.QUrl(str(url)))
         rvq.javascriptExport(self._webNavigationWidget.page())
@@ -291,9 +306,16 @@ class FtrackMode(rv.rvtypes.MinorMode):
         self._titleNavigationWidget = (
             self._dockNavigationWidget.titleBarWidget()
         )
-        # if not showTitle: _dockNavigationWidget.setTitleBarWidget(self.mainWindow)
 
-        # QtCore.QObject.connect(_dockNavigationWidget, QtWidgets.QDockWidget.topLevelChanged, self.toggleTitleBar(_dockNavigationWidget, _titleNavigationWidget,))
+        # NOTE: this seems to break the loading of the UI ....
+        # if not showTitle: self._dockNavigationWidget.setTitleBarWidget(self.mainWindow)
+
+        self._dockNavigationWidget.topLevelChanged.connect(
+            lambda: self.toggleTitleBar(
+                self._dockNavigationWidget,
+                self._titleNavigationWidget,
+            )
+        )
 
         self._dockNavigationWidget.setFeatures(
             QtWidgets.QDockWidget.DockWidgetFloatable
