@@ -231,6 +231,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
             )
         except Exception as e:
             logger.error(e)
+
         try:
             self._webActionWidget.page().runJavaScript(
                 "FT.updateFtrack(\"" + event.contents() + "\")"
@@ -356,9 +357,12 @@ class FtrackMode(rv.rvtypes.MinorMode):
             )
 
     def navGroupChanged(self, event):
+        logger.debug(f'navGroupChanged {event}')
         self.setViewNode("sourceGroup00000" + event.contents())
 
     def ftrackToggle(self, event):
+        logger.debug(f'ftrackToggle {event}')
+
         if self._isHidden:
             self._isHidden = False
             self.showPanels()
@@ -368,6 +372,8 @@ class FtrackMode(rv.rvtypes.MinorMode):
             self.hidePanels()
 
     def hidePanels(self):
+        logger.debug(f'hidePanels')
+
         if self._baseNavigationWidget:
             self._baseNavigationWidget.hide()
         if self._dockNavigationWidget:
@@ -378,6 +384,8 @@ class FtrackMode(rv.rvtypes.MinorMode):
             self._dockActionWidget.hide()
 
     def showPanels(self):
+        logger.debug(f'hidePanels')
+
         if self._baseNavigationWidget:
             self._baseNavigationWidget.show()
         if self._dockNavigationWidget:
@@ -389,6 +397,8 @@ class FtrackMode(rv.rvtypes.MinorMode):
             self._dockActionWidget.show()
 
     def showPanelsOnStartupToggle(self, event):
+        logger.debug(f'showPanelsOnStartupToggle')
+
         if not self._showPanelsOnStartup:
             rvc.writeSettings("ftrack", "showPanelsOnStartUp", True)
             self._showPanelsOnStartup = True
@@ -400,13 +410,13 @@ class FtrackMode(rv.rvtypes.MinorMode):
             logger.debug("show on startup: %s" % self._showPanelsOnStartup)
 
     def panelState(self):
-        logger.debug("Panels: %s" % self._isHidden)
+        logger.debug("panelState: %s" % self._isHidden)
         return (
             rvc.CheckedMenuState if self._isHidden else rvc.UncheckedMenuState
         )
 
     def debugPrintState(self):
-        logger.debug("Debug: %s" % self._debug)
+        logger.debug("debugPrintState: %s" % self._debug)
         return rvc.CheckedMenuState if self._debug else rvc.UncheckedMenuState
 
     def showPanelsOnStartupState(self):
