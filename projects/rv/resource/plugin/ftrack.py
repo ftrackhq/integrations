@@ -390,12 +390,12 @@ class FtrackMode(rv.rvtypes.MinorMode):
 
     def showPanelsOnStartupToggle(self, event):
         if not self._showPanelsOnStartup:
-            rvc.writeSetting("ftrack", "showPanelsOnStartUp", True)
+            rvc.writeSettings("ftrack", "showPanelsOnStartUp", True)
             self._showPanelsOnStartup = True
             logger.debug("show on startup: %s" % self._showPanelsOnStartup)
 
         else:
-            rvc.writeSetting("ftrack", "showPanelsOnStartUp", False)
+            rvc.writeSettings("ftrack", "showPanelsOnStartUp", False)
             self._showPanelsOnStartup = False
             logger.debug("show on startup: %s" % self._showPanelsOnStartup)
 
@@ -421,13 +421,13 @@ class FtrackMode(rv.rvtypes.MinorMode):
         logger.debug('debugToggle')
         if self._debug:
             self._debug = False
-            rvc.writeSetting("ftrack", "debug", False)
+            rvc.writeSettings("ftrack", "debug", False)
 
         else:
             self._debug = True
-            rvc.writeSetting("ftrack", "debug", True)
+            rvc.writeSettings("ftrack", "debug", True)
 
-        logger.debug("Debug print: " + self._debug)
+        logger.debug("Debug print: " + str(self._debug))
 
     def create_bindings(self):
         logger.debug('create_bindings')
