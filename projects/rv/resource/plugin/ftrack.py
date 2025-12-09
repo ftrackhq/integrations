@@ -56,10 +56,9 @@ class FtrackMode(rv.rvtypes.MinorMode):
         logger.warning('init')
 
         rv.rvtypes.MinorMode.__init__(self)
-        self.mainWindow = rvq.sessionWindow()
-        self._firstRender = True
+
         self._name = name
-        self._isHidden = False
+
         self.setup_variables()
         self.check_envs()
         self.create_session()
@@ -387,13 +386,53 @@ class FtrackMode(rv.rvtypes.MinorMode):
         if self._dockActionWidget:
             self._dockActionWidget.show()
 
+    def showPanelsOnStartupToggle(self, event):
+        if not self._showPanelsOnStartup:
+            rvc.commands.writeSetting("ftrack", "showPanelsOnStartUp", True)
+            self._showPanelsOnStartup = True
+            logger.debug("show on startup: %s" % self._showPanelsOnStartup)
+
+        else:
+            rvc.commands.writeSetting("ftrack", "showPanelsOnStartUp", False)
+            self._showPanelsOnStartup = False
+            logger.debug("show on startup: %s" % self._showPanelsOnStartup)
+
+    def panelState(self):
+        logger.debug("Panels: %s" % self._isHidden)
+        return (
+            rvc.CheckedMenuState if self._isHidden else rvc.UncheckedMenuState
+        )
+
+    def debugPrintState(self):
+        logger.debug("Debug: %s" % self._debug)
+        return rvc.CheckedMenuState if self._debug else rvc.UncheckedMenuState
+
+    def showPanelsOnStartupState(self):
+        logger.debug("show on startup: %s" % self._showPanelsOnStartup)
+        return (
+            rvc.CheckedMenuState
+            if self._showPanelsOnStartup
+            else rvc.UncheckedMenuState
+        )
+
+    def debugToggle(self, event):
+        if self._debug:
+            self._debug = False
+            rvc.writeSetting("ftrack", "debug", False)
+
+        else:
+            self._debug = True
+            rvc.writeSetting("ftrack", "debug", True)
+
+        logger.debug("Debug print: " + self._debug)
+
     def create_bindings(self):
         logger.warning('create_bindings')
 
         self._showPanelsOnStartup = rvc.readSettings(
             "ftrackMode", "showPanelsOnStartUp", True
         )
-        self._debugBool = rvc.readSettings("ftrackMode", "debug", True)
+        self._debug = rvc.readSettings("ftrackMode", "debug", True)
 
         rvc.bind(
             "default",
@@ -445,9 +484,23 @@ class FtrackMode(rv.rvtypes.MinorMode):
                         "control shift t",
                         lambda: NeutralMenuState,
                     ),
-                    # ("Preferences", [
-                    #     ("Show panels on startup", self.showPanelsOnStartupToggle, "", self.showPanelsOnStartupState),
-                    # ])
+                    (
+                        "Preferences",
+                        [
+                            (
+                                "Show panels on startup",
+                                self.showPanelsOnStartupToggle,
+                                "",
+                                lambda: self.showPanelsOnStartupState(),
+                            ),
+                            (
+                                "Debug print",
+                                self.debugToggle,
+                                "control shift d",
+                                lambda: self.debugPrintState(),
+                            ),
+                        ],
+                    ),
                 ],
             )
         ]
@@ -464,6 +517,10 @@ class FtrackMode(rv.rvtypes.MinorMode):
         # This will cause the component to use the same filesystem path
         # during the entire session.
         logger.warning('setup_variables')
+        self.mainWindow = rvq.sessionWindow()
+        self._firstRender = True
+        self._isHidden = False
+        self._debug = False
 
         self.componentFilesystemPaths = {}
 
@@ -476,8 +533,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
         self.globalBindings = None  # [("Event-Name", self.eventCallback, "DescriptionOfBinding")]
         self.localBindings = None
 
-        self._showPanelsOnStartup = None
-        self._debugBool = None
+        self._showPanelsOnStartup = False
 
     def createMode():
         "Required to initialize the module. RV will call this function to create your mode."
