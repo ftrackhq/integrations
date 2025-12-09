@@ -53,7 +53,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
     "A simple example that shows how to make shift-Z start/stop playback"
 
     def __init__(self, name):
-        logger.warning('init')
+        logger.debug('init')
 
         rv.rvtypes.MinorMode.__init__(self)
 
@@ -91,7 +91,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
         logger.debug(self._session)
 
     def check_envs(self):
-        logger.warning('check_envs')
+        logger.debug('check_envs')
         commandline_url = rvc.commandLineFlag('ftrackUrl', None)
 
         logger.debug(f'command line url {commandline_url}')
@@ -115,7 +115,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
         )
 
     def createActionWindow(self, data):
-        logger.warning('createActionWindow')
+        logger.debug('createActionWindow')
 
         title = ''
         startSize = 500
@@ -175,7 +175,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
         self._dockActionWidget.show()
 
     def makeit(self):
-        logger.warning('makeit')
+        logger.debug('makeit')
 
         form = QtWidgets.QWidget(self.mainWindow, QtCore.Qt.Widget)
         verticalLayout = QtWidgets.QVBoxLayout(form)
@@ -189,7 +189,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
         return form
 
     def toggleFloating(self, event):
-        logger.warning('toggleFloating')
+        logger.debug('toggleFloating')
 
         index = int(event.contents())
 
@@ -213,7 +213,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
         self.toggleTitleBar(dockWidget, titleWidget, True)
 
     def shutdown(self, event):
-        logger.warning('shutdown')
+        logger.debug('shutdown')
         event.reject()
 
         if self._webNavigationWidget:
@@ -225,7 +225,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
     def ftrackEvent(self, event):
         content = base64.b64decode(event.contents())
 
-        logger.warning(f'ftrackEvent {content}')
+        logger.debug(f'ftrackEvent {content}')
         try:
             self._webNavigationWidget.page().runJavaScript(
                 "FT.updateFtrack(\"" + event.contents() + "\")"
@@ -240,7 +240,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
             logger.error(e)
 
     def toggleTitleBar(self, dockWidget, titleWidget, ok):
-        logger.warning('toggleTitleBar')
+        logger.debug('toggleTitleBar')
 
         if not dockWidget.floating():
             dockWidget.setTitleBarWidget(QtWidgets.QWidget(self.mainWindow))
@@ -249,7 +249,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
             dockWidget.setTitleBarWidget(QtWidgets.QWidget(titleWidget))
 
     def viewLoaded(self, view):
-        logger.warning('viewLoaded')
+        logger.debug('viewLoaded')
 
         view.setMaximumWidth(16777215)
         view.setMinimumWidth(0)
@@ -260,7 +260,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
         if not self._firstRender:
             return
 
-        logger.warning('initUI')
+        logger.debug('initUI')
 
         self._firstRender = False
         showTitle = False
@@ -419,6 +419,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
         )
 
     def debugToggle(self, event):
+        logger.debug('debugToggle')
         if self._debug:
             self._debug = False
             rvc.writeSetting("ftrack", "debug", False)
@@ -430,7 +431,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
         logger.debug("Debug print: " + self._debug)
 
     def create_bindings(self):
-        logger.warning('create_bindings')
+        logger.debug('create_bindings')
 
         self._showPanelsOnStartup = rvc.readSettings(
             "ftrackMode", "showPanelsOnStartUp", True
@@ -543,7 +544,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
         # Cache to keep track of filesystem path for components.
         # This will cause the component to use the same filesystem path
         # during the entire session.
-        logger.warning('setup_variables')
+        logger.debug('setup_variables')
         self.mainWindow = rvq.sessionWindow()
         self._firstRender = True
         self._isHidden = False
@@ -566,7 +567,62 @@ class FtrackMode(rv.rvtypes.MinorMode):
 
     def createMode():
         "Required to initialize the module. RV will call this function to create your mode."
-        return FtrackMode()
+        return FtrackMode('webview')
+
+    # TODO , this is not finished yet, do not enable
+    def ftrackExportAll(self, event):
+        _token = event.contents()
+        # Add all the frames and export
+        # Generate filenames that are unique
+        # set name eg. Frame_159_1.jpg,Frame_159_2.jpg
+
+        _filePath = self.getFilePath("")
+        tmpUpload = []
+        _uuid = uuid()
+
+        # // Get all the annotated frames
+        # // Function
+        frames = []
+
+        if event.name() == "ftrack-upload-frame":
+            frames.push_back(rvui.frame())
+
+        else:
+            frames = self.findAnnotatedFrames()
+
+        self._annotatedFrames = frames
+
+        for i in frames:
+            f = frames[i]
+            fpadd = "%04d" % f
+            tmpUpload.append("%s_%s.jpg" % (_uuid, fpadd))
+
+        self._doUpload = tmpUpload
+        # args = [
+        #     rv.makeTempSession(),
+        #     "-o", "%s/%s_#.jpg" % (_filePath,_uuid),
+        #     "-t", str(timestr),
+        #     "-overlay","frameburn","0.8","1.0","30.0"
+        # ]
+
+        # self.uploadingCount(self._doUpload.size())
+        # if (self._doUpload.size() > 0):
+        #     rvc.rvio("Export Annotated Frames", args, self.uploadAll);
+
+    def uploadAll(self):
+        logger.debug('Upload all frames')
+        for i in self._doUpload:
+            self.upload_annotation(self._doUpload[i], self._annotatedFrames[i])
+
+    def uploadingCount(self, count):
+        data_string = "{\"type\":\"uploadCount\",\"count\":\"" + count + "\"}"
+        data = data_string.encode('utf-8')
+        data = base64.b64encode(data)
+        self._webActionWidget.page().runJavaScript(
+            "FT.updateFtrack(\""
+            + data.encode('latin-1').decode('utf-8')
+            + "\")"
+        )
 
     # ----------------------------------- CODE FROM OLD ftrack_rv_api --------------------------------------------------
 
@@ -655,6 +711,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
         *includeFrame* is an optional frame reference.
 
         '''
+        logger.debug('LoadPlaylist')
         self._setWipeMode(False)
         startFrame = 1
 
@@ -681,7 +738,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
         try:
             self._getFilePath(componentId)
         except Exception:
-            logger.warning(
+            logger.debug(
                 'Component with Id "{0}" is not available in any location.'.format(
                     componentId
                 )
