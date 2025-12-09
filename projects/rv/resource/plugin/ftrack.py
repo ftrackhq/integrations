@@ -1,5 +1,6 @@
 import sys
 import json
+import re
 import tempfile
 import base64
 import traceback
@@ -7,6 +8,7 @@ import os
 from uuid import uuid1 as uuid
 import logging
 import platform
+import base64
 
 from PySide2 import QtCore
 from PySide2 import QtGui
@@ -91,13 +93,13 @@ class FtrackMode(rv.rvtypes.MinorMode):
         self.server_location = self._session.get(
             'Location', SERVER_LOCATION_ID
         )
-        print(self._session)
+        logger.debug(self._session)
 
     def check_envs(self):
         logger.warning('check_envs')
         commandline_url = rvc.commandLineFlag('ftrackUrl', None)
 
-        print(f'command line url {commandline_url}')
+        logger.debug(f'command line url {commandline_url}')
         if not commandline_url:
             # Check for base environment presence.
             required_envs = ['FTRACK_SERVER', 'FTRACK_API_KEY']
@@ -242,10 +244,10 @@ class FtrackMode(rv.rvtypes.MinorMode):
         logger.warning('toggleTitleBar')
 
         if not dockWidget.floating():
-            dockWidget.setTitleBarWidget(QtWidgets.QWidget(self.mainWindow, 0))
+            dockWidget.setTitleBarWidget(QtWidgets.QWidget(self.mainWindow))
 
         else:
-            dockWidget.setTitleBarWidget(titleWidget)
+            dockWidget.setTitleBarWidget(QtWidgets.QWidget(titleWidget))
 
     def viewLoaded(self, view):
         logger.warning('viewLoaded')
@@ -263,16 +265,12 @@ class FtrackMode(rv.rvtypes.MinorMode):
 
         self._dockActionWidget = None
         self._firstRender = False
-        print(sys.argv[5])
-        # params = MuSymbol('commands.commandLineFlag("params", nil)')
-        params = rvc.commandLineFlag("params", None)
-        print(f'params {params} {type(params)}')
-        url = self._generateURL(params, 'review_navigation')
-
-        print(f'result url {url}')
+        self._currentSource = 1
         showTitle = False
-        showProg = False
         startSize = 500
+
+        params = rvc.commandLineFlag("params", None)
+        url = self._generateURL(params, 'review_navigation')
 
         if not url:
             noServer = os.path.join(
@@ -283,7 +281,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
             urlPrefix = (
                 "file:///" if (platform.system() == "Windows") else "file://"
             )
-            url = ''.join([urlPrefix, noServer])
+            url = ''.join([urlPrefix, noServer]).encode('utf-8')
 
         logger.info(f'url: {url}')
 
@@ -338,6 +336,27 @@ class FtrackMode(rv.rvtypes.MinorMode):
 
         self.mainWindow.show()
 
+    def frameChanged(self, event):
+        source = int(
+            re.smatch(
+                "[a-zA-Z]+([0-9]+)", rvc.sourcesAtFrame(rvc.frame())[0]
+            ).back()
+        )
+        if self._currentSource != source:
+            _currentSource = source
+            data_string = (
+                "{\"type\":\"changedGroup\",\"index\":\""
+                + _currentSource
+                + "\"}"
+            )
+            data = data_string.encode('utf-8')
+            data = base64.b64encode(data)
+            self._webNavigationWidget.page().runJavaScript(
+                "FT.updateFtrack(\""
+                + data.encode('latin-1').decode('utf-8')
+                + "\")"
+            )
+
     def create_bindings(self):
         logger.warning('create_bindings')
 
@@ -368,10 +387,16 @@ class FtrackMode(rv.rvtypes.MinorMode):
             self.toggleFloating,
             "Toggle floating panel",
         )
+        rvc.bind(
+            "default",
+            "global",
+            "frame-changed",
+            self.frameChanged,
+            "New frame",
+        )
 
         # rvc.bind("default", "global","ftrack-upload-frame", self.ftrackExportAll, "Upload frame to FTrack")
         # rvc.bind("default", "global","ftrack-upload-frames", self.ftrackExportAll, "Upload all annotated frames to FTrack")
-        # rvc.bind("default", "global","frame-changed", self.frameChanged, "New frame")
         # rvc.bind("default", "global","ftrack-changed-group", self.navGroupChanged,"New group selected")
 
         # menu = [
@@ -404,9 +429,6 @@ class FtrackMode(rv.rvtypes.MinorMode):
 
         self._showPanelsOnStartup = None
         self._debugBool = None
-
-    def runExample(self, event):
-        print("DEBUG: Example Ran.")
 
     def createMode():
         "Required to initialize the module. RV will call this function to create your mode."
@@ -812,8 +834,9 @@ class FtrackMode(rv.rvtypes.MinorMode):
 
 
 def createMode():
-    return FtrackMode('webview2')
+    return FtrackMode('webview')
 
 
 def theMode():
-    return FtrackMode("webview2")
+    m = rvui.minorModeFromName('webview')
+    return m
