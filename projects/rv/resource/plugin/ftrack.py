@@ -38,7 +38,11 @@ try:
 except ImportError as error:
     raise ImportError('Could not import ftrack api, aborting.')
 
+# import ftack_rv_api
+import ftrack_rv_api as fra
+
 # import RV related modules
+
 import rv
 from rv import rvtypes as rvt
 from rv import commands as rvc
@@ -122,7 +126,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
         if self._dockActionWidget:
             return
 
-        url = self._generateURL(
+        url = fra._generateURL(
             rvc.commandLineFlag("params", None), "review_action"
         )
         self._dockActionWidget = QtWidgets.QDockWidget(
@@ -224,17 +228,17 @@ class FtrackMode(rv.rvtypes.MinorMode):
         content = base64.b64decode(event.contents())
 
         logger.debug(f'ftrackEvent {content}')
+
+        jsContent = f'FT.updateFtrack("{event.contents()}")'
+        logger.debug(jsContent)
+
         try:
-            self._webNavigationWidget.page().runJavaScript(
-                "FT.updateFtrack(\"" + event.contents() + "\")"
-            )
+            self._webNavigationWidget.page().runJavaScript(jsContent)
         except Exception as e:
             logger.error(e)
 
         try:
-            self._webActionWidget.page().runJavaScript(
-                "FT.updateFtrack(\"" + event.contents() + "\")"
-            )
+            self._webActionWidget.page().runJavaScript(jsContent)
         except Exception as e:
             logger.error(e)
 
@@ -266,7 +270,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
         startSize = 500
 
         params = rvc.commandLineFlag("params", None)
-        url = self._generateURL(params, 'review_navigation')
+        url = fra._generateURL(params, 'review_navigation')
 
         if not url:
             noServer = os.path.join(
@@ -632,414 +636,6 @@ class FtrackMode(rv.rvtypes.MinorMode):
             + data.encode('latin-1').decode('utf-8')
             + "\")"
         )
-
-    # ----------------------------------- CODE FROM OLD ftrack_rv_api --------------------------------------------------
-
-    def _getFilePath(self, componentId):
-        '''Return a single access path based on *source* and *location*'''
-
-        path = self.componentFilesystemPaths.get(componentId, None)
-
-        if path is None:
-            ftrack_component = self.session.get('Component', componentId)
-            location = self.session.pick_location(component=ftrack_component)
-            path = location.get_filesystem_path(ftrack_component)
-            self.componentFilesystemPaths[componentId] = path
-
-        return path
-
-    def _setWipeMode(self, state):
-        '''Util to set the state of wipes instead of toggle.'''
-        if (
-            rv.runtime.eval('rvui.wipeShown()', ['rvui']) != -1
-            and state is False
-        ):
-            rv.runtime.eval('rvui.toggleWipe()', ['rvui'])
-
-        if (
-            rv.runtime.eval('rvui.wipeShown()', ['rvui']) == -1
-            and state is True
-        ):
-            rv.runtime.eval('rvui.toggleWipe()', ['rvui'])
-
-    def _getSourceNode(self, nodeType='sequence'):
-        '''Return source node of *nodeType*.'''
-
-        if nodeType == 'sequence':
-            if self.sequenceSourceNode is None:
-                self.sequenceSourceNode = rvc.newNode(
-                    'RVSequenceGroup', 'Sequence'
-                )
-
-                rv.extra_commands.setUIName(
-                    self.sequenceSourceNode, 'SequenceNode'
-                )
-
-            return self.sequenceSourceNode
-
-        elif nodeType == 'stack':
-            if stackSourceNode is None:
-                stackSourceNode = rvc.newNode('RVStackGroup', 'Stack')
-
-                rv.extra_commands.setUIName(stackSourceNode, 'StackNode')
-
-            return stackSourceNode
-
-        elif nodeType == 'layout':
-            if layoutSourceNode is None:
-                layoutSourceNode = rvc.newNode('RVLayoutGroup', 'Layout')
-
-                rv.extra_commands.setUIName(layoutSourceNode, 'LayoutNode')
-
-            return layoutSourceNode
-
-    def _ftrackAddVersion(track, layout):
-        stackInputs = rvc.nodeConnections(layout, False)[0]
-        newSource = rvc.addSourceVerbose([track], None)
-        rvc.setNodeInputs(layout, stackInputs)
-        rve.setUIName(rvc.nodeGroup(newSource), track)
-
-        return newSource
-
-    def _ftrackCreateGroup(self, tracks, sourceNode, layout):
-        singleSources = []
-        for track in tracks:
-            try:
-                singleSources.append(
-                    rvc.nodeGroup(self._ftrackAddVersion(track, layout))
-                )
-            except Exception as error:
-                logger.exception(error)
-
-        rvc.setNodeInputs(sourceNode, singleSources)
-
-    def loadPlaylist(self, playlist, index=None, includeFrame=None):
-        '''Load a playlist into RV.
-
-        Load a specified *playlist* into RV and jump to an optional *index*. If
-        *includeFrame* is an optional frame reference.
-
-        '''
-        logger.debug('LoadPlaylist')
-        self._setWipeMode(False)
-        startFrame = 1
-
-        if not includeFrame == 'false':
-            startFrame = rve.sourceFrame(rvc.frame(), None)
-
-        for oldSource in rvc.nodesOfType('RVSourceGroup'):
-            rvc.deleteNode(oldSource)
-
-        sources = []
-        for item in playlist:
-            sources.append(self._getFilePath(item.get('componentId')))
-
-        sequenceSourceNode = self._getSourceNode('sequence')
-
-        self._ftrackCreateGroup(sources, sequenceSourceNode, 'defaultLayout')
-        rvc.setViewNode(sequenceSourceNode)
-
-        if index:
-            self.ftrackJumpTo(index, startFrame)
-
-    def validateComponentLocation(self, componentId, versionId):
-        '''Return if the *componentId* is accessible in a local location.'''
-        try:
-            self._getFilePath(componentId)
-        except Exception:
-            logger.debug(
-                'Component with Id "{0}" is not available in any location.'.format(
-                    componentId
-                )
-            )
-            try:
-                rvc.sendInternalEvent(
-                    'ftrack-event',
-                    base64.b64encode(
-                        json.dumps(
-                            {'type': 'breakItem', 'versionId': versionId}
-                        ).encode("utf-8")
-                    ).decode('ascii'),
-                    None,
-                )
-            except Exception:
-                logger.error('Could not send internal event to ftrack.')
-
-    def ftrackCompare(self, data):
-        '''Activate compare mode in RV
-
-        Activiate compare mode of *type* between *componentIdA* and *componentIdB*
-
-        '''
-        self._setWipeMode(False)
-        startFrame = 1
-        try:
-            startFrame = rve.sourceFrame(rvc.frame(), None)
-        except Exception:
-            pass
-
-        componentIdA = data.get('componentIdA')
-        componentIdB = data.get('componentIdB')
-        mode = data.get('mode')
-
-        trackA = self._getFilePath(componentIdA)
-
-        layout = 'defaultStack' if mode == 'wipe' else 'defaultLayout'
-
-        if not mode == 'load':
-            trackB = self._getFilePath(componentIdB)
-
-            try:
-                if mode == 'wipe':
-                    sourceNode = self._getSourceNode('stack')
-                    self._ftrackCreateGroup(
-                        [trackA, trackB], sourceNode, layout
-                    )
-                    rvc.setViewNode(sourceNode)
-                    rv.runtime.eval('rvui.toggleWipe()', ['rvui'])
-                else:
-                    sourceNode = self._getSourceNode('layout')
-                    self._ftrackCreateGroup(
-                        [trackA, trackB], sourceNode, layout
-                    )
-                    rvc.setViewNode(sourceNode)
-            except Exception:
-                print(traceback.format_exc())
-        else:
-            sourceNode = self._getSourceNode('layout')
-            self._ftrackCreateGroup([trackA], sourceNode, layout)
-            rvc.setViewNode(sourceNode)
-
-        if startFrame > 1:
-            rvc.setFrame(startFrame)
-
-    def _getEntityFromEnvironment(self):
-        # Check for environment variable specifying additional information to
-        # use when loading.
-        eventEnvironmentVariable = 'FTRACK_CONNECT_EVENT'
-
-        eventData = os.environ.get(eventEnvironmentVariable)
-
-        if eventData is not None:
-            try:
-                decodedEventData = json.loads(base64.b64decode(eventData))
-            except (TypeError, ValueError):
-                logger.error(
-                    'Failed to decode {0}: {1}'.format(
-                        eventEnvironmentVariable, eventData
-                    )
-                )
-            else:
-                selection = decodedEventData.get('selection', [])
-                logger.info('selection {}'.format(selection))
-                # At present only a single entity which should represent an
-                # ftrack List is supported.
-                if selection:
-                    try:
-                        entity = selection[0]
-                        entityId = entity.get('entityId')
-                        entityType = entity.get('entityType')
-                        return entityId, entityType
-                    except (IndexError, AttributeError, KeyError):
-                        logger.error(
-                            'Failed to extract selection information from: {0}'.format(
-                                selection
-                            )
-                        )
-        else:
-            logger.debug(
-                'No event data retrieved. {0} not set.'.format(
-                    eventEnvironmentVariable
-                )
-            )
-
-        return None, None
-
-    def getNavigationURL(self, params=None):
-        '''Return URL to navigation panel based on *params*.'''
-        return self._generateURL(params, 'review_navigation')
-
-    def getActionURL(self, params=None):
-        '''Return URL to action panel based on *params*.'''
-        return self._generateURL(params, 'review_action')
-
-    def _translateEntityType(self, entityType):
-        '''Return translated entity type tht can be used with API.'''
-        # Get entity type and make sure it is lower cased. Most places except
-        # the component tab in the Sidebar will use lower case notation.
-        entity_type = entityType.replace('_', '').lower()
-
-        for schema in self.session.schemas:
-            alias_for = schema.get('alias_for')
-
-            if (
-                alias_for
-                and isinstance(alias_for, str)
-                and alias_for.lower() == entity_type
-            ):
-                return schema['id']
-
-        for schema in self.session.schemas:
-            if schema['id'].lower() == entity_type:
-                return schema['id']
-
-        raise ValueError(
-            'Unable to translate entity type: {0}.'.format(entity_type)
-        )
-
-    def _get_temp_data_url(self, name, temp_data_id):
-        logger.debug(f'_get_temp_data_url: {name} {temp_data_id}')
-
-        operation = {
-            'action': 'get_widget_url',
-            'name': name,
-            'theme': None,
-        }
-
-        result = self.session.call([operation])
-        url = result[0]['widget_url']
-        full_url = '{}&entityType=tempdata&entityId={}'.format(
-            url, temp_data_id
-        )
-        return full_url
-
-    # CURRENT ERROR IN DECODING PARAMS
-    def _generateURL(self, params, panelName=None):
-        '''Return URL to panel in ftrack based on *params* or *panel*.'''
-        logger.debug(f'_generateURL with params: {params}')
-        url = ''
-
-        try:
-            entityId = None
-            entityType = None
-
-            if params:
-                panelName = panelName or params
-                try:
-                    params = json.loads(params)
-                    print(f'params : {params} , {type(params)}')
-                    entityId = params['entityId'][0]
-                    entityType = params['entityType'][0]
-
-                except Exception as e:
-                    logger.error(e)
-                    print(e)
-                    entityId, entityType = self._getEntityFromEnvironment()
-
-                print(f'entityId:  {entityId}')
-                print(f'entityType:  {entityType}')
-
-                if entityId and entityType:
-                    if entityType != 'tempdata':
-                        new_entity_type = self._translateEntityType(entityType)
-                        new_entity = self.session.get(
-                            new_entity_type, entityId
-                        )
-                        try:
-                            url = self.session.get_widget_url(
-                                panelName, entity=new_entity
-                            )
-                        except Exception as exception:
-                            logger.error(str(exception))
-                    else:
-                        try:
-                            url = self._get_temp_data_url(panelName, entityId)
-                        except Exception as exception:
-                            logger.error(str(exception))
-
-        except Exception as error:
-            logger.exception('Failed to generate URL. {}'.format(error))
-
-        logger.info('Returning url "{0}"'.format(url))
-        return url
-
-    def ftrackFilePath(self, id):
-        logger.debug(f'ftrackFilePath {id}')
-
-        try:
-            if id != "":
-                filename = "%s.jpg" % id
-                filepath = os.path.join(tempfile.gettempdir(), filename)
-            else:
-                filepath = tempfile.gettempdir()
-            return filepath
-        except Exception:
-            logger.exception('Failed to get file path.')
-            return ''
-
-    def ftrackUUID(self, short):
-        '''Retun a uuid based on uuid1'''
-        logger.debug(f'ftrackUUID {short}')
-
-        return str(uuid())
-
-    def ftrackJumpTo(self, index=0, startFrame=1):
-        '''Move playhead to an index
-
-        Moves the RV playhead to the specified *index*
-
-        '''
-        logger.debug(f'ftrackJumpTo {index} {startFrame}')
-
-        try:
-            index = int(index)
-            frameNumber = 0
-
-            for idx, source in enumerate(rvc.nodesOfType('RVFileSource')):
-                if not idx >= index:
-                    data = rvc.sourceMediaInfoList(source)[0]
-                    add = (
-                        data.get('endFrame', 0) - data.get('startFrame', 0)
-                    ) + 1
-                    add = 1 if add == 0 else add
-                    frameNumber += add
-
-            rvc.setFrame(frameNumber + startFrame)
-        except Exception:
-            logger.exception('Failed to jump to index.')
-
-    def create_component(self, encoded_args):
-        '''Create component without adding it to a location.
-
-        *encoded_args* should be a JSON encoded dictionary containing file_name and
-        frame.
-
-        Store reference in annotation_components.
-        '''
-        component_id = None
-        try:
-            args = json.loads(encoded_args)
-            file_name = args['file_name']
-            frame = args['frame']
-
-            component_name = 'Frame_{0}'.format(frame)
-            file_path = os.path.join(self.ftrackFilePath(''), file_name)
-            logger.info(u'Creating component: {0!r}'.format(file_path))
-            component = self.session.create_component(
-                path=file_path, data=dict(name=component_name), location=None
-            )
-            component_id = component['id']
-            self.annotation_components[component_id] = component
-        except Exception:
-            logger.exception('Failed to create component.')
-
-        return component_id
-
-    def upload_component(self, component_id):
-        '''Add component with *component_id* to ftrack server location.'''
-        try:
-            logger.info(
-                u'Adding component {0!r} to ftrack server location.'.format(
-                    component_id
-                )
-            )
-            component = self.annotation_components[component_id]
-            self.server_location.add_component(component, self.origin_location)
-            del self.annotation_components[component_id]
-        except Exception:
-            logger.exception('Failed to upload component')
-        else:
-            return component_id
 
 
 def createMode():
