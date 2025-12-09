@@ -122,7 +122,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
 
         title = ''
         startSize = 500
-
+        showTitle = False
         if self._dockActionWidget:
             return
 
@@ -150,8 +150,10 @@ class FtrackMode(rv.rvtypes.MinorMode):
 
         self._titleActionWidget = self._dockActionWidget.titleBarWidget()
 
-        # NOTE: this seems to break the UI
-        # if not title: self._dockActionWidget.setTitleBarWidget(QWidget(mainWindowWidget(), 0));
+        if not showTitle:
+            self._dockActionWidget.setTitleBarWidget(
+                QtWidgets.QWidget(self.mainWindow)
+            )
 
         self._dockActionWidget.topLevelChanged.connect(
             lambda: self.toggleTitleBar(
@@ -307,8 +309,10 @@ class FtrackMode(rv.rvtypes.MinorMode):
             self._dockNavigationWidget.titleBarWidget()
         )
 
-        # NOTE: this seems to break the loading of the UI ....
-        # if not showTitle: self._dockNavigationWidget.setTitleBarWidget(self.mainWindow)
+        if not showTitle:
+            self._dockNavigationWidget.setTitleBarWidget(
+                QtWidgets.QWidget(self.mainWindow)
+            )
 
         self._dockNavigationWidget.topLevelChanged.connect(
             lambda: self.toggleTitleBar(
