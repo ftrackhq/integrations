@@ -54,7 +54,6 @@ class FtrackMode(rv.rvtypes.MinorMode):
 
     def __init__(self, name):
         logger.debug('init')
-
         rv.rvtypes.MinorMode.__init__(self)
 
         self._name = name
@@ -217,10 +216,10 @@ class FtrackMode(rv.rvtypes.MinorMode):
         event.reject()
 
         if self._webNavigationWidget:
-            self._webNavigationWidget.page().setHtml("", QtCore.Qt.QUrl())
+            self._webNavigationWidget.page().setHtml("", QtCore.QUrl())
 
         if self._webActionWidget:
-            self._webActionWidget.page().setHtml("", QtCore.Qt.QUrl())
+            self._webActionWidget.page().setHtml("", QtCore.QUrl())
 
     def ftrackEvent(self, event):
         content = base64.b64decode(event.contents())
@@ -551,6 +550,8 @@ class FtrackMode(rv.rvtypes.MinorMode):
         self._debug = False
 
         self._dockActionWidget = None
+        self._webActionWidget = None
+
         self._currentSource = 1
         self.componentFilesystemPaths = {}
 
@@ -578,7 +579,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
 
         _filePath = self.getFilePath("")
         tmpUpload = []
-        _uuid = uuid()
+        _uuid = self.ftrackUUID()
 
         # // Get all the annotated frames
         # // Function
