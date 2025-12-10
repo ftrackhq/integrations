@@ -3,6 +3,7 @@ import json
 import re
 import tempfile
 import base64
+import time
 import traceback
 import os
 from uuid import uuid1 as uuid
@@ -20,8 +21,8 @@ from PySide2.QtCore import SIGNAL, SLOT
 # setup logging
 from ftrack_logging import configure_logging
 
-configure_logging('ftrack-rv')
-logger = logging.getLogger('ftrack-rv')
+configure_logging('ftrack_rv')
+logger = logging.getLogger('ftrack_rv')
 
 # Setup dependencies path.
 dependencies_path = os.path.abspath(
@@ -581,13 +582,79 @@ class FtrackMode(rv.rvtypes.MinorMode):
         "Required to initialize the module. RV will call this function to create your mode."
         return FtrackMode('webview')
 
-    # TODO , this is not finished yet, do not enable
+    def uploadAll(self):
+        logger.debug('Upload all frames')
+        for i in self._doUpload:
+            self.upload_annotation(self._doUpload[i], self._annotatedFrames[i])
+
+    def uploadingCount(self, count):
+        logger.debug(f'uploadingCount: {count}')
+
+        data_string = "{\"type\":\"uploadCount\",\"count\":\"" + count + "\"}"
+        data = data_string.encode('utf-8')
+        data = base64.b64encode(data)
+        self._webActionWidget.page().runJavaScript(
+            f'FT.updateFtrack("{data.encode("utf-8")}")'
+        )
+
+    def upload_annotation(self, filename, frame):
+        '''
+        Upload a single annotation saved as *filename*.
+
+        Creates a component, adds the component to the note form and then
+        adds the component to the ftrack.server location.
+        '''
+        logger.debug(f'uploading file : {filename}')
+
+        encoded_args = (
+            "{\"file_name\":\"" + filename + "\",\"frame\":\"" + frame + "\"}"
+        )
+        component_id = fra._create_component(encoded_args)
+        logger.debug(f'created component : {component_id}')
+        self.on_upload_started(component_id)
+
+        self._upload_component(component_id)
+        logger.debug(f'Upload completed')
+        self.on_upload_complete(component_id)
+
+    def on_upload_started(self, component_id):
+        '''
+        Update ftrack when upload has started.
+        '''
+        data_string = (
+            "{\"type\": \"uploadStarted\", \"attachment\": \""
+            + component_id
+            + "\"}"
+        )
+        self._update_ftrack(data_string)
+
+    def on_upload_complete(self, component_id):
+        '''
+        Update ftrack when upload has completed.
+        '''
+        data_string = (
+            "{\"type\": \"uploadEnded\", \"id\": \"" + component_id + "\"}"
+        )
+        self._update_ftrack(data_string)
+
+    def _update_ftrack(self, data_string):
+        '''
+        Update ftrack with json-formatedd *data_string*.
+        '''
+        data = data_string.encode('utf-8')
+        data = base64.b64encode(data)
+        self._webActionWidget.page().runJavaScript(
+            f'FT.updateFtrack("{data.encode("utf-8")}")'
+        )
+
     def ftrackExportAll(self, event):
+        logger.debug(f'ftrackExportAll: {event}')
+
         _token = event.contents()
         # Add all the frames and export
         # Generate filenames that are unique
         # set name eg. Frame_159_1.jpg,Frame_159_2.jpg
-
+        timestr = time.time().now()
         _filePath = self.getFilePath("")
         tmpUpload = []
         _uuid = self.ftrackUUID()
@@ -610,31 +677,27 @@ class FtrackMode(rv.rvtypes.MinorMode):
             tmpUpload.append("%s_%s.jpg" % (_uuid, fpadd))
 
         self._doUpload = tmpUpload
-        # args = [
-        #     rv.makeTempSession(),
-        #     "-o", "%s/%s_#.jpg" % (_filePath,_uuid),
-        #     "-t", str(timestr),
-        #     "-overlay","frameburn","0.8","1.0","30.0"
-        # ]
+        args = [
+            rv.makeTempSession(),
+            "-o",
+            "%s/%s_#.jpg" % (_filePath, _uuid),
+            "-t",
+            str(timestr),
+            "-overlay",
+            "frameburn",
+            "0.8",
+            "1.0",
+            "30.0",
+        ]
 
-        # self.uploadingCount(self._doUpload.size())
-        # if (self._doUpload.size() > 0):
-        #     rvc.rvio("Export Annotated Frames", args, self.uploadAll);
+        self.uploadingCount(self._doUpload.size())
+        if self._doUpload.size() > 0:
+            rvc.rvio("Export Annotated Frames", args, self.uploadAll)
 
     def uploadAll(self):
-        logger.debug('Upload all frames')
+        logger.debug(f'Uploading all annotated frames')
         for i in self._doUpload:
             self.upload_annotation(self._doUpload[i], self._annotatedFrames[i])
-
-    def uploadingCount(self, count):
-        data_string = "{\"type\":\"uploadCount\",\"count\":\"" + count + "\"}"
-        data = data_string.encode('utf-8')
-        data = base64.b64encode(data)
-        self._webActionWidget.page().runJavaScript(
-            "FT.updateFtrack(\""
-            + data.encode('latin-1').decode('utf-8')
-            + "\")"
-        )
 
 
 def createMode():
