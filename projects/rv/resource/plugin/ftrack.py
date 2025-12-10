@@ -10,6 +10,8 @@ from uuid import uuid1 as uuid
 import logging
 import platform
 import base64
+import subprocess
+from distutils.spawn import find_executable
 
 from PySide2 import QtCore
 from PySide2 import QtGui
@@ -540,7 +542,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
             menu,
         )
 
-        rvc.sendInternalEvent("key-down--`")
+        # rvc.sendInternalEvent("key-down--`")
 
         rvc.bind(
             "default",
@@ -617,7 +619,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
         '''
         logger.debug(f'uploading file : {filename}')
 
-        encoded_args = json.dumps({'type': 'file_name', 'frame': frame})
+        encoded_args = json.dumps({'file_name': filename, 'frame': frame})
 
         component_id = fra.create_component(encoded_args)
         logger.debug(f'created component : {component_id}')
@@ -667,9 +669,9 @@ class FtrackMode(rv.rvtypes.MinorMode):
         # Add all the frames and export
         # Generate filenames that are unique
         # set name eg. Frame_159_1.jpg,Frame_159_2.jpg
-        timestr = time.time()
+        timestr = rvc.frame()
         # _filePath = fra._getFilePath('')
-        _filePath = tempfile.TemporaryDirectory().name
+        _filePath = tempfile.gettempdir()
         tmpUpload = []
         _uuid = fra.ftrackUUID()
 
@@ -678,24 +680,27 @@ class FtrackMode(rv.rvtypes.MinorMode):
         frames = []
 
         if event.name() == "ftrack-upload-frame":
-            frames.push_back(rvui.frame())
+            frames.push_back(rvc.frame())
 
         else:
             frames = rve.findAnnotatedFrames()
 
         self._annotatedFrames = frames
+        logger.debug(f'frames : {frames})')
 
         for i in frames:
-            f = frames[i]
-            fpadd = "%04d" % f
-            tmpUpload.append("%s_%s.jpg" % (_uuid, fpadd))
+            tmpUpload.append(f"{_uuid}.jpg")
+
+        session_name = os.path.join(_filePath, f'rvsession_{_uuid}.rv')
 
         self._doUpload = tmpUpload
-        tmpSession = rvc.saveSession(str(uuid()), True)
+        tmpSession = rvc.saveSession(session_name, True)
+        logger.debug(f'tmpSession : {tmpSession}')
+
         args = [
-            tmpSession,
+            session_name,
             "-o",
-            f"{_filePath}/{_uuid}#.jpg",
+            f"{_filePath}/{_uuid}.jpg",
             "-t",
             str(timestr),
             "-overlay",
@@ -705,14 +710,32 @@ class FtrackMode(rv.rvtypes.MinorMode):
             "30.0",
         ]
 
+        logger.debug(f'rvsession args: {args}')
+
         self.uploadingCount(len(self._doUpload))
         if len(self._doUpload) > 0:
-            rvc.rvio("Export Annotated Frames", args, self.uploadAll)
+            self.rvio("Export Annotated Frames", args, self.uploadAll)
 
     def uploadAll(self):
         logger.debug(f'Uploading all annotated frames')
-        for i in self._doUpload:
-            self.upload_annotation(self._doUpload[i], self._annotatedFrames[i])
+        logger.debug(f'self._doUpload {self._doUpload}')
+        logger.debug(f'self._annotatedFrames {self._annotatedFrames}')
+        for i, path in enumerate(self._doUpload):
+            self.upload_annotation(path, i)
+
+    def rvio(self, name, inargs, cleanup=None):
+        rvioc = os.getenv('RV_APP_RVIO', 'rvio')
+        cmd = [rvioc, '-v', '-err-to-out']
+        license = os.getenv('RV_APP_USE_LICENSE_FILE')
+        if license:
+            cmd.append('-lic', license)
+
+        cmd.extend(inargs)
+        logger.debug(f'rvio cmd : {" ".join(cmd)}')
+        proc = subprocess.Popen(cmd)
+        proc.communicate()
+        if cleanup:
+            cleanup()
 
 
 def createMode():
