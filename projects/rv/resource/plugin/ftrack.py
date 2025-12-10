@@ -347,13 +347,13 @@ class FtrackMode(rv.rvtypes.MinorMode):
 
         if self._currentSource != source:
             _currentSource = source
-            data_string = (
-                "{\"type\":\"changedGroup\",\"index\":\""
-                + str(_currentSource)
-                + "\"}"
-            )
-            data = data_string.encode('utf-8')
-            data = base64.b64encode(data)
+
+            data = base64.b64encode(
+                json.dumps(
+                    {'type': 'changedGroup', 'index': str(_currentSource)}
+                ).encode("utf-8")
+            ).decode('ascii')
+
             logger.debug(data)
             jsData = f'FT.updateFtrack("{data}")'
             self._webNavigationWidget.page().runJavaScript(jsData)
@@ -590,11 +590,12 @@ class FtrackMode(rv.rvtypes.MinorMode):
     def uploadingCount(self, count):
         logger.debug(f'uploadingCount: {count}')
 
-        data_string = "{\"type\":\"uploadCount\",\"count\":\"" + count + "\"}"
-        data = data_string.encode('utf-8')
-        data = base64.b64encode(data)
+        data = base64.b64encode(
+            json.dumps({'type': 'uploadCount', 'count': count}).encode("utf-8")
+        ).decode('ascii')
+
         self._webActionWidget.page().runJavaScript(
-            f'FT.updateFtrack("{data.encode("utf-8")}")'
+            f'FT.updateFtrack("{data}")'
         )
 
     def upload_annotation(self, filename, frame):
@@ -606,14 +607,13 @@ class FtrackMode(rv.rvtypes.MinorMode):
         '''
         logger.debug(f'uploading file : {filename}')
 
-        encoded_args = (
-            "{\"file_name\":\"" + filename + "\",\"frame\":\"" + frame + "\"}"
-        )
-        component_id = fra._create_component(encoded_args)
+        encoded_args = json.dumps({'type': 'file_name', 'frame': frame})
+
+        component_id = fra.create_component(encoded_args)
         logger.debug(f'created component : {component_id}')
         self.on_upload_started(component_id)
 
-        self._upload_component(component_id)
+        fra.upload_component(component_id)
         logger.debug(f'Upload completed')
         self.on_upload_complete(component_id)
 
@@ -621,20 +621,20 @@ class FtrackMode(rv.rvtypes.MinorMode):
         '''
         Update ftrack when upload has started.
         '''
-        data_string = (
-            "{\"type\": \"uploadStarted\", \"attachment\": \""
-            + component_id
-            + "\"}"
+
+        data_string = json.dumps(
+            {'type': 'uploadStarted', 'attachment': component_id}
         )
+
         self._update_ftrack(data_string)
 
     def on_upload_complete(self, component_id):
         '''
         Update ftrack when upload has completed.
         '''
-        data_string = (
-            "{\"type\": \"uploadEnded\", \"id\": \"" + component_id + "\"}"
-        )
+
+        data_string = json.dumps({'type': 'uploadEnded', 'id': component_id})
+
         self._update_ftrack(data_string)
 
     def _update_ftrack(self, data_string):
