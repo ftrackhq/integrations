@@ -55,6 +55,30 @@ from rv import rvui
 from pymu import MuSymbol
 from rv.commands import NeutralMenuState
 
+import threading
+import subprocess
+
+
+class RVIO(threading.Thread):
+    def __init__(self, cmd, cleanup):
+        self.stdout = None
+        self.stderr = None
+        self.cmd = cmd
+        self.cleanup = cleanup
+        threading.Thread.__init__(self)
+
+    def run(self):
+        p = subprocess.Popen(
+            self.cmd,
+            shell=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+
+        self.stdout, self.stderr = p.communicate()
+        if self.cleanup:
+            self.cleanup()
+
 
 class FtrackMode(rv.rvtypes.MinorMode):
     "A simple example that shows how to make shift-Z start/stop playback"
@@ -732,10 +756,9 @@ class FtrackMode(rv.rvtypes.MinorMode):
 
         cmd.extend(inargs)
         logger.debug(f'rvio cmd : {" ".join(cmd)}')
-        proc = subprocess.Popen(cmd)
-        proc.communicate()
-        if cleanup:
-            cleanup()
+        proc = RVIO(cmd, cleanup)
+        proc.start()
+        # proc.join()
 
 
 def createMode():
