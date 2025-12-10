@@ -140,13 +140,14 @@ def _setWipeMode(state):
 def _getFilePath(componentId):
     '''Return a single access path based on *source* and *location*'''
     global componentFilesystemPaths
-
     path = componentFilesystemPaths.get(componentId, None)
+    logger.debug(f'_getFilePath {componentId} :: {path}')
 
     if path is None:
         ftrack_component = session.get('Component', componentId)
         location = session.pick_location(component=ftrack_component)
         path = location.get_filesystem_path(ftrack_component)
+        logger.debug(f'adding {componentId} to {componentFilesystemPaths}')
         componentFilesystemPaths[componentId] = path
 
     return path
@@ -415,7 +416,7 @@ def ftrackFilePath(id):
         return ''
 
 
-def ftrackUUID(short):
+def ftrackUUID():
     '''Retun a uuid based on uuid1'''
     return str(uuid())
 

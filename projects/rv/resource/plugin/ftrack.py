@@ -486,8 +486,21 @@ class FtrackMode(rv.rvtypes.MinorMode):
             "New group selected",
         )
 
-        # rvc.bind("default", "global","ftrack-upload-frame", self.ftrackExportAll, "Upload frame to FTrack")
-        # rvc.bind("default", "global","ftrack-upload-frames", self.ftrackExportAll, "Upload all annotated frames to FTrack")
+        rvc.bind(
+            "default",
+            "global",
+            "ftrack-upload-frame",
+            self.ftrackExportAll,
+            "Upload frame to FTrack",
+        )
+
+        rvc.bind(
+            "default",
+            "global",
+            "ftrack-upload-frames",
+            self.ftrackExportAll,
+            "Upload all annotated frames to FTrack",
+        )
 
         menu = [
             (
@@ -565,14 +578,11 @@ class FtrackMode(rv.rvtypes.MinorMode):
         self._webActionWidget = None
 
         self._currentSource = 1
-        self.componentFilesystemPaths = {}
 
         self.sequenceSourceNode = None
         self.stackSourceNode = None
         self.layoutSourceNode = None
 
-        # Store references to annotation components being uploaded between methods.
-        self.annotation_components = {}
         self.globalBindings = None  # [("Event-Name", self.eventCallback, "DescriptionOfBinding")]
         self.localBindings = None
 
@@ -641,23 +651,27 @@ class FtrackMode(rv.rvtypes.MinorMode):
         '''
         Update ftrack with json-formatedd *data_string*.
         '''
+        logger.debug(f'_update_ftrack: {data_string}')
+
         data = data_string.encode('utf-8')
-        data = base64.b64encode(data)
+        data = base64.b64encode(data).decode('ascii')
         self._webActionWidget.page().runJavaScript(
-            f'FT.updateFtrack("{data.encode("utf-8")}")'
+            f'FT.updateFtrack("{data}")'
         )
 
     def ftrackExportAll(self, event):
-        logger.debug(f'ftrackExportAll: {event}')
-
         _token = event.contents()
+        _name = event.name()
+        logger.debug(f'ftrackExportAll: {_token} :: {_name}')
+
         # Add all the frames and export
         # Generate filenames that are unique
         # set name eg. Frame_159_1.jpg,Frame_159_2.jpg
-        timestr = time.time().now()
-        _filePath = self.getFilePath("")
+        timestr = time.time()
+        # _filePath = fra._getFilePath('')
+        _filePath = tempfile.TemporaryDirectory().name
         tmpUpload = []
-        _uuid = self.ftrackUUID()
+        _uuid = fra.ftrackUUID()
 
         # // Get all the annotated frames
         # // Function
@@ -667,7 +681,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
             frames.push_back(rvui.frame())
 
         else:
-            frames = self.findAnnotatedFrames()
+            frames = rve.findAnnotatedFrames()
 
         self._annotatedFrames = frames
 
@@ -677,10 +691,11 @@ class FtrackMode(rv.rvtypes.MinorMode):
             tmpUpload.append("%s_%s.jpg" % (_uuid, fpadd))
 
         self._doUpload = tmpUpload
+        tmpSession = rvc.saveSession(str(uuid()), True)
         args = [
-            rv.makeTempSession(),
+            tmpSession,
             "-o",
-            "%s/%s_#.jpg" % (_filePath, _uuid),
+            f"{_filePath}/{_uuid}#.jpg",
             "-t",
             str(timestr),
             "-overlay",
@@ -690,8 +705,8 @@ class FtrackMode(rv.rvtypes.MinorMode):
             "30.0",
         ]
 
-        self.uploadingCount(self._doUpload.size())
-        if self._doUpload.size() > 0:
+        self.uploadingCount(len(self._doUpload))
+        if len(self._doUpload) > 0:
             rvc.rvio("Export Annotated Frames", args, self.uploadAll)
 
     def uploadAll(self):
