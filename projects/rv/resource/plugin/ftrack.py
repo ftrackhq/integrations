@@ -60,7 +60,7 @@ import subprocess
 
 
 class RVIO(threading.Thread):
-    def __init__(self, cmd, cleanup):
+    def __init__(self, cmd, cleanup=None):
         self.stdout = None
         self.stderr = None
         self.cmd = cmd
@@ -693,7 +693,6 @@ class FtrackMode(rv.rvtypes.MinorMode):
         # Add all the frames and export
         # Generate filenames that are unique
         # set name eg. Frame_159_1.jpg,Frame_159_2.jpg
-        timestr = rvc.frame()
         # _filePath = fra._getFilePath('')
         _filePath = tempfile.gettempdir()
         tmpUpload = []
@@ -713,7 +712,8 @@ class FtrackMode(rv.rvtypes.MinorMode):
         logger.debug(f'frames : {frames})')
 
         for i in frames:
-            tmpUpload.append(f"{_uuid}.jpg")
+            fpadd = "%04d" % i
+            tmpUpload.append(f"{_uuid}_{fpadd}.jpg")
 
         session_name = os.path.join(_filePath, f'rvsession_{_uuid}.rv')
 
@@ -724,9 +724,9 @@ class FtrackMode(rv.rvtypes.MinorMode):
         args = [
             session_name,
             "-o",
-            f"{_filePath}/{_uuid}.jpg",
+            f"{_filePath}/{_uuid}_#.jpg",
             "-t",
-            str(timestr),
+            ','.join([str(f) for f in frames]),
             "-overlay",
             "frameburn",
             "0.8",
@@ -758,7 +758,6 @@ class FtrackMode(rv.rvtypes.MinorMode):
         logger.debug(f'rvio cmd : {" ".join(cmd)}')
         proc = RVIO(cmd, cleanup)
         proc.start()
-        # proc.join()
 
 
 def createMode():
