@@ -5,11 +5,12 @@ contact: support@ftrack.com
 version: {VERSION}
 url: http://www.ftrack.com
 optional: true
-rv: 7.5.0
+rv: 3.12.9
+openrv: 2.0.0
 requires: ''
 
 modes:
-  - file: ftrack
+  - file: ftrack.py
     load: immediate
 files:
   - file: noserver.html
