@@ -199,7 +199,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
             f'env REQUESTS_CA_BUNDLE: {os.getenv("REQUESTS_CA_BUNDLE")}'
         )
 
-    def createActionWindow(self, data):
+    def create_action_window(self, data):
         """
         Creates a dock widget with a web action widget that loads a URL for review actions.
 
@@ -243,7 +243,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
             QtCore.QObject, self.name
         )
         self._webNavigationWidget.loadFinished.connect(
-            lambda: self.viewLoaded(
+            lambda: self.view_loaded(
                 self._baseActionWidget,
             )
         )
@@ -260,7 +260,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
             )
 
         self._dockActionWidget.topLevelChanged.connect(
-            lambda: self.toggleTitleBar(
+            lambda: self.toggle_title_bar(
                 self._dockActionWidget, self._titleActionWidget, False
             )
         )
@@ -304,7 +304,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
         verticalLayout.addWidget(webView)
         return form
 
-    def toggleFloating(self, event):
+    def toggle_floating(self, event):
         """
         Toggles the floating state of a dock widget based on the event content.
 
@@ -344,7 +344,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
         else:
             dockWidget.setFloating(True)
 
-        self.toggleTitleBar(dockWidget, titleWidget, True)
+        self.toggle_title_bar(dockWidget, titleWidget, True)
 
     def shutdown(self, event):
         """
@@ -365,7 +365,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
         if self._webActionWidget:
             self._webActionWidget.page().setHtml("", QtCore.QUrl())
 
-    def ftrackEvent(self, event):
+    def ftrack_event(self, event):
         """
         Handles a FTrack event by decoding its contents and updating the FTrack interface.
 
@@ -399,7 +399,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
         except Exception as e:
             logger.error(e)
 
-    def toggleTitleBar(self, dockWidget, titleWidget, ok):
+    def toggle_title_bar(self, dockWidget, titleWidget, ok):
         """
         Toggles the title bar widget of a dock widget between a standard widget and the original title widget.
 
@@ -423,7 +423,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
         else:
             dockWidget.setTitleBarWidget(QtWidgets.QWidget(titleWidget))
 
-    def viewLoaded(self, view):
+    def view_loaded(self, view):
         """
         Called when a view is loaded in the application interface.
 
@@ -445,7 +445,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
         view.setMaximumHeight(16777215)
         view.setMinimumHeight(250)
 
-    def initUi(self):
+    def initialize_ui(self):
         """
         Initialize the user interface for the plugin's navigation widget.
 
@@ -498,7 +498,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
         )
 
         self._webNavigationWidget.loadFinished.connect(
-            lambda: self.viewLoaded(self._baseNavigationWidget)
+            lambda: self.view_loaded(self._baseNavigationWidget)
         )
 
         self._webNavigationWidget.load(QtCore.QUrl(str(url)))
@@ -515,7 +515,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
             )
 
         self._dockNavigationWidget.topLevelChanged.connect(
-            lambda: self.toggleTitleBar(
+            lambda: self.toggle_title_bar(
                 self._dockNavigationWidget, self._titleNavigationWidget, False
             )
         )
@@ -537,7 +537,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
 
         self.mainWindow.show()
 
-    def frameChanged(self, event):
+    def frame_changed(self, event):
         """
         Called when the current frame changes in the timeline.
 
@@ -573,7 +573,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
             jsData = f'FT.updateFtrack("{data}")'
             self._webNavigationWidget.page().runJavaScript(jsData)
 
-    def navGroupChanged(self, event):
+    def nav_group_changed(self, event):
         """
         Handles changes to the navigation group in the interface.
 
@@ -589,7 +589,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
         logger.debug(f'navGroupChanged {event}')
         self.setViewNode("sourceGroup00000" + event.contents())
 
-    def ftrackToggle(self, event):
+    def ftrack_toggle(self, event):
         """
         Toggles the visibility of the FTrack panels.
 
@@ -607,13 +607,13 @@ class FtrackMode(rv.rvtypes.MinorMode):
 
         if self._isHidden:
             self._isHidden = False
-            self.showPanels()
-            self.initUi()
+            self.show_panels()
+            self.initialize_ui()
         else:
             self._isHidden = True
-            self.hidePanels()
+            self.hide_panels()
 
-    def hidePanels(self):
+    def hide_panels(self):
         """
         Hides all navigation and action panels in the interface.
 
@@ -638,7 +638,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
         if self._dockActionWidget:
             self._dockActionWidget.hide()
 
-    def showPanels(self):
+    def show_panels(self):
         """
         Display all navigation and action panels in the interface.
 
@@ -667,7 +667,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
         if self._dockActionWidget:
             self._dockActionWidget.show()
 
-    def showPanelsOnStartupToggle(self, event):
+    def show_panels_on_startup_toggle(self, event):
         """
         Toggles whether Ftrack panels should be shown on startup.
 
@@ -694,14 +694,14 @@ class FtrackMode(rv.rvtypes.MinorMode):
             self._showPanelsOnStartup = False
             logger.debug("show on startup: %s" % self._showPanelsOnStartup)
 
-    def panelState(self):
+    def panel_state(self):
         """Return the menu state based on whether the panel is hidden."""
         logger.debug("panelState: %s" % self._isHidden)
         return (
             rvc.CheckedMenuState if self._isHidden else rvc.UncheckedMenuState
         )
 
-    def showPanelsOnStartupState(self):
+    def show_panels_on_startup_state(self):
         """
         Determines the menu state for panels based on whether they should be shown on startup.
 
@@ -747,14 +747,14 @@ class FtrackMode(rv.rvtypes.MinorMode):
             "default",
             "global",
             "ftrack-event",
-            self.ftrackEvent,
+            self.ftrack_event,
             "Update action window",
         )
         rvc.bind(
             "default",
             "global",
             "ftrack-timeline-loaded",
-            self.createActionWindow,
+            self.create_action_window,
             "User is logged in, create action window",
         )
 
@@ -762,21 +762,21 @@ class FtrackMode(rv.rvtypes.MinorMode):
             "default",
             "global",
             "ftrack-toggle-floating",
-            self.toggleFloating,
+            self.toggle_floating,
             "Toggle floating panel",
         )
         rvc.bind(
             "default",
             "global",
             "frame-changed",
-            self.frameChanged,
+            self.frame_changed,
             "New frame",
         )
         rvc.bind(
             "default",
             "global",
             "ftrack-changed-group",
-            self.navGroupChanged,
+            self.nav_group_changed,
             "New group selected",
         )
 
@@ -784,7 +784,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
             "default",
             "global",
             "ftrack-upload-frame",
-            self.ftrackExportAll,
+            self.ftrack_export_all,
             "Upload frame to FTrack",
         )
 
@@ -792,7 +792,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
             "default",
             "global",
             "ftrack-upload-frames",
-            self.ftrackExportAll,
+            self.ftrack_export_all,
             "Upload all annotated frames to FTrack",
         )
 
@@ -802,7 +802,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
                 [
                     (
                         "Toggle panels",
-                        self.ftrackToggle,
+                        self.ftrack_toggle,
                         "control shift t",
                         lambda: rvc.NeutralMenuState,
                     ),
@@ -811,9 +811,9 @@ class FtrackMode(rv.rvtypes.MinorMode):
                         [
                             (
                                 "Show panels on startup",
-                                self.showPanelsOnStartupToggle,
+                                self.show_panels_on_startup_toggle,
                                 "",
-                                self.showPanelsOnStartupState,
+                                self.show_panels_on_startup_state,
                             ),
                         ],
                     ),
@@ -834,13 +834,13 @@ class FtrackMode(rv.rvtypes.MinorMode):
             "default",
             "global",
             "key-down--control--T",
-            self.ftrackToggle,
+            self.ftrack_toggle,
             "Toggle ftrackReview panels",
         )
 
         if self._showPanelsOnStartup:
             self._isHidden = False
-            self.initUi()
+            self.initialize_ui()
 
         else:
             self._isHidden = True
@@ -888,31 +888,33 @@ class FtrackMode(rv.rvtypes.MinorMode):
 
         self._showPanelsOnStartup = False
 
-    def uploadAll(self):
+    def upload_all(self):
         """
-        Upload all annotated frames to the ftrack system.
+        Uploads all annotated frames to the Ftrack server.
 
         This method iterates through the list of frames that need to be uploaded
-        and calls the upload_annotation method for each frame. It processes each
-        frame in the order defined by the _doUpload list, which contains the
-        frame data and the corresponding annotated frames.
+        (stored in self._doUpload) and calls the upload_annotation method for each
+        frame. The upload process is logged with debug messages to track progress.
 
-        The method logs a debug message to indicate that it's uploading all frames,
-        and then processes each frame in the _doUpload list with its associated
-        annotated frames.
+        The method performs the following steps:
+        1. Logs debug information about the upload process
+        2. Iterates through each frame path in self._doUpload
+        3. Calls upload_annotation for each frame with its index
 
-        Note:
-            - The method assumes that self._doUpload and self._annotatedFrames
-            are properly initialized with the frame data and annotations.
-            - Each call to upload_annotation will upload the specified frame
-            with its associated annotations to the ftrack system.
+        Note: This method assumes that self._doUpload contains paths to annotated frames
+        that need to be uploaded to Ftrack. The upload_annotation method handles the
+        actual upload logic.
 
+        Returns:
+            None
         """
-        logger.debug('Upload all frames')
-        for i in self._doUpload:
-            self.upload_annotation(self._doUpload[i], self._annotatedFrames[i])
+        logger.debug(f'Uploading all annotated frames')
+        logger.debug(f'self._doUpload {self._doUpload}')
+        logger.debug(f'self._annotatedFrames {self._annotatedFrames}')
+        for i, path in enumerate(self._doUpload):
+            self.upload_annotation(path, i)
 
-    def uploadingCount(self, count):
+    def uploading_count(self, count):
         """
         Updates the Ftrack UI with the current upload count.
 
@@ -1068,7 +1070,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
             f'FT.updateFtrack("{data}")'
         )
 
-    def ftrackExportAll(self, event):
+    def ftrack_export_all(self, event):
         """
         Handles the export of annotated frames to Ftrack by:
         1. Retrieving the event data (token and name)
@@ -1147,35 +1149,9 @@ class FtrackMode(rv.rvtypes.MinorMode):
 
         logger.debug(f'rvsession args: {args}')
 
-        self.uploadingCount(len(self._doUpload))
+        self.uploading_count(len(self._doUpload))
         if len(self._doUpload) > 0:
-            self.rvio("Export Annotated Frames", args, self.uploadAll)
-
-    def uploadAll(self):
-        """
-        Uploads all annotated frames to the Ftrack server.
-
-        This method iterates through the list of frames that need to be uploaded
-        (stored in self._doUpload) and calls the upload_annotation method for each
-        frame. The upload process is logged with debug messages to track progress.
-
-        The method performs the following steps:
-        1. Logs debug information about the upload process
-        2. Iterates through each frame path in self._doUpload
-        3. Calls upload_annotation for each frame with its index
-
-        Note: This method assumes that self._doUpload contains paths to annotated frames
-        that need to be uploaded to Ftrack. The upload_annotation method handles the
-        actual upload logic.
-
-        Returns:
-            None
-        """
-        logger.debug(f'Uploading all annotated frames')
-        logger.debug(f'self._doUpload {self._doUpload}')
-        logger.debug(f'self._annotatedFrames {self._annotatedFrames}')
-        for i, path in enumerate(self._doUpload):
-            self.upload_annotation(path, i)
+            self.rvio("Export Annotated Frames", args, self.upload_all)
 
     def rvio(self, name, inargs, cleanup=None):
         """
