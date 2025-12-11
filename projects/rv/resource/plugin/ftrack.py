@@ -1,3 +1,6 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2025 ftrack
+
 import sys
 import json
 import re
@@ -932,7 +935,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
         )
 
     def upload_annotation(self, filename, frame):
-        '''
+        """
         Upload a single annotation saved as *filename*.
 
         This method creates a component from the given file and frame information,
@@ -967,7 +970,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
         - The component creation and upload process is asynchronous
         - Error handling is assumed to be managed by the parent class or framework
         - The component ID is used for tracking and reference throughout the upload process
-        '''
+        """
         logger.debug(f'uploading file : {filename}')
 
         encoded_args = json.dumps({'file_name': filename, 'frame': frame})
@@ -1011,7 +1014,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
         self._update_ftrack(data_string)
 
     def on_upload_complete(self, component_id):
-        '''
+        """
         Update ftrack when upload has completed.
 
         This method is called after a file upload operation has successfully
@@ -1033,13 +1036,13 @@ class FtrackMode(rv.rvtypes.MinorMode):
             - The event type is set to 'uploadEnded'
             - This method should only be called after a successful upload
               operation to ensure data consistency
-        '''
+        """
         data_string = json.dumps({'type': 'uploadEnded', 'id': component_id})
 
         self._update_ftrack(data_string)
 
     def _update_ftrack(self, data_string):
-        '''
+        """
         Update Ftrack with JSON-formatted data string.
 
         This method encodes the provided data_string to base64 and sends it to the Ftrack
@@ -1056,7 +1059,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
             - The method uses base64 encoding to safely transmit the data string.
             - The encoded data is passed to the Ftrack integration via JavaScript.
             - This method logs the data string for debugging purposes.
-        '''
+        """
         logger.debug(f'_update_ftrack: {data_string}')
 
         data = data_string.encode('utf-8')

@@ -32,10 +32,10 @@ RV_LINUX_INSTALLATION_PATH = os.getenv('RV_INSTALLATION_PATH', '/usr/local/rv')
 
 
 class RvApplicationLauncher(ApplicationLauncher):
-    '''Discover and launch rv.'''
+    """Discover and launch rv."""
 
     def _get_application_environment(self, application, context=None):
-        '''Override to modify environment before launch.'''
+        """Override to modify environment before launch."""
 
         # Make sure to call super to retrieve original environment
         # which contains the selection and ftrack API.
@@ -51,14 +51,14 @@ class RvApplicationLauncher(ApplicationLauncher):
 
 
 class LaunchRvAction(ApplicationLaunchAction):
-    '''Adobe plugins discover and launch action.'''
+    """Adobe plugins discover and launch action."""
 
     context = [None, 'Task', 'AssetVersion']
     identifier = 'ftrack-connect-launch-rv'
     label = 'rv'
 
     def __init__(self, session, application_store, launcher):
-        '''Initialise action with *applicationStore* and *launcher*.
+        """Initialise action with *applicationStore* and *launcher*.
 
         *applicationStore* should be an instance of
         :class:`ftrack_connect.application.ApplicationStore`.
@@ -66,7 +66,7 @@ class LaunchRvAction(ApplicationLaunchAction):
         *launcher* should be an instance of
         :class:`ftrack_connect.application.ApplicationLauncher`.
 
-        '''
+        """
         super(LaunchRvAction, self).__init__(
             session=session,
             application_store=application_store,
@@ -88,13 +88,13 @@ class LaunchRvAction(ApplicationLaunchAction):
         return self.session.call(action)
 
     def _launch(self, event):
-        '''Handle *event*.
+        """Handle *event*.
 
         event['data'] should contain:
 
             *applicationIdentifier* to identify which application to start.
 
-        '''
+        """
         applicationIdentifier = event['data']['applicationIdentifier']
 
         context = event['data'].copy()
@@ -104,7 +104,7 @@ class LaunchRvAction(ApplicationLaunchAction):
 
 class RvApplicationStore(ApplicationStore):
     def _discover_applications(self):
-        '''Return a list of applications that can be launched from this host.
+        """Return a list of applications that can be launched from this host.
 
         An application should be of the form:
 
@@ -118,7 +118,7 @@ class RvApplicationStore(ApplicationStore):
                 'icon': 'URL or name of predefined icon'
             )
 
-        '''
+        """
         applications = []
 
         if self.current_os == 'darwin':
@@ -144,7 +144,12 @@ class RvApplicationStore(ApplicationStore):
             applications.extend(
                 self._search_filesystem(
                     expression=prefix
-                    + ['[Autodesk|Tweak|Shotgun|ShotGrid]', 'RV.\d.+', 'bin', 'rv.exe'],
+                    + [
+                        '[Autodesk|Tweak|Shotgun|ShotGrid]',
+                        'RV.\d.+',
+                        'bin',
+                        'rv.exe',
+                    ],
                     label='Review with RV',
                     variant='{version}',
                     applicationIdentifier='rv_{variant}_with_review',
@@ -205,7 +210,7 @@ class RvApplicationStore(ApplicationStore):
 
 
 def register(session, **kw):
-    '''Register hooks.'''
+    """Register hooks."""
 
     # Validate that registry is ftrack.EVENT_HANDLERS. If not, assume that
     # register is being called from a new or incompatible API and

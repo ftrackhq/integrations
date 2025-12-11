@@ -8,12 +8,12 @@ import tempfile
 
 
 def get_log_directory():
-    '''Get log directory.
+    """Get log directory.
 
     Will create the directory (recursively) if it does not exist.
 
     Raise if the directory can not be created.
-    '''
+    """
     try:
         import platformdirs  # Inline import to avoid RV crashing if not available.
 
@@ -35,13 +35,13 @@ def get_log_directory():
 
 
 def configure_logging(logger_name, level=None, format=None):
-    '''Configure `loggerName` loggers with console and file handler.
+    """Configure `loggerName` loggers with console and file handler.
 
     Optionally specify log *level* (default WARNING)
 
     Optionally set *format*, default:
     `%(asctime)s - %(name)s - %(levelname)s - %(message)s`.
-    '''
+    """
 
     # provide default values for level and format
     format = format or '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
