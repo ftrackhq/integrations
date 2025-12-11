@@ -96,7 +96,22 @@ except Exception as e:
 
 
 def _getSourceNode(nodeType='sequence'):
-    '''Return source node of *nodeType*.'''
+    '''
+    Return the source node of the specified type (sequence, stack, or layout).
+
+    This method creates a source node if it doesn't already exist, and returns a reference
+    to it. The node is created with a specific type and given a UI name for display.
+
+    Args:
+        nodeType (str): Type of node to create. Options are 'sequence', 'stack', or 'layout'.
+                        Defaults to 'sequence'.
+
+    Returns:
+        rv.commands.Node: The created source node or previously created instance.
+
+    Raises:
+        Exception: If there's an issue creating or accessing the node.
+    '''
     global sequenceSourceNode
     global stackSourceNode
     global layoutSourceNode
@@ -129,7 +144,18 @@ def _getSourceNode(nodeType='sequence'):
 
 
 def _setWipeMode(state):
-    '''Util to set the state of wipes instead of toggle.'''
+    '''
+    Set the wipe mode state in RV.
+
+    This utility function toggles the wipe mode in RV based on the current state.
+    It checks if wipes are currently shown and toggles accordingly.
+
+    Args:
+        state (bool): True to enable wipe mode, False to disable it.
+
+    Returns:
+        None
+    '''
     if rv.runtime.eval('rvui.wipeShown()', ['rvui']) != -1 and state is False:
         rv.runtime.eval('rvui.toggleWipe()', ['rvui'])
 
@@ -138,7 +164,21 @@ def _setWipeMode(state):
 
 
 def _getFilePath(componentId):
-    '''Return a single access path based on *source* and *location*'''
+    '''
+    Return a filesystem path for a component based on its ID.
+
+    This method retrieves the filesystem path for a component from the session.
+    If the path isn't cached, it fetches it from the session and caches it for future use.
+
+    Args:
+        componentId (str): The ID of the component to get the path for.
+
+    Returns:
+        str: The filesystem path of the component.
+
+    Raises:
+        Exception: If the component cannot be found or accessed.
+    '''
     global componentFilesystemPaths
     path = componentFilesystemPaths.get(componentId, None)
     logger.debug(f'_getFilePath {componentId} :: {path}')
@@ -154,6 +194,19 @@ def _getFilePath(componentId):
 
 
 def _ftrackAddVersion(track, layout):
+    '''
+    Add a version of a track to a layout in RV.
+
+    This method creates a new source node for a track and connects it to the specified layout.
+    It also sets a UI name for the new source node.
+
+    Args:
+        track (str): The track to add as a version.
+        layout (str): The layout to add the track to (e.g., 'defaultLayout').
+
+    Returns:
+        rv.commands.Node: The newly created source node.
+    '''
     stackInputs = rv.commands.nodeConnections(layout, False)[0]
     newSource = rv.commands.addSourceVerbose([track], None)
     rv.commands.setNodeInputs(layout, stackInputs)
@@ -163,6 +216,20 @@ def _ftrackAddVersion(track, layout):
 
 
 def _ftrackCreateGroup(tracks, sourceNode, layout):
+    '''
+    Create a group of tracks in RV with a common source node.
+
+    This method creates a group of source nodes for multiple tracks and connects them
+    to a source node. Each track is processed individually and added to the group.
+
+    Args:
+        tracks (list): List of track IDs to create a group for.
+        sourceNode (rv.commands.Node): The source node to connect the tracks to.
+        layout (str): The layout to use for the group (e.g., 'defaultLayout').
+
+    Returns:
+        None
+    '''
     singleSources = []
     for track in tracks:
         try:
@@ -176,11 +243,20 @@ def _ftrackCreateGroup(tracks, sourceNode, layout):
 
 
 def loadPlaylist(playlist, index=None, includeFrame=None):
-    '''Load a playlist into RV.
+    '''
+    Load a playlist of components into RV.
 
-    Load a specified *playlist* into RV and jump to an optional *index*. If
-    *includeFrame* is an optional frame reference.
+    This method loads a playlist of component paths into RV and optionally jumps to
+    a specific index or frame. It creates source nodes for each component and sets
+    up the appropriate layout.
 
+    Args:
+        playlist (list): List of component dictionaries containing 'componentId'.
+        index (int, optional): Index in the playlist to jump to after loading. Defaults to None.
+        includeFrame (str, optional): Frame reference to include when loading. Defaults to None.
+
+    Returns:
+        None
     '''
     _setWipeMode(False)
     startFrame = 1
@@ -205,7 +281,20 @@ def loadPlaylist(playlist, index=None, includeFrame=None):
 
 
 def validateComponentLocation(componentId, versionId):
-    '''Return if the *componentId* is accessible in a local location.'''
+    '''
+    Validate if a component is accessible in a local location.
+
+    This method checks if a component can be accessed in a local location. If not,
+    it sends an internal event to ftrack to break the item.
+
+    Args:
+        componentId (str): The ID of the component to validate.
+        versionId (str): The version ID of the component.
+
+    Returns:
+        None
+    '''
+
     try:
         _getFilePath(componentId)
     except Exception:
@@ -229,10 +318,19 @@ def validateComponentLocation(componentId, versionId):
 
 
 def ftrackCompare(data):
-    '''Activate compare mode in RV
+    '''
+    Activate compare mode in RV between two components.
 
-    Activiate compare mode of *type* between *componentIdA* and *componentIdB*
+    This method activates compare mode in RV between two components (A and B) with
+    different modes (wipe, load, etc.). It creates source nodes for the components
+    and sets up the appropriate layout.
 
+    Args:
+        data (dict): Dictionary containing componentIdA, componentIdB, and mode.
+                     mode can be 'wipe', 'load', or other values.
+
+    Returns:
+        None
     '''
     _setWipeMode(False)
     startFrame = 1
@@ -274,6 +372,15 @@ def ftrackCompare(data):
 
 
 def _getEntityFromEnvironment():
+    '''
+    Extract entity information from environment variables.
+
+    This method checks for an environment variable containing event data and
+    extracts selection information (entityId and entityType) from it.
+
+    Returns:
+        tuple: (entityId, entityType) if found, otherwise (None, None).
+    '''
     # Check for environment variable specifying additional information to
     # use when loading.
     eventEnvironmentVariable = 'FTRACK_CONNECT_EVENT'
@@ -317,17 +424,52 @@ def _getEntityFromEnvironment():
 
 
 def getNavigationURL(params=None):
-    '''Return URL to navigation panel based on *params*.'''
+    '''
+    Return URL to navigation panel in ftrack.
+
+    This method generates a URL to the navigation panel based on provided parameters.
+
+    Args:
+        params (dict, optional): Parameters to use for generating the URL. Defaults to None.
+
+    Returns:
+        str: URL to the navigation panel.
+    '''
     return _generateURL(params, 'review_navigation')
 
 
 def getActionURL(params=None):
-    '''Return URL to action panel based on *params*.'''
+    '''
+    Return URL to action panel in ftrack.
+
+    This method generates a URL to the action panel based on provided parameters.
+
+    Args:
+        params (dict, optional): Parameters to use for generating the URL. Defaults to None.
+
+    Returns:
+        str: URL to the action panel.
+    '''
     return _generateURL(params, 'review_action')
 
 
 def _translateEntityType(entityType):
-    '''Return translated entity type tht can be used with API.'''
+    '''
+    Translate an entity type to a format usable with the ftrack API.
+
+    This method converts an entity type (with underscores) to a lower-case format
+    that can be used with the ftrack API. It checks schemas to find the appropriate
+    ID for the entity type.
+
+    Args:
+        entityType (str): The entity type to translate (e.g., "project", "asset").
+
+    Returns:
+        str: The translated entity type ID.
+
+    Raises:
+        ValueError: If the entity type cannot be translated.
+    '''
     # Get entity type and make sure it is lower cased. Most places except
     # the component tab in the Sidebar will use lower case notation.
     entity_type = entityType.replace('_', '').lower()
@@ -352,6 +494,18 @@ def _translateEntityType(entityType):
 
 
 def _get_temp_data_url(name, temp_data_id):
+    '''
+    Generate a URL for temporary data in ftrack.
+
+    This method creates a URL for temporary data with the specified name and ID.
+
+    Args:
+        name (str): The name of the widget.
+        temp_data_id (str): The ID of the temporary data.
+
+    Returns:
+        str: Full URL with entityType and entityId parameters.
+    '''
     operation = {
         'action': 'get_widget_url',
         'name': name,
@@ -365,7 +519,19 @@ def _get_temp_data_url(name, temp_data_id):
 
 
 def _generateURL(params=None, panelName=None):
-    '''Return URL to panel in ftrack based on *params* or *panel*.'''
+    '''
+    Generate a URL to a ftrack panel based on parameters.
+
+    This method creates a URL to a ftrack panel (navigation or action) based on
+    provided parameters or environment data.
+
+    Args:
+        params (dict, optional): Parameters to use for generating the URL. Defaults to None.
+        panelName (str, optional): Name of the panel to generate URL for. Defaults to None.
+
+    Returns:
+        str: URL to the ftrack panel.
+    '''
     logger.info('_generateURL with params: {}'.format(params))
     url = ''
     try:
@@ -404,6 +570,17 @@ def _generateURL(params=None, panelName=None):
 
 
 def ftrackFilePath(id):
+    '''
+    Generate a temporary file path for a component.
+
+    This method creates a temporary file path based on the provided ID.
+
+    Args:
+        id (str): The ID to use for the filename.
+
+    Returns:
+        str: The temporary file path.
+    '''
     try:
         if id != "":
             filename = "%s.jpg" % id
@@ -417,15 +594,30 @@ def ftrackFilePath(id):
 
 
 def ftrackUUID():
-    '''Retun a uuid based on uuid1'''
+    '''
+    Generate a UUID based on uuid1.
+
+    This method returns a string representation of a UUID.
+
+    Returns:
+        str: UUID string.
+    '''
     return str(uuid())
 
 
 def ftrackJumpTo(index=0, startFrame=1):
-    '''Move playhead to an index
+    '''
+    Move the RV playhead to a specific index and frame.
 
-    Moves the RV playhead to the specified *index*
+    This method calculates the frame number based on the index and moves the playhead
+    to that position.
 
+    Args:
+        index (int): The index in the playlist to jump to.
+        startFrame (int): The starting frame to use when jumping.
+
+    Returns:
+        None
     '''
     try:
         index = int(index)
@@ -444,12 +636,25 @@ def ftrackJumpTo(index=0, startFrame=1):
 
 
 def create_component(encoded_args):
-    '''Create component without adding it to a location.
+    '''Create a component without adding it to a location.
 
-    *encoded_args* should be a JSON encoded dictionary containing file_name and
-    frame.
+    This function creates a component from the provided encoded arguments and stores
+    a reference to it in the annotation_components dictionary. The component is not
+    associated with any specific location.
 
-    Store reference in annotation_components.
+    Args:
+        encoded_args (str): A JSON-encoded dictionary containing the following keys:
+            - file_name (str): The name of the file associated with the component.
+            - frame (int): The frame number associated with the component.
+
+    Returns:
+        None: The function stores the component reference in annotation_components
+              but does not return a value.
+
+    Note:
+        This function is used to create components for later use in annotations
+        without immediately associating them with a specific location. The component
+        reference is stored in the annotation_components dictionary for future reference.
     '''
     component_id = None
     try:
@@ -472,7 +677,24 @@ def create_component(encoded_args):
 
 
 def upload_component(component_id):
-    '''Add component with *component_id* to ftrack server location.'''
+    '''
+    Add a component with the given component_id to the ftrack server location.
+
+    This function retrieves the component from the annotation_components dictionary
+    and adds it to the specified server location. After successful addition,
+    the component is removed from the annotation_components dictionary to prevent
+    duplicate processing.
+
+    Args:
+        component_id (str): The unique identifier of the component to upload.
+
+    Returns:
+        str: The component_id if successful, None if an error occurs.
+
+    Raises:
+        Exception: If there's an issue adding the component to the server location.
+
+    '''
     try:
         logger.info(
             u'Adding component {0!r} to ftrack server location.'.format(
