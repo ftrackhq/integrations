@@ -60,6 +60,8 @@ from rv import qtutils as rvq
 import threading
 import subprocess
 
+mode_name = 'ftrack'
+
 
 class Runner(threading.Thread):
     """
@@ -114,10 +116,6 @@ class Runner(threading.Thread):
 
 class FtrackMode(rv.rvtypes.MinorMode):
     """
-    A simple example that demonstrates how to create a minor mode for Ftrack integration.
-    This mode handles shift-Z key binding to start/stop playback and provides functionality
-    for connecting to Ftrack for asset and shot management.
-
     The mode initializes by setting up variables, checking environment settings,
     creating a session with Ftrack, and establishing keyboard bindings.
     """
@@ -1191,7 +1189,7 @@ def createMode():
     Returns:
         FtrackMode: An instance of the FtrackMode class
     """
-    return FtrackMode('webview')
+    return FtrackMode(mode_name)
 
 
 def theMode():
@@ -1201,5 +1199,5 @@ def theMode():
     Returns:
         FtrackMode: The FtrackMode instance if found, otherwise None
     """
-    m = rv.minorModeFromName('webview')
+    m = rv.minorModeFromName(mode_name)
     return m
