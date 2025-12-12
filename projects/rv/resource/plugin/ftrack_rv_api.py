@@ -31,18 +31,16 @@ except Exception as error:
     logging.warning('Failed to Initialize logging.', error)
 
 logger = logging.getLogger(ftrack_rv_logger_name)
-logger.debug('PY3 Enabled: {}'.format(os.environ.get('RV_PYTHON3', 'NOT SET')))
-logger.debug('Interpreter {}'.format(sys.executable))
-logger.debug('version {}'.format(sys.version_info))
-# Check whether the plugin is running from within connect or as standalone
-# is_standalone = not bool(os.getenv('FTRACK_CONNECT_EVENT'))
+logger.debug(f'PY3 Enabled: {os.environ.get("RV_PYTHON3", "NOT SET")}')
+logger.debug(f'Interpreter {sys.executable}')
+logger.debug(f'version {sys.version_info}')
 
 
 # Check for base environment presence.
 required_envs = ['FTRACK_SERVER', 'FTRACK_API_KEY']
 for env in required_envs:
     if env not in os.environ:
-        logger.error('{0} environment not found!'.format(env))
+        logger.error(f'{env} environment not found!')
 
 
 # Setup ssl certificate path.
@@ -54,7 +52,7 @@ dependencies_path = os.path.abspath(
     os.path.join(os.path.dirname(__file__), 'dependencies.zip')
 )
 
-logger.debug('Adding {} to PATH'.format(dependencies_path))
+logger.debug(f'Adding {dependencies_path} to PATH')
 sys.path.insert(0, dependencies_path)
 
 
@@ -64,7 +62,7 @@ try:
     from ftrack_api.symbol import ORIGIN_LOCATION_ID, SERVER_LOCATION_ID
 
 except ImportError as e:
-    logger.error('No Ftrack API module found in {}'.format(dependencies_path))
+    logger.error(f'No Ftrack API module found in {dependencies_path}')
     raise
 
 
@@ -296,9 +294,7 @@ def validateComponentLocation(componentId, versionId):
         _getFilePath(componentId)
     except Exception:
         logger.warning(
-            'Component with Id "{0}" is not available in any location.'.format(
-                componentId
-            )
+            f'Component with Id "{componentId}" is not available in any location.'
         )
         try:
             rvc.sendInternalEvent(
@@ -389,13 +385,11 @@ def _getEntityFromEnvironment():
             decodedEventData = json.loads(base64.b64decode(eventData))
         except (TypeError, ValueError):
             logger.error(
-                'Failed to decode {0}: {1}'.format(
-                    eventEnvironmentVariable, eventData
-                )
+                f'Failed to decode {eventEnvironmentVariable}: {eventData}'
             )
         else:
             selection = decodedEventData.get('selection', [])
-            logger.info('selection {}'.format(selection))
+            logger.info(f'selection {selection}')
             # At present only a single entity which should represent an
             # ftrack List is supported.
             if selection:
@@ -406,15 +400,11 @@ def _getEntityFromEnvironment():
                     return entityId, entityType
                 except (IndexError, AttributeError, KeyError):
                     logger.error(
-                        'Failed to extract selection information from: {0}'.format(
-                            selection
-                        )
+                        f'Failed to extract selection information from: {selection}'
                     )
     else:
         logger.debug(
-            'No event data retrieved. {0} not set.'.format(
-                eventEnvironmentVariable
-            )
+            f'No event data retrieved. {eventEnvironmentVariable} not set.'
         )
 
     return None, None
@@ -485,9 +475,7 @@ def _translateEntityType(entityType):
         if schema['id'].lower() == entity_type:
             return schema['id']
 
-    raise ValueError(
-        'Unable to translate entity type: {0}.'.format(entity_type)
-    )
+    raise ValueError(f'Unable to translate entity type: {entity_type}.')
 
 
 def _get_temp_data_url(name, temp_data_id):
@@ -511,7 +499,7 @@ def _get_temp_data_url(name, temp_data_id):
 
     result = session.call([operation])
     url = result[0]['widget_url']
-    full_url = '{}&entityType=tempdata&entityId={}'.format(url, temp_data_id)
+    full_url = f'{url}&entityType=tempdata&entityId={temp_data_id}'
     return full_url
 
 
@@ -529,7 +517,7 @@ def _generateURL(params=None, panelName=None):
     Returns:
         str: URL to the ftrack panel.
     """
-    logger.info('_generateURL with params: {}'.format(params))
+    logger.info(f'_generateURL with params: {params}')
     url = ''
     try:
         entityId = None
@@ -560,9 +548,9 @@ def _generateURL(params=None, panelName=None):
                     except Exception as exception:
                         logger.error(str(exception))
 
-        logger.info('Returning url "{0}"'.format(url))
+        logger.info(f'Returning url "{url}"')
     except Exception as error:
-        logger.exception('Failed to generate URL. {}'.format(error))
+        logger.exception(f'Failed to generate URL. {error}')
     return url
 
 
@@ -622,7 +610,7 @@ def ftrackJumpTo(index=0, startFrame=1):
 
         for idx, source in enumerate(rvc.nodesOfType('RVFileSource')):
             if not idx >= index:
-                data = rrvc.sourceMediaInfoList(source)[0]
+                data = rvc.sourceMediaInfoList(source)[0]
                 add = (data.get('endFrame', 0) - data.get('startFrame', 0)) + 1
                 add = 1 if add == 0 else add
                 frameNumber += add
@@ -659,9 +647,9 @@ def create_component(encoded_args):
         file_name = args['file_name']
         frame = args['frame']
 
-        component_name = 'Frame_{0}'.format(frame)
+        component_name = f'Frame_{frame}'
         file_path = os.path.join(ftrackFilePath(''), file_name)
-        logger.info(u'Creating component: {0!r}'.format(file_path))
+        logger.info(fr'Creating component: {file_path}')
         component = session.create_component(
             path=file_path, data=dict(name=component_name), location=None
         )
@@ -694,9 +682,7 @@ def upload_component(component_id):
     """
     try:
         logger.info(
-            u'Adding component {0!r} to ftrack server location.'.format(
-                component_id
-            )
+            f'Adding component {component_id} to ftrack server location.'
         )
         component = annotation_components[component_id]
         server_location.add_component(component, origin_location)

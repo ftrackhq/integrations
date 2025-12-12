@@ -28,7 +28,7 @@ dependencies_path = os.path.abspath(
     os.path.join(os.path.dirname(__file__), 'dependencies.zip')
 )
 
-logger.debug('Adding {} to PATH'.format(dependencies_path))
+logger.debug(f'Adding {dependencies_path} to PATH')
 sys.path.insert(0, dependencies_path)
 
 
@@ -142,26 +142,9 @@ class FtrackMode(rv.rvtypes.MinorMode):
 
     def create_session(self):
         """
-        Creates and configures the ftrack API session with necessary locations.
-
         This method initializes the ftrack API session with auto-connect event hub disabled,
-        then retrieves two important location objects: the origin location and the server location.
-        These locations are stored as instance attributes for later use in the plugin.
-
-        The origin location represents the source of the data, while the server location
-        represents the server where the ftrack system is running. These locations are essential
-        for proper session configuration and data handling within the plugin.
         """
         self._session = ftrack_api.Session(auto_connect_event_hub=False)
-
-        # Get some useful locations.
-        self.origin_location = self._session.get(
-            'Location', ORIGIN_LOCATION_ID
-        )
-        self.server_location = self._session.get(
-            'Location', SERVER_LOCATION_ID
-        )
-        logger.debug(self._session)
 
     def check_envs(self):
         """
@@ -185,7 +168,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
             required_envs = ['FTRACK_SERVER', 'FTRACK_API_KEY']
             for env in required_envs:
                 if env not in os.environ:
-                    logger.error('{0} environment not found!'.format(env))
+                    logger.error(f'{env} environment not found!')
         else:
             os.environ['FTRACK_SERVER'] = commandline_url
 
@@ -687,16 +670,16 @@ class FtrackMode(rv.rvtypes.MinorMode):
         if not self._showPanelsOnStartup:
             rvc.writeSettings("ftrack", "showPanelsOnStartUp", True)
             self._showPanelsOnStartup = True
-            logger.debug("show on startup: %s" % self._showPanelsOnStartup)
+            logger.debug(f"show on startup: {self._showPanelsOnStartup}")
 
         else:
             rvc.writeSettings("ftrack", "showPanelsOnStartUp", False)
             self._showPanelsOnStartup = False
-            logger.debug("show on startup: %s" % self._showPanelsOnStartup)
+            logger.debug(f"show on startup: {self._showPanelsOnStartup}")
 
     def panel_state(self):
         """Return the menu state based on whether the panel is hidden."""
-        logger.debug("panelState: %s" % self._isHidden)
+        logger.debug(f"panelState: {self._isHidden}")
         return (
             rvc.CheckedMenuState if self._isHidden else rvc.UncheckedMenuState
         )
@@ -710,7 +693,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
                 - rvc.CheckedMenuState if panels should be shown on startup
                 - rvc.UncheckedMenuState if panels should not be shown on startup
         """
-        logger.debug("show on startup: %s" % self._showPanelsOnStartup)
+        logger.debug(f"show on startup: {self._showPanelsOnStartup}")
         return (
             rvc.CheckedMenuState
             if self._showPanelsOnStartup
@@ -1125,8 +1108,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
         logger.debug(f'frames : {frames})')
 
         for i in frames:
-            fpadd = "%04d" % i
-            tmpUpload.append(f"{_uuid}_{fpadd}.jpg")
+            tmpUpload.append(f"{_uuid}_{i:04d}.jpg")
 
         session_name = os.path.join(_filePath, f'rvsession_{_uuid}.rv')
 
