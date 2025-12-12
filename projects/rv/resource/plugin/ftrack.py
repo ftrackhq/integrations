@@ -470,12 +470,13 @@ class FtrackMode(rv.rvtypes.MinorMode):
             noServer = os.path.join(
                 os.path.dirname(os.path.dirname(__file__)),
                 "SupportFiles",
+                "ftrack",
                 'noserver.html',
             )
             urlPrefix = (
                 "file:///" if (platform.system() == "Windows") else "file://"
             )
-            url = ''.join([urlPrefix, noServer]).encode('utf-8')
+            url = ''.join([urlPrefix, noServer]).replace('\\', '//')
 
         logger.info(f'url: {url}')
 
