@@ -1181,6 +1181,38 @@ class FtrackMode(rv.rvtypes.MinorMode):
         proc = Runner(cmd, cleanup)
         proc.start()
 
+    def activate(self):
+        '''
+        Activate the ftrack plugin in RV.
+
+        This method is called when the plugin is first loaded in RV. It activates
+        the minor mode and displays the navigation widget in the RV interface.
+
+        The activation process includes:
+        1. Calling the parent class's activate method to set up the minor mode
+        2. Showing the navigation widget for users to access ftrack functionality
+
+        Returns:
+            None
+        '''
+        rv.rvtypes.MinorMode.activate(self)
+        self._dockNavigationWidget.show()
+
+    def deactivate(self):
+        '''
+        Deactivate the ftrack plugin in RV.
+
+        This method is called when the plugin is being unloaded or deactivated.
+        It properly cleans up by:
+        1. Calling the parent class's deactivate method to deactivate the minor mode
+        2. Hiding the navigation widget to free up interface space
+
+        Returns:
+            None
+        '''
+        rv.rvtypes.MinorMode.deactivate(self)
+        self._dockNavigationWidget.hide()
+
 
 def createMode():
     """
