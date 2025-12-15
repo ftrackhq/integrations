@@ -25,9 +25,14 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.dependencies]
-python = ">= 3.7, < 3.12"
+python = ">= 3.10, < 3.12"
 ftrack-python-api = "^2.5.4"
 ftrack-utils = {  version = "^2.0.0", optional = true }
+requests = "^2.32.5"
+platformdirs = ">=4.5.0"
+
+[tool.poetry.dev-dependencies]
+PySide6 = "^6.0"
 
 [tool.poetry.extras]
 ftrack-libs = ["ftrack-utils"]

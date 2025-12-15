@@ -9,22 +9,19 @@ import os
 import logging
 import platform
 import base64
+import importlib
 
-try:
+
+if importlib.util.find_spec("PySide2"):
     from PySide2 import QtCore
-    from PySide2 import QtGui
     from PySide2 import QtWidgets
     from PySide2 import QtWebEngineWidgets
-    from PySide2.QtCore import SIGNAL, SLOT
-except:
-    try:
-        from PySide6 import QtCore
-        from PySide6 import QtGui
-        from PySide6 import QtWidgets
-        from PySide6 import QtWebEngineWidgets
-        from PySide6.QtCore import SIGNAL, SLOT
-    except ImportError:
-        pass
+elif importlib.util.find_spec("PySide6"):
+    from PySide6 import QtCore
+    from PySide6 import QtWidgets
+    from PySide6 import QtWebEngineWidgets
+else:
+    raise ImportError("No Qt bindings could be found")
 
 # setup logging
 from ftrack_logging import configure_logging
