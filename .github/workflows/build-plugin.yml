@@ -207,13 +207,24 @@ jobs:
         if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' }}
         shell: bash
         run: |
+          wget -c https://raw.github.com/Adobe-CEP/CEP-Resources/master/ZXPSignCMD/4.1.2/macOS/ZXPSignCmd-64bit.dmg  -O /tmp/ZXPSignCmd-64bit.dmg
+          hdiutil attach /tmp/ZXPSignCmd-64bit.dmg
+          ln -s /Volumes/ZXPSignCmd-64bit/ZXPSignCmd-64bit /usr/local/bin/ZXPSignCMD
+          export ADOBE_CERTIFICATE_PASSWORD=${{ secrets.ADOBE_CERTIFICATE_PASSWORD }}
           pip install -r tools/requirements.txt
+          python tools/build.py --output_path /tmp build_cep  projects/framework-photoshop
           # Use --testpypi or --from_source to change where the deps are picked from
-          python tools/build.py --remove_intermediate_folder build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+          python tools/build.py --remove_intermediate_folder --include_assets $(find /tmp/ -type f -name "*.zxp") build_connect_plugin ${{ needs.set-variables.outputs.folder }}
       - name: build premiere framework DCC integration plugin
         if: ${{ needs.set-variables.outputs.package == 'framework-premiere' }}
         shell: bash
         run: |
+          wget -c https://raw.github.com/Adobe-CEP/CEP-Resources/master/ZXPSignCMD/4.1.2/macOS/ZXPSignCmd-64bit.dmg  -O /tmp/ZXPSignCmd-64bit.dmg
+          hdiutil attach /tmp/ZXPSignCmd-64bit.dmg
+          ln -s /Volumes/ZXPSignCmd-64bit/ZXPSignCmd-64bit /usr/local/bin/ZXPSignCMD
+          export ADOBE_CERTIFICATE_PASSWORD=${{ secrets.ADOBE_CERTIFICATE_PASSWORD }}
+          pip install -r tools/requirements.txt
+          python tools/build.py --output_path /tmp build_cep  projects/framework-premiere
           pip install -r tools/requirements.txt
           # Use --testpypi or --from_source to change where the deps are picked from
           python tools/build.py --remove_intermediate_folder --include_resources resource/presets build_connect_plugin ${{ needs.set-variables.outputs.folder }}
