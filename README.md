@@ -48,7 +48,7 @@
 | tests/framework/unit/\_\_init\_\_.py                                          |        0 |        0 |    100% |           |
 | tests/framework/unit/test\_engine.py                                          |       49 |        0 |    100% |           |
 | tests/libraries/test\_paths.py                                                |       14 |        0 |    100% |           |
-|                                                                     **TOTAL** |  **906** |  **311** | **66%** |           |
+| **TOTAL**                                                                     |  **906** |  **311** | **66%** |           |
 
 
 ## Setup coverage badge
