@@ -204,7 +204,7 @@ jobs:
           cd ${{ needs.set-variables.outputs.folder }}
           poetry build
       - name: Build CSS resources for CEP extension
-        if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' || needs.set-variables.outputs.package == 'framework-premiere' }}
+        if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' || needs.set-variables.outputs.package == 'framework-premiere' || needs.set-variables.outputs.package == 'framework-aftereffects' }}
         shell: bash
         run: |
           pip install -r tools/requirements-pyside6.txt
