@@ -41,14 +41,14 @@ python-dateutil = ">=2.7.0"
 
 [[package]]
 name = "babel"
-version = "2.17.0"
+version = "2.18.0"
 description = "Internationalization utilities"
 optional = false
 python-versions = ">=3.8"
 groups = ["documentation"]
 files = [
-    {file = "babel-2.17.0-py3-none-any.whl", hash = "sha256:4d0b53093fdfb4b21c92b5213dba5a1b23885afa8383709427046b21c366e5f2"},
-    {file = "babel-2.17.0.tar.gz", hash = "sha256:0c54cffb19f690cdcc52a3b50bcbf71e07a808d1c80d549f2459b9d2cf0afb9d"},
+    {file = "babel-2.18.0-py3-none-any.whl", hash = "sha256:e2b422b277c2b9a9630c1d7903c2a00d0830c409c59ac8cae9081c92f1aeba35"},
+    {file = "babel-2.18.0.tar.gz", hash = "sha256:b80b99a14bd085fcacfa15c9165f651fbb3406e66cc603abf11c5750937c992d"},
 ]
 
 [package.extras]
@@ -56,14 +56,14 @@ dev = ["backports.zoneinfo ; python_version < \"3.9\"", "freezegun (>=1.0,<2.0)"
 
 [[package]]
 name = "certifi"
-version = "2025.10.5"
+version = "2026.2.25"
 description = "Python package for providing Mozilla's CA Bundle."
 optional = false
 python-versions = ">=3.7"
 groups = ["main", "documentation"]
 files = [
-    {file = "certifi-2025.10.5-py3-none-any.whl", hash = "sha256:0f212c2744a9bb6de0c56639a6f68afe01ecd92d91f14ae897c4fe7bbeeef0de"},
-    {file = "certifi-2025.10.5.tar.gz", hash = "sha256:47c09d31ccf2acf0be3f701ea53595ee7e0b8fa08801c6624be771df09ae7b43"},
+    {file = "certifi-2026.2.25-py3-none-any.whl", hash = "sha256:027692e4402ad994f1c42e52a4997a9763c646b73e4096e4d5d6db8af1d6f0fa"},
+    {file = "certifi-2026.2.25.tar.gz", hash = "sha256:e887ab5cee78ea814d3472169153c2d12cd43b14bd03329a39a9c6e2e80bfba7"},
 ]
 
 [[package]]
@@ -510,64 +510,48 @@ files = [
 
 [[package]]
 name = "opentimelineio"
-version = "0.17.0"
+version = "0.18.1"
 description = "Editorial interchange format and API"
 optional = false
-python-versions = "!=3.9.0,>=3.7"
+python-versions = ">3.9.0"
 groups = ["main"]
 files = [
-    {file = "OpenTimelineIO-0.17.0-cp310-cp310-macosx_10_14_x86_64.whl", hash = "sha256:2dd31a570cabfd6227c1b1dd0cc038da10787492c26c55de058326e21fe8a313"},
-    {file = "OpenTimelineIO-0.17.0-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:5a1da5d4803d1ba5e846b181a9e0f4a392c76b9acc5e08947772bc086f2ebfc0"},
-    {file = "OpenTimelineIO-0.17.0-cp310-cp310-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:3527977aec8202789a42d60e1e0dc11b4154f585ef72921760445f43e7967a00"},
-    {file = "OpenTimelineIO-0.17.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:8b3aafb4c50455832ed2627c2cac654b896473a5c1f8348ddc07c10be5cfbd59"},
-    {file = "OpenTimelineIO-0.17.0-cp310-cp310-win32.whl", hash = "sha256:fee45af9f6330773893cd0858e92f8256bb5bde4229b44a76f03e59a9fb1b1b6"},
-    {file = "OpenTimelineIO-0.17.0-cp310-cp310-win_amd64.whl", hash = "sha256:d51887619689c21d67cc4b11b1088f99ae44094513315e7a144be00f1393bfa8"},
-    {file = "OpenTimelineIO-0.17.0-cp311-cp311-macosx_10_14_x86_64.whl", hash = "sha256:cbf05c3e8c0187969f79e91f7495d1f0dc3609557874d8e601ba2e072c70ddb1"},
-    {file = "OpenTimelineIO-0.17.0-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:d3430c3f4e88c5365d7b6afbee920b0815b62ecf141abe44cd739c9eedc04284"},
-    {file = "OpenTimelineIO-0.17.0-cp311-cp311-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:b1912345227b0bd1654c7153863eadbcee60362aa46340678e576e5d2aa3106a"},
-    {file = "OpenTimelineIO-0.17.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:51e06eb11a868d970c1534e39faf916228d5163bf3598076d408d8f393ab0bd4"},
-    {file = "OpenTimelineIO-0.17.0-cp311-cp311-win32.whl", hash = "sha256:5c3a3f4780b25a8c1a80d788becba691d12b629069ad8783d0db21027639276f"},
-    {file = "OpenTimelineIO-0.17.0-cp311-cp311-win_amd64.whl", hash = "sha256:43c8726b33af30ba42928972192311ea0f986edbbd5f74651bada182d4fe805c"},
-    {file = "OpenTimelineIO-0.17.0-cp312-cp312-macosx_10_14_x86_64.whl", hash = "sha256:9a9af4105a088c0ab131780e49db268db7e37871aac33db842de6b2b16f14e39"},
-    {file = "OpenTimelineIO-0.17.0-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:8e653ad1dd3b85f5c312a742dc24b61b330964aa391dc5bc072fe8b9c85adff1"},
-    {file = "OpenTimelineIO-0.17.0-cp312-cp312-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:02a77823c27a1b93c6b87682372c3734ac5fddc10bfe53875e657d43c60fb885"},
-    {file = "OpenTimelineIO-0.17.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:a4f4efcf3ddd81b62c4feb49a0bcc309b50ffeb6a8c48ab173d169a029006f4d"},
-    {file = "OpenTimelineIO-0.17.0-cp312-cp312-win32.whl", hash = "sha256:9872ab74a20bb2bb3a50af04e80fe9238998d67d6be4e30e45aebe25d3eefac6"},
-    {file = "OpenTimelineIO-0.17.0-cp312-cp312-win_amd64.whl", hash = "sha256:c83b78be3312d3152d7e07ab32b0086fe220acc2a5b035b70ad69a787c0ece62"},
-    {file = "OpenTimelineIO-0.17.0-cp37-cp37m-macosx_10_14_x86_64.whl", hash = "sha256:0e671a6f2a1f772445bb326c7640dc977cfc3db589fe108a783a0311939cfac8"},
-    {file = "OpenTimelineIO-0.17.0-cp37-cp37m-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:b931a3189b4ce064f06f15a89fe08ef4de01f7dcf0abc441fe2e02ef2a3311bb"},
-    {file = "OpenTimelineIO-0.17.0-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:923cb54d806c981cf1e91916c3e57fba5664c22f37763dd012bad5a5a7bd4db4"},
-    {file = "OpenTimelineIO-0.17.0-cp37-cp37m-win32.whl", hash = "sha256:8e16598c5084dcb21df3d83978b0e5f72300af9edd4cdcb85e3b0ba5da0df4e8"},
-    {file = "OpenTimelineIO-0.17.0-cp37-cp37m-win_amd64.whl", hash = "sha256:7eed5033494888fb3f802af50e60559e279b2f398802748872903c2f54efd2c9"},
-    {file = "OpenTimelineIO-0.17.0-cp38-cp38-macosx_10_14_x86_64.whl", hash = "sha256:118baa22b9227da5003bee653601a68686ae2823682dcd7d13c88178c63081c3"},
-    {file = "OpenTimelineIO-0.17.0-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:43389eacdee2169de454e1c79ecfea82f54a9e73b67151427a9b621349a22b7f"},
-    {file = "OpenTimelineIO-0.17.0-cp38-cp38-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:17659b1e6aa42ed617a942f7a2bfc6ecc375d0464ec127ce9edf896278ecaee9"},
-    {file = "OpenTimelineIO-0.17.0-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:36d5ea8cfbebf3c9013cc680eef5be48bffb515aafa9dc31e99bf66052a4ca3d"},
-    {file = "OpenTimelineIO-0.17.0-cp38-cp38-win32.whl", hash = "sha256:cc67c74eb4b73bc0f7d135d3ff3dbbd86b2d451a9b142690a8d1631ad79c46f2"},
-    {file = "OpenTimelineIO-0.17.0-cp38-cp38-win_amd64.whl", hash = "sha256:69b39079bee6fa4aff34c6ad6544df394bc7388483fa5ce958ecd16e243a53ad"},
-    {file = "OpenTimelineIO-0.17.0-cp39-cp39-macosx_10_14_x86_64.whl", hash = "sha256:a33554894dea17c22feec0201991e705c2c90a679ba2a012a0c558a7130df711"},
-    {file = "OpenTimelineIO-0.17.0-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:6b1ad3b3155370245b851b2f7b60006b2ebbb5bb76dd0fdc49bb4dce73fa7d96"},
-    {file = "OpenTimelineIO-0.17.0-cp39-cp39-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:030454a9c0e9e82e5a153119f9afb8f3f4e64a3b27f80ac0dcde44b029fd3f3f"},
-    {file = "OpenTimelineIO-0.17.0-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:bce64376a28919533bd4f744ff8885118abefa73f78fd408f95fa7a9489855b6"},
-    {file = "OpenTimelineIO-0.17.0-cp39-cp39-win32.whl", hash = "sha256:fa8cdceb25f9003c3c0b5b32baef2c764949d88b867161ddc6f44f48f6bbfa4a"},
-    {file = "OpenTimelineIO-0.17.0-cp39-cp39-win_amd64.whl", hash = "sha256:fbcf8a000cd688633c8dc5d22e91912013c67c674329eba603358e3b54da32bf"},
-    {file = "opentimelineio-0.17.0.tar.gz", hash = "sha256:10ef324e710457e9977387cd9ef91eb24a9837bfb370aec3330f9c0f146cea85"},
+    {file = "opentimelineio-0.18.1-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:fd8df249657e21142a46ebec534b8a9b2dfd30ce8626fab78ff636626b4e9164"},
+    {file = "opentimelineio-0.18.1-cp310-cp310-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:e5b990fc2379abd77f850beadad3596aea15628c149711c240b2f403f9c2b6e5"},
+    {file = "opentimelineio-0.18.1-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:314f016f6821af70512d65393de6c0f96929bb5f0c3dbc74a282a8652dc6fd70"},
+    {file = "opentimelineio-0.18.1-cp310-cp310-win_amd64.whl", hash = "sha256:991496f95f20e067184dea7e0312a80d5875835cdc5a6bd2c85f466344f9498b"},
+    {file = "opentimelineio-0.18.1-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:caaca67b737e567a5ebeed3a6149324cd7aefa769a979936e6af7b9c51392cff"},
+    {file = "opentimelineio-0.18.1-cp311-cp311-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:b90df7b0fa9c67c9619114a1288861410b4d984e071fb63f524730199aa41f40"},
+    {file = "opentimelineio-0.18.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:e45fe3164c6e559e660b7e1cce6c87ef0b5d634743114823c6e1fb5f56f8601e"},
+    {file = "opentimelineio-0.18.1-cp311-cp311-win_amd64.whl", hash = "sha256:c21df4cbda8f0ffae28c43889585fc40fe3533c82e34b22a32b364491145712f"},
+    {file = "opentimelineio-0.18.1-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:1798102411fdd7fdace2441925f910b6daa71ca67c29cd523702a5a19e4e1ded"},
+    {file = "opentimelineio-0.18.1-cp312-cp312-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:8ba406c33afc15de91273a06df8b45ecee2a15fa11005be9e2b307f8f53ead8f"},
+    {file = "opentimelineio-0.18.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:8f0924f818b496cf771612d489082bdb83f42b6bd97ed06589dd2e2c086742c9"},
+    {file = "opentimelineio-0.18.1-cp312-cp312-win_amd64.whl", hash = "sha256:f59a24d0be0b1efd70657214c5ef193ee37f5b88948ad603c31218fd910bdd36"},
+    {file = "opentimelineio-0.18.1-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:ae5677b6864bd48879f77d2b5fe141a7674664b9f43c87b3e0b6d3c49b5f62a9"},
+    {file = "opentimelineio-0.18.1-cp313-cp313-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:142235d2e9e57976be360f093a77e226698830d435a8ca63ddf0e73ee84c5e95"},
+    {file = "opentimelineio-0.18.1-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:8740c18d2778d64d2128c3cb805cf381a71164ec8f7ff6b38477b60471ebe1a1"},
+    {file = "opentimelineio-0.18.1-cp313-cp313-win_amd64.whl", hash = "sha256:af19134bf9cb2f3dd86b15004e0ca9a22c22d6e58a14465d4e5aeeb8329154ea"},
+    {file = "opentimelineio-0.18.1-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:98f209adaa58f308dacf345a2b61a4312fd5960c3ae1511c2a75f3f8e97aef95"},
+    {file = "opentimelineio-0.18.1-cp39-cp39-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:d9405f734502faf2f00ea5ef56602927ddd42bdf5fe9f42d196f05964bbde427"},
+    {file = "opentimelineio-0.18.1-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:f7398d8e4532f5a75f2030bcc662ac42b03145b1256e122e495f9a984028356b"},
+    {file = "opentimelineio-0.18.1-cp39-cp39-win_amd64.whl", hash = "sha256:07aadc9262b98d0b5584bb3da530eabec753a2bde40fec257267064c19235f8f"},
+    {file = "opentimelineio-0.18.1.tar.gz", hash = "sha256:a4e5086e2accd4ca9853ab48bf531e0c148eff47889363a6da3a03f662fbf5e8"},
 ]
 
 [package.extras]
 dev = ["check-manifest", "coverage (>=4.5)", "flake8 (>=3.5)", "urllib3 (>=1.24.3)"]
-view = ["PySide2 (>=5.11,<6.0) ; platform_machine == \"x86_64\"", "PySide6 (>=6.2,<7.0) ; platform_machine == \"aarch64\""]
 
 [[package]]
 name = "packaging"
-version = "25.0"
+version = "26.0"
 description = "Core utilities for Python packages"
 optional = false
 python-versions = ">=3.8"
 groups = ["documentation"]
 files = [
-    {file = "packaging-25.0-py3-none-any.whl", hash = "sha256:29572ef2b1f17581046b3a2227d5c611fb25ec70ca1ba8554b24b0e69331a484"},
-    {file = "packaging-25.0.tar.gz", hash = "sha256:d443872c98d677bf60f6a1f2f8c1cb748e8fe762d2bf9d3148b5599295b0fc4f"},
+    {file = "packaging-26.0-py3-none-any.whl", hash = "sha256:b36f1fef9334a5588b4166f8bcd26a14e521f2b55e6b9de3aaa80d3ff7a37529"},
+    {file = "packaging-26.0.tar.gz", hash = "sha256:00243ae351a257117b6a241061796684b084ed1c516a08c48a3f7e147a9d80b4"},
 ]
 
 [[package]]
@@ -587,20 +571,15 @@ six = "*"
 
 [[package]]
 name = "platformdirs"
-version = "4.5.0"
+version = "4.9.2"
 description = "A small Python package for determining appropriate platform-specific dirs, e.g. a `user data dir`."
 optional = false
 python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "platformdirs-4.5.0-py3-none-any.whl", hash = "sha256:e578a81bb873cbb89a41fcc904c7ef523cc18284b7e3b3ccf06aca1403b7ebd3"},
-    {file = "platformdirs-4.5.0.tar.gz", hash = "sha256:70ddccdd7c99fc5942e9fc25636a8b34d04c24b335100223152c2803e4063312"},
+    {file = "platformdirs-4.9.2-py3-none-any.whl", hash = "sha256:9170634f126f8efdae22fb58ae8a0eaa86f38365bc57897a6c4f781d1f5875bd"},
+    {file = "platformdirs-4.9.2.tar.gz", hash = "sha256:9a33809944b9db043ad67ca0db94b14bf452cc6aeaac46a88ea55b26e2e9d291"},
 ]
-
-[package.extras]
-docs = ["furo (>=2025.9.25)", "proselint (>=0.14)", "sphinx (>=8.2.3)", "sphinx-autodoc-typehints (>=3.2)"]
-test = ["appdirs (==1.4.4)", "covdefaults (>=2.3)", "pytest (>=8.4.2)", "pytest-cov (>=7)", "pytest-mock (>=3.15.1)"]
-type = ["mypy (>=1.18.2)"]
 
 [[package]]
 name = "pygments"
@@ -684,24 +663,24 @@ use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
 
 [[package]]
 name = "setuptools"
-version = "80.9.0"
+version = "82.0.0"
 description = "Easily download, build, install, upgrade, and uninstall Python packages"
 optional = false
 python-versions = ">=3.9"
 groups = ["documentation"]
 files = [
-    {file = "setuptools-80.9.0-py3-none-any.whl", hash = "sha256:062d34222ad13e0cc312a4c02d73f059e86a4acbfbdea8f8f76b28c99f306922"},
-    {file = "setuptools-80.9.0.tar.gz", hash = "sha256:f36b47402ecde768dbfafc46e8e4207b4360c654f1f3bb84475f0a28628fb19c"},
+    {file = "setuptools-82.0.0-py3-none-any.whl", hash = "sha256:70b18734b607bd1da571d097d236cfcfacaf01de45717d59e6e04b96877532e0"},
+    {file = "setuptools-82.0.0.tar.gz", hash = "sha256:22e0a2d69474c6ae4feb01951cb69d515ed23728cf96d05513d36e42b62b37cb"},
 ]
 
 [package.extras]
-check = ["pytest-checkdocs (>=2.4)", "pytest-ruff (>=0.2.1) ; sys_platform != \"cygwin\"", "ruff (>=0.8.0) ; sys_platform != \"cygwin\""]
+check = ["pytest-checkdocs (>=2.4)", "pytest-ruff (>=0.2.1) ; sys_platform != \"cygwin\"", "ruff (>=0.13.0) ; sys_platform != \"cygwin\""]
 core = ["importlib_metadata (>=6) ; python_version < \"3.10\"", "jaraco.functools (>=4)", "jaraco.text (>=3.7)", "more_itertools", "more_itertools (>=8.8)", "packaging (>=24.2)", "platformdirs (>=4.2.2)", "tomli (>=2.0.1) ; python_version < \"3.11\"", "wheel (>=0.43.0)"]
 cover = ["pytest-cov"]
 doc = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "pygments-github-lexers (==0.0.5)", "pyproject-hooks (!=1.1)", "rst.linker (>=1.9)", "sphinx (>=3.5)", "sphinx-favicon", "sphinx-inline-tabs", "sphinx-lint", "sphinx-notfound-page (>=1,<2)", "sphinx-reredirects", "sphinxcontrib-towncrier", "towncrier (<24.7)"]
 enabler = ["pytest-enabler (>=2.2)"]
 test = ["build[virtualenv] (>=1.0.3)", "filelock (>=3.4.0)", "ini2toml[lite] (>=0.14)", "jaraco.develop (>=7.21) ; python_version >= \"3.9\" and sys_platform != \"cygwin\"", "jaraco.envs (>=2.2)", "jaraco.path (>=3.7.2)", "jaraco.test (>=5.5)", "packaging (>=24.2)", "pip (>=19.1)", "pyproject-hooks (!=1.1)", "pytest (>=6,!=8.1.*)", "pytest-home (>=0.5)", "pytest-perf ; sys_platform != \"cygwin\"", "pytest-subprocess", "pytest-timeout", "pytest-xdist (>=3)", "tomli-w (>=1.0.0)", "virtualenv (>=13.0.0)", "wheel (>=0.44.0)"]
-type = ["importlib_metadata (>=7.0.2) ; python_version < \"3.10\"", "jaraco.develop (>=7.21) ; sys_platform != \"cygwin\"", "mypy (==1.14.*)", "pytest-mypy"]
+type = ["importlib_metadata (>=7.0.2) ; python_version < \"3.10\"", "jaraco.develop (>=7.21) ; sys_platform != \"cygwin\"", "mypy (==1.18.*)", "pytest-mypy"]
 
 [[package]]
 name = "six"
@@ -897,21 +876,21 @@ files = [
 
 [[package]]
 name = "urllib3"
-version = "2.5.0"
+version = "2.6.3"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
 optional = false
 python-versions = ">=3.9"
 groups = ["main", "documentation"]
 files = [
-    {file = "urllib3-2.5.0-py3-none-any.whl", hash = "sha256:e6b01673c0fa6a13e374b50871808eb3bf7046c4b125b216f6bf1cc604cff0dc"},
-    {file = "urllib3-2.5.0.tar.gz", hash = "sha256:3fc47733c7e419d4bc3f6b3dc2b4f890bb743906a30d56ba4a5bfa4bbff92760"},
+    {file = "urllib3-2.6.3-py3-none-any.whl", hash = "sha256:bf272323e553dfb2e87d9bfd225ca7b0f467b919d7bbd355436d3fd37cb0acd4"},
+    {file = "urllib3-2.6.3.tar.gz", hash = "sha256:1b62b6884944a57dbe321509ab94fd4d3b307075e0c2eae991ac71ee15ad38ed"},
 ]
 
 [package.extras]
-brotli = ["brotli (>=1.0.9) ; platform_python_implementation == \"CPython\"", "brotlicffi (>=0.8.0) ; platform_python_implementation != \"CPython\""]
+brotli = ["brotli (>=1.2.0) ; platform_python_implementation == \"CPython\"", "brotlicffi (>=1.2.0.0) ; platform_python_implementation != \"CPython\""]
 h2 = ["h2 (>=4,<5)"]
 socks = ["pysocks (>=1.5.6,!=1.5.7,<2.0)"]
-zstd = ["zstandard (>=0.18.0)"]
+zstd = ["backports-zstd (>=1.0.0) ; python_version < \"3.14\""]
 
 [[package]]
 name = "websocket-client"
