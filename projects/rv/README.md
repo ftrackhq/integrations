@@ -69,3 +69,4 @@ to build the plugin.
 ```
 
 The Connect plugin will be output to the dist/ folder.
+
