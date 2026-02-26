@@ -1,7 +1,7 @@
 # ftrack Nuke Studio integration release Notes
 
-## v25.11.0rc1
-2025-11-10
+## v26.2.0
+2026-02-26
 
 * [fix] Support Nuke Studio 16
 * [fix] Re-enable Hiero launcher
