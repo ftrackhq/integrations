@@ -3,7 +3,10 @@
 
 import logging
 
-from Qt import QtGui
+try:
+    from PySide2 import QtWidgets, QtCore, QtGui
+except:
+    from PySide6 import QtWidgets, QtCore, QtGui
 
 import hiero
 from ftrack_nuke_studio.session import get_shared_session
@@ -23,35 +26,35 @@ except ImportError:
 
 
 def register_versioning_overrides():
-    '''Register overrides for VersionScanner object.'''
-    logger.debug('register_versioning_overrides')
+    """Register overrides for VersionScanner object."""
+    logger.debug("register_versioning_overrides")
 
     # We want to redefine some of the methods of VersionScanner,
     # but may still need to use the default functionality within our custom methods.
     # Therefore, we need to save a reference to the default methods, and then we will be able to call them from ours.
-    if not hasattr(VersionScanner, '_default_findVersionFiles'):
+    if not hasattr(VersionScanner, "_default_findVersionFiles"):
         VersionScanner._default_findVersionFiles = (
             VersionScanner.findVersionFiles
         )
         VersionScanner.findVersionFiles = ftrack_find_version_files
 
-    if not hasattr(VersionScanner, '_default_filterVersion'):
+    if not hasattr(VersionScanner, "_default_filterVersion"):
         VersionScanner._default_filterVersion = VersionScanner.filterVersion
         VersionScanner.filterVersion = ftrack_filter_version
 
     # Conditional depending on nuke studio / hiero version
     if hiero_version_tuple < (11, 3, 0):
         # < 11.3vX
-        if not hasattr(VersionScanner, '_default_insertClips'):
+        if not hasattr(VersionScanner, "_default_insertClips"):
             VersionScanner._default_insertClips = VersionScanner.insertClips
             VersionScanner.insertClips = ftrack_insert_clips
 
-        if not hasattr(VersionScanner, '_default_createClip'):
+        if not hasattr(VersionScanner, "_default_createClip"):
             VersionScanner._default_createClip = VersionScanner.createClip
             VersionScanner.createClip = ftrack_create_clip
     else:
         # > 11.2vX
-        if not hasattr(VersionScanner, '_default_createAndInsertClipVersion'):
+        if not hasattr(VersionScanner, "_default_createAndInsertClipVersion"):
             VersionScanner._default_createAndInsertClipVersion = (
                 VersionScanner.createAndInsertClipVersion
             )
@@ -61,31 +64,31 @@ def register_versioning_overrides():
 
     VersionScanner._ftrack_component_reference = []
     hiero.core.events.registerInterest(
-        'kShowContextMenu/kTimeline', customise_menu
+        "kShowContextMenu/kTimeline", customise_menu
     )
 
 
 def customise_menu(event):
-    '''Set ftrack icon looking in menu from given *event*.'''
+    """Set ftrack icon looking in menu from given *event*."""
     actions = event.menu.actions()
     for action in actions:
-        if action.text() in ['Version', 'Export...']:
+        if action.text() in ["Version", "Export..."]:
             action.setIcon(
-                QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor')
+                QtGui.QPixmap(":ftrack/image/default/ftrackLogoColor")
             )
 
 
 def add_ftrack_build_tag(clip, component):
-    '''Add custom ftrack tag and enforce *clip* name from *component*.'''
-    version = component['version']
+    """Add custom ftrack tag and enforce *clip* name from *component*."""
+    version = component["version"]
 
     existingTag = None
     for tag in clip.tags():
         if (
-            tag.metadata().hasKey('tag.provider')
-            and tag.metadata()['tag.provider'] == 'ftrack'
-            and tag.metadata().hasKey('tag.component_name')
-            and tag.metadata()['tag.component_name'] == component['name']
+            tag.metadata().hasKey("tag.provider")
+            and tag.metadata()["tag.provider"] == "ftrack"
+            and tag.metadata().hasKey("tag.component_name")
+            and tag.metadata()["tag.component_name"] == component["name"]
         ):
             existingTag = tag
             break
@@ -94,32 +97,32 @@ def add_ftrack_build_tag(clip, component):
         return
 
     tag = hiero.core.Tag(
-        'ftrack-reference-{0}'.format(component['name']),
-        ':ftrack/image/default/ftrackLogoColor',
+        "ftrack-reference-{0}".format(component["name"]),
+        ":ftrack/image/default/ftrackLogoColor",
         False,
     )
-    tag.metadata().setValue('tag.provider', 'ftrack')
-    tag.metadata().setValue('tag.component_id', component['id'])
-    tag.metadata().setValue('tag.version_id', version['id'])
-    tag.metadata().setValue('tag.version_number', str(version['version']))
-    tag.metadata().setValue('tag.component_name', str(component['name']))
+    tag.metadata().setValue("tag.provider", "ftrack")
+    tag.metadata().setValue("tag.component_id", component["id"])
+    tag.metadata().setValue("tag.version_id", version["id"])
+    tag.metadata().setValue("tag.version_number", str(version["version"]))
+    tag.metadata().setValue("tag.component_name", str(component["name"]))
 
     # tag.setVisible(False)
     clip.addTag(tag)
-    clip_name = '{}_v{:03}'.format(
-        component['name'], component['version']['version']
+    clip_name = "{}_v{:03}".format(
+        component["name"], component["version"]["version"]
     )
     clip.setName(clip_name)
 
 
 # Utility functions
 def get_ftrack_tag(clip):
-    '''Return ftrack tag if present in given *clip*.'''
+    """Return ftrack tag if present in given *clip*."""
     existing_tag = None
     for tag in clip.tags():
         if (
-            tag.metadata().hasKey('tag.provider')
-            and tag.metadata()['tag.provider'] == 'ftrack'
+            tag.metadata().hasKey("tag.provider")
+            and tag.metadata()["tag.provider"] == "ftrack"
         ):
             existing_tag = tag
             break
@@ -130,10 +133,10 @@ def get_ftrack_tag(clip):
 
 
 def add_clip_as_version(clip, bin_item, ftrack_component_reference):
-    '''Return a new version from *clip* correctly inserted in *bin_item* through *ftrack_component_reference* lookup.'''
+    """Return a new version from *clip* correctly inserted in *bin_item* through *ftrack_component_reference* lookup."""
     has_tag = get_ftrack_tag(clip)
-    component_id = has_tag.metadata()['component_id']
-    component = session.get('Component', component_id)
+    component_id = has_tag.metadata()["component_id"]
+    component = session.get("Component", component_id)
     version_index = ftrack_component_reference.index(component)
     target_bin_index = -1
 
@@ -141,8 +144,8 @@ def add_clip_as_version(clip, bin_item, ftrack_component_reference):
     for version in bin_item.items():
         bin_clip = version.item()
         bin_clip_has_tag = get_ftrack_tag(bin_clip)
-        bin_clip_component_id = bin_clip_has_tag.metadata()['component_id']
-        bin_clip_component = session.get('Component', bin_clip_component_id)
+        bin_clip_component_id = bin_clip_has_tag.metadata()["component_id"]
+        bin_clip_component = session.get("Component", bin_clip_component_id)
         bin_clip_index = ftrack_component_reference.index(bin_clip_component)
         set_version_index = bin_clip_index >= version_index
         try:
@@ -160,25 +163,25 @@ def add_clip_as_version(clip, bin_item, ftrack_component_reference):
 
 # Overrides
 def ftrack_find_version_files(scanner_instance, version):
-    '''Return paths for given *version*.'''
+    """Return paths for given *version*."""
     clip = version.item()
     ftrack_tag = get_ftrack_tag(clip)
 
     if not ftrack_tag:
         return scanner_instance._default_findVersionFiles(version)
 
-    component_id = ftrack_tag.metadata()['component_id']
-    component = session.get('Component', component_id)
-    component_name = component['name']
-    asset = component['version']['asset']
+    component_id = ftrack_tag.metadata()["component_id"]
+    component = session.get("Component", component_id)
+    component_name = component["name"]
+    asset = component["version"]["asset"]
 
     unsorted_components = session.query(
-        'select name, version.version from Component where version.asset.id is {} and name is {}'.format(
-            asset['id'], component_name
+        "select name, version.version from Component where version.asset.id is {} and name is {}".format(
+            asset["id"], component_name
         )
     ).all()
     sorted_components = sorted(
-        unsorted_components, key=lambda k: int(k['version']['version'])
+        unsorted_components, key=lambda k: int(k["version"]["version"])
     )
 
     # set paths to an array of dimension of max version
@@ -202,7 +205,7 @@ def ftrack_find_version_files(scanner_instance, version):
 
 
 def ftrack_filter_version(scanner_instance, bin_item, new_version_file):
-    '''Return whether the given *new_version_file* already exist in *bin_item*.'''
+    """Return whether the given *new_version_file* already exist in *bin_item*."""
     # We have to see if anything else in the bin has this ref
     bin_ftrack_tag = get_ftrack_tag(
         bin_item.items()[0].item()
@@ -216,15 +219,15 @@ def ftrack_filter_version(scanner_instance, bin_item, new_version_file):
         item = version.item()
         ftrack_tag = get_ftrack_tag(item)
         if ftrack_tag:
-            component_id = ftrack_tag.metadata()['component_id']
-            if component_id == new_version_file['id']:
+            component_id = ftrack_tag.metadata()["component_id"]
+            if component_id == new_version_file["id"]:
                 return False
 
     return True
 
 
 def ftrack_create_clip(scanner_instance, new_filename):
-    '''Return a new clip from *new_filename* through lookup.'''
+    """Return a new clip from *new_filename* through lookup."""
     if new_filename in scanner_instance._ftrack_component_reference:
         is_available = session.pick_location(new_filename)
         if not is_available:
@@ -241,7 +244,7 @@ def ftrack_create_clip(scanner_instance, new_filename):
 
 
 def ftrack_insert_clips(scanner_instance, bin_item, clips):
-    '''Return versions created in *bin_item* from *clips*.'''
+    """Return versions created in *bin_item* from *clips*."""
     entities = []
     non_entities = []
     new_versions = []

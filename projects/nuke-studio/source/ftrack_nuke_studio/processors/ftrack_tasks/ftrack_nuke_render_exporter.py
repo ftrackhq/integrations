@@ -25,7 +25,7 @@ from ftrack_nuke_studio.processors.ftrack_base.ftrack_base_processor import (
 )
 
 
-class FtrackNukeRenderExporter(TranscodeExporter, FtrackProcessor):
+class FtrackNukeRenderExporter(FtrackProcessor, TranscodeExporter):
     '''NukeRender Task exporter.'''
 
     @report_exception
@@ -77,7 +77,7 @@ class FtrackNukeRenderExporter(TranscodeExporter, FtrackProcessor):
         pass
 
 
-class FtrackNukeRenderExporterPreset(TranscodePreset, FtrackProcessorPreset):
+class FtrackNukeRenderExporterPreset(FtrackProcessorPreset, TranscodePreset):
     '''NukeRender Task preset.'''
 
     @report_exception
@@ -136,7 +136,7 @@ class FtrackNukeRenderExporterPreset(TranscodePreset, FtrackProcessorPreset):
         )
 
 
-class FtrackNukeRenderExporterUI(TranscodeExporterUI, FtrackProcessorUI):
+class FtrackNukeRenderExporterUI(FtrackProcessorUI, TranscodeExporterUI):
     '''NukeRender Task Ui.'''
 
     @report_exception

@@ -7,7 +7,11 @@ from hiero.exporters.FnTimelineProcessor import TimelineProcessorPreset
 from hiero.exporters.FnTimelineProcessorUI import TimelineProcessorUI
 from ftrack_nuke_studio.config import report_exception
 
-from Qt import QtWidgets
+try:
+    from PySide2 import QtWidgets
+except:
+    from PySide6 import QtWidgets
+
 
 from ftrack_nuke_studio.processors.ftrack_base.ftrack_base_processor import (
     FtrackProcessorPreset,
@@ -16,7 +20,7 @@ from ftrack_nuke_studio.processors.ftrack_base.ftrack_base_processor import (
 )
 
 
-class FtrackTimelineProcessor(TimelineProcessor, FtrackProcessor):
+class FtrackTimelineProcessor(FtrackProcessor, TimelineProcessor):
     '''Ftrack timeline processor.'''
 
     @report_exception
@@ -38,7 +42,7 @@ class FtrackTimelineProcessor(TimelineProcessor, FtrackProcessor):
         return TimelineProcessor.startProcessing(self, exportItems, preview)
 
 
-class FtrackTimelineProcessorUI(TimelineProcessorUI, FtrackProcessorUI):
+class FtrackTimelineProcessorUI(FtrackProcessorUI, TimelineProcessorUI):
     '''Ftrack timeline processor Ui.'''
 
     @report_exception
@@ -91,7 +95,7 @@ class FtrackTimelineProcessorUI(TimelineProcessorUI, FtrackProcessorUI):
 
 
 class FtrackTimelineProcessorPreset(
-    TimelineProcessorPreset, FtrackProcessorPreset
+    FtrackProcessorPreset, TimelineProcessorPreset
 ):
     '''Ftrack timeline processor preset.'''
 

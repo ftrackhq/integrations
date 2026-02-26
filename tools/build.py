@@ -989,6 +989,26 @@ def build_package(invokation_path, pkg_path, args, command=None):
 
         rvpkg_staging = os.path.join(tempfile.mkdtemp(), 'rvpkg')
 
+        # BUILD DEPENDENCIES ZIP
+        subprocess.check_call(
+            [
+                sys.executable,
+                '-m',
+                'pip',
+                'install',
+                '.',
+                '--target',
+                os.path.join(rvpkg_staging, 'dependencies'),
+            ]
+        )
+        shutil.make_archive(
+            os.path.join(rvpkg_staging, 'dependencies'),
+            'zip',
+            os.path.join(rvpkg_staging, 'dependencies'),
+        )
+        shutil.rmtree(os.path.join(rvpkg_staging, 'dependencies'))
+        # END BUILD DEPENDENCIES ZIP
+
         source_path = os.path.join(ROOT_PATH, 'resource', 'plugin')
 
         # Copy plugin files

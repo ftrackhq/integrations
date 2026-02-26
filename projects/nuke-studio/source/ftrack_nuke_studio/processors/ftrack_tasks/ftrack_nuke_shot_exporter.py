@@ -17,7 +17,7 @@ from ftrack_nuke_studio.processors.ftrack_base.ftrack_base_processor import (
 )
 
 
-class FtrackNukeShotExporter(NukeShotExporter, FtrackProcessor):
+class FtrackNukeShotExporter(FtrackProcessor, NukeShotExporter):
     '''Shot Task exporter.'''
 
     @report_exception
@@ -96,7 +96,7 @@ class FtrackNukeShotExporter(NukeShotExporter, FtrackProcessor):
         pass
 
 
-class FtrackNukeShotExporterPreset(NukeShotPreset, FtrackProcessorPreset):
+class FtrackNukeShotExporterPreset(FtrackProcessorPreset, NukeShotPreset):
     '''Shot Task preset.'''
 
     @report_exception
@@ -159,7 +159,7 @@ class FtrackNukeShotExporterPreset(NukeShotPreset, FtrackProcessorPreset):
         )
 
 
-class FtrackNukeShotExporterUI(NukeShotExporterUI, FtrackProcessorUI):
+class FtrackNukeShotExporterUI(FtrackProcessorUI, NukeShotExporterUI):
     '''Shot Task Ui.'''
 
     @report_exception

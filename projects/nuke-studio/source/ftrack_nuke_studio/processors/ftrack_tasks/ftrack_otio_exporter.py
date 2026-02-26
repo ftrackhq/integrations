@@ -89,7 +89,7 @@ class OTIOExportTrackTask(EDLExportTrackTask):
         return self._trackItemIndex < len(self._trackItems)
 
 
-class FtrackOTIOExporter(EDLExportTask, FtrackProcessor):
+class FtrackOTIOExporter(FtrackProcessor, EDLExportTask):
     '''EDL Task exporter.'''
 
     @report_exception
@@ -162,7 +162,7 @@ class FtrackOTIOExporter(EDLExportTask, FtrackProcessor):
         return exportPath
 
 
-class FtrackOTIOExporterPreset(EDLExportPreset, FtrackProcessorPreset):
+class FtrackOTIOExporterPreset(FtrackProcessorPreset, EDLExportPreset):
     '''EDL Task preset.'''
 
     def supportsAudio(self):
@@ -214,7 +214,7 @@ class FtrackOTIOExporterPreset(EDLExportPreset, FtrackProcessorPreset):
         )
 
 
-class FtrackOTIOExporterUI(EDLExportUI, FtrackProcessorUI):
+class FtrackOTIOExporterUI(FtrackProcessorUI, EDLExportUI):
     '''EDL Task Ui.'''
 
     @report_exception

@@ -1,25 +1,28 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 
-from Qt import QtWidgets, QtCore, QtGui
+try:
+    from PySide2 import QtWidgets, QtCore, QtGui
+except:
+    from PySide6 import QtWidgets, QtCore, QtGui
 
 
 class HtmlDelegate(QtWidgets.QStyledItemDelegate):
-    '''Delegate to render HTML.'''
+    """Delegate to render HTML."""
 
     def __init__(self, formatter, *args, **kwargs):
-        '''Initialise delegate with HTML *formatter*.
+        """Initialise delegate with HTML *formatter*.
 
         *formatter* should be a callable that accepts item data and returns a
         string of HTML to render entry with.
 
-        '''
+        """
         self.format = formatter
 
         super(HtmlDelegate, self).__init__(*args, **kwargs)
 
     def getTextDocument(self, option, item_data):
-        '''Return QTextDocument based on *option* and *item_data*.'''
+        """Return QTextDocument based on *option* and *item_data*."""
         document = QtGui.QTextDocument()
         document.setHtml(self.format(item_data))
         document.setTextWidth(option.rect.width())
@@ -27,7 +30,7 @@ class HtmlDelegate(QtWidgets.QStyledItemDelegate):
         return document
 
     def paint(self, painter, option, index):
-        '''Paint delegate using *painter*.'''
+        """Paint delegate using *painter*."""
         options = QtWidgets.QStyleOptionViewItem(option)
         self.initStyleOption(options, index)
 
@@ -41,7 +44,7 @@ class HtmlDelegate(QtWidgets.QStyledItemDelegate):
         document = self.getTextDocument(option, data)
 
         # Ensure no text label rendered.
-        options.text = ''
+        options.text = ""
 
         # Draw the element with the provided painter with the style
         # options specified by option
@@ -75,7 +78,7 @@ class HtmlDelegate(QtWidgets.QStyledItemDelegate):
         painter.restore()
 
     def sizeHint(self, option, index):
-        '''Return preferred size hint.'''
+        """Return preferred size hint."""
         options = QtWidgets.QStyleOptionViewItem(option)
         self.initStyleOption(options, index)
 

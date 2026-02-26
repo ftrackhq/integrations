@@ -18,7 +18,7 @@ from ftrack_nuke_studio.processors.ftrack_base.ftrack_base_processor import (
 )
 
 
-class FtrackCopyExporter(CopyExporter, FtrackProcessor):
+class FtrackCopyExporter(FtrackProcessor, CopyExporter):
     @report_exception
     def __init__(self, init_dict):
         CopyExporter.__init__(self, init_dict)
@@ -62,7 +62,7 @@ class FtrackCopyExporter(CopyExporter, FtrackProcessor):
         self._tryCopy(src, dst)
 
 
-class FtrackCopyExporterPreset(CopyPreset, FtrackProcessorPreset):
+class FtrackCopyExporterPreset(FtrackProcessorPreset, CopyPreset):
     @report_exception
     def __init__(self, name, properties):
         CopyPreset.__init__(self, name, properties)
@@ -124,7 +124,7 @@ class FtrackCopyExporterPreset(CopyPreset, FtrackProcessorPreset):
         )
 
 
-class FtrackCopyExporterUI(CopyExporterUI, FtrackProcessorUI):
+class FtrackCopyExporterUI(FtrackProcessorUI, CopyExporterUI):
     def __init__(self, preset):
         CopyExporterUI.__init__(self, preset)
         FtrackProcessorUI.__init__(self, preset)

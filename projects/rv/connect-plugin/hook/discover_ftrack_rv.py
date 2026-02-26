@@ -9,7 +9,7 @@ import ftrack_api
 from ftrack_utils.version import get_connect_plugin_version
 
 NAME = 'ftrack-rv'
-''' The name of the integration, should match name in bootstrap and launcher '''
+""" The name of the integration, should match name in bootstrap and launcher """
 
 logger = logging.getLogger(__name__)
 
@@ -38,12 +38,12 @@ def on_launch_rv_integration(session, event):
 
 
 def get_version_information(event):
-    '''Return version information for ftrack connect installer.'''
+    """Return version information for ftrack connect installer."""
     return [dict(name=NAME, version=__version__)]
 
 
 def register(session):
-    '''Subscribe to application launch events on *registry*.'''
+    """Subscribe to application launch events on *registry*."""
     if not isinstance(session, ftrack_api.session.Session):
         return
 

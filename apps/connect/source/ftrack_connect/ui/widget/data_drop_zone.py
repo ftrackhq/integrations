@@ -210,7 +210,7 @@ class DataDropZone(QtWidgets.QFrame):
         # frame sequences.
         framesPattern = clique.PATTERNS.get('frames')
         sequences, remainders = clique.assemble(
-            paths, patterns=[framesPattern]
+            paths, patterns=[framesPattern], assume_padded_when_ambiguous=True
         )
 
         self.log.debug(u'Sequences: {0}'.format(sequences))

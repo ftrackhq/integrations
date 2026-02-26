@@ -8,12 +8,12 @@ import hiero.core.events
 
 
 class TagDropHandler(object):
-    kTextMimeType = 'text/plain'
+    kTextMimeType = "text/plain"
 
     def __init__(self):
-        '''Initialize the class and register the handler.'''
+        """Initialize the class and register the handler."""
         self.logger = logging.getLogger(
-            __name__ + '.' + self.__class__.__name__
+            __name__ + "." + self.__class__.__name__
         )
 
         # Nuke studio doesn't deal with drag and drop for text/plain data, so
@@ -32,11 +32,11 @@ class TagDropHandler(object):
         )
 
     def dropHandler(self, event):
-        '''Intercept the drop *event* on the timeline.
+        """Intercept the drop *event* on the timeline.
 
         Filter out any non ftrack tag.
 
-        '''
+        """
         try:
             track_item = event.trackItem
         except AttributeError:
@@ -44,15 +44,15 @@ class TagDropHandler(object):
 
         can_use_tags = all(
             [
-                hasattr(track_item, 'tags'),
-                hasattr(track_item, 'sourceIn'),
-                hasattr(track_item, 'sourceOut'),
+                hasattr(track_item, "tags"),
+                hasattr(track_item, "sourceIn"),
+                hasattr(track_item, "sourceOut"),
                 not isinstance(track_item, hiero.core.Sequence),
             ]
         )
 
         if not can_use_tags:
-            self.logger.debug('cannot use tags on {}'.format(track_item))
+            self.logger.debug("cannot use tags on {}".format(track_item))
             return
 
         dropped_tags = event.items
@@ -62,11 +62,11 @@ class TagDropHandler(object):
         # filter out duplicates.
         for existing_tag in track_item.tags():
             meta = existing_tag.metadata()
-            if meta.hasKey('type') and meta.value('type') == 'ftrack':
+            if meta.hasKey("tag.type") and meta.value("tag.type") == "ftrack":
                 existing_ftrack_tag_names.append(existing_tag.name())
 
         self.logger.debug(
-            'Existing ftrack tags names: {0}'.format(existing_ftrack_tag_names)
+            "Existing ftrack tags names: {0}".format(existing_ftrack_tag_names)
         )
 
         for tag in dropped_tags:
@@ -77,24 +77,27 @@ class TagDropHandler(object):
             # Skip adding tag if it already exists on the track item.
             if tag_name in existing_ftrack_tag_names:
                 self.logger.debug(
-                    '{0} already exists on {1}'.format(tag_name, track_item)
+                    "{0} already exists on {1}".format(tag_name, track_item)
                 )
                 event.dropEvent.accept()
                 continue
 
             # Filter out any non ftrack tags.
-            if not meta.hasKey('type') or meta.value('type') != 'ftrack':
+            if (
+                not meta.hasKey("tag.type")
+                or meta.value("tag.type") != "ftrack"
+            ):
                 self.logger.debug(
-                    '{0} is not a valid track tag type'.format(tag_name)
+                    "{0} is not a valid track tag type".format(tag_name)
                 )
                 continue
 
             if (
-                not meta.hasKey('ftrack.id')
-                or meta.value('ftrack.id') == 'show'
+                not meta.hasKey("tag.ftrack_id")
+                or meta.value("tag.ftrack_id") == "show"
             ):
                 self.logger.debug(
-                    '{0} is not a valid track tag type'.format(tag_name)
+                    "{0} is not a valid track tag type".format(tag_name)
                 )
                 event.dropEvent.accept()
                 continue
@@ -103,7 +106,7 @@ class TagDropHandler(object):
             event.dropEvent.accept()
 
     def unregister(self):
-        '''Unregister the handler.'''
+        """Unregister the handler."""
         hiero.core.events.unregisterInterest(
             (
                 hiero.core.events.EventType.kDrop,

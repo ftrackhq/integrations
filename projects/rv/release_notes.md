@@ -1,5 +1,13 @@
 # ftrack RV integration release Notes
 
+
+## v26.2
+2026-02-09
+* [changed] Replace .mu code with python
+* [fixed] RV 2025+ and OpenRV support.
+* [fixed] RvPkg not containing dependencies.zip.
+* [fixed] Test suite failing.
+
 ## v24.0
 2024-04-02
 
