@@ -1,5 +1,8 @@
 # ftrack Framework Photoshop integration release Notes
 
+## v26.2.0
+2026-02-25
+* [changed] Build; Bundle zxp plugin with integration package
 
 ## v24.11.0
 2024-11-21
