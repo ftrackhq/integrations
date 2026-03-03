@@ -155,9 +155,8 @@ jobs:
         if: ${{ needs.set-variables.outputs.package == 'nuke-studio' }}
         shell: bash
         run: |
-          cd ${{ needs.set-variables.outputs.folder }}
-          poetry run pip install -r ../../tools/requirements.txt
-          poetry run python ../../tools/build.py --remove_intermediate_folder --include_resources ../../resource/plugin,../../resource/application_hook build_connect_plugin .
+          poetry run pip install -r tools/requirements.txt
+          poetry run python tools/build.py --remove_intermediate_folder --include_resources resource/plugin,resource/application_hook build_connect_plugin ${{ needs.set-variables.outputs.folder }}
       - name: build rv connect plugin
         if: ${{ needs.set-variables.outputs.package == 'rv' }}
         shell: bash
