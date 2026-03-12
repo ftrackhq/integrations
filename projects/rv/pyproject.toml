@@ -3,16 +3,16 @@
 name = "ftrack-rv"
 # RV just accepts minor and major version
 # To match Backlight versioning we use year month patch (YY.MMP)
-version = "24.0"
+version = "26.3.0.dev0"
 description = "ftrack Connect RV integration"
 readme = "README.md"
 license = { text = "Apache-2.0" }
-requires-python = ">= 3.10, < 3.12"
+requires-python = ">= 3.13, < 3.14"
 authors = [
   { name = "ftrack Integrations Team", email = "integrations@backlight.co" }
 ]
 dependencies = [
-  "ftrack-python-api>=2.5.4, <3.0.0",
+  "ftrack-python-api>=3.1.0, <4.0.0",
 ]
 
 # 2. Project URLs
@@ -23,7 +23,7 @@ repository = "https://github.com/ftrackhq/integrations/tree/main/projects/rv"
 # 3. Optional Dependencies (replaces [tool.poetry.extras])
 [project.optional-dependencies]
 ftrack-libs = [
-  "ftrack-utils>=2.0.0, <3.0.0",
+  "ftrack-utils>=4.0.0, <5.0.0",
 ]
 dev = [
     "tomli>=2.3.0",
@@ -38,6 +38,18 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 # This tells hatch to look for the package in the 'source' directory
 packages = ["source/ftrack_rv"]
+
+[tool.uv.sources]
+ftrack-utils = { path = "../../libs/utils" }
+
+[[tool.uv.index]]
+name = "pypi"
+url = "https://pypi.org/simple"
+
+[[tool.uv.index]]
+name = "testpypi"
+url = "https://test.pypi.org/simple"
+explicit = true
 
 [tool.ruff]
 line-length = 79

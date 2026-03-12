@@ -11,11 +11,11 @@ Update release notes.
 Set or bump version in pyproject.toml:
 
 ```bash
-    poetry version minor
+    # edit [project].version in pyproject.toml
 ```
 or:
 ```bash
-    poetry version major
+    # edit [project].version in pyproject.toml
 ```
 
 Bump the connect plugin version in integrations/projects/rv/connect-plugin/__version__.py
@@ -38,17 +38,17 @@ Go to the root of the RV package within monorepo:
 ### Preparations
 
 
-Build with Poetry:
-    
+Build with uv:
+     
 ```bash
-    poetry build
+    uv build
 ```
 
 Create the RV plugin, it will read the version number from pyproject.toml:
 
 ```bash
   cd integrations
-  python tools/build.py --output_path . build_rvpkg  projects/rv
+  uv run python tools/build.py --output_path . build_rvpkg  projects/rv
 ```
 
 
@@ -56,7 +56,7 @@ Go to the root of the Monorepo and create the Connect plugin:
 
 ```bash
   cd integrations
-  python tools/build.py --include_assets ./ftrack-24.0.rvpkg  build_connect_plugin projects/rv
+  uv run python tools/build.py --include_assets ./projects/rv/ftrack-26.3.0.dev0.rvpkg  build_connect_plugin projects/rv
 ```
 
 
@@ -65,8 +65,7 @@ to build the plugin.
 
 ```bash
   cd integrations
-  python tools/build.py --testpypi --include_assets /tmp/ftrack-24.0.rvpkg build_connect_plugin projects/rv
+  uv run python tools/build.py --testpypi --include_assets /tmp/ftrack-26.3.0.dev0.rvpkg build_connect_plugin projects/rv
 ```
 
 The Connect plugin will be output to the dist/ folder.
-

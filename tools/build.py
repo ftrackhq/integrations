@@ -241,9 +241,9 @@ def build_package(invokation_path, pkg_path, args, command=None):
         wheel_path = None
         for filename in os.listdir(BUILD_PATH):
             # Expect: ftrack_connect_pipeline_qt-1.3.0a1-py3-none-any.whl
-            if not filename.endswith(".whl") or VERSION not in filename.split(
-                "-"
-            ):
+            if not filename.endswith(".whl"):
+                continue
+            if VERSION not in filename.split("-"):
                 continue
             wheel_path = os.path.join(BUILD_PATH, filename)
             break
@@ -498,11 +498,39 @@ def build_package(invokation_path, pkg_path, args, command=None):
             extra_spec = f'[{",".join(extras)}]'
 
         logging.info(f"Installing {wheel_path}{extra_spec} with dependencies")
+        requirements_path = os.path.join(STAGING_PATH, "requirements.txt")
+        export_commands = [
+            "uv",
+            "export",
+            "--project",
+            ROOT_PATH,
+            "--format",
+            "requirements.txt",
+            "--no-hashes",
+            "--output-file",
+            requirements_path,
+            "--no-emit-project",
+            "--index-strategy",
+            "unsafe-best-match",
+        ]
+        if extras:
+            for extra in extras:
+                export_commands.extend(["--extra", extra])
+
+        subprocess.check_call(export_commands)
+
         commands = [
             "uv",
             "pip",
             "install",
-            f"{wheel_path}{extra_spec}",
+            wheel_path,
+            "--no-build-isolation",
+            "--project",
+            ROOT_PATH,
+            "--index-strategy",
+            "unsafe-best-match",
+            "-r",
+            requirements_path,
             "--target",
             dependencies_path,
         ]
@@ -945,8 +973,10 @@ def build_package(invokation_path, pkg_path, args, command=None):
         # Copy plugin files
         copytree(source_path, rvpkg_staging)
 
-        # Strip off patch version from the tool: M.m rather than M.m.p
-        plugin_name = "ftrack-{0}".format(VERSION)
+        # Strip off patch/prerelease tokens: M.m
+        version_tokens = VERSION.split(".")
+        plugin_version = ".".join(version_tokens[:2])
+        plugin_name = f"ftrack-{plugin_version}"
 
         assert args.output_path, "RV pkg output path not given"
         plugin_destination_path = args.output_path
