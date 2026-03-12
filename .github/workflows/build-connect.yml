@@ -58,8 +58,7 @@ jobs:
   connect-build:
     name: Build Connect
     needs: set-variables
-    runs-on: macos-15 # Temporary setting macos-15 as OS instead of UBUNTU because python 6.6 onward has problems building resources on linux. (6.5 works but increases connect file size to double)
-    outputs:
+    runs-on: macos-15
       connect_version: ${{ steps.get_version.outputs.connect_version }}
     steps:
       - uses: actions/checkout@v3
