@@ -29,8 +29,8 @@ Build with uv:
 Build Connect plugin:
 
 ```bash
-  cd integrations
-  uv run python tools/build.py build_connect_plugin projects/connect-publisher-widget
+  cd integrations/projects/connect-publisher-widget
+  uv run python ../../tools/build.py build_connect_plugin .
 ```
 
 If the build fails and publisher widget is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 

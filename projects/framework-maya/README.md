@@ -7,31 +7,11 @@ Community owned Maya integration for ftrack.
 ### Preparations
 
 
-Install Poetry
-
-Create a Python >=3.7, <3.12 virtual environment. If you're using an Apple Silicon chip, follow the instructions in the [How to install compatible PySide2 on Silicon based Mac](../../README.md#how-to-install-compatible-pyside2-on-silicon-based-mac) section. 
-
-Activate the virtual environment. 
+Install uv and create a Python `>=3.13,<3.14` virtual environment.
 
 Update release notes.
 
-Set or bump version in pyproject.toml:
-
-```bash
-    poetry version prerelease
-```
-or:
-```bash
-    poetry version patch
-```
-or:
-```bash
-    poetry version minor
-```
-or:
-```bash
-    poetry version major
-```
+Set version in `pyproject.toml` (for this migration stream: `26.3.0.dev0`).
 
 Bump the connect plugin version in integrations/projects/framework-maya/connect-plugin/__version__.py
 
@@ -45,18 +25,18 @@ See Monorepo build CI
 
 ### Manual build
 
-Build with Poetry:
+Build with uv:
 
 ```bash
-    poetry build
+    uv build
 ```
 
 Build Connect plugin:
 
 
 ```bash
-    cd integrations
-    python tools/build.py --include_resources resource/bootstrap build_connect_plugin projects/framework-maya
+    cd integrations/projects/framework-maya
+    uv run python ../../tools/build.py --include_resources resource/bootstrap build_connect_plugin .
 ```
 
 If the build fails and Maya is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 
@@ -70,13 +50,13 @@ To build from source, not involving PyPi, use the `--from_source` flag.
 Install documentation dependencies:
 
 ```bash
-    poetry install --only documentation
+    uv sync --extra documentation
 ```
 
 Build documentation:
 
 ```bash
-    poetry run sphinx-build -b html doc dist/doc
+    uv run sphinx-build -b html doc dist/doc
 ```
 
 ## Installing
