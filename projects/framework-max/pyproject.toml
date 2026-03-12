@@ -1,51 +1,61 @@
-[tool.poetry]
+[project]
 name = "ftrack-framework-max"
-version = "24.11.0"
-description='ftrack Max integration'
-authors = ["ftrack Integrations Team <integrations@backlight.co>"]
+version = "26.3.0.dev0"
+description = "ftrack Max integration"
 readme = "README.md"
-packages = [{include = "ftrack_framework_max", from = "source"}]
-license = "Apache-2.0"
+license = { text = "Apache-2.0" }
+requires-python = ">= 3.13, < 3.14"
+authors = [
+  { name = "ftrack Integrations Team", email = "integrations@backlight.co" }
+]
+
+dependencies = [
+  "ftrack-python-api>=3.1.0, <4.0.0",
+]
+
+[project.urls]
 homepage = "https://ftrack.com"
 repository = "https://github.com/ftrackhq/integrations/tree/main/projects/framework-max"
 
-[[tool.poetry.source]]
-name = "PyPI"
-priority = "primary"
-
-[[tool.poetry.source]]
-name = "testpypi"
-url = "https://test.pypi.org/simple/"
-priority = "explicit"
+[project.optional-dependencies]
+ftrack-libs = [
+  "ftrack-constants>=4.0.0, <5.0.0",
+  "ftrack-utils>=4.0.0, <5.0.0",
+  "ftrack-qt>=4.0.0, <5.0.0",
+  "ftrack-qt-style>=4.0.0, <5.0.0",
+]
+framework-libs = [
+  "ftrack-framework-core>=4.0.0, <5.0.0",
+  "ftrack-framework-qt>=4.0.0, <5.0.0",
+]
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
-[tool.poetry.dependencies]
-python = ">= 3.7, < 3.12"
-#ftrack
-ftrack-python-api = "^2.5.4"
-ftrack-constants = {  version = "^3.0.0", optional = true }
-ftrack-utils = {  version = "^3.0.0", optional = true }
-ftrack-qt = { version = "^3.0.0", optional = true }
-ftrack-qt-style = { version = "^3.0.0", optional = true }
-# framework dependencies
-ftrack-framework-core = {  version = "^3.0.0", optional = true }
-ftrack-framework-qt = {  version = "^3.0.0", optional = true }
+[tool.hatch.build.targets.wheel]
+packages = ["source/ftrack_framework_max"]
 
-[tool.poetry.group.dev.dependencies]
-#ftrack-constants = { path = "../../libs/constants",  develop = true }
-#ftrack-utils = { path = "../../libs/utils",  develop = true }
-#ftrack-framework-core = { path = "../../libs/framework-core",  develop = true }
-#ftrack-framework-qt = { path = "../../libs/framework-qt",  develop = true }
-#ftrack-qt = { path = "../../libs/qt",  develop = true }
-#ftrack-qt-style = { path = "../../libs/qt-style", develop = true }
+[tool.uv.sources]
+ftrack-constants = { path = "../../libs/constants" }
+ftrack-framework-core = { path = "../../libs/framework-core" }
+ftrack-framework-qt = { path = "../../libs/framework-qt" }
+ftrack-qt = { path = "../../libs/qt" }
+ftrack-qt-style = { path = "../../libs/qt-style" }
+ftrack-utils = { path = "../../libs/utils" }
 
-[tool.poetry.extras]
-ftrack-libs = ["ftrack-constants", "ftrack-utils", "ftrack-qt", "ftrack-qt-style"]
-framework-libs = ["ftrack-framework-core", "ftrack-framework-qt"]
+[[tool.uv.index]]
+name = "pypi"
+url = "https://pypi.org/simple"
 
-[tool.black]
+[[tool.uv.index]]
+name = "testpypi"
+url = "https://test.pypi.org/simple"
+explicit = true
+
+[tool.ruff]
 line-length = 79
-skip-string-normalization = true
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
