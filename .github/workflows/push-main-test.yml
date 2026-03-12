@@ -26,14 +26,8 @@ jobs:
 
       - name: Install dependencies
         run: uv sync --extra test --extra dev
-
-
-      - name: Run tests No coverage
-        if: ${{ matrix.python-version < '3.8' }}
-        run: uv run pytest
       - name: Run tests with coverage
-        if: ${{ matrix.python-version >= '3.8' }}
-        run: uv run coverage run
+        run: uv run coverage run -m pytest
         env:
           COVERAGE_FILE: ".coverage.${{ matrix.python-version }}"
           # Alternatively you can run coverage with the --parallel flag or add
@@ -42,7 +36,6 @@ jobs:
           # directly or through PYTEST_ADD_OPTS.
 
       - name: Store coverage file
-        if: ${{ matrix.python-version >= '3.8' }}
         uses: actions/upload-artifact@v4
         with:
           name: coverage.${{ matrix.python-version }}
