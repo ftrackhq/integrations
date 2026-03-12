@@ -50,9 +50,13 @@ import shutil
 import logging
 import sys
 import subprocess
-from distutils.spawn import find_executable
 import fileinput
 import tempfile
+
+
+def find_executable(command):
+    return shutil.which(command)
+
 
 # tomli has been integrated into python 3.11+
 # and renamed to tomllib
@@ -669,6 +673,13 @@ def build_package(invokation_path, pkg_path, args, command=None):
                 # Check if the command for pyside*-rcc is in executable paths.
                 if find_executable(pyside_rcc_command):
                     executable = [pyside_rcc_command]
+
+                if not executable:
+                    venv_executable = os.path.join(
+                        os.path.dirname(sys.executable), pyside_rcc_command
+                    )
+                    if os.path.exists(venv_executable):
+                        executable = [venv_executable]
 
                 if not executable:
                     logging.warning(

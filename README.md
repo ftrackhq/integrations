@@ -4,7 +4,7 @@ See full [documentation here](https://developer.ftrack.com).
 
 # Developing
 
-We use [Poetry](https://python-poetry.org/) to build and test independent packages in this repository, and to manage the dependencies between them.
+We use [uv](https://docs.astral.sh/uv/) to build and test independent packages in this repository, and to manage dependencies between them.
 
 ## Obtaining the source code
 
@@ -19,8 +19,8 @@ or download the source ZIP from the [Integrations repository](https://github.com
 
 Follow these steps to prepare your environment:
 
-1. Install Poetry.
-2. Create a Python >=3.7, <3.12 virtual environment. If you're using an Apple Silicon chip, and python <3.10 follow the instructions in the [How to install compatible PySide2 on Silicon based Mac](#how-to-install-compatible-pyside2-on-silicon-based-mac) section.
+1. Install uv.
+2. Create a Python >=3.13, <3.14 virtual environment with `uv venv`.
 
 ### How to install compatible PySide2 on Silicon based Mac 
 
@@ -57,30 +57,30 @@ Follow these steps to install a compatible version of PySide2 Python >=3.7, <3.1
         source  <path-to-where-you-want-it>/bin/activate
         ```
 
-## Black
+## Ruff
 
-We run Black version 23.1.0 on the codebase to ensure consistent formatting. 
+We run Ruff on the codebase to ensure consistent linting and formatting.
 
-To be sure that code is properly formatted before committing code, enable the Git black pre commit hook by running this commands::
+To be sure formatting and lint checks are run before committing, enable the Git pre-commit hook by running:
 
 ```bash
-pip install pre-commit
+uv pip install pre-commit
 pre-commit install
 ```
 > [!NOTE]
 > If you are using windows and have installed python using `scoop`, don't forget to register the python version globally by running `<path-to-scoop-python>/install-pep-514.reg`. Otherwise, `pre-commit` might not be able to find your specific python version.
 
 ## Testing
-We run PyTest ^7.4 on the codebase to ensure the consistency of our monorepo.
-Please make sure you pip install PyTest if you want to run the unit tests.
+We run PyTest on the codebase to ensure the consistency of our monorepo.
+Install dependencies with uv before running tests.
 
-- Got to the repository root and execute the following command to run all the monorepo available unit tests:
+- Go to the repository root and execute the following command to run all monorepo unit tests:
 ```bash
-PyTest
+uv run pytest
 ```
 - And This command to execute a specific tests: (Example using framework)
 ```bash
-PyTest tests/framework/unit/
+uv run pytest tests/framework/unit/
 ```
 
 ## Build and publish libraries
@@ -97,12 +97,9 @@ git tag -a utils/v2.2.0 -m "" && git push origin utils/v2.2.0
 - Approve the deployment on the CI and will automatically release to Prod pypi
 - **Note: Remember that libraries has dependencies to other libraries, follow this release order if you want to make sure to always use he latest version: utils - constants - framework-core - qt-style - qt - framework-qt**
 
-## Publish to PyPi Test:
-- Add pypi test as publishable repository: https://python-poetry.org/docs/repositories/#publishable-repositories
-- Configure credentials using the token provided in 1Password PyPi-TEST-ftrack-utils : https://python-poetry.org/docs/repositories/#publishable-repositories (Make sure to point to the testpypi repo)
-    - poetry config pypi-token.testpypi <your-token>
-- Publish to test Pypi:
-    - poetry publish -r testpypi --build
+## Publish to PyPi Test
+- Library publication is handled by CI workflows after tag creation.
+- For local validation, build with `uv build` in the package folder.
 
 # Repo overview
 
@@ -163,4 +160,3 @@ git tag -a utils/v2.2.0 -m "" && git push origin utils/v2.2.0
 |--------------------------------------------------------------------------|--------------------------------------|--------------------------------------------------|
 | [cookiecutter-framework-project](./tools/cookiecutter-framework-project) | tools/cookiecutter-framework-project | Cookiecutter template for framework integrations |
 | [build](./tools/build.py)                                                | tools/build.py                       | Build tool to create connect plugins             |
-

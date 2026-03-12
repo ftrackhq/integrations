@@ -4,7 +4,7 @@ version = "0.0.0"
 description = "ftrack Integrations Monorepo"
 readme = "README.md"
 license = { text = "Apache-2.0" }
-requires-python = ">= 3.8, < 3.13"
+requires-python = ">= 3.13, < 3.14"
 authors = [
   { name = "ftrack Integrations Team", email = "integrations@backlight.co" }
 ]
