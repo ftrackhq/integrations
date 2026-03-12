@@ -143,6 +143,10 @@ def build_package(invokation_path, pkg_path, args, command=None):
             PROJECT_NAME = project_config["project"]["name"]
             VERSION = project_config["project"]["version"]
 
+            if PROJECT_NAME.startswith("ftrack-framework-"):
+                USES_FRAMEWORK = True
+                DCC_NAME = PROJECT_NAME.split("-")[-1]
+
             uv_dependencies = subprocess.run(
                 ["uv", "pip", "list", "--format", "json"],
                 capture_output=True,
@@ -154,8 +158,6 @@ def build_package(invokation_path, pkg_path, args, command=None):
                 for dependency in json.loads(uv_dependencies.stdout)
             }
 
-        if USES_FRAMEWORK:
-            DCC_NAME = PROJECT_NAME.split("-")[-1]
         assert VERSION, 'No version could be extracted from "pyproject.toml"!'
 
         if command == "build_cep":
@@ -746,15 +748,17 @@ def build_package(invokation_path, pkg_path, args, command=None):
                     "environment variable!"
                 )
 
-        ZXPSIGN_CMD_PATH = find_executable(ZXPSIGN_CMD)
-        if not ZXPSIGN_CMD_PATH:
-            raise Exception("%s is not in your ${PATH}!" % (ZXPSIGN_CMD))
-
+        ZXPSIGN_CMD_PATH = None
         CERTIFICATE_PATH = os.path.join(CEP_PATH, "bundle", "certificate.p12")
-        if not os.path.exists(CERTIFICATE_PATH):
-            raise Exception(
-                "Certificate missing: {}!".format(CERTIFICATE_PATH)
-            )
+        if not args.nosign:
+            ZXPSIGN_CMD_PATH = find_executable(ZXPSIGN_CMD)
+            if not ZXPSIGN_CMD_PATH:
+                raise Exception("%s is not in your ${PATH}!" % (ZXPSIGN_CMD))
+
+            if not os.path.exists(CERTIFICATE_PATH):
+                raise Exception(
+                    "Certificate missing: {}!".format(CERTIFICATE_PATH)
+                )
 
         STAGING_PATH = os.path.join(BUILD_PATH, "staging")
         assert DCC_NAME, "Please provide DCC name to build CEP plugin for"
