@@ -59,32 +59,29 @@ jobs:
     name: Build Connect
     needs: set-variables
     runs-on: macos-15
+    outputs:
       connect_version: ${{ steps.get_version.outputs.connect_version }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
-      - name: install poetry
-        shell: bash
-        run: |
-          pip install poetry==1.5.1
+          python-version: '3.13'
+      - name: install uv
+        uses: astral-sh/setup-uv@v5
       - name: Build Qt resources
         shell: bash
         run: |
-          pip install --no-cache-dir -r tools/requirements-connect.txt
-          python tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py --pyside_version 6 build_qt_resources apps/connect
-      - name: poetry build and export dependencies
+          uv sync --directory apps/connect
+          uv run --directory apps/connect --with-requirements ../../tools/requirements-connect.txt python ../../tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py --pyside_version 6 build_qt_resources .
+      - name: uv build
         shell: bash
         run: |
-          cd ${{ needs.set-variables.outputs.folder }}
-          poetry build
+          uv build --directory ${{ needs.set-variables.outputs.folder }}
       - name: Get Connect version
         id: get_version # This ID is used to reference the output of the step
         shell: bash
         run: |
-          cd ${{ needs.set-variables.outputs.folder }}
-          CONNECT_VERSION=$(poetry version -s)
+          CONNECT_VERSION=$(uv run python -c "import tomllib, pathlib; print(tomllib.loads(pathlib.Path('apps/connect/pyproject.toml').read_text())['project']['version'])")
           echo "Connect version: $CONNECT_VERSION"
           echo "connect_version=$CONNECT_VERSION" >> $GITHUB_OUTPUT
       - name: Prepare upload Connect wheel to GitHub Release
@@ -110,16 +107,14 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
-      - name: install poetry
-        shell: bash
-        run: |
-          pip install poetry==1.5.1
+          python-version: '3.13'
+      - name: install uv
+        uses: astral-sh/setup-uv@v5
       - name: Build Qt resources
         shell: bash
         run: |
-          pip install -r tools/requirements-connect.txt
-          python tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py --pyside_version 6 build_qt_resources apps/connect
+          uv sync --directory apps/connect
+          uv run --directory apps/connect --with-requirements ../../tools/requirements-connect.txt python ../../tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py --pyside_version 6 build_qt_resources .
       - uses: google-github-actions/auth@v2
         if: env.CODESIGN == 'True'
         with:
@@ -133,12 +128,11 @@ jobs:
       - name: Install Inno Setup, needed to create the installer
         run: |
           choco install innosetup
-      - name: poetry build installer
+      - name: uv build installer
         shell: bash
         run: |
-          cd ${{ needs.set-variables.outputs.folder }}
-          poetry install --with installer --sync
-          poetry run ftrack-connect-installer --codesign ${CODESIGN}
+          uv sync --directory ${{ needs.set-variables.outputs.folder }} --extra installer
+          uv run --directory ${{ needs.set-variables.outputs.folder }} ftrack-connect-installer --codesign ${CODESIGN}
       - name: Upload EXE installer to GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -164,7 +158,9 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.13'
+      - name: install uv
+        uses: astral-sh/setup-uv@v5
       - name: Install npm dependencies
         run: npm install -g appdmg
       - name: Set CPPFLAGS LDFLAGS
@@ -172,17 +168,11 @@ jobs:
         run: |
           export CPPFLAGS=-I/usr/local/opt/openssl/include
           export LDFLAGS=-L/usr/local/opt/openssl/lib
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: install poetry
-        shell: bash
-        run: |
-          pip install poetry==1.5.1
       - name: Build Qt resources
         shell: bash
         run: |
-          pip install -r tools/requirements-connect.txt
-          python tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py --pyside_version 6 build_qt_resources apps/connect
+          uv sync --directory apps/connect
+          uv run --directory apps/connect --with-requirements ../../tools/requirements-connect.txt python ../../tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py --pyside_version 6 build_qt_resources .
       - name: Codesign app bundle
         if: env.CODESIGN == 'True'
         # Guidance pick from https://federicoterzi.com/blog/automatic-code-signing-and-notarization-for-macos-apps-using-github-actions/
@@ -219,9 +209,8 @@ jobs:
           xcrun notarytool store-credentials "notarytool-profile" --apple-id "$PROD_MACOS_NOTARIZATION_APPLE_ID" --team-id "$PROD_MACOS_NOTARIZATION_TEAM_ID" --password "$PROD_MACOS_NOTARIZATION_PWD"
           
           # Build the installer and codesign
-          cd ${{ needs.set-variables.outputs.folder }}
-          poetry install --with installer --sync
-          poetry run ftrack-connect-installer --codesign ${CODESIGN}
+          uv sync --directory ${{ needs.set-variables.outputs.folder }} --extra installer
+          uv run --directory ${{ needs.set-variables.outputs.folder }} ftrack-connect-installer --codesign ${CODESIGN}
 
       - name: Upload Connect DMG to GitHub Release
         env:
@@ -250,17 +239,12 @@ jobs:
       image: rockylinux/rockylinux:${{ matrix.rocky-version }}
     steps:
       - uses: actions/checkout@v3
-      - name: Install dependencies and pyenv
+      - name: Install system dependencies
         run: |
           dnf install -y epel-release
           dnf -y update
           dnf groupinstall -y "Development Tools"
           dnf install -y libxcb xcb-util-cursor gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz-devel git findutils patch wget tar make libuuid-devel mesa-libGL
-          curl https://pyenv.run | bash
-          echo 'export PATH="$HOME/.pyenv/bin:$PATH"' >> ~/.bashrc
-          echo 'eval "$(pyenv init --path)"' >> ~/.bashrc
-          echo 'eval "$(pyenv virtualenv-init -)"' >> ~/.bashrc
-          source ~/.bashrc
       - name: Install GitHub CLI
         run: |
           dnf install -y dnf-plugins-core
@@ -268,47 +252,44 @@ jobs:
           dnf install -y gh
           # Configure Git to allow the current directory
           git config --global --add safe.directory /__w/integrations/integrations
-      - name: Install Python 3.10 using pyenv
-        run: |
-          source ~/.bashrc
-          pyenv install 3.10
-          pyenv global 3.10
-      - name: Verify Python version
-        run: |
-          source ~/.bashrc
-          pyenv versions
-          python --version
-          pyenv exec python -m pip install --upgrade pip
-      - name: Install patchelf using pip
-        run: |
-          source ~/.bashrc
-          pyenv exec pip install patchelf
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: install poetry
+      - name: install uv
         shell: bash
         run: |
-          source ~/.bashrc
-          pyenv exec pip install poetry==1.5.1
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          export PATH="$HOME/.local/bin:$PATH"
+          uv --version
+      - name: Install Python 3.13 with uv
+        shell: bash
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          uv python install 3.13
+      - name: Verify Python version
+        shell: bash
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          uv run --python 3.13 python --version
+      - name: Install patchelf
+        shell: bash
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          uv run --python 3.13 python -m pip install patchelf
       - name: Build Qt resources
         shell: bash
         run: |
-          source ~/.bashrc
-          pyenv exec pip install -r tools/requirements-connect.txt
-          pyenv exec python tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py --pyside_version 6 build_qt_resources apps/connect
-      - name: poetry build installer
+          export PATH="$HOME/.local/bin:$PATH"
+          uv sync --directory apps/connect --python 3.13
+          uv run --directory apps/connect --python 3.13 --with-requirements ../../tools/requirements-connect.txt python ../../tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py --pyside_version 6 build_qt_resources .
+      - name: uv build installer
         shell: bash
         run: |
-          source ~/.bashrc
-          cd ${{ needs.set-variables.outputs.folder }}
-          pyenv exec poetry install --with installer --sync
-          pyenv exec poetry run ftrack-connect-installer --codesign ${CODESIGN}
+          export PATH="$HOME/.local/bin:$PATH"
+          uv sync --directory ${{ needs.set-variables.outputs.folder }} --python 3.13 --extra installer
+          uv run --directory ${{ needs.set-variables.outputs.folder }} --python 3.13 ftrack-connect-installer --codesign ${CODESIGN}
       - name: Upload Connect tar.gz and md5 to GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
-          source ~/.bashrc
           echo "Listing contents of apps/connect/dist:"
           ls -l apps/connect/dist
           echo "Listing contents of apps/connect/build:"

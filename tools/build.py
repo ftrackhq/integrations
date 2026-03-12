@@ -130,15 +130,15 @@ def build_package(invokation_path, pkg_path, args, command=None):
     FTRACK_DEP_LIBS = {}
     PLATFORM_DEPENDENT = args.platform_dependent or False
 
-    POETRY_CONFIG_PATH = os.path.join(ROOT_PATH, "pyproject.toml")
+    PROJECT_CONFIG_PATH = os.path.join(ROOT_PATH, "pyproject.toml")
     DCC_NAME = None
     VERSION = None
 
-    if os.path.exists(POETRY_CONFIG_PATH):
+    if os.path.exists(PROJECT_CONFIG_PATH):
         PROJECT_NAME = None
         VERSION = None
 
-        with open(POETRY_CONFIG_PATH, "rb") as fp:
+        with open(PROJECT_CONFIG_PATH, "rb") as fp:
             project_config = tomllib.load(fp)
             PROJECT_NAME = project_config["project"]["name"]
             VERSION = project_config["project"]["version"]
@@ -149,7 +149,10 @@ def build_package(invokation_path, pkg_path, args, command=None):
                 text=True,
             )
 
-            FTRACK_DEP_LIBS = json.loads(uv_dependencies.stdout)
+            FTRACK_DEP_LIBS = {
+                dependency["name"]: dependency
+                for dependency in json.loads(uv_dependencies.stdout)
+            }
 
         if USES_FRAMEWORK:
             DCC_NAME = PROJECT_NAME.split("-")[-1]
@@ -166,7 +169,7 @@ def build_package(invokation_path, pkg_path, args, command=None):
 
     else:
         logging.warning(
-            f"Missing TOML file @ {POETRY_CONFIG_PATH}, not able to identify target DCC!"
+            f"Missing TOML file @ {PROJECT_CONFIG_PATH}, not able to identify target DCC!"
         )
 
         PROJECT_NAME = f"ftrack-{os.path.basename(ROOT_PATH)}"
@@ -211,23 +214,10 @@ def build_package(invokation_path, pkg_path, args, command=None):
 
         logging.info("*" * 100)
         logging.info(
-            "Remember to build the plugin with Poetry (poetry build) before "
+            "Remember to build the plugin wheel (uv build) before "
             "building the Connect plugin!"
         )
         logging.info("*" * 100)
-
-        # Find lock file
-        lock_path = None
-        for filename in os.listdir(ROOT_PATH):
-            if not filename == "poetry.lock":
-                continue
-            lock_path = os.path.join(BUILD_PATH, filename)
-            break
-
-        if not lock_path:
-            raise Exception(
-                'Could not locate Poetry lock file! Please run "poetry update".'
-            )
 
         # For now, Connect plugin has the same version as the project
         CONNECT_PLUGIN_VERSION = VERSION
@@ -260,7 +250,7 @@ def build_package(invokation_path, pkg_path, args, command=None):
 
         if not wheel_path:
             raise Exception(
-                "Could not locate a built python wheel! Please build with Poetry."
+                "Could not locate a built python wheel! Please build with uv."
             )
 
         # Store the version so Connect easily can identify the plugin version
@@ -480,7 +470,7 @@ def build_package(invokation_path, pkg_path, args, command=None):
                     os.chdir(save_cwd)
                 # Build
                 logging.info("Building wheel for {}".format(filename))
-                subprocess.check_call(["poetry", "build"], cwd=lib_path)
+                subprocess.check_call(["uv", "build", "--directory", lib_path])
 
                 # Locate result
                 for wheel_name in os.listdir(dist_path):
@@ -503,36 +493,16 @@ def build_package(invokation_path, pkg_path, args, command=None):
                     ]
                     subprocess.check_call(commands)
 
-        logging.info(
-            f'Exporting dependencies from: "{os.path.basename(lock_path)}" (extras: {extras})'
-        )
-        # Run Poetry export and read the output
-        requirements_path = os.path.join(STAGING_PATH, "requirements.txt")
-        commands = [
-            "poetry",
-            "export",
-            "-f",
-            "requirements.txt",
-            "--without-hashes",
-            "-o",
-            requirements_path,
-        ]
+        extra_spec = ""
         if extras:
-            for extra in extras:
-                commands.extend(["-E", extra])
+            extra_spec = f'[{",".join(extras)}]'
 
-        subprocess.check_call(commands)
-
-        logging.info(
-            f'Installing {wheel_path} with dependencies from "{os.path.basename(requirements_path)}"'
-        )
+        logging.info(f"Installing {wheel_path}{extra_spec} with dependencies")
         commands = [
             "uv",
             "pip",
             "install",
-            wheel_path,
-            "-r",
-            requirements_path,
+            f"{wheel_path}{extra_spec}",
             "--target",
             dependencies_path,
         ]

@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
+        python-version: ["3.13"]
 
     steps:
       - uses: actions/checkout@v4
@@ -21,19 +21,19 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install poetry
-        run: pip install poetry==1.4.2
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
 
       - name: Install dependencies
-        run: poetry install
+        run: uv sync --extra test --extra dev
 
 
       - name: Run tests No coverage
         if: ${{ matrix.python-version < '3.8' }}
-        run: poetry run pytest
+        run: uv run pytest
       - name: Run tests with coverage
         if: ${{ matrix.python-version >= '3.8' }}
-        run: poetry run coverage run
+        run: uv run coverage run
         env:
           COVERAGE_FILE: ".coverage.${{ matrix.python-version }}"
           # Alternatively you can run coverage with the --parallel flag or add
@@ -62,7 +62,7 @@ jobs:
       - uses: actions/download-artifact@v4
         id: download
         with:
-          name: "coverage.3.9"
+          name: "coverage.3.13"
 
       - name: Coverage comment
         id: coverage_comment
@@ -80,14 +80,14 @@ jobs:
 
 # Coverage info found in: https://github.com/marketplace/actions/python-coverage-comment#merging-multiple-coverage-reports
 
-# Implement poetry cache, right now is not useful as each python version runs in parallel in different environments.
-#      - name: Cache Poetry
+# Implement uv cache, right now is not useful as each python version runs in parallel in different environments.
+#      - name: Cache uv
 #          uses: actions/cache@v2
 #          with:
-#            path: ~/.cache/pypoetry
-#            key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+#            path: ~/.cache/uv
+#            key: ${{ runner.os }}-uv-${{ hashFiles('**/uv.lock') }}
 #            restore-keys: |
-#              ${{ runner.os }}-poetry-
+#              ${{ runner.os }}-uv-
 #
 #      - name: Install dependencies
-#        run: poetry install --no-interaction --no-root
+#        run: uv sync

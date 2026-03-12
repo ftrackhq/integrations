@@ -67,8 +67,7 @@ jobs:
         if: ${{ needs.set-variables.outputs.package == 'qt-style' }}
         shell: bash
         run: |
-          pip install -r tools/requirements.txt
-          python tools/build.py build_qt_resources libs/qt-style
+          uv run --with-requirements tools/requirements.txt python tools/build.py build_qt_resources libs/qt-style
       - name: uv build
         shell: bash
         run: |
