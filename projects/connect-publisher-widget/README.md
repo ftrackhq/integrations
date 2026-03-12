@@ -6,23 +6,7 @@
 
 Update release notes.
 
-Set or bump version in pyproject.toml:
-
-```bash
-    poetry version prerelease
-```
-or:
-```bash
-    poetry version patch
-```
-or:
-```bash
-    poetry version minor
-```
-or:
-```bash
-    poetry version major
-```
+Set version in `pyproject.toml` (for this migration stream: `26.3.0.dev0`).
 
 Bump the connect plugin version in integrations/projects/connect-publisher-widget/connect-plugin/__version__.py
 
@@ -35,18 +19,18 @@ See Monorepo build CI
 
 ### Manual build
 
-Build with Poetry:
+Build with uv:
 
 ```bash
   cd integrations/projects/connect-publisher-widget
-  poetry build
+  uv build
 ```
 
 Build Connect plugin:
 
 ```bash
   cd integrations
-  python tools/build.py build_connect_plugin projects/connect-publisher-widget
+  uv run python tools/build.py build_connect_plugin projects/connect-publisher-widget
 ```
 
 If the build fails and publisher widget is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 
@@ -59,12 +43,11 @@ to build the plugin.
 Install documentation dependencies:
 
 ```bash
-  poetry install --with documentation
+  uv sync --extra documentation
 ```
 
 Build documentation:
 
 ```bash
-    poetry run sphinx-build -b html doc dist/doc
+    uv run sphinx-build -b html doc dist/doc
 ```
-
