@@ -19,8 +19,8 @@ dependencies = [
   "requests>=2, <3",
   "qtawesome",
   "darkdetect",
-  "certifi>=2022, <2023",
-  "urllib3<2",
+  "certifi>=2023.7.22, <2024",
+  "urllib3>=2.6.0,<3",
   "pyyaml>=6.0.1, <7.0.0",
 
   # ftrack
