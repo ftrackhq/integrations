@@ -19,7 +19,7 @@ dependencies = [
   "requests>=2, <3",
   "qtawesome",
   "darkdetect",
-  "certifi>=2023.7.22, <2024",
+  "certifi>=2024.7.4, <2025",
   "urllib3>=2.6.0,<3",
   "pyyaml>=6.0.1, <7.0.0",
 
