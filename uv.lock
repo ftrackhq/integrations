@@ -308,6 +308,7 @@ source = { directory = "libs/utils" }
 dependencies = [
     { name = "clique" },
     { name = "ftrack-python-api" },
+    { name = "packaging" },
     { name = "six" },
     { name = "toml" },
 ]
@@ -316,6 +317,7 @@ dependencies = [
 requires-dist = [
     { name = "clique", specifier = "==1.6.1" },
     { name = "ftrack-python-api", specifier = ">=3.1.0,<4.0.0" },
+    { name = "packaging", specifier = ">=25,<26" },
     { name = "six", specifier = ">=1,<2" },
     { name = "toml", specifier = ">=0.10.2,<1.0.0" },
 ]

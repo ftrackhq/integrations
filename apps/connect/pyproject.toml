@@ -15,6 +15,7 @@ dependencies = [
   "Riffle>=2.0.0",
   "arrow>=0.4.6, <1",
   "platformdirs>=4.0.0, <5.0.0",
+  "packaging>=25, <26",
   "requests>=2, <3",
   "qtawesome",
   "darkdetect",

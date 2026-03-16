@@ -180,6 +180,7 @@ dependencies = [
     { name = "ftrack-framework-core" },
     { name = "ftrack-python-api" },
     { name = "ftrack-utils" },
+    { name = "packaging" },
     { name = "platformdirs" },
     { name = "pyside6" },
     { name = "pyyaml" },
@@ -221,6 +222,7 @@ requires-dist = [
     { name = "ftrack-utils", directory = "../../libs/utils" },
     { name = "jinja2", marker = "extra == 'documentation'", specifier = ">=3.1,<4" },
     { name = "lowdown", marker = "extra == 'documentation'", specifier = ">=0.1.0,<1" },
+    { name = "packaging", specifier = ">=25,<26" },
     { name = "platformdirs", specifier = ">=4.0.0,<5.0.0" },
     { name = "pyscss", marker = "extra == 'documentation'", specifier = ">=1.2.0,<2" },
     { name = "pyside6", specifier = "==6.6.3" },
@@ -292,6 +294,7 @@ source = { directory = "../../libs/utils" }
 dependencies = [
     { name = "clique" },
     { name = "ftrack-python-api" },
+    { name = "packaging" },
     { name = "six" },
     { name = "toml" },
 ]
@@ -300,6 +303,7 @@ dependencies = [
 requires-dist = [
     { name = "clique", specifier = "==1.6.1" },
     { name = "ftrack-python-api", specifier = ">=3.1.0,<4.0.0" },
+    { name = "packaging", specifier = ">=25,<26" },
     { name = "six", specifier = ">=1,<2" },
     { name = "toml", specifier = ">=0.10.2,<1.0.0" },
 ]
