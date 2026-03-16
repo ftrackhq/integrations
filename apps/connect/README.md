@@ -21,31 +21,13 @@ found at <https://developer.ftrack.com/integrating-pipelines/connect/>
 
 3. Install uv (https://docs.astral.sh/uv/)
 
-4. Set or bump version in pyproject.toml:
+4. Set or bump version in pyproject.toml
 
 ```bash
    cd integrations/apps/connect
 ```
 
-
-```bash
-    # edit [project].version in pyproject.toml
-```
-or:
-```bash
-    # edit [project].version in pyproject.toml
-```
-or:
-```bash
-    # edit [project].version in pyproject.toml
-```
-or:
-```bash
-    # edit [project].version in pyproject.toml
-```
-
 5. Tag and push to SCM
-
 
 ### CI build
 
@@ -58,32 +40,27 @@ See Monorepo build CI
 
 2. Build resources:
 ```bash
-cd integrations
+cd integrations/apps/connect
 uv pip install -r tools/requirements-connect.txt
-python tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py --pyside_version 6 build_qt_resources apps/connect
-```
-3. Go to the Connect package within monorepo:
-
-```bash
-    cd integrations/apps/connect
+uv run python ../../tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py --pyside_version 6 build_qt_resources .
 ```
 
-4. Update dependencies:
+3. Update dependencies:
 
 ```bash
     uv lock
     uv sync
 ```
-5. Test connect and install it from sources (Optional)
+4. Test connect and install it from sources (Optional)
 
 ```bash
     uv sync --extra dev
 ```
-   1. Start connect:
+5. Start connect:
 
-   ```bash
-       uv run python -m ftrack_connect
-   ```
+```bash
+    uv run python -m ftrack_connect
+```
 6. Build Connect wheel (Optional)
 
 ```bash
