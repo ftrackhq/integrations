@@ -5,13 +5,14 @@ version = "0.0.0"
 description = "ftrack App installer library"
 readme = "README.md"
 license = { text = "Apache-2.0" }
-requires-python = ">= 3.8, < 3.12"
+requires-python = ">= 3.13, < 3.14"
 authors = [
   { name = "ftrack Integrations Team", email = "integrations@backlight.co" }
 ]
 dependencies = [
   "pyinstaller>=6.6.0, <7.0.0",
   "requests",
+  "urllib3>=2.6.0",
   "dmgbuild>=1.6.0",
 ]
 
