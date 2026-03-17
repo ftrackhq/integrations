@@ -112,7 +112,7 @@ wheels = [
 
 [[package]]
 name = "ftrack-rv"
-version = "26.3"
+version = "26.3.0rc1"
 source = { editable = "." }
 dependencies = [
     { name = "ftrack-python-api" },
