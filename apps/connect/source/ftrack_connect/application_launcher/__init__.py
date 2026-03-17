@@ -456,11 +456,19 @@ class ApplicationLauncher(object):
 
     def discover_integrations(self, application, context):
         context = context or {}
+
+        # Event expression matching in ftrack API expects comparable scalar
+        # values. Keep runtime application objects intact, but send a
+        # serialized version field in the event payload.
+        event_application = dict(application)
+        if "version" in event_application:
+            event_application["version"] = str(event_application["version"])
+
         results = self.session.event_hub.publish(
             ftrack_api.event.base.Event(
                 topic="ftrack.connect.application.discover",
                 data=dict(
-                    application=application,
+                    application=event_application,
                     context=context,
                     platform=self.current_os,
                 ),
@@ -558,10 +566,16 @@ class ApplicationLauncher(object):
             else:
                 options["preexec_fn"] = os.setsid
 
+            event_application = dict(application)
+            if "version" in event_application:
+                event_application["version"] = str(
+                    event_application["version"]
+                )
+
             launchData = dict(
                 command=command,
                 options=options,
-                application=application,
+                application=event_application,
                 context=context,
                 integration={
                     "name": None,
