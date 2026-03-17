@@ -24,7 +24,7 @@ found at <https://developer.ftrack.com/integrating-pipelines/connect/>
 4. Set or bump version in pyproject.toml
 
 ```bash
-   cd integrations/apps/connect
+   cd apps/connect
 ```
 
 5. Tag and push to SCM
@@ -40,8 +40,7 @@ See Monorepo build CI
 
 2. Build resources:
 ```bash
-cd integrations/apps/connect
-uv pip install -r tools/requirements-connect.txt
+cd apps/connect
 uv run python ../../tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py --pyside_version 6 build_qt_resources .
 ```
 

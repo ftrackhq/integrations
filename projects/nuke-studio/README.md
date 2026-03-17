@@ -24,14 +24,14 @@ See Monorepo build CI
 Install nuke dependencies:
 
 ```bash
-  cd integrations/projects/nuke-studio
+  cd projects/nuke-studio
   uv sync
 ```
 
 Build with uv:
 
 ```bash
-  cd integrations/projects/nuke-studio
+  cd projects/nuke-studio
   uv build
 ```
 
@@ -39,7 +39,7 @@ Build Connect plugin:
 
 
 ```bash
-  cd integrations/projects/nuke-studio
+  cd projects/nuke-studio
   uv run python ../../tools/build.py --include_resources resource/plugin,resource/application_hook build_connect_plugin .
 ```
 

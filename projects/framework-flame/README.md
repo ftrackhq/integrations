@@ -43,7 +43,7 @@ Build Connect plugin:
 
 
 ```bash
-    cd integrations/projects/framework-flame
+    cd projects/framework-flame
     uv run python ../../tools/build.py --include_resources resource/bootstrap build_connect_plugin .
 ```
 

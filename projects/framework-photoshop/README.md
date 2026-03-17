@@ -44,7 +44,7 @@ See Monorepo build CI
 2. Build Connect plugin from wheel and the locked dependencies using Monorepo custom toolset:
 
 ```bash
-    cd integrations/projects/framework-photoshop
+    cd projects/framework-photoshop
     uv run python ../../tools/build.py build_connect_plugin .
 ```
 
@@ -97,15 +97,15 @@ Set variables:
 Build Ftrack Qt Style:
 
 ```bash
-    cd integrations/projects/framework-photoshop
-    uv run --with-requirements ../../tools/requirements.txt python ../../tools/build.py build_qt_resources --css_only ../../libs/qt-style
+    cd projects/framework-photoshop
+    uv run --with-requirements ../../tools/requirements-connect.txt python ../../tools/build.py build_qt_resources --css_only ../../libs/qt-style
 ```
 
 Create Adobe extension:
 
 ```bash
-    cd integrations/projects/framework-photoshop
-    uv run python ../../tools/build.py build_cep .
+    cd projects/framework-photoshop
+    uv run python ../../tools/build.py --nosign build_cep .
 ```
 
 ## Installing

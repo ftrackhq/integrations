@@ -22,14 +22,14 @@ See Monorepo build CI
 Build with uv:
 
 ```bash
-  cd integrations/projects/connect-publisher-widget
+  cd projects/connect-publisher-widget
   uv build
 ```
 
 Build Connect plugin:
 
 ```bash
-  cd integrations/projects/connect-publisher-widget
+  cd projects/connect-publisher-widget
   uv run python ../../tools/build.py build_connect_plugin .
 ```
 

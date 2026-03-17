@@ -22,18 +22,18 @@ See Monorepo build CI
 Build with uv:
 
 ```bash
-  cd integrations/projects/connect-timetracker-widget
+  cd projects/connect-timetracker-widget
   uv build
 ```
 
 Build Connect plugin:
 
 ```bash
-  cd integrations/projects/connect-timetracker-widget
+  cd projects/connect-timetracker-widget
   uv run python ../../tools/build.py build_connect_plugin .
 ```
 
-If the build fails and publisher widget is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 
+If the build fails and timetracker widget is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 
 to build the plugin.
 
 

@@ -39,7 +39,7 @@ Build Connect plugin:
 
 
 ```bash
-    cd integrations/projects/framework-blender
+    cd projects/framework-blender
     uv run python ../../tools/build.py --include_resources resource/bootstrap build_connect_plugin .
 ```
 

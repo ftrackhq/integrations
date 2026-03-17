@@ -46,7 +46,7 @@ Build Connect plugin:
 
 
 ```bash
-    cd integrations/projects/framework-premiere
+    cd projects/framework-premiere
     uv run python ../../tools/build.py --include_resources resource/presets build_connect_plugin .
 ```
 
@@ -102,15 +102,15 @@ Set variables:
 Build Ftrack Qt Style:
 
 ```bash
-    cd integrations/projects/framework-premiere
-    uv run --with-requirements ../../tools/requirements.txt python ../../tools/build.py build_qt_resources --css_only ../../libs/qt-style
+    cd projects/framework-premiere
+    uv run --with-requirements ../../tools/requirements-connect.txt python ../../tools/build.py build_qt_resources --css_only ../../libs/qt-style
 ```
 
 Create Adobe extension:
 
 ```bash
-    cd integrations/projects/framework-premiere
-    uv run python ../../tools/build.py build_cep .
+    cd projects/framework-premiere
+    uv run python ../../tools/build.py --nosign build_cep .
 ```
 
 

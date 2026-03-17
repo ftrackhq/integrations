@@ -31,7 +31,7 @@ Build with uv:
 Create the RV plugin, it will read the version number from pyproject.toml:
 
 ```bash
-  cd integrations/projects/rv
+  cd projects/rv
   uv run python ../../tools/build.py --output_path . build_rvpkg .
 ```
 
@@ -39,7 +39,7 @@ Create the RV plugin, it will read the version number from pyproject.toml:
 Build the Connect plugin from the project folder:
 
 ```bash
-  cd integrations/projects/rv
+  cd projects/rv
   uv run python ../../tools/build.py --include_assets ./ftrack-26.3.rvpkg build_connect_plugin .
 ```
 
@@ -48,8 +48,8 @@ If the build fails and RV is using beta or experimental dependencies published t
 to build the plugin.
 
 ```bash
-  cd integrations/projects/rv
-  uv run python ../../tools/build.py --testpypi --include_assets /tmp/ftrack-26.3.rvpkg build_connect_plugin .
+  cd projects/rv
+  uv run python ../../tools/build.py --testpypi --include_assets ./ftrack-26.3.rvpkg build_connect_plugin .
 ```
 
 The Connect plugin will be output to the dist/ folder.
