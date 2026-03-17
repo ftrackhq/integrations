@@ -127,7 +127,7 @@ provides-extras = ["ftrack-libs", "documentation"]
 
 [[package]]
 name = "ftrack-framework-flame"
-version = "26.3.0.dev0"
+version = "26.3.0rc1"
 source = { editable = "." }
 dependencies = [
     { name = "ftrack-python-api" },

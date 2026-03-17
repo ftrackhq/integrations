@@ -3,7 +3,7 @@
 name = "ftrack-rv"
 # RV just accepts minor and major version
 # To match Backlight versioning we use year month patch (YY.MMP)
-version = "26.3.0.dev0"
+version = "26.3"
 description = "ftrack Connect RV integration"
 readme = "README.md"
 license = { text = "Apache-2.0" }

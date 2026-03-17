@@ -8,9 +8,9 @@ ftrack integration with NUKE STUDIO.
 
 Update release notes.
 
-Set version in `pyproject.toml` (for this migration stream: `26.3.0.dev0`).
+Set version in `pyproject.toml` (use semantic versioning, for example `MAJOR.MINOR.PATCH` or prerelease `MAJOR.MINOR.PATCHrcN`).
 
-Bump the connect plugin version in integrations/projects/nuke-studio/connect-plugin/__version__.py
+Bump the connect plugin version in projects/nuke-studio/connect-plugin/__version__.py
 
 Tag and push to SCM
 

@@ -17,7 +17,7 @@ Community owned Photoshop integration for ftrack.
 
 5. Update release notes.
 
-6. Set version in `pyproject.toml` (for this migration stream: `26.3.0.dev0`).
+6. Set version in `pyproject.toml` (use semantic versioning, for example `MAJOR.MINOR.PATCH` or prerelease `MAJOR.MINOR.PATCHrcN`).
 
 7. If dependencies updated, update the uv lock file. Remember to properly validate/test the change of dependencies.
 

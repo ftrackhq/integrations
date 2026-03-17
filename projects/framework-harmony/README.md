@@ -19,7 +19,7 @@ Community owned Harmony integration for ftrack.
 
 5. Update release notes.
 
-6. Set version in `pyproject.toml` (for this migration stream: `26.3.0.dev0`).
+6. Set version in `pyproject.toml` (use semantic versioning, for example `MAJOR.MINOR.PATCH` or prerelease `MAJOR.MINOR.PATCHrcN`).
 
 7. Tag and push to SCM
 
@@ -40,7 +40,7 @@ Build with uv:
 Build Connect plugin:
 
 ```bash
-    cd integrations/projects/framework-harmony
+    cd projects/framework-harmony
     uv run python ../../tools/build.py --include_resources resource/bootstrap build_connect_plugin .
 ```
 

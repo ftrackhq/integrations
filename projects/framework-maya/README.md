@@ -11,9 +11,9 @@ Install uv and create a Python `>=3.13,<3.14` virtual environment.
 
 Update release notes.
 
-Set version in `pyproject.toml` (for this migration stream: `26.3.0.dev0`).
+Set version in `pyproject.toml` (use semantic versioning, for example `MAJOR.MINOR.PATCH` or prerelease `MAJOR.MINOR.PATCHrcN`).
 
-Bump the connect plugin version in integrations/projects/framework-maya/connect-plugin/__version__.py
+Bump the connect plugin version in projects/framework-maya/connect-plugin/__version__.py
 
 Tag and push to SCM
 
@@ -35,7 +35,7 @@ Build Connect plugin:
 
 
 ```bash
-    cd integrations/projects/framework-maya
+    cd projects/framework-maya
     uv run python ../../tools/build.py --include_resources resource/bootstrap build_connect_plugin .
 ```
 

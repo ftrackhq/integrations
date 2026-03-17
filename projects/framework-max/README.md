@@ -19,9 +19,9 @@ Community owned 3ds Max integration for ftrack.
 
 5. Update release notes.
 
-6. Set version in `pyproject.toml` (for this migration stream: `26.3.0.dev0`).
+6. Set version in `pyproject.toml` (use semantic versioning, for example `MAJOR.MINOR.PATCH` or prerelease `MAJOR.MINOR.PATCHrcN`).
 
-7. Bump the connect plugin version in integrations/projects/framework-max/connect-plugin/__version__.py
+7. Bump the connect plugin version in projects/framework-max/connect-plugin/__version__.py
 
 8. Tag and push to SCM
 
@@ -43,7 +43,7 @@ Build Connect plugin:
 
 
 ```bash
-    cd integrations/projects/framework-max
+    cd projects/framework-max
     uv run python ../../tools/build.py --include_resources resource/bootstrap build_connect_plugin .
 ```
 

@@ -6,9 +6,9 @@
 
 Update release notes.
 
-Set version in `pyproject.toml` (for this migration stream: `26.3.0.dev0`).
+Set version in `pyproject.toml` (use semantic versioning, for example `MAJOR.MINOR.PATCH` or prerelease `MAJOR.MINOR.PATCHrcN`).
 
-Bump the connect plugin version in integrations/projects/connect-publisher-widget/connect-plugin/__version__.py
+Bump the connect plugin version in projects/connect-publisher-widget/connect-plugin/__version__.py
 
 Tag and push to SCM
 

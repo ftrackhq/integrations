@@ -1,6 +1,6 @@
 [project]
 name = "ftrack-framework-max"
-version = "26.3.0.dev0"
+version = "26.3.0rc1"
 description = "ftrack Max integration"
 readme = "README.md"
 license = { text = "Apache-2.0" }

@@ -104,7 +104,7 @@ provides-extras = ["ftrack-libs"]
 
 [[package]]
 name = "ftrack-framework-blender"
-version = "26.3.0.dev0"
+version = "26.3.0rc1"
 source = { editable = "." }
 dependencies = [
     { name = "ftrack-python-api" },

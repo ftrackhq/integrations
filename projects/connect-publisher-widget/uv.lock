@@ -95,7 +95,7 @@ wheels = [
 
 [[package]]
 name = "ftrack-connect-publisher-widget"
-version = "26.3.0.dev0"
+version = "26.3.0rc1"
 source = { editable = "." }
 
 [package.optional-dependencies]

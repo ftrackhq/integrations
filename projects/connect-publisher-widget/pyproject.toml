@@ -1,6 +1,6 @@
 [project]
 name = "ftrack-connect-publisher-widget"
-version = "26.3.0.dev0"
+version = "26.3.0rc1"
 description = "ftrack Connect publisher widget plugin."
 readme = "README.md"
 license = { text = "Apache-2.0" }
