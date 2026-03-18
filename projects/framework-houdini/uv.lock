@@ -141,6 +141,7 @@ framework-libs = [
 ftrack-libs = [
     { name = "ftrack-constants" },
     { name = "ftrack-qt" },
+    { name = "ftrack-qt-style" },
     { name = "ftrack-utils" },
 ]
 
@@ -151,6 +152,7 @@ requires-dist = [
     { name = "ftrack-framework-qt", marker = "extra == 'framework-libs'", directory = "../../libs/framework-qt" },
     { name = "ftrack-python-api", specifier = ">=3.1.0,<4.0.0" },
     { name = "ftrack-qt", marker = "extra == 'ftrack-libs'", directory = "../../libs/qt" },
+    { name = "ftrack-qt-style", marker = "extra == 'ftrack-libs'", directory = "../../libs/qt-style" },
     { name = "ftrack-utils", marker = "extra == 'ftrack-libs'", directory = "../../libs/utils" },
 ]
 provides-extras = ["ftrack-libs", "framework-libs"]
@@ -206,6 +208,15 @@ requires-dist = [
     { name = "pyside6", marker = "extra == 'pyside6'", specifier = ">=6.5,<7.0.0" },
 ]
 provides-extras = ["pyside2", "pyside6", "ftrack-libs"]
+
+[[package]]
+name = "ftrack-qt-style"
+version = "4.0.0"
+source = { directory = "../../libs/qt-style" }
+
+[package.metadata]
+requires-dist = [{ name = "ftrack-utils", marker = "extra == 'ftrack-libs'", directory = "../../libs/utils" }]
+provides-extras = ["ftrack-libs"]
 
 [[package]]
 name = "ftrack-utils"
