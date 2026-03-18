@@ -22,6 +22,11 @@ ftrack-libs = [
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+[tool.hatch.build]
+include = [
+  "source/ftrack_qt_style/*.py",
+]
+
 [tool.hatch.build.targets.wheel]
 packages = ["source/ftrack_qt_style"]
 

@@ -5,9 +5,9 @@ All style and resource files for qt used in the ftrack integrations products sho
 
 ### Manual build
 
-From `libs/qt-style`, build wheel artifacts and regenerate shared css resources:
+From `libs/qt-style`, build wheel artifacts and regenerate shared css and Qt resources:
 
 ```bash
   uv build
-  uv run --with-requirements ../../tools/requirements-connect.txt python ../../tools/build.py build_qt_resources --css_only .
+  uv run --with-requirements ../../tools/requirements-connect.txt python ../../tools/build.py --style_path ../../resource/style --output_path source/ftrack_qt_style/resource.py --pyside_version 6 build_qt_resources .
 ```
