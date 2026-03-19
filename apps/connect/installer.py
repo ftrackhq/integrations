@@ -79,7 +79,7 @@ def main():
     # We need to go up two levels to get to the project root
     source_path = os.path.dirname(package_path)  # .../source
     root_path = os.path.dirname(source_path)  # project root
-    version = get_version("ftrack_connect", source_path)
+    version = get_version("ftrack_connect", root_path)
     entry_file = os.path.join(package_path, "__main__.py")
 
     installer = setup_installer(bundle_name, version, root_path, entry_file)
