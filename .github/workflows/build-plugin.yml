@@ -50,7 +50,7 @@ jobs:
       version: ${{ env.VERSION }}
       tag: ${{ env.TAG }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: set environments on full release
         shell: bash
         run: |
@@ -85,33 +85,10 @@ jobs:
     outputs:
       package: ${{ needs.set-variables.outputs.package }}
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        if: ${{
-            needs.set-variables.outputs.package != 'nuke-studio' &&
-            needs.set-variables.outputs.package != 'framework-harmony' && 
-            needs.set-variables.outputs.package != 'framework-houdini' &&
-            needs.set-variables.outputs.package != 'framework-blender' &&
-            needs.set-variables.outputs.package != 'framework-max'
-          }}
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          python-version: '3.7'
-      - uses: actions/setup-python@v4
-        if: ${{
-            needs.set-variables.outputs.package == 'framework-harmony' ||
-            needs.set-variables.outputs.package == 'framework-flame'
-          }}
-        with:
-          python-version: '3.9'
-      - uses: actions/setup-python@v4
-        if: ${{
-            needs.set-variables.outputs.package == 'nuke-studio' ||
-            needs.set-variables.outputs.package == 'framework-houdini' ||
-            needs.set-variables.outputs.package == 'framework-blender' ||
-            needs.set-variables.outputs.package == 'framework-max'
-          }}
-        with:
-          python-version: '3.11'
+          python-version: '3.13'
       - name: install uv
         uses: astral-sh/setup-uv@v5
       - name: uv build
@@ -127,7 +104,7 @@ jobs:
         shell: bash
         run: |
           # Use --testpypi or --from_source to change where the deps are picked from
-          uv run --with-requirements tools/requirements.txt python tools/build.py --remove_intermediate_folder build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+          uv run --python 3.13 --with-requirements tools/requirements.txt python tools/build.py --remove_intermediate_folder build_connect_plugin ${{ needs.set-variables.outputs.folder }}
       - name: build standard framework DCC integration plugin
         if: ${{
             needs.set-variables.outputs.package == 'framework-maya' ||
@@ -141,18 +118,18 @@ jobs:
         shell: bash
         run: |
           # Use --testpypi or --from_source to change where the deps are picked from
-          uv run --with-requirements tools/requirements.txt python tools/build.py --remove_intermediate_folder --include_resources resource/bootstrap build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+          uv run --python 3.13 --with-requirements tools/requirements.txt python tools/build.py --remove_intermediate_folder --include_resources resource/bootstrap build_connect_plugin ${{ needs.set-variables.outputs.folder }}
       - name: build nuke studio connect plugin
         if: ${{ needs.set-variables.outputs.package == 'nuke-studio' }}
         shell: bash
         run: |
-          uv run --with-requirements tools/requirements.txt python tools/build.py --remove_intermediate_folder --include_resources resource/plugin,resource/application_hook build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+          uv run --python 3.13 --with-requirements tools/requirements.txt python tools/build.py --remove_intermediate_folder --include_resources resource/plugin,resource/application_hook build_connect_plugin ${{ needs.set-variables.outputs.folder }}
       - name: build rv connect plugin
         if: ${{ needs.set-variables.outputs.package == 'rv' }}
         shell: bash
         run: |
-          uv run --with-requirements tools/requirements.txt python tools/build.py --output_path /tmp build_rvpkg  projects/rv
-          uv run --with-requirements tools/requirements.txt python tools/build.py --remove_intermediate_folder --include_assets $(find /tmp/ -type f -name "*.rvpkg") build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+          uv run --python 3.13 --with-requirements tools/requirements.txt python tools/build.py --output_path /tmp build_rvpkg  projects/rv
+          uv run --python 3.13 --with-requirements tools/requirements.txt python tools/build.py --remove_intermediate_folder --include_assets $(find /tmp/ -type f -name "*.rvpkg") build_connect_plugin ${{ needs.set-variables.outputs.folder }}
       - name: upload artifacts to release
         shell: bash
         run: |
@@ -175,10 +152,10 @@ jobs:
     if: ${{ needs.set-variables.outputs.package == 'framework-blender' }}
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.13'
       - name: install uv
         uses: astral-sh/setup-uv@v5
       - name: uv build
@@ -189,7 +166,7 @@ jobs:
       - name: build standard framework DCC integration plugin
         shell: bash
         run: |
-          uv run --with-requirements tools/requirements-pyside6.txt python tools/build.py --remove_intermediate_folder --platform_dependent --include_resources resource/bootstrap build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+          uv run --python 3.13 --with-requirements tools/requirements-pyside6.txt python tools/build.py --remove_intermediate_folder --platform_dependent --include_resources resource/bootstrap build_connect_plugin ${{ needs.set-variables.outputs.folder }}
       - name: upload artifacts to release
         shell: bash
         run: |
@@ -206,15 +183,10 @@ jobs:
     if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' || needs.set-variables.outputs.package == 'framework-premiere' || needs.set-variables.outputs.package == 'framework-blender' }}
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        if: ${{ needs.set-variables.outputs.package != 'framework-blender'}}
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
-      - uses: actions/setup-python@v4
-        if: ${{ needs.set-variables.outputs.package == 'framework-blender' }}
-        with:
-          python-version: '3.11'
+          python-version: '3.13'
       - name: install uv
         uses: astral-sh/setup-uv@v5
       - name: uv build
@@ -226,7 +198,7 @@ jobs:
         if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' || needs.set-variables.outputs.package == 'framework-premiere' }}
         shell: bash
         run: |
-          uv run --with-requirements tools/requirements-pyside6.txt python tools/build.py build_qt_resources --css_only libs/qt-style
+          uv run --python 3.13 --with-requirements tools/requirements-pyside6.txt python tools/build.py build_qt_resources --css_only libs/qt-style
       - name: build photoshop framework DCC integration plugin
         if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' }}
         shell: bash
@@ -235,9 +207,9 @@ jobs:
           hdiutil attach /tmp/ZXPSignCmd-64bit.dmg
           ln -s /Volumes/ZXPSignCmd-64bit/ZXPSignCmd-64bit /usr/local/bin/ZXPSignCMD
           export ADOBE_CERTIFICATE_PASSWORD=${{ secrets.ADOBE_CERTIFICATE_PASSWORD }}
-          uv run --with-requirements tools/requirements-pyside6.txt python tools/build.py --remove_intermediate_folder build_cep projects/framework-photoshop
+          uv run --python 3.13 --with-requirements tools/requirements-pyside6.txt python tools/build.py --remove_intermediate_folder build_cep projects/framework-photoshop
           # Use --testpypi or --from_source to change where the deps are picked from
-          uv run --with-requirements tools/requirements-pyside6.txt python tools/build.py --remove_intermediate_folder --include_assets $(find "$PWD/projects/framework-photoshop/dist" -type f -name "*.zxp") build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+          uv run --python 3.13 --with-requirements tools/requirements-pyside6.txt python tools/build.py --remove_intermediate_folder --include_assets $(find "$PWD/projects/framework-photoshop/dist" -type f -name "*.zxp") build_connect_plugin ${{ needs.set-variables.outputs.folder }}
           cp projects/framework-photoshop/dist/*.zxp ${{ needs.set-variables.outputs.folder }}
       - name: build premiere framework DCC integration plugin
         if: ${{ needs.set-variables.outputs.package == 'framework-premiere' }}
@@ -247,16 +219,16 @@ jobs:
           hdiutil attach /tmp/ZXPSignCmd-64bit.dmg
           ln -s /Volumes/ZXPSignCmd-64bit/ZXPSignCmd-64bit /usr/local/bin/ZXPSignCMD
           export ADOBE_CERTIFICATE_PASSWORD=${{ secrets.ADOBE_CERTIFICATE_PASSWORD }}
-          uv run --with-requirements tools/requirements-pyside6.txt python tools/build.py --remove_intermediate_folder build_cep projects/framework-premiere
+          uv run --python 3.13 --with-requirements tools/requirements-pyside6.txt python tools/build.py --remove_intermediate_folder build_cep projects/framework-premiere
           # Use --testpypi or --from_source to change where the deps are picked from
-          uv run --with-requirements tools/requirements-pyside6.txt python tools/build.py --remove_intermediate_folder --include_resources resource/presets --include_assets $(find "$PWD/projects/framework-premiere/dist" -type f -name "*.zxp") build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+          uv run --python 3.13 --with-requirements tools/requirements-pyside6.txt python tools/build.py --remove_intermediate_folder --include_resources resource/presets --include_assets $(find "$PWD/projects/framework-premiere/dist" -type f -name "*.zxp") build_connect_plugin ${{ needs.set-variables.outputs.folder }}
           cp projects/framework-premiere/dist/*.zxp ${{ needs.set-variables.outputs.folder }}
       - name: build standard framework DCC integration plugin
         if: ${{ needs.set-variables.outputs.package == 'framework-blender' }}
         shell: bash
         run: |
           # Use --testpypi or --from_source to change where the deps are picked from
-          uv run --with-requirements tools/requirements-pyside6.txt python tools/build.py --remove_intermediate_folder --platform_dependent --include_resources resource/bootstrap build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+          uv run --python 3.13 --with-requirements tools/requirements-pyside6.txt python tools/build.py --remove_intermediate_folder --platform_dependent --include_resources resource/bootstrap build_connect_plugin ${{ needs.set-variables.outputs.folder }}
 
       - name: upload artifacts to release
         shell: bash
