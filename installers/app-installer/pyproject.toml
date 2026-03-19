@@ -19,7 +19,7 @@ dependencies = [
 # 2. Project URLs
 [project.urls]
 homepage = "https://ftrack.com"
-repository = "https://github.com/ftrackhq/integrations/tree/main/installers/app_installer"
+repository = "https://github.com/ftrackhq/integrations/tree/main/installers/app-installer"
 
 # 3. Build System (using hatchling)
 [build-system]
