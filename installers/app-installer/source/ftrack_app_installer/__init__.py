@@ -298,7 +298,7 @@ class MacOSAppInstaller(AppInstaller):
                 dmg_path, self.bundle_name, settings=dmg_settings
             )
         except Exception as e:
-            raise Exception(f"dmg creation failed: {e}")
+            raise Exception(f"dmg creation failed: {e}") from e
         logging.info(
             " {} created, calculating md5 checksum...".format(dmg_path)
         )
@@ -326,7 +326,7 @@ class MacOSAppInstaller(AppInstaller):
                 )
                 _ = os.system("sudo xcode-select --install")
                 if _ != 0:
-                    raise Exception("Faild to install Xcode.")
+                    raise Exception("Failed to install Xcode.")
 
             logging.info(" Starting notarize process")
             notarize_command = 'xcrun notarytool submit --verbose --keychain-profile "notarytool-profile" --wait {}'.format(
