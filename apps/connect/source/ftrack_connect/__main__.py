@@ -137,20 +137,29 @@ def main_connect(arguments=None):
     if hasattr(application, "setApplicationDisplayName"):
         application.setApplicationDisplayName(app_name)
 
-    icon_path = os.path.abspath(
-        os.path.join(
-            os.path.dirname(os.path.dirname(__file__)),
-            "..",
-            "..",
-            "logo.icns",
+    app_icon = QtGui.QIcon(QtGui.QPixmap(":ftrack/titlebar/logo"))
+    if app_icon.isNull():
+        logo_name = None
+        if sys.platform == "darwin":
+            logo_name = "logo.icns"
+        elif sys.platform.startswith("win"):
+            logo_name = "logo.ico"
+        else:
+            logo_name = "logo.png"
+
+        icon_path = os.path.abspath(
+            os.path.join(
+                os.path.dirname(os.path.dirname(__file__)),
+                "..",
+                "..",
+                logo_name,
+            )
         )
-    )
-    if os.path.exists(icon_path):
-        application.setWindowIcon(QtGui.QIcon(icon_path))
-    else:
-        application.setWindowIcon(
-            QtGui.QIcon(QtGui.QPixmap(":ftrack/titlebar/logo"))
-        )
+        if os.path.exists(icon_path):
+            app_icon = QtGui.QIcon(icon_path)
+
+    if not app_icon.isNull():
+        application.setWindowIcon(app_icon)
 
     application.setOrganizationName("ftrack")
     application.setOrganizationDomain("ftrack.com")
