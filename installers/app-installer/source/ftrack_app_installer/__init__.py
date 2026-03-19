@@ -109,8 +109,11 @@ class AppInstaller(object):
         ]
         try:
             PyInstaller.__main__.run(pyinstaller_commands)
-        except Exception as e:
-            f"pyinstaller failed to build {self.bundle_name}! Exitcode: {e}"
+        except Exception:
+            logging.exception(
+                'PyInstaller failed to build "%s".', self.bundle_name
+            )
+            raise
 
     def _generate_version_file(self):
         """
