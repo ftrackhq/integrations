@@ -1,10 +1,12 @@
+default_language_version:
+  python: python3.13
+
+exclude: ^tools/cookiecutter-framework-project/
+
 repos:
--   repo: https://github.com/astral-sh/ruff-pre-commit
+  - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.4.4
     hooks:
       - id: ruff
-        args: [ --fix ]
+        args: [--fix]
       - id: ruff-format
-        
-    language_version: python3.11
-    exclude: tools/cookiecutter*
