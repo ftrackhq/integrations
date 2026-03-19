@@ -111,7 +111,7 @@ jobs:
             needs.set-variables.outputs.package == 'framework-max'
           }}
         with:
-          python-version: '3.11'
+          python-version: '3.13'
       - name: install uv
         uses: astral-sh/setup-uv@v5
       - name: uv build
