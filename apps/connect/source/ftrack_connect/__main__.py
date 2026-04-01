@@ -16,17 +16,17 @@ from ftrack_connect.utils.plugin import (
 
 
 def main_connect(arguments=None):
-    '''Launch ftrack connect.'''
+    """Launch ftrack connect."""
 
-    bindings = ['PySide2']
-    os.environ.setdefault('QT_PREFERRED_BINDING', os.pathsep.join(bindings))
+    bindings = ["PySide2"]
+    os.environ.setdefault("QT_PREFERRED_BINDING", os.pathsep.join(bindings))
 
     try:
-        from PySide6 import QtWidgets, QtCore
+        from PySide6 import QtWidgets, QtCore, QtGui
 
         is_pyside2 = False
     except ImportError:
-        from PySide2 import QtWidgets, QtCore
+        from PySide2 import QtWidgets, QtCore, QtGui
 
         is_pyside2 = True
 
@@ -40,7 +40,7 @@ def main_connect(arguments=None):
     import ftrack_connect.ui.application
     import ftrack_connect.ui.theme
 
-    parser = argparse.ArgumentParser(prog='ftrack-connect')
+    parser = argparse.ArgumentParser(prog="ftrack-connect")
 
     # Allow setting of logging level from arguments.
     loggingLevels = {}
@@ -56,39 +56,39 @@ def main_connect(arguments=None):
         loggingLevels[logging.getLevelName(level).lower()] = level
 
     parser.add_argument(
-        '-v',
-        '--verbosity',
-        help='Set the logging output verbosity.',
+        "-v",
+        "--verbosity",
+        help="Set the logging output verbosity.",
         choices=loggingLevels.keys(),
-        default='warning',
+        default="warning",
     )
 
     parser.add_argument(
-        '-t',
-        '--theme',
-        help='Set the theme to use.',
-        choices=['light', 'dark', 'system'],
-        default='system',
+        "-t",
+        "--theme",
+        help="Set the theme to use.",
+        choices=["light", "dark", "system"],
+        default="system",
     )
 
     parser.add_argument(
-        '-s',
-        '--silent',
-        help='Set the initial visibility of the connect window.',
-        action='store_true',
+        "-s",
+        "--silent",
+        help="Set the initial visibility of the connect window.",
+        action="store_true",
     )
 
     parser.add_argument(
-        '-a',
-        '--allow-multiple',
-        help='Skip lockfile to allow new instance of connect.',
-        action='store_true',
+        "-a",
+        "--allow-multiple",
+        help="Skip lockfile to allow new instance of connect.",
+        action="store_true",
     )
 
     namespace = parser.parse_args(arguments)
 
     ftrack_connect.utils.log.configure_logging(
-        'ftrack_connect', level=loggingLevels[namespace.verbosity]
+        "ftrack_connect", level=loggingLevels[namespace.verbosity]
     )
 
     # Make sure plugin directory is created
@@ -97,17 +97,17 @@ def main_connect(arguments=None):
     single_instance = None
     if not namespace.allow_multiple:
         lockfile = os.path.join(
-            platformdirs.user_data_dir('ftrack-connect', 'ftrack'), 'lock'
+            platformdirs.user_data_dir("ftrack-connect", "ftrack"), "lock"
         )
-        logger = logging.getLogger('ftrack_connect')
+        logger = logging.getLogger("ftrack_connect")
         try:
             single_instance = ftrack_connect.singleton.SingleInstance(
-                '', lockfile
+                "", lockfile
             )
         except ftrack_connect.singleton.SingleInstanceException:
             logger.error(
-                'Lockfile found: {}\nIs Connect already running?\nClose Connect,'
-                ' remove lockfile or pass --allow-multiple and retry.'.format(
+                "Lockfile found: {}\nIs Connect already running?\nClose Connect,"
+                " remove lockfile or pass --allow-multiple and retry.".format(
                     lockfile
                 )
             )
@@ -123,7 +123,7 @@ def main_connect(arguments=None):
         )
         # If under X11, make Xlib calls thread-safe.
         # http://stackoverflow.com/questions/31952711/threading-pyqt-crashes-with-unknown-request-in-queue-while-dequeuing
-        if os.name == 'posix':
+        if os.name == "posix":
             QtCore.QCoreApplication.setAttribute(
                 QtCore.Qt.ApplicationAttribute.AA_X11InitThreads
             )
@@ -132,8 +132,37 @@ def main_connect(arguments=None):
 
     application = QtWidgets.QApplication([])
 
-    application.setOrganizationName('ftrack')
-    application.setOrganizationDomain('ftrack.com')
+    app_name = "ftrack Connect"
+    application.setApplicationName(app_name)
+    if hasattr(application, "setApplicationDisplayName"):
+        application.setApplicationDisplayName(app_name)
+
+    app_icon = QtGui.QIcon(QtGui.QPixmap(":ftrack/titlebar/logo"))
+    if app_icon.isNull():
+        logo_name = None
+        if sys.platform == "darwin":
+            logo_name = "logo.icns"
+        elif sys.platform.startswith("win"):
+            logo_name = "logo.ico"
+        else:
+            logo_name = "logo.png"
+
+        icon_path = os.path.abspath(
+            os.path.join(
+                os.path.dirname(os.path.dirname(__file__)),
+                "..",
+                "..",
+                logo_name,
+            )
+        )
+        if os.path.exists(icon_path):
+            app_icon = QtGui.QIcon(icon_path)
+
+    if not app_icon.isNull():
+        application.setWindowIcon(app_icon)
+
+    application.setOrganizationName("ftrack")
+    application.setOrganizationDomain("ftrack.com")
     application.setQuitOnLastWindowClosed(False)
 
     # Handle Ctrl+C (SIGINT) for both Windows and Unix-like systems
@@ -174,16 +203,16 @@ def main_connect(arguments=None):
 
 
 def main(arguments=None):
-    '''Main app entry point.'''
+    """Main app entry point."""
     # Pre-parse arguments to check if we should run a framework standalone process
     framework_standalone_module = None
     script = None
     for index, arg in enumerate(sys.argv):
-        if arg == '--run-framework-standalone':
+        if arg == "--run-framework-standalone":
             # (Unofficial feature) Run framework standalone process using Connect Python interpreter
             framework_standalone_module = sys.argv[index + 1]
             break
-        elif index == 1 and arg.endswith('.py'):
+        elif index == 1 and arg.endswith(".py"):
             # Run a script
             script = sys.argv[index]
             break
@@ -193,8 +222,8 @@ def main(arguments=None):
         # Connect installer built executable does not bootstrap PYTHONPATH,
         # make sure it is done properly.
         dependencies_path = None
-        for path in os.environ.get('PYTHONPATH', []).split(os.pathsep):
-            if path.find('dependencies') > -1:
+        for path in os.environ.get("PYTHONPATH", []).split(os.pathsep):
+            if path.find("dependencies") > -1:
                 dependencies_path = path
             elif path not in sys.path:
                 sys.path.append(path)
@@ -217,5 +246,5 @@ def main(arguments=None):
         return main_connect(arguments)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     raise SystemExit(main())

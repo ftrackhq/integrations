@@ -9,9 +9,9 @@ Community owned Flame integration for ftrack.
 ### Preparations
 
 
-1. Install Poetry
+1. Install uv
 
-2. Create a Python 3.9 virtual environment. If you're using an Apple Silicon chip, follow the instructions in the [How to install compatible PySide2 on Silicon based Mac](../../README.md#how-to-install-compatible-pyside2-on-silicon-based-mac) section. 
+2. Create a Python `>=3.13,<3.14` virtual environment.
 
 3. Activate the virtual environment. 
 
@@ -19,25 +19,9 @@ Community owned Flame integration for ftrack.
 
 5. Update release notes.
 
-6. Set or bump version in pyproject.toml:
+6. Set version in `pyproject.toml` (use semantic versioning, for example `MAJOR.MINOR.PATCH` or prerelease `MAJOR.MINOR.PATCHrcN`).
 
-```bash
-    poetry version prerelease
-```
-or:
-```bash
-    poetry version patch
-```
-or:
-```bash
-    poetry version minor
-```
-or:
-```bash
-    poetry version major
-```
-
-7. Bump the connect plugin version in integrations/projects/framework-flame/connect-plugin/__version__.py
+7. Bump the connect plugin version in projects/framework-flame/connect-plugin/__version__.py
 
 8. Tag and push to SCM
 
@@ -49,18 +33,18 @@ See Monorepo build CI
 
 ### Manual build
 
-Build with Poetry:
+Build with uv:
 
 ```bash
-    poetry build
+    uv build
 ```
 
 Build Connect plugin:
 
 
 ```bash
-    cd integrations
-    python tools/build.py  --include_resources resource/bootstrap build_connect_plugin projects/framework-flame
+    cd projects/framework-flame
+    uv run python ../../tools/build.py --include_resources resource/bootstrap build_connect_plugin .
 ```
 
 If the build fails and Flame is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 

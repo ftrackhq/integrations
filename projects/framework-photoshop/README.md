@@ -7,9 +7,9 @@ Community owned Photoshop integration for ftrack.
 ### Preparations
 
 
-1. Install Poetry
+1. Install uv.
 
-2. Create a Python 3.10 virtual environment. 
+2. Create a Python `>=3.13,<3.14` virtual environment.
 
 3. Activate the virtual environment. 
 
@@ -17,28 +17,12 @@ Community owned Photoshop integration for ftrack.
 
 5. Update release notes.
 
-6. Set or bump version in pyproject.toml:
+6. Set version in `pyproject.toml` (use semantic versioning, for example `MAJOR.MINOR.PATCH` or prerelease `MAJOR.MINOR.PATCHrcN`).
+
+7. If dependencies updated, update the uv lock file. Remember to properly validate/test the change of dependencies.
 
 ```bash
-    $ poetry version prerelease
-```
-or:
-```bash
-    $ poetry version patch
-```
-or:
-```bash
-    $ poetry version minor
-```
-or:
-```bash
-    $ poetry version major
-```
-
-7. If dependencies updated, update the Poetry lock file. Remember to properly validate/test the change of dependencies.
-
-```bash
-    $ poetry update
+    uv lock
 ```
 
 8. Tag and push to SCM
@@ -51,17 +35,17 @@ See Monorepo build CI
 
 ### Manual build
 
-1. Build with Poetry
+1. Build with uv
 
 ```bash
-    $ poetry build
+    uv build
 ```
 
 2. Build Connect plugin from wheel and the locked dependencies using Monorepo custom toolset:
 
 ```bash
-    cd integrations
-    python tools/build.py build_connect_plugin projects/framework-photoshop
+    cd projects/framework-photoshop
+    uv run python ../../tools/build.py build_connect_plugin .
 ```
 
 If the build fails and Photoshop is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 
@@ -113,16 +97,15 @@ Set variables:
 Build Ftrack Qt Style:
 
 ```bash
-    cd integrations
-    pip install -r tools/requirements.txt
-    python tools/build.py build_qt_resources --css_only libs/qt-style
+    cd projects/framework-photoshop
+    uv run --with-requirements ../../tools/requirements-connect.txt python ../../tools/build.py build_qt_resources --css_only ../../libs/qt-style
 ```
 
 Create Adobe extension:
 
 ```bash
-    cd integrations 
-    python tools/build.py build_cep projects/framework-photoshop
+    cd projects/framework-photoshop
+    uv run python ../../tools/build.py --nosign build_cep .
 ```
 
 ## Installing
@@ -134,4 +117,3 @@ Copy the resulting dist/ftrack-framework-photoshop-<version> folder to your conn
 
 Use "Extension Manager" tool provided here: https://install.anastasiy.com/ to install 
 the built xzp plugin. Remember to remove previous ftrack extensions.
-

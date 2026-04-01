@@ -8,17 +8,9 @@ ftrack connect rv integration.
 
 Update release notes.
 
-Set or bump version in pyproject.toml:
+Set version in `pyproject.toml` (use semantic versioning, for example `MAJOR.MINOR.PATCH` or prerelease `MAJOR.MINOR.PATCHrcN`).
 
-```bash
-    poetry version minor
-```
-or:
-```bash
-    poetry version major
-```
-
-Bump the connect plugin version in integrations/projects/rv/connect-plugin/__version__.py
+Bump the connect plugin version in projects/rv/connect-plugin/__version__.py
 
 Tag and push to SCM
 
@@ -30,33 +22,25 @@ See Monorepo build CI
 
 ### Manual build
 
-Go to the root of the RV package within monorepo:
-
+Build with uv:
+     
 ```bash
-    cd integrations/projects/rv
-```
-### Preparations
-
-
-Build with Poetry:
-    
-```bash
-    poetry build
+    uv build
 ```
 
 Create the RV plugin, it will read the version number from pyproject.toml:
 
 ```bash
-  cd integrations
-  python tools/build.py --output_path . build_rvpkg  projects/rv
+  cd projects/rv
+  uv run python ../../tools/build.py --output_path . build_rvpkg .
 ```
 
 
-Go to the root of the Monorepo and create the Connect plugin:
+Build the Connect plugin from the project folder:
 
 ```bash
-  cd integrations
-  python tools/build.py --include_assets ./ftrack-24.0.rvpkg  build_connect_plugin projects/rv
+  cd projects/rv
+  uv run python ../../tools/build.py --include_assets ./ftrack-26.3.rvpkg build_connect_plugin .
 ```
 
 
@@ -64,9 +48,8 @@ If the build fails and RV is using beta or experimental dependencies published t
 to build the plugin.
 
 ```bash
-  cd integrations
-  python tools/build.py --testpypi --include_assets /tmp/ftrack-24.0.rvpkg build_connect_plugin projects/rv
+  cd projects/rv
+  uv run python ../../tools/build.py --testpypi --include_assets ./ftrack-26.3.rvpkg build_connect_plugin .
 ```
 
 The Connect plugin will be output to the dist/ folder.
-

@@ -60,22 +60,19 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.7'
-      - name: install poetry
-        shell: bash
-        run: |
-          pip install poetry==1.5.1
+          python-version: '3.13'
+      - name: install uv
+        uses: astral-sh/setup-uv@v5
       - name: build style
         if: ${{ needs.set-variables.outputs.package == 'qt-style' }}
         shell: bash
         run: |
-          pip install -r tools/requirements.txt
-          python tools/build.py build_qt_resources libs/qt-style
-      - name: poetry build
+          uv run --with-requirements tools/requirements.txt python tools/build.py build_qt_resources libs/qt-style
+      - name: uv build
         shell: bash
         run: |
           cd ${{ needs.set-variables.outputs.folder }}
-          poetry build
+          uv build
       - name: Upload temp artifacts
         uses: actions/upload-artifact@v4
         if: ${{ needs.set-variables.outputs.to_pypi == 'true' }}

@@ -1,32 +1,39 @@
-[tool.poetry]
+# 1. PEP 621 Project Metadata (replaces [tool.poetry])
+[project]
 name = "ftrack-app-installer"
 version = "0.0.0"
-description='ftrack App installer library'
-authors = ["ftrack Integrations Team <integrations@backlight.co>"]
+description = "ftrack App installer library"
 readme = "README.md"
-packages = [{include = "ftrack_app_installer", from = "source"}]
-license = "Apache-2.0"
+license = { text = "Apache-2.0" }
+requires-python = ">= 3.13, < 3.14"
+authors = [
+  { name = "ftrack Integrations Team", email = "integrations@backlight.co" }
+]
+dependencies = [
+  "pyinstaller>=6.6.0, <7.0.0",
+  "requests",
+  "urllib3>=2.6.0",
+  "dmgbuild>=1.6.0",
+]
+
+# 2. Project URLs
+[project.urls]
 homepage = "https://ftrack.com"
-repository = "https://github.com/ftrackhq/integrations/tree/main/installers/app_installer"
+repository = "https://github.com/ftrackhq/integrations/tree/main/installers/app-installer"
 
-[[tool.poetry.source]]
-name = "PyPI"
-priority = "primary"
-
-[[tool.poetry.source]]
-name = "testpypi"
-url = "https://test.pypi.org/simple/"
-priority = "explicit"
-
+# 3. Build System (using hatchling)
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
-[tool.poetry.dependencies]
-python = ">= 3.8, < 3.12"
-pyinstaller = "^6.6.0"
-requests = "*"
+# 4. Hatchling Configuration (replaces [tool.poetry.packages])
+[tool.hatch.build.targets.wheel]
+# This tells hatch to look for the package in the 'source' directory
+packages = ["source/ftrack_app_installer"]
 
-[tool.black]
+[tool.ruff]
 line-length = 79
-skip-string-normalization = true
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"

@@ -5,10 +5,9 @@ All style and resource files for qt used in the ftrack integrations products sho
 
 ### Manual build
 
-Go to the root of the Monorepo and build the ftrack style resource.py:
+From `libs/qt-style`, build wheel artifacts and regenerate shared css and Qt resources:
 
 ```bash
-  cd integrations
-  pip install -r tools/requirements.txt
-  python tools/build.py build_qt_resources libs/qt-style
+  uv build
+  uv run --with-requirements ../../tools/requirements-connect.txt python ../../tools/build.py --style_path ../../resource/style --output_path source/ftrack_qt_style/resource.py --pyside_version 6 build_qt_resources .
 ```

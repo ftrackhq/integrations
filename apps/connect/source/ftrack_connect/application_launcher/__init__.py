@@ -6,13 +6,11 @@ import re
 import ssl
 import tempfile
 import subprocess
-import collections
 import base64
 import json
 import logging
 import platform
 from operator import itemgetter
-from distutils.version import LooseVersion
 import os
 
 if sys.version_info.major == 3 and sys.version_info.minor >= 10:
@@ -23,40 +21,39 @@ else:
 import ftrack_api
 from ftrack_action_handler.action import BaseAction
 from ftrack_utils.usage import get_usage_tracker
+from ftrack_utils.version import (
+    DEFAULT_VERSION_EXPRESSION,
+    parse_application_version,
+)
+from packaging.version import Version
 
-
-#: Default expression to match version component of executable path.
-#: Will match last set of numbers in string where numbers may contain a digit
-#: followed by zero or more digits, periods, or the letters 'a', 'b', 'c' or 'v'
-#: E.g. /path/to/x86/some/application/folder/v1.8v2b1/app.exe -> 1.8v2b1
-DEFAULT_VERSION_EXPRESSION = re.compile(r'(?P<version>\d[\d.vabc]*?)[^\d]*$')
 
 AVAILABLE_ICONS = {
-    'hiero': '/application_icons/hiero.png',
-    'hieroplayer': '/application_icons/hieroplayer.png',
-    'nukex': '/application_icons/nukex.png',
-    'nuke': '/application_icons/nuke.png',
-    'nuke_studio': '/application_icons/nuke_studio.png',
-    'premiere': '/application_icons/premiere.png',
-    'maya': '/application_icons/maya.png',
-    'cinesync': '/application_icons/cinesync.png',
-    'photoshop': '/application_icons/photoshop.png',
-    'prelude': '/application_icons/prelude.png',
-    'after_effects': '/application_icons/after_effects.png',
-    '3ds_max': '/application_icons/3ds_max.png',
-    'cinema_4d': '/application_icons/cinema_4d.png',
-    'indesign': '/application_icons/indesign.png',
-    'illustrator': '/application_icons/illustrator.png',
-    'houdini': '/application_icons/houdini.png',
-    'unreal-engine': '/application_icons/unreal_engine.png',
-    'unity': '/application_icons/unity.png',
-    'rv': '/application_icons/rv.png',
-    'harmony': '/application_icons/harmony.png',
+    "hiero": "/application_icons/hiero.png",
+    "hieroplayer": "/application_icons/hieroplayer.png",
+    "nukex": "/application_icons/nukex.png",
+    "nuke": "/application_icons/nuke.png",
+    "nuke_studio": "/application_icons/nuke_studio.png",
+    "premiere": "/application_icons/premiere.png",
+    "maya": "/application_icons/maya.png",
+    "cinesync": "/application_icons/cinesync.png",
+    "photoshop": "/application_icons/photoshop.png",
+    "prelude": "/application_icons/prelude.png",
+    "after_effects": "/application_icons/after_effects.png",
+    "3ds_max": "/application_icons/3ds_max.png",
+    "cinema_4d": "/application_icons/cinema_4d.png",
+    "indesign": "/application_icons/indesign.png",
+    "illustrator": "/application_icons/illustrator.png",
+    "houdini": "/application_icons/houdini.png",
+    "unreal-engine": "/application_icons/unreal_engine.png",
+    "unity": "/application_icons/unity.png",
+    "rv": "/application_icons/rv.png",
+    "harmony": "/application_icons/harmony.png",
 }
 
 
 def prepend_path(path, key, environment):
-    '''Prepend *path* to *key* in *environment*.'''
+    """Prepend *path* to *key* in *environment*."""
     try:
         environment[key] = os.pathsep.join([path, environment[key]])
     except KeyError:
@@ -66,7 +63,7 @@ def prepend_path(path, key, environment):
 
 
 def append_path(path, key, environment):
-    '''Append *path* to *key* in *environment*.'''
+    """Append *path* to *key* in *environment*."""
     try:
         environment[key] = os.pathsep.join([environment[key], path])
     except KeyError:
@@ -76,20 +73,20 @@ def append_path(path, key, environment):
 
 
 def pop_path(path, key, environment):
-    '''Remove *path* to *key* in *environment*.'''
+    """Remove *path* to *key* in *environment*."""
     env_paths = environment.get(key)
     if env_paths:
         environment[key] = os.pathsep.join(
             [
                 existing_path
                 for existing_path in env_paths.split(os.pathsep)
-                if existing_path.replace('\\', '/') != path.replace('\\', '/')
+                if existing_path.replace("\\", "/") != path.replace("\\", "/")
             ]
         )
 
 
 class ApplicationStore(object):
-    '''Discover and store available applications on this host.'''
+    """Discover and store available applications on this host."""
 
     @property
     def current_os(self):
@@ -97,15 +94,15 @@ class ApplicationStore(object):
 
     @property
     def session(self):
-        '''Return current session.'''
+        """Return current session."""
         return self._session
 
     def __init__(self, session):
-        '''Instantiate store and discover applications.'''
+        """Instantiate store and discover applications."""
         super(ApplicationStore, self).__init__()
 
         self.logger = logging.getLogger(
-            __name__ + '.' + self.__class__.__name__
+            __name__ + "." + self.__class__.__name__
         )
 
         self._session = session
@@ -114,30 +111,30 @@ class ApplicationStore(object):
         self.applications = self._discover_applications()
 
     def get_application(self, identifier):
-        '''Return first application with matching *identifier*.
+        """Return first application with matching *identifier*.
 
         *identifier* may contain a wildcard at the end to match the first
         substring matching entry.
 
         Return None if no application matches.
 
-        '''
-        hasWildcard = identifier[-1] == '*'
+        """
+        hasWildcard = identifier[-1] == "*"
         if hasWildcard:
             identifier = identifier[:-1]
 
         for application in self.applications:
             if hasWildcard:
-                if application['identifier'].startswith(identifier):
+                if application["identifier"].startswith(identifier):
                     return application
             else:
-                if application['identifier'] == identifier:
+                if application["identifier"] == identifier:
                     return application
 
         return None
 
     def _discover_applications(self):
-        '''Return a list of applications that can be launched from this host.
+        """Return a list of applications that can be launched from this host.
 
         An application should be of the form:
 
@@ -151,14 +148,8 @@ class ApplicationStore(object):
                 'icon': 'URL or name of predefined icon'
             )
 
-        '''
+        """
         applications = []
-
-        if self.current_os == 'darwin':
-            prefix = ['/', 'Applications']
-
-        elif self.current_os == 'windows':
-            prefix = ['C:\\', 'Program Files.*']
 
         return applications
 
@@ -166,22 +157,22 @@ class ApplicationStore(object):
         result = icon_name
         icon_url = AVAILABLE_ICONS.get(icon_name)
         if icon_url:
-            result = '{}{}'.format(self.session.server_url, icon_url)
+            result = "{}{}".format(self.session.server_url, icon_url)
 
         return result
 
     def _conditional_expand_extension_path(self, value, connect_plugin_path):
-        '''Convert extension path *value*  - support relative paths by
-        prepending *connect_plugin_path* and home directories (~ prefix)'''
-        if not len(value or ''):
-            return ''
+        """Convert extension path *value*  - support relative paths by
+        prepending *connect_plugin_path* and home directories (~ prefix)"""
+        if not len(value or ""):
+            return ""
         value = str(value)
         if value[0] != os.sep and not (
-            sys.platform == 'win32' and len(value) >= 2 and value[1] == ':'
+            sys.platform == "win32" and len(value) >= 2 and value[1] == ":"
         ):
             # A relative path, append plugin path
             value = os.path.join(connect_plugin_path, value)
-        elif value.startswith('~/'):
+        elif value.startswith("~/"):
             # A home directory path
             value = os.path.expanduser(value)
         return value
@@ -194,7 +185,7 @@ class ApplicationStore(object):
         versionExpression=None,
         icon=None,
         launchArguments=None,
-        variant='',
+        variant="",
         description=None,
         integrations=None,
         standalone_module=None,
@@ -203,7 +194,7 @@ class ApplicationStore(object):
         connect_plugin_path=None,
         rosetta=False,
     ):
-        '''
+        r"""
         Return list of applications found in filesystem matching *expression*.
 
         *expression* should be a list of regular expressions to match against
@@ -261,7 +252,7 @@ class ApplicationStore(object):
         *rosetta* dictates if the app needs to be in rosetta mode for Silicon
         chip based Mac.
 
-        '''
+        """
 
         applications = []
 
@@ -273,16 +264,16 @@ class ApplicationStore(object):
         pieces = expression[:]
         start = pieces.pop(0)
 
-        if self.current_os == 'windows':
+        if self.current_os == "windows":
             # On Windows C: means current directory so convert roots that look
             # like drive letters to the C:\ format.
-            if start and start[-1] == ':':
-                start += '\\'
+            if start and start[-1] == ":":
+                start += "\\"
 
         if not os.path.exists(start):
             raise ValueError(
                 'First part "{0}" of expression "{1}" must match exactly to an '
-                'existing entry on the filesystem.'.format(start, expression)
+                "existing entry on the filesystem.".format(start, expression)
             )
 
         expressions = list(map(re.compile, pieces))
@@ -309,34 +300,38 @@ class ApplicationStore(object):
                         path = os.path.join(start, location, entry)
 
                         versionMatch = versionExpression.search(path)
-                        loose_version = LooseVersion('0.0.0')
+                        loose_version = Version("0")
 
                         if versionMatch:
-                            version = versionMatch.group('version')
+                            version = versionMatch.group("version")
 
                             try:
-                                loose_version = LooseVersion(version)
-                            except AttributeError:
-                                self.logger.warning(
-                                    'Could not parse version'
-                                    ' {0} from {1}'.format(version, path)
+                                loose_version = parse_application_version(
+                                    version
                                 )
-                        elif sys.platform == 'darwin' and path.endswith(
-                            '.app'
+                            except Exception:
+                                self.logger.warning(
+                                    "Could not parse version"
+                                    " {0} from {1}".format(version, path)
+                                )
+                        elif sys.platform == "darwin" and path.endswith(
+                            ".app"
                         ):
                             # Extract version from Info.plist within .app
                             # bundle.
                             plist_path = os.path.join(
-                                path, 'Contents', 'Info.plist'
+                                path, "Contents", "Info.plist"
                             )
                             if os.path.isfile(plist_path):
-                                with open(plist_path, 'rb') as f:
+                                with open(plist_path, "rb") as f:
                                     infoPlist = plistlib.load(f)
                                     version = infoPlist.get(
-                                        'CFBundleShortVersionString'
+                                        "CFBundleShortVersionString"
                                     )
                                     if version:
-                                        loose_version = LooseVersion(version)
+                                        loose_version = (
+                                            parse_application_version(version)
+                                        )
 
                         variant_str = variant.format(
                             version=str(loose_version)
@@ -345,33 +340,33 @@ class ApplicationStore(object):
                         if integrations:
                             variant_str = "{} [{}]".format(
                                 variant_str,
-                                ':'.join(list(integrations.keys())),
+                                ":".join(list(integrations.keys())),
                             )
 
                         application = {
-                            'identifier': applicationIdentifier.format(
+                            "identifier": applicationIdentifier.format(
                                 variant=str(variant_str)
                             ),
-                            'path': path,
-                            'launchArguments': launchArguments,
-                            'version': loose_version,
-                            'label': label.format(version=str(loose_version)),
-                            'icon': self._get_icon_url(icon),
-                            'variant': variant_str,
-                            'description': description,
-                            'integrations': integrations or {},
-                            'rosetta': rosetta,
+                            "path": path,
+                            "launchArguments": launchArguments,
+                            "version": loose_version,
+                            "label": label.format(version=str(loose_version)),
+                            "icon": self._get_icon_url(icon),
+                            "variant": variant_str,
+                            "description": description,
+                            "integrations": integrations or {},
+                            "rosetta": rosetta,
                         }
                         if standalone_module:
-                            application[
-                                'standalone_module'
-                            ] = standalone_module
-                        application['environment_variables'] = {}
+                            application["standalone_module"] = (
+                                standalone_module
+                            )
+                        application["environment_variables"] = {}
                         if extensions_path:
                             # Convert to list and expand paths
                             if isinstance(extensions_path, list):
-                                application['environment_variables'][
-                                    'FTRACK_FRAMEWORK_EXTENSIONS_PATH'
+                                application["environment_variables"][
+                                    "FTRACK_FRAMEWORK_EXTENSIONS_PATH"
                                 ] = os.pathsep.join(
                                     [
                                         self._conditional_expand_extension_path(
@@ -381,8 +376,8 @@ class ApplicationStore(object):
                                     ]
                                 )
                             else:
-                                application['environment_variables'][
-                                    'FTRACK_FRAMEWORK_EXTENSIONS_PATH'
+                                application["environment_variables"][
+                                    "FTRACK_FRAMEWORK_EXTENSIONS_PATH"
                                 ] = self._conditional_expand_extension_path(
                                     extensions_path, connect_plugin_path
                                 )
@@ -394,22 +389,22 @@ class ApplicationStore(object):
                                 environment_variables.items()
                             ):
                                 if name.upper() in [
-                                    'FTRACK_CONNECT_EXTENSIONS_PATH',
-                                    'FTRACK_FRAMEWORK_EXTENSIONS_PATH',
+                                    "FTRACK_CONNECT_EXTENSIONS_PATH",
+                                    "FTRACK_FRAMEWORK_EXTENSIONS_PATH",
                                 ]:
                                     # Ignore these - should be handled in config
                                     self.logger.debug(
-                                        f'Ignoring environment variable {name}={value} in launch config -'
-                                        f' should be configured in extensions section!'
+                                        f"Ignoring environment variable {name}={value} in launch config -"
+                                        f" should be configured in extensions section!"
                                     )
                                     continue
                                 if isinstance(value, list):
                                     # Merge on path sep
-                                    application['environment_variables'][
+                                    application["environment_variables"][
                                         name
                                     ] = os.pathsep.join(value)
                                 else:
-                                    application['environment_variables'][
+                                    application["environment_variables"][
                                         name
                                     ] = str(value)
 
@@ -418,18 +413,18 @@ class ApplicationStore(object):
                 # Don't descend any further as out of patterns to match.
                 del folders[:]
 
-        results = sorted(applications, key=itemgetter('version'), reverse=True)
-        self.logger.debug('Discovered applications: {}'.format(results))
+        results = sorted(applications, key=itemgetter("version"), reverse=True)
+        self.logger.debug("Discovered applications: {}".format(results))
         return results
 
 
 class ApplicationLauncher(object):
-    '''Launch applications described by an application store.
+    """Launch applications described by an application store.
 
     Launched applications are started detached so exiting current process will
     not close launched applications.
 
-    '''
+    """
 
     @property
     def current_os(self):
@@ -437,35 +432,43 @@ class ApplicationLauncher(object):
 
     @property
     def location(self):
-        '''Return current location.'''
+        """Return current location."""
         return self._session.pick_location()
 
     @property
     def session(self):
-        '''Return current session.'''
+        """Return current session."""
         return self._session
 
     def __init__(self, applicationStore):
-        '''Instantiate launcher with *applicationStore* of applications.
+        """Instantiate launcher with *applicationStore* of applications.
 
         *applicationStore* should be an instance of :class:`ApplicationStore`
         holding information about applications that can be launched.
 
-        '''
+        """
         super(ApplicationLauncher, self).__init__()
         self.logger = logging.getLogger(
-            __name__ + '.' + self.__class__.__name__
+            __name__ + "." + self.__class__.__name__
         )
         self.applicationStore = applicationStore
         self._session = applicationStore.session
 
     def discover_integrations(self, application, context):
         context = context or {}
+
+        # Event expression matching in ftrack API expects comparable scalar
+        # values. Keep runtime application objects intact, but send a
+        # serialized version field in the event payload.
+        event_application = dict(application)
+        if "version" in event_application:
+            event_application["version"] = str(event_application["version"])
+
         results = self.session.event_hub.publish(
             ftrack_api.event.base.Event(
-                topic='ftrack.connect.application.discover',
+                topic="ftrack.connect.application.discover",
                 data=dict(
-                    application=application,
+                    application=event_application,
                     context=context,
                     platform=self.current_os,
                 ),
@@ -473,17 +476,17 @@ class ApplicationLauncher(object):
             synchronous=True,
         )
 
-        requested_integrations = application['integrations']
+        requested_integrations = application["integrations"]
 
         discovered_integrations = [
-            result.get('integration', {})
+            result.get("integration", {})
             for result in results
-            if not result.get('integration', {}).get('disable') is True
+            if result.get("integration", {}).get("disable") is not True
         ]
 
         discovered_integrations_names = set(
             [
-                discovered_integration['name']
+                discovered_integration["name"]
                 for discovered_integration in discovered_integrations
             ]
         )
@@ -507,7 +510,7 @@ class ApplicationLauncher(object):
         return found_integrations, lost_integrations
 
     def launch(self, applicationIdentifier, context=None):
-        '''Launch application matching *applicationIdentifier*.
+        """Launch application matching *applicationIdentifier*.
 
         *context* should provide information that can guide how to launch the
         application.
@@ -518,7 +521,7 @@ class ApplicationLauncher(object):
                       successfully or not.
             message - Any additional information (such as a failure message).
 
-        '''
+        """
         # Look up application.
         applicationIdentifierPattern = applicationIdentifier
 
@@ -528,9 +531,9 @@ class ApplicationLauncher(object):
 
         if application is None:
             return {
-                'success': False,
-                'message': (
-                    '{0} application not found.'.format(applicationIdentifier)
+                "success": False,
+                "message": (
+                    "{0} application not found.".format(applicationIdentifier)
                 ),
             }
 
@@ -542,9 +545,9 @@ class ApplicationLauncher(object):
         self._conform_environment(environment)
 
         success = True
-        message = '{0}{1} application started.'.format(
-            application['label'],
-            ' ' + application['variant'] if application.get('variant') else '',
+        message = "{0}{1} application started.".format(
+            application["label"],
+            " " + application["variant"] if application.get("variant") else "",
         )
 
         try:
@@ -553,72 +556,79 @@ class ApplicationLauncher(object):
             # Ensure that current working directory is set to the root of the
             # application being launched to avoid issues with applications
             # locating shared libraries etc.
-            applicationRootPath = os.path.dirname(application['path'])
-            options['cwd'] = applicationRootPath
+            applicationRootPath = os.path.dirname(application["path"])
+            options["cwd"] = applicationRootPath
 
             # Ensure subprocess is detached so closing connect will not also
             # close launched applications.
-            if self.current_os == 'windows':
-                options['creationflags'] = subprocess.CREATE_NEW_CONSOLE
+            if self.current_os == "windows":
+                options["creationflags"] = subprocess.CREATE_NEW_CONSOLE
             else:
-                options['preexec_fn'] = os.setsid
+                options["preexec_fn"] = os.setsid
+
+            event_application = dict(application)
+            if "version" in event_application:
+                event_application["version"] = str(
+                    event_application["version"]
+                )
 
             launchData = dict(
                 command=command,
                 options=options,
-                application=application,
+                application=event_application,
                 context=context,
                 integration={
-                    'name': None,
-                    'version': None,
-                    'env': application.get('environment_variables', {}),
-                    'launch_arguments': [],
+                    "name": None,
+                    "version": None,
+                    "env": application.get("environment_variables", {}),
+                    "launch_arguments": [],
                 },
                 platform=self.current_os,
             )
 
             results = self.session.event_hub.publish(
                 ftrack_api.event.base.Event(
-                    topic='ftrack.connect.application.launch', data=launchData
+                    topic="ftrack.connect.application.launch", data=launchData
                 ),
                 synchronous=True,
             )
 
-            # recompose launch_arguments coming from integrations
-            flatten = lambda t: [item for sublist in t for item in sublist]
-            launch_arguments = flatten(
-                [
-                    r['integration']['launch_arguments']
+            # Recompose launch_arguments coming from integrations.
+            launch_arguments = [
+                item
+                for sublist in [
+                    r["integration"]["launch_arguments"]
                     for r in results
                     if (
-                        not r is None
-                        and 'integration' in r
-                        and 'launch_arguments' in r['integration']
+                        r is not None
+                        and "integration" in r
+                        and "launch_arguments" in r["integration"]
                     )
                 ]
-            )
+                for item in sublist
+            ]
 
-            launchData['command'].extend(launch_arguments)
+            launchData["command"].extend(launch_arguments)
 
             self._notify_integration_use(results, application)
 
-            if context.get('integrations'):
+            if context.get("integrations"):
                 environment = self._get_integrations_environments(
                     results, context, environment
                 )
             else:
                 self.logger.info(
-                    'No integrations provided for {}:{}'.format(
-                        applicationIdentifier, context.get('variant')
+                    "No integrations provided for {}:{}".format(
+                        applicationIdentifier, context.get("variant")
                     )
                 )
 
             # Reset variables passed through the hook since they might
             # have been replaced by a handler.
-            command = launchData['command']
-            options = launchData['options']
-            application = launchData['application']
-            options['env'] = environment
+            command = launchData["command"]
+            options = launchData["options"]
+            application = launchData["application"]
+            options["env"] = environment
 
             enable_app_bundle_launch = (
                 True  # Allow .app to be launched directly on Mac
@@ -629,100 +639,100 @@ class ApplicationLauncher(object):
             command_prefix = None  # Additional commands to prepend
 
             # Enforce launch architecture
-            if 'FTRACK_LAUNCH_ARCH' in environment:
-                if self.current_os != 'darwin':
+            if "FTRACK_LAUNCH_ARCH" in environment:
+                if self.current_os != "darwin":
                     self.logger.warning(
-                        'Specific arch launch only supported on Mac OS'
+                        "Specific arch launch only supported on Mac OS"
                     )
                 else:
                     command_prefix = [
-                        'arch',
-                        '-{}'.format(environment['FTRACK_LAUNCH_ARCH']),
+                        "arch",
+                        "-{}".format(environment["FTRACK_LAUNCH_ARCH"]),
                     ]
 
                     # This does not work on app bundle, need to be expanded to the executable inside
                     enable_app_bundle_launch = False
 
-            if (os.environ.get('FTRACK_CONNECT_CONSOLE') or '') in [
-                '1',
-                'true',
+            if (os.environ.get("FTRACK_CONNECT_CONSOLE") or "") in [
+                "1",
+                "true",
             ]:
-                if self.current_os != 'darwin':
+                if self.current_os != "darwin":
                     self.logger.warning(
-                        'Console launch only supported on Mac OS'
+                        "Console launch only supported on Mac OS"
                     )
                 else:
                     enable_app_bundle_launch = False
                     launch_with_terminal = True
 
             if not enable_app_bundle_launch and command[0].lower().endswith(
-                '.app'
+                ".app"
             ):
-                p_script_path = os.path.join(os.environ['TMPDIR'], 'ftrack')
+                p_script_path = os.path.join(os.environ["TMPDIR"], "ftrack")
                 if not os.path.exists(p_script_path):
                     os.makedirs(p_script_path)
                 script_path = tempfile.NamedTemporaryFile(
-                    delete=False, dir=p_script_path, suffix='.command'
+                    delete=False, dir=p_script_path, suffix=".command"
                 ).name
 
                 with open(script_path, "w") as f:
-                    f.write('#!/bin/bash\n')
+                    f.write("#!/bin/bash\n")
 
-                    for key, value in options['env'].items():
+                    for key, value in options["env"].items():
                         f.write('export {}="{}"\n'.format(key, value))
 
                     app_package = command[0]
-                    if app_package.lower().endswith('.app'):
+                    if app_package.lower().endswith(".app"):
                         # And app bundle, need to launch the executable inside. Discover from
                         # plist.
                         fetch_next_string = False
                         executable_filename = None
                         with open(
                             os.path.join(
-                                app_package, 'Contents', 'Info.plist'
+                                app_package, "Contents", "Info.plist"
                             ),
-                            'r',
+                            "r",
                         ) as plist:
-                            for line in plist.read().split('\n'):
-                                if line.find('CFBundleExecutable') > -1:
+                            for line in plist.read().split("\n"):
+                                if line.find("CFBundleExecutable") > -1:
                                     fetch_next_string = True
                                 elif fetch_next_string:
                                     # <string>Nuke13.0</string>
                                     executable_filename = line[
-                                        line.find('>') + 1 : line.rfind('<')
+                                        line.find(">") + 1 : line.rfind("<")
                                     ]
                                     break
                         if executable_filename:
                             command[0] = os.path.join(
                                 app_package,
-                                'Contents',
-                                'MacOS',
+                                "Contents",
+                                "MacOS",
                                 executable_filename,
                             )
 
                     if command_prefix:
                         command = command_prefix + command
 
-                    commandline = ' '.join('"{}"'.format(c) for c in command)
+                    commandline = " ".join('"{}"'.format(c) for c in command)
 
-                    f.write('{}\n'.format(commandline))
+                    f.write("{}\n".format(commandline))
 
                     f.write(
-                        'sleep 10\n'
+                        "sleep 10\n"
                     )  # Keep console open for 10 seconds, to enable traceback readouts
 
-                os.system('chmod 755 {}'.format(script_path))
+                os.system("chmod 755 {}".format(script_path))
 
                 if launch_with_terminal:
-                    command = ['open', '-a', 'Terminal', script_path]
+                    command = ["open", "-a", "Terminal", script_path]
                 else:
-                    command = ['open', script_path]
+                    command = ["open", script_path]
             else:
                 if command_prefix:
                     command = command_prefix + command
 
             self.logger.debug(
-                'Launching {0} with options {1}'.format(command, options)
+                "Launching {0} with options {1}".format(command, options)
             )
 
             process = subprocess.Popen(command, **options)
@@ -735,29 +745,29 @@ class ApplicationLauncher(object):
             )
 
             success = False
-            message = '{0} application could not be started.'.format(
-                application['label']
+            message = "{0} application could not be started.".format(
+                application["label"]
             )
 
         else:
             self.logger.debug(
-                '{0} application started. (pid={1})'.format(
+                "{0} application started. (pid={1})".format(
                     applicationIdentifier, process.pid
                 )
             )
 
             # Check if a standalone framework helper process should be launched
 
-            if 'standalone_module' in application:
+            if "standalone_module" in application:
                 self.logger.info(
-                    'Launching standalone framework helper for {0}, module: {1}'.format(
-                        applicationIdentifier, application['standalone_module']
+                    "Launching standalone framework helper for {0}, module: {1}".format(
+                        applicationIdentifier, application["standalone_module"]
                     )
                 )
 
                 command = []
                 executable_filename = sys.argv[0]
-                if not executable_filename.endswith('.py'):
+                if not executable_filename.endswith(".py"):
                     command.append(executable_filename)
                 else:
                     # Support invocation through Python interpreter
@@ -766,28 +776,28 @@ class ApplicationLauncher(object):
                 command.extend(
                     [
                         "--run-framework-standalone",
-                        application['standalone_module'],
+                        application["standalone_module"],
                     ]
                 )
 
                 # Append PID to environment for framework to use.
-                environment['FTRACK_APPLICATION_PID'] = str(process.pid)
+                environment["FTRACK_APPLICATION_PID"] = str(process.pid)
 
                 # Do not show console on Windows
-                if self.current_os == 'windows':
+                if self.current_os == "windows":
                     options["creationflags"] = subprocess.CREATE_NO_WINDOW
                     options["shell"] = True
 
                     startupinfo = subprocess.STARTUPINFO()
                     startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 
-                    options['startupinfo'] = startupinfo
+                    options["startupinfo"] = startupinfo
 
                 try:
                     process = subprocess.Popen(command, **options)
                 except (OSError, TypeError):
                     self.logger.exception(
-                        'Standalone framework helper process for {0} could not '
+                        "Standalone framework helper process for {0} could not "
                         'be started with command "{1}".'.format(
                             applicationIdentifier, command
                         )
@@ -795,34 +805,34 @@ class ApplicationLauncher(object):
 
                     success = False
                     message = (
-                        'Standalone framework helper process for {0} could '
-                        'not be started.'.format(application['label'])
+                        "Standalone framework helper process for {0} could "
+                        "not be started.".format(application["label"])
                     )
 
                 else:
                     self.logger.debug(
-                        'Standalone framework helper process for {0} started. '
-                        '(pid={1})'.format(applicationIdentifier, process.pid)
+                        "Standalone framework helper process for {0} started. "
+                        "(pid={1})".format(applicationIdentifier, process.pid)
                     )
 
-        return {'success': success, 'message': message}
+        return {"success": success, "message": message}
 
     def _notify_integration_use(self, results, application):
-        metadata = {'launched_integrations': []}
+        metadata = {"launched_integrations": []}
         for result in results:
             if result is None:
                 continue
 
-            integration = result.get('integration')
+            integration = result.get("integration")
             integration_data = {
-                'application': "{}_{}".format(
-                    application['label'].lower(), str(application['version'])
+                "application": "{}_{}".format(
+                    application["label"].lower(), str(application["version"])
                 ),
-                'name': integration['name'].lower(),
-                'version': str(integration.get('version', 'Unknown')),
-                'os': str(str(platform.platform())),
+                "name": integration["name"].lower(),
+                "version": str(integration.get("version", "Unknown")),
+                "os": str(str(platform.platform())),
             }
-            metadata['launched_integrations'].append(integration_data)
+            metadata["launched_integrations"].append(integration_data)
 
         usage_tracker = get_usage_tracker()
         if usage_tracker:
@@ -832,23 +842,23 @@ class ApplicationLauncher(object):
         # parse integration returned from listeners.
         returned_integrations_names = set(
             [
-                result.get('integration', {}).get('name')
+                result.get("integration", {}).get("name")
                 for result in results
                 if result
             ]
         )
 
         self.logger.debug(
-            'Discovered integrations {}'.format(returned_integrations_names)
+            "Discovered integrations {}".format(returned_integrations_names)
         )
         self.logger.debug(
-            'Requested integrations {}'.format(
-                list(context.get('integrations', {}).items())
+            "Requested integrations {}".format(
+                list(context.get("integrations", {}).items())
             )
         )
 
         for integration_group, requested_integration_names in list(
-            context.get('integrations', {}).items()
+            context.get("integrations", {}).items()
         ):
             difference = set(requested_integration_names).difference(
                 returned_integrations_names
@@ -856,7 +866,7 @@ class ApplicationLauncher(object):
 
             if difference:
                 self.logger.warning(
-                    'Ignoring group {} as integration/s {} has not been discovered.'.format(
+                    "Ignoring group {} as integration/s {} has not been discovered.".format(
                         integration_group, list(difference)
                     )
                 )
@@ -867,65 +877,65 @@ class ApplicationLauncher(object):
                     result
                     for result in results
                     if result
-                    and result['integration']['name']
+                    and result["integration"]["name"]
                     == requested_integration_name
                 ][0]
 
-                envs = result['integration'].get('env', {})
+                envs = result["integration"].get("env", {})
 
                 if not envs:
                     self.logger.warning(
-                        'No environments exported from integration {}'.format(
+                        "No environments exported from integration {}".format(
                             requested_integration_name
                         )
                     )
                     continue
 
                 self.logger.debug(
-                    'Merging environment variables for integration {} for group {}'.format(
+                    "Merging environment variables for integration {} for group {}".format(
                         requested_integration_name, integration_group
                     )
                 )
 
                 for key, value in list(envs.items()):
-                    action = 'append'  # append by default
-                    action_results = key.split('.')
+                    action = "append"  # append by default
+                    action_results = key.split(".")
 
                     if len(action_results) == 2:
                         key, action = action_results
 
-                    if action == 'append':
+                    if action == "append":
                         self.logger.debug(
-                            'Appending {} with {}'.format(key, value)
+                            "Appending {} with {}".format(key, value)
                         )
                         append_path(str(value), key, environments)
 
-                    elif action == 'prepend':
+                    elif action == "prepend":
                         self.logger.debug(
-                            'Prepending {} with {}'.format(key, value)
+                            "Prepending {} with {}".format(key, value)
                         )
                         prepend_path(str(value), key, environments)
 
-                    elif action == 'set':
+                    elif action == "set":
                         self.logger.debug(
-                            'Setting {} to {}'.format(key, value)
+                            "Setting {} to {}".format(key, value)
                         )
                         environments[key] = str(value)
 
-                    elif action == 'unset':
-                        self.logger.debug('Unsetting {}'.format(key))
+                    elif action == "unset":
+                        self.logger.debug("Unsetting {}".format(key))
                         if key in environments:
                             environments.pop(key)
 
-                    elif action == 'pop':
+                    elif action == "pop":
                         self.logger.debug(
-                            'removing {} with {}'.format(key, value)
+                            "removing {} with {}".format(key, value)
                         )
                         pop_path(str(value), key, environments)
 
                     else:
                         self.logger.error(
-                            'Environment variable action {} not recognised for {}'.format(
+                            "Environment variable action {} not recognised for {}".format(
                                 action, key
                             )
                         )
@@ -934,7 +944,7 @@ class ApplicationLauncher(object):
         return environments
 
     def _get_application_launch_command(self, application, context=None):
-        '''Return *application* command based on OS and *context*.
+        """Return *application* command based on OS and *context*.
 
         *application* should be a mapping describing the application, as in the
         :class:`ApplicationStore`.
@@ -942,42 +952,42 @@ class ApplicationLauncher(object):
         *context* should provide additional information about how the
         application should be launched.
 
-        '''
+        """
         command = None
         context = context or {}
 
-        if self.current_os in ('windows', 'linux'):
-            command = [application['path']]
+        if self.current_os in ("windows", "linux"):
+            command = [application["path"]]
 
-        elif self.current_os == 'darwin':
-            if (os.environ.get('FTRACK_CONNECT_CONSOLE') or '') in [
-                '1',
-                'true',
+        elif self.current_os == "darwin":
+            if (os.environ.get("FTRACK_CONNECT_CONSOLE") or "") in [
+                "1",
+                "true",
             ]:
-                command = [application['path']]
+                command = [application["path"]]
             else:
-                command = ['open', application['path']]
+                command = ["open", application["path"]]
 
         else:
             self.logger.warning(
-                'Unable to find launch command for {0} on this platform.'.format(
-                    application['identifier']
+                "Unable to find launch command for {0} on this platform.".format(
+                    application["identifier"]
                 )
             )
 
         # Add any extra launch arguments if specified.
-        AppLaunchArguments = application.get('launchArguments')
+        AppLaunchArguments = application.get("launchArguments")
         if AppLaunchArguments:
             command.extend(AppLaunchArguments)
 
-        CtxApplaunchArguments = context.get('launchArguments')
+        CtxApplaunchArguments = context.get("launchArguments")
         if CtxApplaunchArguments:
             command.extend(CtxApplaunchArguments)
 
         return command
 
     def _get_application_environment(self, application, context=None):
-        '''Return mapping of environment for *application* using *context*.
+        """Return mapping of environment for *application* using *context*.
 
         *application* should be a mapping describing the application, as in the
         :class:`ApplicationStore`.
@@ -985,36 +995,36 @@ class ApplicationLauncher(object):
         *context* should provide additional information about how the
         application should be launched.
 
-        '''
+        """
         # Copy all environment variables to new environment and strip the once
         # we know cause problems if copied.
         environment = os.environ.copy()
 
-        environment.pop('PYTHONHOME', None)
-        environment.pop('FTRACK_EVENT_PLUGIN_PATH', None)
+        environment.pop("PYTHONHOME", None)
+        environment.pop("FTRACK_EVENT_PLUGIN_PATH", None)
 
         # Ensure SSL_CERT_FILE points to the default cert.
-        if 'win32' not in sys.platform:
-            environment[
-                'SSL_CERT_FILE'
-            ] = ssl.get_default_verify_paths().cafile
+        if "win32" not in sys.platform:
+            environment["SSL_CERT_FILE"] = (
+                ssl.get_default_verify_paths().cafile
+            )
 
         # Add FTRACK_EVENT_SERVER variable.
         environment = prepend_path(
             self.session.event_hub.get_server_url(),
-            'FTRACK_EVENT_SERVER',
+            "FTRACK_EVENT_SERVER",
             environment,
         )
 
         # add legacy_environments
-        environment['FTRACK_APIKEY'] = self.session.api_key
+        environment["FTRACK_APIKEY"] = self.session.api_key
 
         laucher_dependencies = os.path.normpath(
-            os.path.join(os.path.abspath(os.path.dirname(__file__)), '..')
+            os.path.join(os.path.abspath(os.path.dirname(__file__)), "..")
         )
 
         environment = prepend_path(
-            laucher_dependencies, 'PYTHONPATH', environment
+            laucher_dependencies, "PYTHONPATH", environment
         )
 
         # Add ftrack connect event to environment.
@@ -1022,26 +1032,26 @@ class ApplicationLauncher(object):
             try:
                 applicationContext = base64.b64encode(
                     json.dumps(context).encode("utf-8")
-                ).decode('utf-8')
+                ).decode("utf-8")
             except (TypeError, ValueError):
                 self.logger.exception(
-                    'The eventData could not be converted correctly. {0}'.format(
+                    "The eventData could not be converted correctly. {0}".format(
                         context
                     )
                 )
             else:
-                environment['FTRACK_CONNECT_EVENT'] = applicationContext
+                environment["FTRACK_CONNECT_EVENT"] = applicationContext
 
         return environment
 
     def _conform_environment(self, mapping):
-        '''Ensure all entries in *mapping* are strings.
+        """Ensure all entries in *mapping* are strings.
 
         .. note::
 
             The *mapping* is modified in place.
 
-        '''
+        """
         if not isinstance(mapping, MutableMapping):
             return
 
@@ -1065,7 +1075,7 @@ class ApplicationLaunchAction(BaseAction):
 
     @property
     def session(self):
-        '''Return convenient exposure of the self._session reference.'''
+        """Return convenient exposure of the self._session reference."""
         return self._session
 
     def __init__(
@@ -1074,7 +1084,7 @@ class ApplicationLaunchAction(BaseAction):
         super(ApplicationLaunchAction, self).__init__(session)
 
         self.logger = logging.getLogger(
-            __name__ + '.' + self.__class__.__name__
+            __name__ + "." + self.__class__.__name__
         )
 
         self.priority = priority
@@ -1082,13 +1092,13 @@ class ApplicationLaunchAction(BaseAction):
         self.launcher = launcher
 
     def validate_selection(self, entities):
-        '''Return True if the selection is valid.
+        """Return True if the selection is valid.
 
         Utility method to check *entities* validity.
 
-        '''
+        """
         if not self.context:
-            raise ValueError('No valid context type set for discovery')
+            raise ValueError("No valid context type set for discovery")
 
         if not entities and None in self.context:
             # handle non context discovery
@@ -1117,34 +1127,34 @@ class ApplicationLaunchAction(BaseAction):
         applications = self.application_store.applications
 
         applications = sorted(
-            applications, key=lambda application: application['label']
+            applications, key=lambda application: application["label"]
         )
 
         for application in applications:
-            application_identifier = application['identifier']
-            label = application['label']
+            application_identifier = application["identifier"]
+            label = application["label"]
 
-            context = event['data'].copy()
-            context['source'] = event['source']
+            context = event["data"].copy()
+            context["source"] = event["source"]
 
-            if self.launcher and application.get('integrations'):
+            if self.launcher and application.get("integrations"):
                 (
                     _,
                     lost_integration_groups,
                 ) = self.launcher.discover_integrations(application, context)
 
                 for lost_integration_group in lost_integration_groups:
-                    removed_integrations = application['integrations'][
+                    removed_integrations = application["integrations"][
                         lost_integration_group
                     ]
                     self.logger.debug(
                         (
-                            'Application integration group {} for {} {} could not be loaded.\n'
-                            'Some of the integrations defined could not be found: {}'
+                            "Application integration group {} for {} {} could not be loaded.\n"
+                            "Some of the integrations defined could not be found: {}"
                         ).format(
                             lost_integration_group,
-                            application['label'],
-                            application['variant'],
+                            application["label"],
+                            application["variant"],
                             removed_integrations,
                         )
                     )
@@ -1154,27 +1164,27 @@ class ApplicationLaunchAction(BaseAction):
 
             items.append(
                 {
-                    'actionIdentifier': self.identifier,
-                    'label': label,
-                    'icon': application.get('icon', 'default'),
-                    'variant': application.get('variant', None),
-                    'applicationIdentifier': application_identifier,
-                    'integrations': application.get('integrations', {}),
-                    'host': platform.node(),
-                    'rosetta': application.get('rosetta', None),
+                    "actionIdentifier": self.identifier,
+                    "label": label,
+                    "icon": application.get("icon", "default"),
+                    "variant": application.get("variant", None),
+                    "applicationIdentifier": application_identifier,
+                    "integrations": application.get("integrations", {}),
+                    "host": platform.node(),
+                    "rosetta": application.get("rosetta", None),
                 }
             )
 
-        return {'items': items}
+        return {"items": items}
 
     def _launch(self, event):
-        '''Handle *event*.
+        """Handle *event*.
 
         event['data'] should contain:
 
             *applicationIdentifier* to identify which application to start.
 
-        '''
+        """
         event.stop()
 
         entities, event = self._translate_event(self.session, event)
@@ -1182,15 +1192,15 @@ class ApplicationLaunchAction(BaseAction):
         if not self.validate_selection(entities):
             return
 
-        application_identifier = event['data']['applicationIdentifier']
-        context = event['data'].copy()
-        context['source'] = event['source']
+        application_identifier = event["data"]["applicationIdentifier"]
+        context = event["data"].copy()
+        context["source"] = event["source"]
 
         return self.launcher.launch(application_identifier, context)
 
     def get_debug_information(self):
-        '''Get application launcher debug information'''
-        result = {'identifier': self.identifier, 'applications': []}
+        """Get application launcher debug information"""
+        result = {"identifier": self.identifier, "applications": []}
         for application in self.application_store.applications:
             application_information = {
                 k: str(v) for k, v in application.items()
@@ -1202,25 +1212,25 @@ class ApplicationLaunchAction(BaseAction):
             for discovered in all_discovered:
                 if discovered not in founds:
                     founds.append(discovered)
-            application_information['found'] = founds
-            result['applications'].append(application_information)
+            application_information["found"] = founds
+            result["applications"].append(application_information)
         return result
 
     def register(self):
-        '''Register discover actions on logged in user.'''
+        """Register discover actions on logged in user."""
 
         self.session.event_hub.subscribe(
-            'topic=ftrack.action.discover '
-            'and source.user.username={0}'.format(self.session.api_user),
+            "topic=ftrack.action.discover "
+            "and source.user.username={0}".format(self.session.api_user),
             self._discover,
             priority=self.priority,
         )
 
         self.session.event_hub.subscribe(
-            'topic=ftrack.action.launch '
-            'and source.user.username={0} '
-            'and data.actionIdentifier={1} '
-            'and data.host={2}'.format(
+            "topic=ftrack.action.launch "
+            "and source.user.username={0} "
+            "and data.actionIdentifier={1} "
+            "and data.host={2}".format(
                 self.session.api_user, self.identifier, platform.node()
             ),
             self._launch,
