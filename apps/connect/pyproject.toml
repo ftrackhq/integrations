@@ -51,7 +51,7 @@ installer = [
   "ftrack-app-installer" # Path defined in [tool.uv.sources]
 ]
 documentation = [
-  "pyScss >=1.2.0, <2",
+  "libsass >=0.23.0, <1",
   "sphinx >=5, <10",
   "Jinja2 >=3.1, <4",
   "sphinx_rtd_theme >=1, <3",
