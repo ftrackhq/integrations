@@ -41,36 +41,36 @@ See Monorepo build CI
 2. Build resources:
 ```bash
 cd apps/connect
-uv run python ../../tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py --pyside_version 6 build_qt_resources .
+uv run --active python ../../tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py --pyside_version 6 build_qt_resources .
 ```
 
 3. Update dependencies:
 
 ```bash
-    uv lock
-    uv sync
+    uv lock --active
+    uv sync --active
 ```
 4. Test connect and install it from sources (Optional)
 
 ```bash
-    uv sync --extra dev
+    uv sync --active --extra dev
 ```
 5. Start connect:
 
 ```bash
-    uv run python -m ftrack_connect
+    uv run --active python -m ftrack_connect
 ```
 6. Build Connect wheel (Optional)
 
 ```bash
-  uv build
+  uv build --active
 ```
 
 7. Generate distributible connect installer
 
 ```bash
-  uv sync --extra installer
-  uv run ftrack-connect-installer --codesign true
+  uv sync --active --extra installer
+  uv run --active ftrack-connect-installer --codesign true
 ```
 **Note:** If you don't codesign, the resultant dmg file will not be valid to be shared and will appear as damaged app in other computers.
 
@@ -89,13 +89,13 @@ uv run python ../../tools/build.py --style_path resource --output_path source/ft
 1. Install documentation dependencies:
 
 ```bash
-  uv sync --extra documentation
+  uv sync --active --extra documentation
 ```
 
 2. Build documentation:
 
 ```bash
-    uv run sphinx-build -b html doc dist/doc
+    uv run --active sphinx-build -b html doc dist/doc
 ```
 
 ## Publish to PyPi

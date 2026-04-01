@@ -36,7 +36,7 @@ See Monorepo build CI
 Build with uv:
 
 ```bash
-    uv build
+    uv build --active
 ```
 
 Build Connect plugin:
@@ -44,7 +44,7 @@ Build Connect plugin:
 
 ```bash
     cd projects/framework-max
-    uv run python ../../tools/build.py --include_resources resource/bootstrap build_connect_plugin .
+    uv run --active python ../../tools/build.py --include_resources resource/bootstrap build_connect_plugin .
 ```
 
 If the build fails and Max is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 

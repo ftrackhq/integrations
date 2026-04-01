@@ -23,14 +23,14 @@ Build with uv:
 
 ```bash
   cd projects/connect-timetracker-widget
-  uv build
+  uv build --active
 ```
 
 Build Connect plugin:
 
 ```bash
   cd projects/connect-timetracker-widget
-  uv run python ../../tools/build.py build_connect_plugin .
+  uv run --active python ../../tools/build.py build_connect_plugin .
 ```
 
 If the build fails and timetracker widget is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 
@@ -43,11 +43,11 @@ to build the plugin.
 Install documentation dependencies:
 
 ```bash
-  uv sync --extra documentation
+  uv sync --active --extra documentation
 ```
 
 Build documentation:
 
 ```bash
-    uv run sphinx-build -b html doc dist/doc
+    uv run --active sphinx-build -b html doc dist/doc
 ```

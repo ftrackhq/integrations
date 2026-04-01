@@ -25,14 +25,14 @@ Install nuke dependencies:
 
 ```bash
   cd projects/nuke-studio
-  uv sync
+  uv sync --active
 ```
 
 Build with uv:
 
 ```bash
   cd projects/nuke-studio
-  uv build
+  uv build --active
 ```
 
 Build Connect plugin:
@@ -40,7 +40,7 @@ Build Connect plugin:
 
 ```bash
   cd projects/nuke-studio
-  uv run python ../../tools/build.py --include_resources resource/plugin,resource/application_hook build_connect_plugin .
+  uv run --active python ../../tools/build.py --include_resources resource/plugin,resource/application_hook build_connect_plugin .
 ```
 
 If the build fails and Nuke Studio is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 
@@ -53,13 +53,13 @@ to build the plugin.
 Install documentation dependencies:
 
 ```bash
-  uv sync --extra documentation
+  uv sync --active --extra documentation
 ```
 
 Build documentation:
 
 ```bash
-    uv run sphinx-build -b html doc dist/doc
+    uv run --active sphinx-build -b html doc dist/doc
 ```
 
 

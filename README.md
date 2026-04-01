@@ -64,7 +64,7 @@ We run Ruff on the codebase to ensure consistent linting and formatting.
 To be sure formatting and lint checks are run before committing, enable the Git pre-commit hook by running:
 
 ```bash
-uv pip install pre-commit
+uv pip install --active pre-commit
 pre-commit install
 ```
 > [!NOTE]
@@ -76,11 +76,11 @@ Install dependencies with uv before running tests.
 
 - Go to the repository root and execute the following command to run all monorepo unit tests:
 ```bash
-uv run pytest
+uv run --active pytest
 ```
 - And This command to execute a specific tests: (Example using framework)
 ```bash
-uv run pytest tests/framework/unit/
+uv run --active pytest tests/framework/unit/
 ```
 
 ## Build and publish libraries

@@ -23,7 +23,7 @@ Community owned Premiere integration for ftrack.
 7. If dependencies updated, update the uv lock file. Remember to properly validate/test the change of dependencies.
 
 ```bash
-    uv lock
+    uv lock --active
 ```
 
 8. Tag and push to SCM
@@ -39,7 +39,7 @@ See Monorepo build CI
 Build with uv:
 
 ```bash
-    uv build
+    uv build --active
 ```
 
 Build Connect plugin:
@@ -47,7 +47,7 @@ Build Connect plugin:
 
 ```bash
     cd projects/framework-premiere
-    uv run python ../../tools/build.py --include_resources resource/presets build_connect_plugin .
+    uv run --active python ../../tools/build.py --include_resources resource/presets build_connect_plugin .
 ```
 
 If the build fails and Premiere is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 
@@ -103,14 +103,14 @@ Build Ftrack Qt Style:
 
 ```bash
     cd projects/framework-premiere
-    uv run --with-requirements ../../tools/requirements-connect.txt python ../../tools/build.py build_qt_resources --css_only ../../libs/qt-style
+    uv run --active --with-requirements ../../tools/requirements-connect.txt python ../../tools/build.py build_qt_resources --css_only ../../libs/qt-style
 ```
 
 Create Adobe extension:
 
 ```bash
     cd projects/framework-premiere
-    uv run python ../../tools/build.py --nosign build_cep .
+    uv run --active python ../../tools/build.py --nosign build_cep .
 ```
 
 
