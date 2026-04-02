@@ -21,7 +21,7 @@ var panel_heartbeat_interval = null;
 
 const CONNECT_DELAY_MS = 7000;
 const ISOLATE_LAUNCHER_RENDERING = false;
-const ISOLATE_REMOTE_THUMBNAIL = true;
+const ISOLATE_REMOTE_THUMBNAIL = false;
 const LOCAL_CONTEXT_THUMBNAIL_PATH = "./icons/thumbnail.png";
 const STATIC_LAUNCHER_ICON_PATH = "./icons/publish.png";
 const LAUNCHER_RENDER_MODE = "button_text_click_css_icon";
@@ -245,6 +245,23 @@ function getLauncherIconClassName(launcher) {
 }
 
 
+function getLauncherIconGlyph(launcher) {
+    const iconName = launcher && launcher.icon
+        ? String(launcher.icon).toLowerCase()
+        : "default";
+
+    if (iconName === "publish") {
+        return "P";
+    }
+
+    if (iconName === "open") {
+        return "O";
+    }
+
+    return "-";
+}
+
+
 function renderPanelLaunchers(launchers) {
     const launcherTable = document.getElementById("launch_configs");
     if (!launcherTable) {
@@ -304,6 +321,7 @@ function renderPanelLaunchers(launchers) {
             const icon = document.createElement("span");
             icon.className = "launcher_icon " + getLauncherIconClassName(launcher);
             icon.setAttribute("aria-hidden", "true");
+            icon.textContent = getLauncherIconGlyph(launcher);
             button.appendChild(icon);
         } else if (
             LAUNCHER_RENDER_MODE === "button_text_click_static_icon"
@@ -354,7 +372,15 @@ function updatePanelContext(data) {
             logPanel("UI isolation mode enabled: skipping remote thumbnail assignment.");
         }
     } else {
-        contextThumbnail.src = data.context_thumbnail || LOCAL_CONTEXT_THUMBNAIL_PATH;
+        const thumbnailUrl = data.context_thumbnail;
+
+        contextThumbnail.onerror = () => {
+            logPanel("Remote context thumbnail failed to load, using local fallback.");
+            contextThumbnail.onerror = null;
+            contextThumbnail.src = LOCAL_CONTEXT_THUMBNAIL_PATH;
+        };
+
+        contextThumbnail.src = thumbnailUrl || LOCAL_CONTEXT_THUMBNAIL_PATH;
     }
 
     contextName.textContent = data.context_name || "";

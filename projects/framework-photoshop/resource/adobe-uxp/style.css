@@ -117,31 +117,39 @@ body {
 
 .launcher_label {
   display: inline-block;
+  flex: 1 1 auto;
 }
 
 .launcher_icon {
-  width: 12px;
-  height: 16px;
-  min-width: 12px;
-  min-height: 16px;
-  max-width: 12px;
-  max-height: 16px;
-  display: inline-block;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: contain;
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  min-height: 18px;
+  max-width: 18px;
+  max-height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 18px;
+  border: 1px solid rgba(255, 221, 134, 0.6);
+  border-radius: 9px;
+  background-color: rgba(255, 221, 134, 0.15);
+  color: #ffdd86;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
 }
 
 .launcher_icon_publish {
-  background-image: url("./icons/publish.png");
+  color: #f5c14f;
 }
 
 .launcher_icon_open {
-  background-image: url("./icons/open.png");
+  color: #89d0ff;
 }
 
 .launcher_icon_default {
-  background-image: url("./icons/open.png");
+  color: #ffffff;
 }
 
 .launcher_image {
