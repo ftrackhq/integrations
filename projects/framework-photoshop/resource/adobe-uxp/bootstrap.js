@@ -23,8 +23,17 @@ const CONNECT_DELAY_MS = 7000;
 const ISOLATE_LAUNCHER_RENDERING = false;
 const ISOLATE_REMOTE_THUMBNAIL = true;
 const LOCAL_CONTEXT_THUMBNAIL_PATH = "./icons/thumbnail.png";
-const LAUNCHER_RENDER_MODE = "button_text_click";
+const STATIC_LAUNCHER_ICON_PATH = "./icons/publish.png";
+const LAUNCHER_RENDER_MODE = "button_text_click_css_icon";
 const HEARTBEAT_INTERVAL_MS = 3000;
+
+const LAUNCHER_CLICKABLE_MODES = [
+    "button_text_click",
+    "button_text_click_css_icon",
+    "button_text_click_static_icon",
+    "button_text_click_dynamic_icon",
+    "full",
+];
 
 
 function platformPathJoin(parts) {
@@ -219,6 +228,23 @@ function clearElementChildren(element) {
 }
 
 
+function getLauncherIconClassName(launcher) {
+    const iconName = launcher && launcher.icon
+        ? String(launcher.icon).toLowerCase()
+        : "default";
+
+    if (iconName === "publish") {
+        return "launcher_icon_publish";
+    }
+
+    if (iconName === "open") {
+        return "launcher_icon_open";
+    }
+
+    return "launcher_icon_default";
+}
+
+
 function renderPanelLaunchers(launchers) {
     const launcherTable = document.getElementById("launch_configs");
     if (!launcherTable) {
@@ -250,6 +276,7 @@ function renderPanelLaunchers(launchers) {
 
         if (LAUNCHER_RENDER_MODE === "text_only") {
             const label = document.createElement("span");
+            label.className = "launcher_label";
             label.textContent = launcher.label || launcher.name;
             cell.appendChild(label);
             row.appendChild(cell);
@@ -261,7 +288,7 @@ function renderPanelLaunchers(launchers) {
         button.type = "button";
         button.className = "launcher_button";
 
-        if (LAUNCHER_RENDER_MODE === "button_text_click") {
+        if (LAUNCHER_CLICKABLE_MODES.indexOf(LAUNCHER_RENDER_MODE) > -1) {
             button.addEventListener("click", () => {
                 launchTool(launcher.name);
             });
@@ -270,13 +297,37 @@ function renderPanelLaunchers(launchers) {
         }
 
         const label = document.createElement("span");
+        label.className = "launcher_label";
         label.textContent = launcher.label || launcher.name;
 
-        if (LAUNCHER_RENDER_MODE === "full") {
+        if (LAUNCHER_RENDER_MODE === "button_text_click_css_icon") {
+            const icon = document.createElement("span");
+            icon.className = "launcher_icon " + getLauncherIconClassName(launcher);
+            icon.setAttribute("aria-hidden", "true");
+            button.appendChild(icon);
+        } else if (
+            LAUNCHER_RENDER_MODE === "button_text_click_static_icon"
+            || LAUNCHER_RENDER_MODE === "button_text_click_dynamic_icon"
+            || LAUNCHER_RENDER_MODE === "full"
+        ) {
             const image = document.createElement("img");
             image.className = "launcher_image";
-            image.src = "./icons/" + launcher.icon + ".png";
+            if (LAUNCHER_RENDER_MODE === "button_text_click_static_icon") {
+                image.src = STATIC_LAUNCHER_ICON_PATH;
+            } else {
+                image.src = "./icons/" + launcher.icon + ".png";
+            }
             image.alt = launcher.label || launcher.name;
+            image.addEventListener("error", () => {
+                if (image.src !== STATIC_LAUNCHER_ICON_PATH) {
+                    logPanel(
+                        "Launcher icon failed to load for " +
+                        launcher.name +
+                        ", falling back to static icon.",
+                    );
+                    image.src = STATIC_LAUNCHER_ICON_PATH;
+                }
+            });
             button.appendChild(image);
         }
 
