@@ -17,10 +17,14 @@ var panel_launchers;
 var context_id = undefined;
 var project_id = undefined;
 var panel_bindings_initialized = false;
+var panel_heartbeat_interval = null;
 
 const CONNECT_DELAY_MS = 7000;
-const UI_ISOLATION_MODE = true;
+const ISOLATE_LAUNCHER_RENDERING = false;
+const ISOLATE_REMOTE_THUMBNAIL = true;
 const LOCAL_CONTEXT_THUMBNAIL_PATH = "./icons/thumbnail.png";
+const LAUNCHER_RENDER_MODE = "button_text_click";
+const HEARTBEAT_INTERVAL_MS = 3000;
 
 
 function platformPathJoin(parts) {
@@ -135,6 +139,28 @@ function logPanel(message) {
 }
 
 
+function startPanelHeartbeat() {
+    if (panel_heartbeat_interval) {
+        return;
+    }
+
+    panel_heartbeat_interval = setInterval(() => {
+        logPanel(
+            "Heartbeat connected=" +
+            String(connected) +
+            " event_manager=" +
+            String(Boolean(event_manager)) +
+            " context_id=" +
+            String(context_id || "<none>") +
+            " launchers=" +
+            String(Array.isArray(panel_launchers) ? panel_launchers.length : 0),
+        );
+    }, HEARTBEAT_INTERVAL_MS);
+
+    logPanel("Heartbeat started (" + String(HEARTBEAT_INTERVAL_MS) + "ms).");
+}
+
+
 function installGlobalErrorHandlers() {
     if (window.__ftrack_global_error_handlers_installed__) {
         return;
@@ -201,7 +227,7 @@ function renderPanelLaunchers(launchers) {
 
     clearElementChildren(launcherTable);
 
-    if (UI_ISOLATION_MODE) {
+    if (ISOLATE_LAUNCHER_RENDERING) {
         logPanel("UI isolation mode enabled: skipping launcher rendering.");
         return;
     }
@@ -210,6 +236,8 @@ function renderPanelLaunchers(launchers) {
         console.warn("[ftrack panel] panel_launchers payload is not an array.");
         return;
     }
+
+    logPanel("Launcher render mode: " + LAUNCHER_RENDER_MODE);
 
     for (let idx = 0; idx < launchers.length; idx += 1) {
         const launcher = launchers[idx];
@@ -220,22 +248,38 @@ function renderPanelLaunchers(launchers) {
         const row = document.createElement("tr");
         const cell = document.createElement("td");
 
+        if (LAUNCHER_RENDER_MODE === "text_only") {
+            const label = document.createElement("span");
+            label.textContent = launcher.label || launcher.name;
+            cell.appendChild(label);
+            row.appendChild(cell);
+            launcherTable.appendChild(row);
+            continue;
+        }
+
         const button = document.createElement("button");
         button.type = "button";
         button.className = "launcher_button";
-        button.addEventListener("click", () => {
-            launchTool(launcher.name);
-        });
 
-        const image = document.createElement("img");
-        image.className = "launcher_image";
-        image.src = "./icons/" + launcher.icon + ".png";
-        image.alt = launcher.label || launcher.name;
+        if (LAUNCHER_RENDER_MODE === "button_text_click") {
+            button.addEventListener("click", () => {
+                launchTool(launcher.name);
+            });
+        } else {
+            button.disabled = true;
+        }
 
         const label = document.createElement("span");
         label.textContent = launcher.label || launcher.name;
 
-        button.appendChild(image);
+        if (LAUNCHER_RENDER_MODE === "full") {
+            const image = document.createElement("img");
+            image.className = "launcher_image";
+            image.src = "./icons/" + launcher.icon + ".png";
+            image.alt = launcher.label || launcher.name;
+            button.appendChild(image);
+        }
+
         button.appendChild(label);
         cell.appendChild(button);
         row.appendChild(cell);
@@ -253,7 +297,7 @@ function updatePanelContext(data) {
         throw new Error("Missing context panel elements.");
     }
 
-    if (UI_ISOLATION_MODE) {
+    if (ISOLATE_REMOTE_THUMBNAIL) {
         contextThumbnail.src = LOCAL_CONTEXT_THUMBNAIL_PATH;
         if (data.context_thumbnail) {
             logPanel("UI isolation mode enabled: skipping remote thumbnail assignment.");
@@ -414,6 +458,7 @@ function handleIntegrationContextDataCallback(event) {
             connected = true;
             showElement("connecting", false);
             showElement("content", true);
+            startPanelHeartbeat();
 
             try {
                 ftrackIntegrationConnected();
