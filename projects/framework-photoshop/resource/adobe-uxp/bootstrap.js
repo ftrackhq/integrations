@@ -19,7 +19,7 @@ var project_id = undefined;
 var panel_bindings_initialized = false;
 var panel_heartbeat_interval = null;
 
-const CONNECT_DELAY_MS = 7000;
+const CONNECT_DELAY_MS = 1500;
 const ISOLATE_LAUNCHER_RENDERING = false;
 const ISOLATE_REMOTE_THUMBNAIL = false;
 const LOCAL_CONTEXT_THUMBNAIL_PATH = "./icons/thumbnail.png";
@@ -245,20 +245,20 @@ function getLauncherIconClassName(launcher) {
 }
 
 
-function getLauncherIconGlyph(launcher) {
+function getLauncherIconSymbol(launcher) {
     const iconName = launcher && launcher.icon
         ? String(launcher.icon).toLowerCase()
         : "default";
 
     if (iconName === "publish") {
-        return "P";
+        return String.fromCharCode(0x2934);
     }
 
     if (iconName === "open") {
-        return "O";
+        return String.fromCharCode(0x2197);
     }
 
-    return "-";
+    return String.fromCharCode(0x2022);
 }
 
 
@@ -321,7 +321,7 @@ function renderPanelLaunchers(launchers) {
             const icon = document.createElement("span");
             icon.className = "launcher_icon " + getLauncherIconClassName(launcher);
             icon.setAttribute("aria-hidden", "true");
-            icon.textContent = getLauncherIconGlyph(launcher);
+            icon.textContent = getLauncherIconSymbol(launcher);
             button.appendChild(icon);
         } else if (
             LAUNCHER_RENDER_MODE === "button_text_click_static_icon"
