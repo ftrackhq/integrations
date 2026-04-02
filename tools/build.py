@@ -160,7 +160,7 @@ def build_package(invokation_path, pkg_path, args, command=None):
 
         assert VERSION, 'No version could be extracted from "pyproject.toml"!'
 
-        if command == "build_cep":
+        if command in ("build_cep", "build_uxp"):
             # Align version, cannot contain rc/alpha/beta
             if VERSION.find("rc") > -1:
                 VERSION = VERSION.split("rc")[0]
@@ -392,6 +392,8 @@ def build_package(invokation_path, pkg_path, args, command=None):
                         [
                             "--target",
                             dependencies_path,
+                            "--refresh",
+                            "--reinstall",
                         ]
                     )
                     subprocess.check_call(commands)
@@ -492,6 +494,8 @@ def build_package(invokation_path, pkg_path, args, command=None):
                         f'{os.path.join(dist_path, wheel_name)}{f"[{extras}]" if extras else ""}',
                         "--target",
                         dependencies_path,
+                        "--refresh",
+                        "--reinstall",
                     ]
                     subprocess.check_call(commands)
 
@@ -526,7 +530,6 @@ def build_package(invokation_path, pkg_path, args, command=None):
             "pip",
             "install",
             wheel_path,
-            "--no-build-isolation",
             "--project",
             ROOT_PATH,
             "--index-strategy",
@@ -535,6 +538,8 @@ def build_package(invokation_path, pkg_path, args, command=None):
             requirements_path,
             "--target",
             dependencies_path,
+            "--refresh",
+            "--reinstall",
         ]
         if args.testpypi:
             # Try to pick first from pypi if not exist go to test pypi
@@ -931,6 +936,59 @@ def build_package(invokation_path, pkg_path, args, command=None):
             logging.warning(f"Removing: {STAGING_PATH}")
             shutil.rmtree(STAGING_PATH, ignore_errors=True)
 
+    def build_uxp(args):
+        """Wrapper for building Adobe UXP extension artifact."""
+        UXP_DCC_PATH = os.path.join(ROOT_PATH, "resource", "adobe-uxp")
+        if not os.path.exists(UXP_DCC_PATH):
+            raise Exception('Missing DCC "{}/" folder!'.format(UXP_DCC_PATH))
+
+        MANIFEST_PATH = os.path.join(UXP_DCC_PATH, "manifest.json")
+        if not os.path.exists(MANIFEST_PATH):
+            raise Exception("Missing manifest:{}!".format(MANIFEST_PATH))
+
+        STAGING_PATH = os.path.join(BUILD_PATH, "staging-uxp")
+        assert DCC_NAME, "Please provide DCC name to build UXP plugin for"
+
+        if not os.path.exists(BUILD_PATH):
+            os.makedirs(BUILD_PATH)
+
+        extension_output_path = os.path.join(
+            BUILD_PATH, f"ftrack-framework-{DCC_NAME}-{VERSION}.ccx"
+        )
+        temp_zip_output_path = os.path.join(
+            BUILD_PATH, f"ftrack-framework-{DCC_NAME}-{VERSION}-uxp.zip"
+        )
+
+        for output_path in [extension_output_path, temp_zip_output_path]:
+            if os.path.exists(output_path):
+                logging.warning(
+                    "Removed previous build: {}".format(output_path)
+                )
+                os.remove(output_path)
+
+        shutil.rmtree(STAGING_PATH, ignore_errors=True)
+        shutil.copytree(UXP_DCC_PATH, STAGING_PATH)
+
+        with open(os.path.join(STAGING_PATH, "manifest.json"), "r") as f:
+            manifest = json.load(f)
+
+        manifest["version"] = VERSION
+
+        with open(os.path.join(STAGING_PATH, "manifest.json"), "w") as f:
+            json.dump(manifest, f, indent=2)
+            f.write("\n")
+
+        shutil.make_archive(temp_zip_output_path[:-4], "zip", STAGING_PATH)
+        shutil.move(temp_zip_output_path, extension_output_path)
+
+        logging.info(
+            "Built UXP extension artifact: {}".format(extension_output_path)
+        )
+
+        if args.remove_intermediate_folder:
+            logging.warning(f"Removing: {STAGING_PATH}")
+            shutil.rmtree(STAGING_PATH, ignore_errors=True)
+
     def build_rvpkg(args):
         """Wrapper for building RV plugin package"""
 
@@ -1032,6 +1090,8 @@ def build_package(invokation_path, pkg_path, args, command=None):
         build_sphinx(args)
     elif command == "build_cep":
         build_cep(args)
+    elif command == "build_uxp":
+        build_uxp(args)
     elif command == "build_rvpkg":
         build_rvpkg(args)
 
@@ -1126,6 +1186,7 @@ if __name__ == "__main__":
             "build_connect_plugin; Build Connect plugin archive\n"
             "build_qt_resources; Build QT resources\n"
             "build_cep; Build Adobe CEP(.zxp) plugin\n"
+            "build_uxp; Build Adobe UXP(.ccx) plugin artifact\n"
             "build_rvpkg; Build RV pkg\n"
         ),
         choices=[
@@ -1134,6 +1195,7 @@ if __name__ == "__main__":
             "build_qt_resources",
             "build_sphinx",
             "build_cep",
+            "build_uxp",
             "build_rvpkg",
         ],
     )

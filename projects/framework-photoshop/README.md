@@ -59,6 +59,8 @@ To build from source, not involving PyPi, use the `--from_source` flag.
 
 ## CEP plugin
 
+> Legacy path. Photoshop integration is migrating to UXP.
+
 To enable live development, first allow unsigned extensions:
 
 ```bash
@@ -117,3 +119,26 @@ Copy the resulting dist/ftrack-framework-photoshop-<version> folder to your conn
 
 Use "Extension Manager" tool provided here: https://install.anastasiy.com/ to install 
 the built xzp plugin. Remember to remove previous ftrack extensions.
+
+
+## UXP plugin
+
+Build UXP artifact:
+
+```bash
+    cd projects/framework-photoshop
+    uv run python ../../tools/build.py --remove_intermediate_folder build_uxp .
+```
+
+The output artifact is placed in `projects/framework-photoshop/dist/` as:
+
+- `ftrack-framework-photoshop-<version>.ccx`
+
+### UXP local testing
+
+1. Build the UXP artifact.
+2. Unzip it locally.
+3. Open Adobe UXP Developer Tool.
+4. Add plugin from the unzipped folder that contains `manifest.json`.
+5. Launch Photoshop from ftrack Connect so bootstrap files are generated.
+6. Open panel `ftrack` in Photoshop and validate connection.
