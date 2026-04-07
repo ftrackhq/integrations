@@ -8,12 +8,13 @@ import traceback
 import platform
 import subprocess
 import re
+import zipfile
 from functools import partial
 
 try:
-    from PySide6 import QtWidgets, QtCore
+    from PySide6 import QtWidgets, QtCore, QtGui
 except ImportError:
-    from PySide2 import QtWidgets, QtCore
+    from PySide2 import QtWidgets, QtCore, QtGui
 
 from ftrack_constants import framework as constants
 
@@ -60,6 +61,13 @@ photoshop_rpc_connection = None
 startup_tools = []
 session = None
 process_monitor = None
+process_watchdog_timer = None
+integration_alive_seconds = 0
+launcher_expected_photoshop_pid = None
+launcher_expected_pid_fallback_logged = False
+
+PROCESS_WATCHDOG_INTERVAL_SECONDS = 5
+
 
 # Create Qt application
 if hasattr(QtCore.Qt, "AA_PluginApplication"):
@@ -69,6 +77,103 @@ app = QtWidgets.QApplication.instance()
 
 if not app:
     app = QtWidgets.QApplication(sys.argv)
+
+
+def _get_application_icon_path():
+    """Return icon path for Photoshop standalone helper app, if available."""
+    package_root = os.path.abspath(os.path.dirname(__file__))
+    package_candidates = [
+        os.path.join(package_root, "resources", "ftrack-logo-96.png"),
+        os.path.join(package_root, "resources", "ftrack-logo-48.png"),
+    ]
+
+    for candidate in package_candidates:
+        if os.path.isfile(candidate):
+            logger.info(
+                "Using packaged helper icon: %s",
+                candidate,
+            )
+            return candidate
+
+    integration_root = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "..", "..")
+    )
+
+    ccx_files = sorted(
+        [
+            filename
+            for filename in os.listdir(integration_root)
+            if filename.lower().endswith(".ccx")
+        ]
+    )
+
+    for ccx_filename in reversed(ccx_files):
+        ccx_path = os.path.join(integration_root, ccx_filename)
+        try:
+            with zipfile.ZipFile(ccx_path, "r") as archive:
+                for ccx_icon_path in [
+                    "icons/ftrack-logo-96.png",
+                    "icons/ftrack-logo-48.png",
+                ]:
+                    try:
+                        icon_data = archive.read(ccx_icon_path)
+                    except KeyError:
+                        continue
+
+                    cache_dir = os.path.join(
+                        os.path.expanduser("~"),
+                        ".ftrack",
+                        "framework-photoshop",
+                        "standalone-assets",
+                    )
+                    os.makedirs(cache_dir, exist_ok=True)
+
+                    extracted_icon_path = os.path.join(
+                        cache_dir,
+                        f"{os.path.basename(ccx_filename)}-{os.path.basename(ccx_icon_path)}",
+                    )
+
+                    with open(
+                        extracted_icon_path, "wb"
+                    ) as extracted_icon_file:
+                        extracted_icon_file.write(icon_data)
+
+                    logger.info(
+                        "Using helper icon extracted from CCX: %s",
+                        extracted_icon_path,
+                    )
+                    return extracted_icon_path
+        except Exception:
+            logger.debug(
+                "Failed reading icon assets from CCX: %s",
+                ccx_path,
+                exc_info=True,
+            )
+
+    return None
+
+
+def _configure_application_identity():
+    """Set standalone process app icon metadata."""
+
+    icon_path = _get_application_icon_path()
+    if icon_path:
+        icon = QtGui.QIcon(icon_path)
+        if not icon.isNull():
+            app.setWindowIcon(icon)
+            logger.info("Applied helper app icon: %s", icon_path)
+        else:
+            logger.warning(
+                "Resolved helper icon path but Qt icon was null: %s",
+                icon_path,
+            )
+    else:
+        logger.warning(
+            "No helper icon asset found, using default Python icon."
+        )
+
+
+_configure_application_identity()
 
 
 @invoke_in_qt_main_thread
@@ -92,13 +197,112 @@ def rpc_process_events_callback():
     app.processEvents()
 
 
-def probe_photoshop_pid(photoshop_version):
+def process_watchdog_callback():
+    """Check Photoshop process + panel responsiveness periodically."""
+    global integration_alive_seconds
+
+    integration_alive_seconds += PROCESS_WATCHDOG_INTERVAL_SECONDS
+    if integration_alive_seconds % 40 == 0:
+        logger.info(
+            f"Integration alive has been for {integration_alive_seconds}s, "
+            f"connected: {photoshop_rpc_connection.connected}"
+        )
+
+    # Check if Photoshop still is running
+    if not process_monitor.check_running():
+        logger.warning("Photoshop process gone, shutting down!")
+        terminate_current_process()
+        return
+
+    # Check if Photoshop panel is alive
+    respond_result = photoshop_rpc_connection.check_responding()
+    if not respond_result and photoshop_rpc_connection.connected:
+        photoshop_rpc_connection.connected = False
+        logger.info(
+            f"Photoshop is not responding but process ({process_monitor.process_pid}) "
+            "is still there, panel temporarily closed?"
+        )
+    elif respond_result and not photoshop_rpc_connection.connected:
+        photoshop_rpc_connection.connected = True
+        logger.info("Photoshop is responding again, panel alive.")
+
+
+def _extract_launcher_expected_pid():
+    """Return launcher provided PID hint, if available and valid."""
+    raw_pid = os.environ.get("FTRACK_APPLICATION_PID")
+    if not raw_pid:
+        return None
+
+    try:
+        pid = int(raw_pid)
+    except (TypeError, ValueError):
+        logger.warning("Invalid FTRACK_APPLICATION_PID value: %s", raw_pid)
+        return None
+
+    if pid <= 0:
+        logger.warning(
+            "Ignoring non-positive FTRACK_APPLICATION_PID value: %s", raw_pid
+        )
+        return None
+
+    return pid
+
+
+def _is_matching_photoshop_pid(pid, photoshop_version):
+    """Return True if *pid* appears to be the expected Photoshop process."""
+    try:
+        if sys.platform == "darwin":
+            command = (
+                subprocess.check_output(
+                    ["ps", "-p", str(pid), "-o", "command="],
+                )
+                .decode("utf-8", errors="ignore")
+                .strip()
+            )
+
+            expected_command_fragment = (
+                f"MacOS/Adobe Photoshop {str(photoshop_version)}"
+            )
+            return expected_command_fragment in command
+
+        if sys.platform == "win32":
+            startupinfo = subprocess.STARTUPINFO()
+            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+
+            output = subprocess.check_output(
+                ["TASKLIST", "/FI", f"PID eq {pid}"],
+                startupinfo=startupinfo,
+            ).decode("cp850", errors="ignore")
+
+            return "Photoshop.exe" in output
+
+    except Exception:
+        return False
+
+    return False
+
+
+def probe_photoshop_pid(photoshop_version, expected_pid=None):
     """
     Probe the Photoshop PID based on the version for the process monitor.
 
     :param photoshop_version: The version of Photoshop to probe, e.g. '2024' and so on
     :return: The detected PID or None if not found
     """
+    global launcher_expected_pid_fallback_logged
+
+    if expected_pid:
+        if _is_matching_photoshop_pid(expected_pid, photoshop_version):
+            return expected_pid
+
+        if not launcher_expected_pid_fallback_logged:
+            logger.warning(
+                "Launcher provided PID hint (%s) did not match Photoshop process. "
+                "Falling back to executable probe.",
+                expected_pid,
+            )
+            launcher_expected_pid_fallback_logged = True
+
     if sys.platform == "darwin":
         PS_EXECUTABLE = f"Adobe Photoshop {str(photoshop_version)}"
         logger.info(f"Probing Mac PID (executable: {PS_EXECUTABLE})")
@@ -145,7 +349,10 @@ def bootstrap_integration(framework_extensions_path):
         photoshop_rpc_connection, \
         startup_tools, \
         session, \
-        process_monitor
+        process_monitor, \
+        process_watchdog_timer, \
+        launcher_expected_photoshop_pid, \
+        launcher_expected_pid_fallback_logged
 
     logger.debug(
         "Photoshop standalone integration initialising, extensions path:"
@@ -263,8 +470,21 @@ def bootstrap_integration(framework_extensions_path):
     )
 
     # Init process monitor
+    launcher_expected_photoshop_pid = _extract_launcher_expected_pid()
+    launcher_expected_pid_fallback_logged = False
+
+    if launcher_expected_photoshop_pid:
+        logger.info(
+            "Using launcher provided Photoshop PID hint: %s",
+            launcher_expected_photoshop_pid,
+        )
+
     process_monitor = MonitorProcess(
-        partial(probe_photoshop_pid, photoshop_rpc_connection.dcc_version)
+        partial(
+            probe_photoshop_pid,
+            photoshop_rpc_connection.dcc_version,
+            launcher_expected_photoshop_pid,
+        )
     )
 
     for _ in range(30 * 2):  # Wait 30s for Photoshop to connect
@@ -288,6 +508,14 @@ def bootstrap_integration(framework_extensions_path):
         " Photoshop."
     )
 
+    process_watchdog_timer = QtCore.QTimer()
+    process_watchdog_timer.timeout.connect(process_watchdog_callback)
+    process_watchdog_timer.start(PROCESS_WATCHDOG_INTERVAL_SECONDS * 1000)
+    logger.info(
+        "Photoshop process watchdog started with %ss interval.",
+        PROCESS_WATCHDOG_INTERVAL_SECONDS,
+    )
+
 
 def run_integration():
     """Run Framework Python standalone as long as Photoshop is alive."""
@@ -295,34 +523,9 @@ def run_integration():
     global session
 
     # Run until it's closed, or CTRL+C
-    active_time = 0
     while True:
         app.processEvents()
         session.event_hub.wait(0.01)
-        active_time += 10
-        if active_time % 10000 == 0:
-            logger.info(
-                f"Integration alive has been for {active_time / 1000}s, "
-                f"connected: {photoshop_rpc_connection.connected}"
-            )
-        # Failsafe check if PS is still alive every 5s
-        if active_time % (5 * 1000) == 0:
-            # Check if Photoshop still is running
-            if not process_monitor.check_running():
-                logger.warning("Photoshop process gone, shutting " "down!")
-                terminate_current_process()
-            else:
-                # Check if Photoshop panel is alive
-                respond_result = photoshop_rpc_connection.check_responding()
-                if not respond_result and photoshop_rpc_connection.connected:
-                    photoshop_rpc_connection.connected = False
-                    logger.info(
-                        f"Photoshop is not responding but process ({process_monitor.process_pid}) "
-                        f"is still there, panel temporarily closed?"
-                    )
-                elif respond_result and not photoshop_rpc_connection.connected:
-                    photoshop_rpc_connection.connected = True
-                    logger.info("Photoshop is responding again, panel alive.")
 
 
 # Find and read DCC config
