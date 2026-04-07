@@ -161,8 +161,7 @@ def on_launch_integration(session, event):
         photoshop_version = int(str(application_version).split(".")[0])
 
     logger.info(
-        "Assuming CEP plugin has been properly installed prior to launch and Photoshop"
-        "is set to launch in Rosetta mode on Silicon Mac"
+        "Preparing Photoshop launch using the UXP integration bootstrap flow"
     )
 
     if not launch_data["integration"].get("env"):
