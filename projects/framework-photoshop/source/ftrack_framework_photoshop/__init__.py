@@ -7,7 +7,6 @@ import os
 import traceback
 import platform
 import subprocess
-import re
 import zipfile
 from functools import partial
 
@@ -282,6 +281,30 @@ def _is_matching_photoshop_pid(pid, photoshop_version):
     return False
 
 
+def _iter_mac_processes():
+    """Yield ``(pid, command)`` tuples from macOS ``ps`` output."""
+
+    output = subprocess.check_output(
+        ["ps", "-axo", "pid=,command="],
+    ).decode("utf-8", errors="ignore")
+
+    for line in output.split("\n"):
+        line = line.strip()
+        if not line:
+            continue
+
+        pid_text, _, command = line.partition(" ")
+        if not command:
+            continue
+
+        try:
+            pid = int(pid_text)
+        except ValueError:
+            continue
+
+        yield pid, command.strip()
+
+
 def probe_photoshop_pid(photoshop_version, expected_pid=None):
     """
     Probe the Photoshop PID based on the version for the process monitor.
@@ -307,13 +330,9 @@ def probe_photoshop_pid(photoshop_version, expected_pid=None):
         PS_EXECUTABLE = f"Adobe Photoshop {str(photoshop_version)}"
         logger.info(f"Probing Mac PID (executable: {PS_EXECUTABLE})")
 
-        for line in (
-            subprocess.check_output(["ps", "-ef"]).decode("utf-8").split("\n")
-        ):
-            if line.find(f"MacOS/{PS_EXECUTABLE}") > -1:
-                # Expect:
-                #   501 21270     1   0  3:05PM ??         0:36.85 /Applications/Adobe Photoshop 2022/Adobe Photoshop 2022.app/Contents/MacOS/Adobe Photoshop 2022
-                pid = int(re.split(" +", line)[2])
+        expected_command_fragment = f"MacOS/{PS_EXECUTABLE}"
+        for pid, command in _iter_mac_processes():
+            if expected_command_fragment in command:
                 logger.info(f"Found pid: {pid}.")
                 return pid
 
@@ -332,9 +351,14 @@ def probe_photoshop_pid(photoshop_version, expected_pid=None):
             if line.find(PS_EXECUTABLE) > -1:
                 # Expect:
                 #   Photoshop.exe                15364 Console                    1  2 156 928 K
-                pid = int(re.split(" +", line)[1])
-                logger.info(f"Found pid: {pid}.")
-                return pid
+                tokens = line.split()
+                if len(tokens) > 1:
+                    try:
+                        pid = int(tokens[1])
+                    except ValueError:
+                        continue
+                    logger.info(f"Found pid: {pid}.")
+                    return pid
 
     logger.warning("Photoshop not found running!")
     return None
