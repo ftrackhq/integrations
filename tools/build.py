@@ -160,7 +160,7 @@ def build_package(invokation_path, pkg_path, args, command=None):
 
         assert VERSION, 'No version could be extracted from "pyproject.toml"!'
 
-        if command == "build_cep":
+        if command in ["build_cep", "build_uxp"]:
             # Align version, cannot contain rc/alpha/beta
             if VERSION.find("rc") > -1:
                 VERSION = VERSION.split("rc")[0]
@@ -930,6 +930,73 @@ def build_package(invokation_path, pkg_path, args, command=None):
             logging.warning(f"Removing: {STAGING_PATH}")
             shutil.rmtree(STAGING_PATH, ignore_errors=True)
 
+    def build_uxp(args):
+        """Wrapper for building Adobe UXP extension"""
+        if not MONOREPO_PATH:
+            raise Exception(
+                "Need integrations monorepo path to be able to "
+                "build UXP plugins."
+            )
+
+        UXP_PATH = os.path.join(ROOT_PATH, "resource", "adobe-uxp")
+        if not os.path.exists(UXP_PATH):
+            raise Exception('Missing DCC "{}/" folder!'.format(UXP_PATH))
+
+        MANIFEST_PATH = os.path.join(UXP_PATH, "manifest.json")
+        if not os.path.exists(MANIFEST_PATH):
+            raise Exception("Missing manifest:{}!".format(MANIFEST_PATH))
+
+        STAGING_PATH = os.path.join(BUILD_PATH, "staging")
+        assert DCC_NAME, "Please provide DCC name to build UXP plugin for"
+
+        if not os.path.exists(BUILD_PATH):
+            os.makedirs(BUILD_PATH)
+
+        # Clean previous build
+        if os.path.exists(BUILD_PATH):
+            for filename in os.listdir(BUILD_PATH):
+                if filename.endswith(".ccx"):
+                    logging.warning(
+                        "Removed previous build: {}".format(filename)
+                    )
+                    os.remove(os.path.join(BUILD_PATH, filename))
+
+        # Clean staging path
+        shutil.rmtree(STAGING_PATH, ignore_errors=True)
+        os.makedirs(STAGING_PATH)
+
+        # Copy all UXP resources
+        for entry in os.listdir(UXP_PATH):
+            source_path = os.path.join(UXP_PATH, entry)
+            target_path = os.path.join(STAGING_PATH, entry)
+
+            if os.path.isdir(source_path):
+                logging.info("Copying {}>{}".format(source_path, target_path))
+                shutil.copytree(source_path, target_path, symlinks=True)
+            else:
+                parse_and_copy(source_path, target_path)
+
+        extension_output_path = os.path.join(
+            BUILD_PATH, f"ftrack-framework-{DCC_NAME}-{VERSION}.ccx"
+        )
+
+        if os.path.exists(extension_output_path):
+            os.remove(extension_output_path)
+
+        logging.info("Creating ccx archive from UXP staging")
+        zip_output_path = shutil.make_archive(
+            os.path.splitext(extension_output_path)[0],
+            "zip",
+            STAGING_PATH,
+        )
+        shutil.move(zip_output_path, extension_output_path)
+
+        logging.info("Result: {}".format(extension_output_path))
+
+        if args.remove_intermediate_folder:
+            logging.warning(f"Removing: {STAGING_PATH}")
+            shutil.rmtree(STAGING_PATH, ignore_errors=True)
+
     def build_rvpkg(args):
         """Wrapper for building RV plugin package"""
 
@@ -1031,6 +1098,8 @@ def build_package(invokation_path, pkg_path, args, command=None):
         build_sphinx(args)
     elif command == "build_cep":
         build_cep(args)
+    elif command == "build_uxp":
+        build_uxp(args)
     elif command == "build_rvpkg":
         build_rvpkg(args)
 
@@ -1125,6 +1194,7 @@ if __name__ == "__main__":
             "build_connect_plugin; Build Connect plugin archive\n"
             "build_qt_resources; Build QT resources\n"
             "build_cep; Build Adobe CEP(.zxp) plugin\n"
+            "build_uxp; Build Adobe UXP(.ccx) plugin\n"
             "build_rvpkg; Build RV pkg\n"
         ),
         choices=[
@@ -1133,6 +1203,7 @@ if __name__ == "__main__":
             "build_qt_resources",
             "build_sphinx",
             "build_cep",
+            "build_uxp",
             "build_rvpkg",
         ],
     )
