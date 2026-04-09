@@ -25,7 +25,7 @@ const ISOLATE_LAUNCHER_RENDERING = false;
 const ISOLATE_REMOTE_THUMBNAIL = false;
 const LOCAL_CONTEXT_THUMBNAIL_PATH = "./icons/thumbnail.png";
 const STATIC_LAUNCHER_ICON_PATH = "./icons/publish.png";
-const LAUNCHER_RENDER_MODE = "button_text_click_css_icon";
+const LAUNCHER_RENDER_MODE = "button_text_click_dynamic_icon";
 const HEARTBEAT_INTERVAL_MS = 3000;
 const ENABLE_PANEL_HEARTBEAT = false;
 
@@ -284,6 +284,20 @@ function createLauncherIconSpacer() {
 }
 
 
+function getLauncherIconPath(launcher) {
+    if (!launcher || !launcher.icon) {
+        return STATIC_LAUNCHER_ICON_PATH;
+    }
+
+    const iconName = String(launcher.icon).trim();
+    if (!iconName) {
+        return STATIC_LAUNCHER_ICON_PATH;
+    }
+
+    return "./icons/" + iconName + ".png";
+}
+
+
 function renderPanelLaunchers(launchers) {
     const launcherTable = document.getElementById("launch_configs");
     if (!launcherTable) {
@@ -377,7 +391,7 @@ function renderPanelLaunchers(launchers) {
             if (LAUNCHER_RENDER_MODE === "button_text_click_static_icon") {
                 image.src = STATIC_LAUNCHER_ICON_PATH;
             } else {
-                image.src = "./icons/" + launcher.icon + ".png";
+                image.src = getLauncherIconPath(launcher);
             }
             image.alt = launcher.label || launcher.name;
             image.addEventListener("error", () => {
@@ -391,7 +405,6 @@ function renderPanelLaunchers(launchers) {
                 }
             });
             button.appendChild(image);
-            button.appendChild(createLauncherIconSpacer());
         }
 
         button.appendChild(label);

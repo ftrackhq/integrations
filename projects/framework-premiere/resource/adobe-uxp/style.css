@@ -216,8 +216,9 @@ body {
   min-height: 16px;
   max-width: 12px;
   max-height: 16px;
+  display: block;
   margin-bottom: -3px;
-  margin-right: 12px;
+  margin-right: 8px;
 }
 
 #footer {
