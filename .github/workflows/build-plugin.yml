@@ -194,7 +194,7 @@ jobs:
         run: |
           cd ${{ needs.set-variables.outputs.folder }}
           uv build
-      - name: Build CSS resources for CEP extension
+      - name: Build CSS resources
         if: ${{ needs.set-variables.outputs.package == 'framework-premiere' }}
         shell: bash
         run: |
