@@ -632,8 +632,8 @@ def build_package(invokation_path, pkg_path, args, command=None):
             import sass
         except ImportError:
             raise RuntimeError(
-                'Error compiling sass files. Could not import "scss". '
-                "Check you have the pyScss Python package installed."
+                'Error compiling sass files. Could not import "sass". '
+                "Check you have the libsass Python package installed."
             )
 
         style_path = args.style_path if args else None

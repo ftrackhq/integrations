@@ -211,14 +211,10 @@ jobs:
         if: ${{ needs.set-variables.outputs.package == 'framework-premiere' }}
         shell: bash
         run: |
-          wget -c https://raw.github.com/Adobe-CEP/CEP-Resources/master/ZXPSignCMD/4.1.2/macOS/ZXPSignCmd-64bit.dmg  -O /tmp/ZXPSignCmd-64bit.dmg
-          hdiutil attach /tmp/ZXPSignCmd-64bit.dmg
-          ln -s /Volumes/ZXPSignCmd-64bit/ZXPSignCmd-64bit /usr/local/bin/ZXPSignCMD
-          export ADOBE_CERTIFICATE_PASSWORD=${{ secrets.ADOBE_CERTIFICATE_PASSWORD }}
-          uv run --python 3.13 --with-requirements tools/requirements-pyside6.txt python tools/build.py --remove_intermediate_folder build_cep projects/framework-premiere
+          uv run --python 3.13 --with-requirements tools/requirements-pyside6.txt python tools/build.py --remove_intermediate_folder build_uxp projects/framework-premiere
           # Use --testpypi or --from_source to change where the deps are picked from
-          uv run --python 3.13 --with-requirements tools/requirements-pyside6.txt python tools/build.py --remove_intermediate_folder --include_resources resource/presets --include_assets $(find "$PWD/projects/framework-premiere/dist" -type f -name "*.zxp") build_connect_plugin ${{ needs.set-variables.outputs.folder }}
-          cp projects/framework-premiere/dist/*.zxp ${{ needs.set-variables.outputs.folder }}
+          uv run --python 3.13 --with-requirements tools/requirements-pyside6.txt python tools/build.py --remove_intermediate_folder --include_resources resource/presets --include_assets $(find "$PWD/projects/framework-premiere/dist" -type f -name "*.ccx") build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+          cp projects/framework-premiere/dist/*.ccx ${{ needs.set-variables.outputs.folder }}
       - name: build standard framework DCC integration plugin
         if: ${{ needs.set-variables.outputs.package == 'framework-blender' }}
         shell: bash

@@ -10,9 +10,9 @@ Library that provides support to build and codesign ftrack applications.
     $ git clone https://github.com/ftrackhq/integrations.git
 ```
 
-2. Make sure you are in a virtual enviroment
+2. Make sure you are in a virtual environment
 
-3. Install Poetry (https://python-poetry.org/docs/#installation)
+3. Install uv: https://docs.astral.sh/uv/getting-started/installation/
 
 4. (Optional) Bump version, update release notes, tag and push to SCM.
 
@@ -20,8 +20,7 @@ Library that provides support to build and codesign ftrack applications.
 
 ```bash
     $ cd installers/app-installer
-    $ poetry update
-    $ poetry install
+    $ uv sync --all-extras
 ```
 
 ### Usage
@@ -49,12 +48,12 @@ Library that provides support to build and codesign ftrack applications.
 -  Install Google cloud CLI: https://cloud.google.com/sdk/docs/install
 - Make sure you have the right permissions to codesgin an ftrack app.
 
-### MacOs notes:
+### MacOS notes:
 
-- Install appdmg to be able to create the dmg: ( appdmg fails on M1 )
+- Install `dmgbuild` to be able to create the `.dmg` package:
 
 
-    $ npm install -g appdmg
+    $ uv pip install dmgbuild
 
 
 - On latest version of OSX these envs are needed in order to properly
@@ -85,4 +84,3 @@ To notarize you will also need to setup the following variables:
 - Install patchelf platform dependent package
 
     $ pip install patchelf
-

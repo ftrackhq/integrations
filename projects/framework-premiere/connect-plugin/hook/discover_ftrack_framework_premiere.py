@@ -2,6 +2,7 @@
 # :copyright: Copyright (c) 2024 ftrack
 
 import os
+import json
 import ftrack_api
 import logging
 import functools
@@ -22,6 +23,34 @@ connect_plugin_path = os.path.abspath(os.path.join(cwd, ".."))
 __version__ = get_connect_plugin_version(connect_plugin_path)
 
 python_dependencies = os.path.join(connect_plugin_path, "dependencies")
+
+
+def _get_uxp_bootstrap_path():
+    return os.path.join(
+        os.path.expanduser("~"),
+        ".ftrack",
+        "framework-premiere",
+        "uxp-bootstrap",
+        "bootstrap-latest.json",
+    )
+
+
+def _write_uxp_bootstrap_data(session, remote_integration_session_id):
+    bootstrap_path = _get_uxp_bootstrap_path()
+    bootstrap_folder = os.path.dirname(bootstrap_path)
+    os.makedirs(bootstrap_folder, exist_ok=True)
+
+    data = {
+        "server_url": session.server_url,
+        "api_user": session.api_user,
+        "api_key": session.api_key,
+        "remote_integration_session_id": remote_integration_session_id,
+    }
+
+    with open(bootstrap_path, "w", encoding="utf-8") as stream:
+        json.dump(data, stream, ensure_ascii=True)
+
+    return bootstrap_path
 
 
 def on_discover_integration(session, event):
@@ -51,7 +80,7 @@ def on_launch_integration(session, event):
         integration_version = int(str(application_version).split(".")[0])
 
     logger.info(
-        f"Launching integration v{integration_version} assuming CEP plugin has "
+        f"Launching integration v{integration_version} assuming UXP plugin has "
         "been properly installed prior to launch."
     )
 
@@ -61,12 +90,21 @@ def on_launch_integration(session, event):
     launch_data["integration"]["env"]["PYTHONPATH.prepend"] = (
         os.path.pathsep.join([python_dependencies])
     )
+    remote_integration_session_id = str(uuid.uuid4())
     launch_data["integration"]["env"][
         "FTRACK_REMOTE_INTEGRATION_SESSION_ID"
-    ] = str(uuid.uuid4())
+    ] = remote_integration_session_id
 
     launch_data["integration"]["env"]["FTRACK_PREMIERE_VERSION"] = str(
         integration_version
+    )
+
+    bootstrap_path = _write_uxp_bootstrap_data(
+        session,
+        remote_integration_session_id,
+    )
+    launch_data["integration"]["env"]["FTRACK_PREMIERE_UXP_BOOTSTRAP_PATH"] = (
+        bootstrap_path
     )
 
     selection = event["data"].get("context", {}).get("selection", [])

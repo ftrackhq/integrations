@@ -28,7 +28,7 @@ ftrack-libs = [
   "ftrack-qt-style>=4.0.0, <5.0.0",
 ]
 documentation = [
-  "pyScss>=1.2.0, <2",
+  "libsass>=0.23.0, <1",
   "sphinx>=5, <10",
   "Jinja2>=3.1, <4",
   "sphinx_rtd_theme>=1, <3",
