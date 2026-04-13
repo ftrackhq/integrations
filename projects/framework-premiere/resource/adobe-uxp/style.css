@@ -139,7 +139,7 @@ body {
   color: #ffdd86;
   text-align: center;
   line-height: 1;
-  cursor: pointer;
+  cursor: default;
 }
 
 .launcher_button:hover {
