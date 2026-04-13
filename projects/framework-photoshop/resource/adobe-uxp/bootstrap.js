@@ -24,7 +24,7 @@ const ISOLATE_LAUNCHER_RENDERING = false;
 const ISOLATE_REMOTE_THUMBNAIL = false;
 const LOCAL_CONTEXT_THUMBNAIL_PATH = "./icons/thumbnail.png";
 const STATIC_LAUNCHER_ICON_PATH = "./icons/publish.png";
-const LAUNCHER_RENDER_MODE = "button_text_click_css_icon";
+const LAUNCHER_RENDER_MODE = "button_text_click_dynamic_icon";
 const HEARTBEAT_INTERVAL_MS = 3000;
 const ENABLE_PANEL_HEARTBEAT = false;
 
@@ -283,6 +283,20 @@ function createLauncherIconSpacer() {
 }
 
 
+function getLauncherIconPath(launcher) {
+    if (!launcher || !launcher.icon) {
+        return STATIC_LAUNCHER_ICON_PATH;
+    }
+
+    const iconName = String(launcher.icon).trim();
+    if (!iconName) {
+        return STATIC_LAUNCHER_ICON_PATH;
+    }
+
+    return "./icons/" + iconName + ".png";
+}
+
+
 function renderPanelLaunchers(launchers) {
     const launcherTable = document.getElementById("launch_configs");
     if (!launcherTable) {
@@ -322,16 +336,37 @@ function renderPanelLaunchers(launchers) {
             continue;
         }
 
-        const button = document.createElement("button");
-        button.type = "button";
+        const button = document.createElement("div");
         button.className = "launcher_button";
+        button.setAttribute("role", "button");
+        button.setAttribute("tabindex", "0");
 
         if (LAUNCHER_CLICKABLE_MODES.indexOf(LAUNCHER_RENDER_MODE) > -1) {
-            button.addEventListener("click", () => {
+            const triggerLaunch = () => {
                 launchTool(launcher.name);
+            };
+
+            button.addEventListener("click", () => {
+                triggerLaunch();
             });
+
+            button.addEventListener("keydown", (event) => {
+                if (
+                    event.key === "Enter"
+                    || event.key === " "
+                    || event.key === "Spacebar"
+                    || event.code === "Space"
+                ) {
+                    event.preventDefault();
+                    triggerLaunch();
+                }
+            });
+
+            button.setAttribute("aria-disabled", "false");
         } else {
-            button.disabled = true;
+            button.className += " launcher_button_disabled";
+            button.setAttribute("aria-disabled", "true");
+            button.setAttribute("tabindex", "-1");
         }
 
         const label = document.createElement("span");
@@ -355,7 +390,7 @@ function renderPanelLaunchers(launchers) {
             if (LAUNCHER_RENDER_MODE === "button_text_click_static_icon") {
                 image.src = STATIC_LAUNCHER_ICON_PATH;
             } else {
-                image.src = "./icons/" + launcher.icon + ".png";
+                image.src = getLauncherIconPath(launcher);
             }
             image.alt = launcher.label || launcher.name;
             image.addEventListener("error", () => {
@@ -369,7 +404,6 @@ function renderPanelLaunchers(launchers) {
                 }
             });
             button.appendChild(image);
-            button.appendChild(createLauncherIconSpacer());
         }
 
         button.appendChild(label);
