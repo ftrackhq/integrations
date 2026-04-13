@@ -62,10 +62,15 @@ session = None
 process_monitor = None
 process_watchdog_timer = None
 integration_alive_seconds = 0
+last_panel_healthcheck_timestamp = 0.0
 launcher_expected_premiere_pid = None
+launcher_expected_application_path = None
 launcher_expected_pid_fallback_logged = False
+launcher_expected_path_fallback_logged = False
 
 PROCESS_WATCHDOG_INTERVAL_SECONDS = 5
+PANEL_HEALTHCHECK_INTERVAL_SECONDS = 20
+PANEL_HEALTHCHECK_TIMEOUT_MS = 2000
 
 
 # Create Qt application
@@ -199,6 +204,7 @@ def rpc_process_events_callback():
 def process_watchdog_callback():
     """Check Premiere process + panel responsiveness periodically."""
     global integration_alive_seconds
+    global last_panel_healthcheck_timestamp
 
     integration_alive_seconds += PROCESS_WATCHDOG_INTERVAL_SECONDS
     if integration_alive_seconds % 40 == 0:
@@ -213,8 +219,27 @@ def process_watchdog_callback():
         terminate_current_process()
         return
 
+    now = time.monotonic()
+    if (
+        now - last_panel_healthcheck_timestamp
+        < PANEL_HEALTHCHECK_INTERVAL_SECONDS
+    ):
+        return
+
+    last_panel_healthcheck_timestamp = now
+
     # Check if Premiere panel is alive
-    respond_result = premiere_rpc_connection.check_responding()
+    check_start = time.perf_counter()
+    respond_result = premiere_rpc_connection.check_responding(
+        timeout_ms=PANEL_HEALTHCHECK_TIMEOUT_MS,
+    )
+    check_elapsed_ms = int((time.perf_counter() - check_start) * 1000)
+    logger.debug(
+        "Premiere panel healthcheck result=%s elapsed=%sms timeout=%sms",
+        respond_result,
+        check_elapsed_ms,
+        PANEL_HEALTHCHECK_TIMEOUT_MS,
+    )
     if not respond_result and premiere_rpc_connection.connected:
         premiere_rpc_connection.connected = False
         logger.info(
@@ -245,6 +270,47 @@ def _extract_launcher_expected_pid():
         return None
 
     return pid
+
+
+def _extract_launcher_expected_application_path():
+    """Return launcher provided application path hint, if available."""
+    raw_path = os.environ.get("FTRACK_APPLICATION_PATH")
+    if not raw_path:
+        return None
+
+    normalized_path = os.path.normpath(os.path.abspath(str(raw_path)))
+    if not normalized_path:
+        return None
+
+    return normalized_path
+
+
+def _is_matching_macos_application_path(command, expected_application_path):
+    """Return True when macOS process command resolves under app bundle path."""
+    if not expected_application_path:
+        return False
+
+    app_bundle_marker = ".app"
+    expected_bundle_path = expected_application_path
+    expected_marker_index = expected_bundle_path.lower().find(
+        app_bundle_marker
+    )
+    if expected_marker_index > -1:
+        expected_bundle_path = expected_bundle_path[
+            : expected_marker_index + len(app_bundle_marker)
+        ]
+
+    normalized_expected_bundle_path = os.path.normcase(
+        os.path.normpath(expected_bundle_path)
+    )
+
+    normalized_command = command.strip().replace("\\ ", " ")
+    if not normalized_command:
+        return False
+
+    return normalized_expected_bundle_path in os.path.normcase(
+        normalized_command
+    )
 
 
 def _is_matching_premiere_pid(pid, premiere_version):
@@ -312,7 +378,11 @@ def _iter_mac_processes():
         yield pid, command.strip()
 
 
-def probe_premiere_pid(premiere_version, expected_pid=None):
+def probe_premiere_pid(
+    premiere_version,
+    expected_pid=None,
+    expected_application_path=None,
+):
     """
     Probe the Premiere PID based on the version for the process monitor.
 
@@ -320,9 +390,11 @@ def probe_premiere_pid(premiere_version, expected_pid=None):
     :return: The detected PID or None if not found
     """
     global launcher_expected_pid_fallback_logged
+    global launcher_expected_path_fallback_logged
 
     if expected_pid:
         if _is_matching_premiere_pid(expected_pid, premiere_version):
+            logger.debug("Probe matched launcher PID hint: %s", expected_pid)
             return expected_pid
 
         if not launcher_expected_pid_fallback_logged:
@@ -332,6 +404,27 @@ def probe_premiere_pid(premiere_version, expected_pid=None):
                 expected_pid,
             )
             launcher_expected_pid_fallback_logged = True
+
+    if sys.platform == "darwin" and expected_application_path:
+        for pid, command in _iter_mac_processes():
+            if _is_matching_macos_application_path(
+                command,
+                expected_application_path,
+            ):
+                logger.info(
+                    "Matched Premiere process by application path hint: pid=%s path=%s",
+                    pid,
+                    expected_application_path,
+                )
+                return pid
+
+        if not launcher_expected_path_fallback_logged:
+            logger.warning(
+                "Launcher provided application path hint (%s) did not match "
+                "a running process. Falling back to executable probe.",
+                expected_application_path,
+            )
+            launcher_expected_path_fallback_logged = True
 
     if sys.platform == "darwin":
         PS_EXECUTABLE = f"Adobe Premiere Pro {str(premiere_version)}"
@@ -393,8 +486,11 @@ def bootstrap_integration(framework_extensions_path):
         session, \
         process_monitor, \
         process_watchdog_timer, \
+        last_panel_healthcheck_timestamp, \
         launcher_expected_premiere_pid, \
-        launcher_expected_pid_fallback_logged
+        launcher_expected_application_path, \
+        launcher_expected_pid_fallback_logged, \
+        launcher_expected_path_fallback_logged
 
     logger.debug(
         "Premiere standalone integration initialising, extensions path:"
@@ -513,7 +609,12 @@ def bootstrap_integration(framework_extensions_path):
 
     # Init process monitor
     launcher_expected_premiere_pid = _extract_launcher_expected_pid()
+    launcher_expected_application_path = (
+        _extract_launcher_expected_application_path()
+    )
+    last_panel_healthcheck_timestamp = 0.0
     launcher_expected_pid_fallback_logged = False
+    launcher_expected_path_fallback_logged = False
 
     if launcher_expected_premiere_pid:
         logger.info(
@@ -521,11 +622,27 @@ def bootstrap_integration(framework_extensions_path):
             launcher_expected_premiere_pid,
         )
 
+    if launcher_expected_application_path:
+        logger.info(
+            "Using launcher provided Premiere application path hint: %s",
+            launcher_expected_application_path,
+        )
+
+    logger.info(
+        "Premiere watchdog probe config: version=%s, expected_pid=%s, "
+        "expected_application_path=%s, session_id=%s",
+        premiere_rpc_connection.dcc_version,
+        launcher_expected_premiere_pid,
+        launcher_expected_application_path,
+        premiere_rpc_connection.remote_integration_session_id,
+    )
+
     process_monitor = MonitorProcess(
         partial(
             probe_premiere_pid,
             premiere_rpc_connection.dcc_version,
             launcher_expected_premiere_pid,
+            launcher_expected_application_path,
         )
     )
 

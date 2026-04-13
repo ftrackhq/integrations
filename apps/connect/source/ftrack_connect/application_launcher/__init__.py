@@ -782,6 +782,24 @@ class ApplicationLauncher(object):
 
                 # Append PID to environment for framework to use.
                 environment["FTRACK_APPLICATION_PID"] = str(process.pid)
+                environment["FTRACK_APPLICATION_IDENTIFIER"] = str(
+                    applicationIdentifier
+                )
+
+                application_path = application.get("path")
+                if application_path:
+                    environment["FTRACK_APPLICATION_PATH"] = os.path.abspath(
+                        str(application_path)
+                    )
+
+                self.logger.info(
+                    "Standalone helper hints for %s: pid=%s, path=%s, "
+                    "identifier=%s",
+                    applicationIdentifier,
+                    environment.get("FTRACK_APPLICATION_PID"),
+                    environment.get("FTRACK_APPLICATION_PATH"),
+                    environment.get("FTRACK_APPLICATION_IDENTIFIER"),
+                )
 
                 # Do not show console on Windows
                 if self.current_os == "windows":
@@ -1220,8 +1238,9 @@ class ApplicationLaunchAction(BaseAction):
         """Register discover actions on logged in user."""
 
         self.session.event_hub.subscribe(
-            "topic=ftrack.action.discover "
-            "and source.user.username={0}".format(self.session.api_user),
+            "topic=ftrack.action.discover and source.user.username={0}".format(
+                self.session.api_user
+            ),
             self._discover,
             priority=self.priority,
         )

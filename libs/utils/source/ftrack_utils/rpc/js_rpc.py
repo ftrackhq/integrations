@@ -234,7 +234,7 @@ class JavascriptRPC(object):
             retval = reply_event["data"]
             if "error_message" in retval:
                 raise Exception(
-                    f'An error occurred while publishing event {event_topic}: {retval["error_message"]}'
+                    f"An error occurred while publishing event {event_topic}: {retval['error_message']}"
                 )
             return retval
         return publish_result
@@ -273,7 +273,7 @@ class JavascriptRPC(object):
 
     # Lifecycle methods
 
-    def check_responding(self):
+    def check_responding(self, timeout_ms=10 * 1000):
         """Check if DCC is alive, send context data"""
         self.logger.info("Checking if remote integration is still alive...")
 
@@ -287,6 +287,7 @@ class JavascriptRPC(object):
                     }
                 ),
                 fetch_reply=True,
+                timeout=timeout_ms,
             )
             self.logger.info(
                 f"Got reply for integration discovery response event: {collected_event}"
@@ -308,9 +309,9 @@ class JavascriptRPC(object):
 
         """
 
-        assert not (callback and fetch_reply), (
-            "Cannot use callback and fetch reply " "at the same time!"
-        )
+        assert not (
+            callback and fetch_reply
+        ), "Cannot use callback and fetch reply at the same time!"
 
         data = {
             "remote_integration_session_id": self.remote_integration_session_id,
