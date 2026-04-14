@@ -9,9 +9,13 @@ Community owned Photoshop integration for ftrack.
 
 1. Install uv.
 
-2. Create a Python `>=3.13,<3.14` virtual environment.
+2. Create and activate a project-local virtual environment:
 
-3. Activate the virtual environment. 
+```bash
+cd projects/framework-photoshop
+uv venv .venv
+source .venv/bin/activate
+```
 
 4. If any dependent libraries updated, make sure to release them to PyPi prior to building the plugin.
 
@@ -22,7 +26,7 @@ Community owned Photoshop integration for ftrack.
 7. If dependencies updated, update the uv lock file. Remember to properly validate/test the change of dependencies.
 
 ```bash
-    uv lock --active
+    uv lock
 ```
 
 8. Tag and push to SCM
@@ -38,14 +42,14 @@ See Monorepo build CI
 1. Build with uv
 
 ```bash
-    uv build --active
+    uv build
 ```
 
 2. Build Connect plugin from wheel and the locked dependencies using Monorepo custom toolset:
 
 ```bash
     cd projects/framework-photoshop
-    uv run --active python ../../tools/build.py build_connect_plugin .
+    uv run python ../../tools/build.py build_connect_plugin .
 ```
 
 If the build fails and Photoshop is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 
@@ -98,14 +102,14 @@ Build Ftrack Qt Style:
 
 ```bash
     cd projects/framework-photoshop
-    uv run --active --with-requirements ../../tools/requirements-connect.txt python ../../tools/build.py build_qt_resources --css_only ../../libs/qt-style
+    uv run --with-requirements ../../tools/requirements-connect.txt python ../../tools/build.py build_qt_resources --css_only ../../libs/qt-style
 ```
 
 Create Adobe extension:
 
 ```bash
     cd projects/framework-photoshop
-    uv run --active python ../../tools/build.py --nosign build_cep .
+    uv run python ../../tools/build.py --nosign build_cep .
 ```
 
 ## Installing

@@ -6,6 +6,16 @@ ftrack integration with NUKE STUDIO.
 
 ### Preparations
 
+Install uv.
+
+Create and activate a project-local virtual environment:
+
+```bash
+cd projects/nuke-studio
+uv venv .venv
+source .venv/bin/activate
+```
+
 Update release notes.
 
 Set version in `pyproject.toml` (use semantic versioning, for example `MAJOR.MINOR.PATCH` or prerelease `MAJOR.MINOR.PATCHrcN`).
@@ -25,14 +35,14 @@ Install nuke dependencies:
 
 ```bash
   cd projects/nuke-studio
-  uv sync --active
+  uv sync
 ```
 
 Build with uv:
 
 ```bash
   cd projects/nuke-studio
-  uv build --active
+  uv build
 ```
 
 Build Connect plugin:
@@ -40,7 +50,7 @@ Build Connect plugin:
 
 ```bash
   cd projects/nuke-studio
-  uv run --active python ../../tools/build.py --include_resources resource/plugin,resource/application_hook build_connect_plugin .
+  uv run python ../../tools/build.py --include_resources resource/plugin,resource/application_hook build_connect_plugin .
 ```
 
 If the build fails and Nuke Studio is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 
@@ -53,13 +63,11 @@ to build the plugin.
 Install documentation dependencies:
 
 ```bash
-  uv sync --active --extra documentation
+  uv sync --extra documentation
 ```
 
 Build documentation:
 
 ```bash
-    uv run --active sphinx-build -b html doc dist/doc
+    uv run sphinx-build -b html doc dist/doc
 ```
-
-

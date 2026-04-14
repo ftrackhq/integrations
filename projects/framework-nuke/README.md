@@ -7,7 +7,15 @@ Community owned Nuke integration for ftrack.
 ### Preparations
 
 
-Install uv and create a Python `>=3.13,<3.14` virtual environment.
+Install uv.
+
+Create and activate a project-local virtual environment:
+
+```bash
+cd projects/framework-nuke
+uv venv .venv
+source .venv/bin/activate
+```
 
 Update release notes.
 
@@ -28,7 +36,7 @@ See Monorepo build CI
 Build with uv:
 
 ```bash
-    uv build --active
+    uv build
 ```
 
 Build Connect plugin:
@@ -36,7 +44,7 @@ Build Connect plugin:
 
 ```bash
     cd projects/framework-nuke
-    uv run --active python ../../tools/build.py --include_resources resource/bootstrap build_connect_plugin .
+    uv run python ../../tools/build.py --include_resources resource/bootstrap build_connect_plugin .
 ```
 
 If the build fails and Nuke is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 
@@ -51,13 +59,13 @@ To build from source, not involving PyPi, use the `--from_source` flag.
 Install documentation dependencies:
 
 ```bash
-    uv sync --active --extra documentation
+    uv sync --extra documentation
 ```
 
 Build documentation:
 
 ```bash
-    uv run --active sphinx-build -b html doc dist/doc
+    uv run sphinx-build -b html doc dist/doc
 ```
 
 ## Installing

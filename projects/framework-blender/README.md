@@ -9,9 +9,13 @@ Community owned Blender integration for ftrack.
 
 Install uv
 
-Create a Python `>=3.13,<3.14` virtual environment.
+Create and activate a project-local virtual environment:
 
-Activate the virtual environment. 
+```bash
+cd projects/framework-blender
+uv venv .venv
+source .venv/bin/activate
+```
 
 Update release notes.
 
@@ -32,7 +36,7 @@ See Monorepo build CI
 Build with uv:
 
 ```bash
-    uv build --active
+    uv build
 ```
 
 Build Connect plugin:
@@ -40,7 +44,7 @@ Build Connect plugin:
 
 ```bash
     cd projects/framework-blender
-    uv run --active python ../../tools/build.py --include_resources resource/bootstrap build_connect_plugin .
+    uv run python ../../tools/build.py --include_resources resource/bootstrap build_connect_plugin .
 ```
 
 If the build fails and Blender is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 

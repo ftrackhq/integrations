@@ -6,6 +6,16 @@ ftrack connect rv integration.
 
 ### Preparations
 
+Install uv.
+
+Create and activate a project-local virtual environment:
+
+```bash
+cd projects/rv
+uv venv .venv
+source .venv/bin/activate
+```
+
 Update release notes.
 
 Set version in `pyproject.toml` (use semantic versioning, for example `MAJOR.MINOR.PATCH` or prerelease `MAJOR.MINOR.PATCHrcN`).
@@ -25,14 +35,14 @@ See Monorepo build CI
 Build with uv:
      
 ```bash
-    uv build --active
+    uv build
 ```
 
 Create the RV plugin, it will read the version number from pyproject.toml:
 
 ```bash
   cd projects/rv
-  uv run --active python ../../tools/build.py --output_path . build_rvpkg .
+  uv run python ../../tools/build.py --output_path . build_rvpkg .
 ```
 
 
@@ -40,7 +50,7 @@ Build the Connect plugin from the project folder:
 
 ```bash
   cd projects/rv
-  uv run --active python ../../tools/build.py --include_assets ./ftrack-26.3.rvpkg build_connect_plugin .
+  uv run python ../../tools/build.py --include_assets ./ftrack-26.3.rvpkg build_connect_plugin .
 ```
 
 
@@ -49,7 +59,7 @@ to build the plugin.
 
 ```bash
   cd projects/rv
-  uv run --active python ../../tools/build.py --testpypi --include_assets ./ftrack-26.3.rvpkg build_connect_plugin .
+  uv run python ../../tools/build.py --testpypi --include_assets ./ftrack-26.3.rvpkg build_connect_plugin .
 ```
 
 The Connect plugin will be output to the dist/ folder.

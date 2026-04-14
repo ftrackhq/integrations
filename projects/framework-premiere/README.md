@@ -10,9 +10,13 @@ Community owned Premiere integration for ftrack.
 
 1. Install uv.
 
-2. Create a Python `>=3.13,<3.14` virtual environment.
+2. Create and activate a project-local virtual environment:
 
-3. Activate the virtual environment. 
+```bash
+cd projects/framework-premiere
+uv venv .venv
+source .venv/bin/activate
+```
 
 4. If any dependent libraries updated, make sure to release them to PyPi prior to building the plugin.
 
@@ -23,7 +27,7 @@ Community owned Premiere integration for ftrack.
 7. If dependencies updated, update the uv lock file. Remember to properly validate/test the change of dependencies.
 
 ```bash
-    uv lock --active
+    uv lock
 ```
 
 8. Tag and push to SCM
@@ -39,7 +43,7 @@ See Monorepo build CI
 Build with uv:
 
 ```bash
-    uv build --active
+    uv build
 ```
 
 Build Connect plugin:
@@ -47,7 +51,7 @@ Build Connect plugin:
 
 ```bash
     cd projects/framework-premiere
-    uv run --active python ../../tools/build.py --include_resources resource/presets build_connect_plugin .
+    uv run python ../../tools/build.py --include_resources resource/presets build_connect_plugin .
 ```
 
 If the build fails and Premiere is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 
@@ -103,14 +107,14 @@ Build Ftrack Qt Style:
 
 ```bash
     cd projects/framework-premiere
-    uv run --active --with-requirements ../../tools/requirements-connect.txt python ../../tools/build.py build_qt_resources --css_only ../../libs/qt-style
+    uv run --with-requirements ../../tools/requirements-connect.txt python ../../tools/build.py build_qt_resources --css_only ../../libs/qt-style
 ```
 
 Create Adobe extension:
 
 ```bash
     cd projects/framework-premiere
-    uv run --active python ../../tools/build.py --nosign build_cep .
+    uv run python ../../tools/build.py --nosign build_cep .
 ```
 
 

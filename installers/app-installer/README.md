@@ -10,9 +10,15 @@ Library that provides support to build and codesign ftrack applications.
     $ git clone https://github.com/ftrackhq/integrations.git
 ```
 
-2. Make sure you are in a virtual environment
+2. Install uv: https://docs.astral.sh/uv/getting-started/installation/
 
-3. Install uv: https://docs.astral.sh/uv/getting-started/installation/
+3. Create and activate a project-local virtual environment:
+
+```bash
+    $ cd installers/app-installer
+    $ uv venv .venv
+    $ source .venv/bin/activate
+```
 
 4. (Optional) Bump version, update release notes, tag and push to SCM.
 

@@ -11,9 +11,13 @@ Community owned Houdini integration for ftrack.
 
 1. Install uv
 
-2. Create a Python `>=3.13,<3.14` virtual environment.
+2. Create and activate a project-local virtual environment:
 
-3. Activate the virtual environment. 
+```bash
+cd projects/framework-houdini
+uv venv .venv
+source .venv/bin/activate
+```
 
 4. If any dependent libraries updated, make sure to release them to PyPi prior to building the plugin.
 
@@ -24,7 +28,7 @@ Community owned Houdini integration for ftrack.
 7. If dependencies updated, update the uv lock file and validate the change.
 
 ```bash
-    uv lock --active
+    uv lock
 ```
 
 8. Tag and push to SCM
@@ -41,7 +45,7 @@ See Monorepo build CI
 Build with uv:
 
 ```bash
-    uv build --active
+    uv build
 ```
 
 Build Connect plugin:
@@ -49,7 +53,7 @@ Build Connect plugin:
 
 ```bash
     cd projects/framework-houdini
-    uv run --active python ../../tools/build.py --include_resources resource/bootstrap build_connect_plugin .
+    uv run python ../../tools/build.py --include_resources resource/bootstrap build_connect_plugin .
 ```
 
 If the build fails and Houdini is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 

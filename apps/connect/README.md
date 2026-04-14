@@ -34,43 +34,47 @@ found at <https://developer.ftrack.com/integrating-pipelines/connect/>
 See Monorepo build CI
 
 ### Manual Build
-1. Create and activate a virtual environment:
-- Create a Python 3.13 virtual environment with uv.
-- Activate the virtual environment. 
+1. Create and activate a project-local virtual environment:
+
+```bash
+cd apps/connect
+uv venv .venv
+source .venv/bin/activate
+```
 
 2. Build resources:
 ```bash
 cd apps/connect
-uv run --active python ../../tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py --pyside_version 6 build_qt_resources .
+uv run python ../../tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py --pyside_version 6 build_qt_resources .
 ```
 
 3. Update dependencies:
 
 ```bash
-    uv lock --active
-    uv sync --active
+    uv lock
+    uv sync
 ```
 4. Test connect and install it from sources (Optional)
 
 ```bash
-    uv sync --active --extra dev
+    uv sync --extra dev
 ```
 5. Start connect:
 
 ```bash
-    uv run --active python -m ftrack_connect
+    uv run python -m ftrack_connect
 ```
 6. Build Connect wheel (Optional)
 
 ```bash
-  uv build --active
+  uv build
 ```
 
 7. Generate distributible connect installer
 
 ```bash
-  uv sync --active --extra installer
-  uv run --active ftrack-connect-installer --codesign true
+  uv sync --extra installer
+  uv run ftrack-connect-installer --codesign true
 ```
 **Note:** If you don't codesign, the resultant dmg file will not be valid to be shared and will appear as damaged app in other computers.
 
@@ -89,13 +93,13 @@ uv run --active python ../../tools/build.py --style_path resource --output_path 
 1. Install documentation dependencies:
 
 ```bash
-  uv sync --active --extra documentation
+  uv sync --extra documentation
 ```
 
 2. Build documentation:
 
 ```bash
-    uv run --active sphinx-build -b html doc dist/doc
+    uv run sphinx-build -b html doc dist/doc
 ```
 
 ## Publish to PyPi
