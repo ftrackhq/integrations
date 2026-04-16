@@ -2,10 +2,12 @@
 # :copyright: Copyright (c) 2024 ftrack
 
 import pkgutil
+import importlib.util
 import logging
 import inspect
 import glob
 import os
+import sys
 import yaml
 import re
 
@@ -13,31 +15,31 @@ from ftrack_utils.directories.scan_dir import fast_scandir
 
 logger = logging.getLogger(__name__)
 
-env_matcher = re.compile(r'\$\{([^}^{]+)}')
+env_matcher = re.compile(r"\$\{([^}^{]+)}")
 
 
 # Patch yaml module to support environment variable substitution
 def env_constructor(loader, node):
-    '''Extract the matched value, expand env variable, and replace the match.'''
+    """Extract the matched value, expand env variable, and replace the match."""
     value = node.value
     match = env_matcher.match(value)
     env_var = match.group()[2:-1]
-    return os.environ.get(env_var, '') + value[match.end() :]
+    return os.environ.get(env_var, "") + value[match.end() :]
 
 
-yaml.add_implicit_resolver('!env', env_matcher, None, yaml.SafeLoader)
-yaml.add_constructor('!env', env_constructor, yaml.SafeLoader)
+yaml.add_implicit_resolver("!env", env_matcher, None, yaml.SafeLoader)
+yaml.add_constructor("!env", env_constructor, yaml.SafeLoader)
 
 
 def register_yaml_files(file_list):
-    '''
+    """
     Generate data registry files for all extension compatible .yaml files in
     the given *file_list*. Support environment variable substitution in the yaml file.
-    '''
+    """
 
     registered_files = []
     for _file in file_list:
-        with open(_file, 'r') as yaml_file:
+        with open(_file, "r") as yaml_file:
             try:
                 yaml_content = yaml.safe_load(yaml_file)
             except yaml.YAMLError as exc:
@@ -56,8 +58,8 @@ def register_yaml_files(file_list):
                 )
                 continue
             data = {
-                "extension_type": yaml_content['type'],
-                "name": yaml_content['name'],
+                "extension_type": yaml_content["type"],
+                "name": yaml_content["name"],
                 "extension": yaml_content,
                 "path": _file,
             }
@@ -66,9 +68,9 @@ def register_yaml_files(file_list):
 
 
 def get_files_from_folder(_dir, filetype_pattern):
-    '''
+    """
     Return all files matching the *filetype_pattern* the given folder *_dir*
-    '''
+    """
     pattern = os.path.join(_dir, filetype_pattern)
     file_list = glob.glob(pattern)
     if not file_list:
@@ -77,7 +79,7 @@ def get_files_from_folder(_dir, filetype_pattern):
 
 
 def get_extensions_from_directory(scan_dir, extension_types=None):
-    '''Return available extensions on the given directory'''
+    """Return available extensions on the given directory"""
     subfolders = fast_scandir(scan_dir)
     if not subfolders:
         subfolders = [scan_dir]
@@ -94,8 +96,9 @@ def get_extensions_from_directory(scan_dir, extension_types=None):
         registered_files = register_yaml_files(file_list)
         if not registered_files:
             logger.warning(
-                "No compatible yaml extensions found in "
-                "folder {}".format(_dir)
+                "No compatible yaml extensions found in " "folder {}".format(
+                    _dir
+                )
             )
         if extension_types is None:
             available_extensions.extend(registered_files)
@@ -107,10 +110,10 @@ def get_extensions_from_directory(scan_dir, extension_types=None):
     # Check python extensions
     if (
         extension_types is None
-        or 'engine' in extension_types
-        or 'plugin' in extension_types
-        or 'widget' in extension_types
-        or 'dialog' in extension_types
+        or "engine" in extension_types
+        or "plugin" in extension_types
+        or "widget" in extension_types
+        or "dialog" in extension_types
     ):
         extension_data = get_modules_extension_data_from_folders(subfolders)
         for data in extension_data:
@@ -124,10 +127,47 @@ def get_extensions_from_directory(scan_dir, extension_types=None):
 
 
 def get_modules_extension_data_from_folders(folders):
-    '''Get the extension data dictionary of the framework extension python modules found in the given *folders*'''
+    """Get the extension data dictionary of the framework extension python modules found in the given *folders*"""
+
+    def _load_module(loader, module_name):
+        if hasattr(loader, "find_spec"):
+            module_spec = loader.find_spec(module_name)
+            if module_spec is None or module_spec.loader is None:
+                raise ImportError(
+                    "Could not resolve module spec for {}".format(module_name)
+                )
+
+            module = importlib.util.module_from_spec(module_spec)
+            sys.modules[module_name] = module
+            try:
+                module_spec.loader.exec_module(module)
+            except Exception:
+                sys.modules.pop(module_name, None)
+                raise
+            return module
+
+        if hasattr(loader, "find_module"):
+            return loader.find_module(module_name).load_module(module_name)
+
+        raise ImportError(
+            "Unsupported module loader for {}: {}".format(
+                module_name, type(loader)
+            )
+        )
+
     extension_data = []
     for loader, module_name, is_pkg in pkgutil.walk_packages(folders):
-        _module = loader.find_module(module_name).load_module(module_name)
+        try:
+            _module = _load_module(loader, module_name)
+        except Exception as error:
+            logger.warning(
+                "Couldn't import extension module {} from path {} \n"
+                " error: {}".format(
+                    module_name, getattr(loader, "path", "<unknown>"), error
+                )
+            )
+            continue
+
         cls_members = inspect.getmembers(_module, inspect.isclass)
         success_registry = False
         for name, obj in cls_members:
@@ -162,6 +202,8 @@ def get_modules_extension_data_from_folders(folders):
         if not success_registry:
             logger.warning(
                 "No compatible python extension found in module {} "
-                "from path{}".format(module_name, loader.path)
+                "from path{}".format(
+                    module_name, getattr(loader, "path", "<unknown>")
+                )
             )
     return extension_data

@@ -54,10 +54,6 @@ import fileinput
 import tempfile
 
 
-def find_executable(command):
-    return shutil.which(command)
-
-
 # tomli has been integrated into python 3.11+
 # and renamed to tomllib
 if sys.version_info >= (3, 11):
@@ -66,8 +62,6 @@ else:
     import tomli as tomllib
 
 __version__ = "0.4.23"
-
-ZXPSIGN_CMD = "ZXPSignCmd"
 
 logging.getLogger().setLevel(logging.INFO)
 
@@ -160,7 +154,7 @@ def build_package(invokation_path, pkg_path, args, command=None):
 
         assert VERSION, 'No version could be extracted from "pyproject.toml"!'
 
-        if command == "build_cep":
+        if command == "build_uxp":
             # Align version, cannot contain rc/alpha/beta
             if VERSION.find("rc") > -1:
                 VERSION = VERSION.split("rc")[0]
@@ -350,9 +344,6 @@ def build_package(invokation_path, pkg_path, args, command=None):
                         not os.path.isdir(extension_source_path)
                         or extension
                         == "launch"  # Launch deployed to root of Connect plugin
-                        or (
-                            extension == "js" and DCC_NAME == "photoshop"
-                        )  # Skip JS extensions, built to CEP plugin
                     ):
                         continue
                     logging.info(
@@ -385,13 +376,15 @@ def build_package(invokation_path, pkg_path, args, command=None):
                         commands.extend(
                             [
                                 "-e",
-                                f'.[{",".join(extras)}]',
+                                f".[{','.join(extras)}]",
                             ]
                         )
                     commands.extend(
                         [
                             "--target",
                             dependencies_path,
+                            "--refresh",
+                            "--reinstall",
                         ]
                     )
                     subprocess.check_call(commands)
@@ -489,15 +482,17 @@ def build_package(invokation_path, pkg_path, args, command=None):
                         "uv",
                         "pip",
                         "install",
-                        f'{os.path.join(dist_path, wheel_name)}{f"[{extras}]" if extras else ""}',
+                        f"{os.path.join(dist_path, wheel_name)}{f'[{extras}]' if extras else ''}",
                         "--target",
                         dependencies_path,
+                        "--refresh",
+                        "--reinstall",
                     ]
                     subprocess.check_call(commands)
 
         extra_spec = ""
         if extras:
-            extra_spec = f'[{",".join(extras)}]'
+            extra_spec = f"[{','.join(extras)}]"
 
         logging.info(f"Installing {wheel_path}{extra_spec} with dependencies")
         requirements_path = os.path.join(STAGING_PATH, "requirements.txt")
@@ -534,6 +529,8 @@ def build_package(invokation_path, pkg_path, args, command=None):
             requirements_path,
             "--target",
             dependencies_path,
+            "--refresh",
+            "--reinstall",
         ]
         if args.testpypi:
             # Try to pick first from pypi if not exist go to test pypi
@@ -620,7 +617,7 @@ def build_package(invokation_path, pkg_path, args, command=None):
         """Build resources.py from style"""
         if not DEFAULT_STYLE_PATH:
             raise Exception(
-                "Need integrations monorepo path to be able to " "build style."
+                "Need integrations monorepo path to be able to build style."
             )
         try:
             import sass
@@ -670,7 +667,7 @@ def build_package(invokation_path, pkg_path, args, command=None):
                 executable = None
 
                 # Check if the command for pyside*-rcc is in executable paths.
-                if find_executable(pyside_rcc_command):
+                if shutil.which(pyside_rcc_command):
                     executable = [pyside_rcc_command]
 
                 if not executable:
@@ -720,211 +717,54 @@ def build_package(invokation_path, pkg_path, args, command=None):
         logging.info("Running: {}".format(cmd))
         os.system(cmd)
 
-    def build_cep(args):
-        """Wrapper for building Adobe CEP extension"""
-        if not MONOREPO_PATH:
-            raise Exception(
-                "Need integrations monorepo path to be able to "
-                "build CEP plugins with style."
-            )
+    def build_uxp(args):
+        """Wrapper for building Adobe UXP extension artifact."""
+        UXP_DCC_PATH = os.path.join(ROOT_PATH, "resource", "adobe-uxp")
+        if not os.path.exists(UXP_DCC_PATH):
+            raise Exception('Missing DCC "{}/" folder!'.format(UXP_DCC_PATH))
 
-        CEP_PATH = os.path.join(MONOREPO_PATH, "resource", "adobe-cep")
-        if not os.path.exists(CEP_PATH):
-            raise Exception('Missing common "{}/" folder!'.format(CEP_PATH))
-
-        CEP_DCC_PATH = os.path.join(ROOT_PATH, "resource", "adobe-cep")
-        if not os.path.exists(CEP_DCC_PATH):
-            raise Exception('Missing DCC "{}/" folder!'.format(CEP_PATH))
-
-        MANIFEST_PATH = os.path.join(CEP_DCC_PATH, "bundle", "manifest.xml")
+        MANIFEST_PATH = os.path.join(UXP_DCC_PATH, "manifest.json")
         if not os.path.exists(MANIFEST_PATH):
             raise Exception("Missing manifest:{}!".format(MANIFEST_PATH))
 
-        if not args.nosign:
-            if len(os.environ.get("ADOBE_CERTIFICATE_PASSWORD") or "") == 0:
-                raise Exception(
-                    "Need certificate password in ADOBE_CERTIFICATE_PASSWORD "
-                    "environment variable!"
-                )
+        STAGING_PATH = os.path.join(BUILD_PATH, "staging-uxp")
+        assert DCC_NAME, "Please provide DCC name to build UXP plugin for"
 
-        ZXPSIGN_CMD_PATH = None
-        CERTIFICATE_PATH = os.path.join(CEP_PATH, "bundle", "certificate.p12")
-        if not args.nosign:
-            ZXPSIGN_CMD_PATH = find_executable(ZXPSIGN_CMD)
-            if not ZXPSIGN_CMD_PATH:
-                raise Exception("%s is not in your ${PATH}!" % (ZXPSIGN_CMD))
-
-            if not os.path.exists(CERTIFICATE_PATH):
-                raise Exception(
-                    "Certificate missing: {}!".format(CERTIFICATE_PATH)
-                )
-
-        STAGING_PATH = os.path.join(BUILD_PATH, "staging")
-        assert DCC_NAME, "Please provide DCC name to build CEP plugin for"
-
-        # Clean previous build
-        if os.path.exists(BUILD_PATH):
-            for filename in os.listdir(BUILD_PATH):
-                if filename.endswith(".zxp"):
-                    logging.warning(
-                        "Removed previous build: {}".format(filename)
-                    )
-                    os.remove(os.path.join(BUILD_PATH, filename))
-
-        # Clean staging path
-        shutil.rmtree(STAGING_PATH, ignore_errors=True)
-        os.makedirs(os.path.join(STAGING_PATH))
-        os.makedirs(os.path.join(STAGING_PATH, "image"))
-        os.makedirs(os.path.join(STAGING_PATH, "css"))
-
-        style_path = args.style_path
-        if style_path is None:
-            style_path = DEFAULT_STYLE_PATH
-        else:
-            style_path = os.path.realpath(style_path)
-        if not os.path.exists(style_path):
-            raise Exception('Missing "{}/" folder!'.format(style_path))
-
-        # Copy html and base bootstrap
-        for filename in ["index.html", "bootstrap.js"]:
-            parse_and_copy(
-                os.path.join(CEP_PATH, filename),
-                os.path.join(STAGING_PATH, filename),
-            )
-
-        # Copy images
-        logging.info("Copying images")
-        for filename in [
-            "favicon.ico",
-            "ftrack-logo-48.png",
-            "loader.gif",
-            "thumbnail.png",
-            "open_in_new.png",
-            "publish.png",
-            "open.png",
-        ]:
-            logging.info("   " + filename)
-            shutil.copy(
-                os.path.join(style_path, "image", "js", filename),
-                os.path.join(STAGING_PATH, "image", filename),
-            )
-
-        filename = "style_dark.css"
-        logging.info("Copying style: {}".format(filename))
-        shutil.copy(
-            os.path.join(style_path, filename),
-            os.path.join(STAGING_PATH, "css", filename),
-        )
-
-        logging.info(
-            "Copying {}>{}".format(
-                os.path.join(CEP_PATH, "libraries"),
-                os.path.join(STAGING_PATH, "lib"),
-            )
-        )
-        shutil.copytree(
-            os.path.join(CEP_PATH, "libraries"),
-            os.path.join(STAGING_PATH, "lib"),
-            symlinks=True,
-        )
-
-        logging.info("Copying framework js lib files")
-        framework_js_path = os.path.join(
-            MONOREPO_PATH, "libs", "framework-js", "source"
-        )
-        for js_file in [
-            os.path.join(
-                framework_js_path,
-                "utils.js",
-            ),
-            os.path.join(
-                framework_js_path,
-                "event-constants.js",
-            ),
-            os.path.join(
-                framework_js_path,
-                "events-core.js",
-            ),
-        ]:
-            parse_and_copy(
-                js_file,
-                os.path.join(STAGING_PATH, "lib", os.path.basename(js_file)),
-            )
-
-        # Copy extensions
-        if DCC_NAME == "photoshop":
-            extendscript_file = "ps{}.jsx"
-        elif DCC_NAME == "premiere":
-            extendscript_file = "pp{}.jsx"
-        else:
-            raise Exception("Unsupported Adobe DCC: {}".format(DCC_NAME))
-
-        for filename in [
-            "bootstrap-dcc.js",
-            extendscript_file.format(""),
-            extendscript_file.format("-include"),
-        ]:
-            # Check if overriden in include path
-            if args.include:
-                if not os.path.exists(args.include):
-                    raise Exception(
-                        "CEP include path does not exist: {}".format(
-                            args.include
-                        )
-                    )
-                include_path = os.path.join(args.include, filename)
-                if os.path.exists(include_path):
-                    parse_and_copy(
-                        include_path,
-                        os.path.join(STAGING_PATH, filename),
-                    )
-                    continue
-            parse_and_copy(
-                os.path.join(
-                    EXTENSION_PATH,
-                    "js",
-                    filename,
-                ),
-                os.path.join(STAGING_PATH, filename),
-            )
-
-        # Transfer manifest xml, store version
-        manifest_staging_path = os.path.join(
-            STAGING_PATH, "CSXS", "manifest.xml"
-        )
-        if not os.path.exists(os.path.dirname(manifest_staging_path)):
-            os.makedirs(os.path.dirname(manifest_staging_path))
-        parse_and_copy(MANIFEST_PATH, manifest_staging_path)
+        if not os.path.exists(BUILD_PATH):
+            os.makedirs(BUILD_PATH)
 
         extension_output_path = os.path.join(
-            BUILD_PATH, f"ftrack-framework-{DCC_NAME}-{VERSION}.zxp"
+            BUILD_PATH, f"ftrack-framework-{DCC_NAME}-{VERSION}.ccx"
+        )
+        temp_zip_output_path = os.path.join(
+            BUILD_PATH, f"ftrack-framework-{DCC_NAME}-{VERSION}-uxp.zip"
         )
 
-        if not args.nosign:
-            # Create and sign extension
-            if os.path.exists(extension_output_path):
-                os.remove(extension_output_path)
+        for output_path in [extension_output_path, temp_zip_output_path]:
+            if os.path.exists(output_path):
+                logging.warning(
+                    "Removed previous build: {}".format(output_path)
+                )
+                os.remove(output_path)
 
-            result = subprocess.Popen(
-                [
-                    ZXPSIGN_CMD_PATH,
-                    "-sign",
-                    STAGING_PATH,
-                    extension_output_path,
-                    CERTIFICATE_PATH,
-                    "{}".format(os.environ["ADOBE_CERTIFICATE_PASSWORD"]),
-                ]
-            )
-            result.communicate()
-            if result.returncode != 0:
-                raise Exception("Could not sign and build extension!")
+        shutil.rmtree(STAGING_PATH, ignore_errors=True)
+        shutil.copytree(UXP_DCC_PATH, STAGING_PATH)
 
-            logging.info("Result: " + extension_output_path)
-        else:
-            logging.warning(
-                "Not signing and creating ZPX plugin, result for for "
-                "manual deploy can be found here: {}".format(STAGING_PATH)
-            )
+        with open(os.path.join(STAGING_PATH, "manifest.json"), "r") as f:
+            manifest = json.load(f)
+
+        manifest["version"] = VERSION
+
+        with open(os.path.join(STAGING_PATH, "manifest.json"), "w") as f:
+            json.dump(manifest, f, indent=2)
+            f.write("\n")
+
+        shutil.make_archive(temp_zip_output_path[:-4], "zip", STAGING_PATH)
+        shutil.move(temp_zip_output_path, extension_output_path)
+
+        logging.info(
+            "Built UXP extension artifact: {}".format(extension_output_path)
+        )
 
         if args.remove_intermediate_folder:
             logging.warning(f"Removing: {STAGING_PATH}")
@@ -1029,8 +869,8 @@ def build_package(invokation_path, pkg_path, args, command=None):
         build_qt_resources(args)
     elif command == "build_sphinx":
         build_sphinx(args)
-    elif command == "build_cep":
-        build_cep(args)
+    elif command == "build_uxp":
+        build_uxp(args)
     elif command == "build_rvpkg":
         build_rvpkg(args)
 
@@ -1105,26 +945,13 @@ if __name__ == "__main__":
         help="(QT resource build/RV pkg build) Override the QT resource output directory.",
     )
 
-    # CEP options
-
-    parser.add_argument(
-        "--nosign",
-        help="(CEP plugin build) Do not sign and create ZXP.",
-        action="store_true",
-    )
-
-    parser.add_argument(
-        "--include",
-        help="(CEP plugin build) Path to external folder containing override JS extensions.",
-    )
-
     parser.add_argument(
         "command",
         help=(
             "clean; Clean(remove) build folder \n"
             "build_connect_plugin; Build Connect plugin archive\n"
             "build_qt_resources; Build QT resources\n"
-            "build_cep; Build Adobe CEP(.zxp) plugin\n"
+            "build_uxp; Build Adobe UXP(.ccx) plugin artifact\n"
             "build_rvpkg; Build RV pkg\n"
         ),
         choices=[
@@ -1132,7 +959,7 @@ if __name__ == "__main__":
             "build_connect_plugin",
             "build_qt_resources",
             "build_sphinx",
-            "build_cep",
+            "build_uxp",
             "build_rvpkg",
         ],
     )

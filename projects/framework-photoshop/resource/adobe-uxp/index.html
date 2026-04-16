@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>ftrack Photoshop</title>
+    <link rel="icon" type="image/x-icon" href="./icons/favicon.ico" />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+
+  <body>
+    <div id="error" style="visibility: hidden; display: none;"></div>
+
+    <div id="connecting">
+      <div>
+        <i>loading</i>
+      </div>
+      <div style="margin-top: 10px;">
+        <img src="./icons/loader.gif" alt="loading" />
+      </div>
+    </div>
+
+    <div id="content" style="visibility: hidden; display: none;">
+      <table id="context" cellspacing="1" cellpadding="2">
+        <tr height="50">
+          <td width="65">
+            <img
+              id="context_thumbnail"
+              src="./icons/thumbnail.png"
+              alt="context"
+            />
+          </td>
+          <td width="100%">
+            <span id="context_name">&lt;task name&gt;</span><br />
+            <span id="context_path">&lt;task path&gt;</span>
+          </td>
+          <td width="30">
+            <div
+              id="context_open"
+              role="button"
+              tabindex="0"
+              aria-label="Open context"
+            ></div>
+          </td>
+        </tr>
+      </table>
+
+      <table id="launch_configs" cellspacing="2" cellpadding="0"></table>
+
+      <p id="footer">
+        This is the ftrack Framework Adobe integration.
+        Contact support@ftrack.com for inquiries.
+      </p>
+    </div>
+
+    <script type="text/javascript" src="./lib/ftrack.0.7.2.min.js"></script>
+    <script type="text/javascript" src="./lib/event-constants.js"></script>
+    <script type="text/javascript" src="./lib/utils.js"></script>
+    <script type="text/javascript" src="./lib/events-core.js"></script>
+    <script type="text/javascript" src="./bootstrap-dcc.js"></script>
+    <script type="text/javascript" src="./bootstrap.js"></script>
+  </body>
+</html>

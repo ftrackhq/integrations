@@ -1,0 +1,102 @@
+{
+  "manifestVersion": 5,
+  "id": "com.ftrack.framework.photoshop.uxp.panel",
+  "name": "ftrack Photoshop",
+  "version": "1.0.0",
+  "main": "index.html",
+  "host": {
+    "app": "PS",
+    "minVersion": "23.3.0"
+  },
+  "entrypoints": [
+    {
+      "type": "panel",
+      "id": "ftrackPanel",
+      "label": {
+        "default": "ftrack"
+      },
+      "minimumSize": {
+        "width": 280,
+        "height": 220
+      },
+      "maximumSize": {
+        "width": 400,
+        "height": 800
+      },
+      "preferredDockedSize": {
+        "width": 300,
+        "height": 260
+      },
+      "preferredFloatingSize": {
+        "width": 320,
+        "height": 320
+      },
+      "icons": [
+        {
+          "width": 23,
+          "height": 23,
+          "path": "icons/ftrack-logo-48.png",
+          "scale": [
+            1,
+            2
+          ],
+          "theme": [
+            "dark",
+            "darkest",
+            "medium",
+            "light",
+            "lightest"
+          ],
+          "species": [
+            "generic"
+          ]
+        }
+      ]
+    }
+  ],
+  "icons": [
+    {
+      "width": 23,
+      "height": 23,
+      "path": "icons/ftrack-logo-48.png",
+      "scale": [
+        1,
+        2
+      ],
+      "theme": [
+        "dark",
+        "darkest",
+        "medium",
+        "light",
+        "lightest"
+      ],
+      "species": [
+        "generic"
+      ]
+    }
+  ],
+  "requiredPermissions": {
+    "network": {
+      "domains": "all"
+    },
+    "launchProcess": {
+      "schemes": [
+        "https"
+      ],
+      "extensions": [
+        ".psd",
+        ".psb",
+        ".png",
+        ".jpg",
+        ".jpeg",
+        ".gif",
+        ".bmp",
+        ".tif",
+        ".tiff",
+        ".pdf",
+        ".eps"
+      ]
+    },
+    "localFileSystem": "fullAccess"
+  }
+}

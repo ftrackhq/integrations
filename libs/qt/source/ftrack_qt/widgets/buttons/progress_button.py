@@ -13,8 +13,8 @@ from ftrack_qt.widgets.overlay import OverlayWidget
 
 
 class ProgressStatusButtonWidget(QtWidgets.QPushButton):
-    '''Progress main status button representation, to be put inside the
-    tool header.'''
+    """Progress main status button representation, to be put inside the
+    tool header."""
 
     @property
     def status(self):
@@ -48,25 +48,25 @@ class ProgressStatusButtonWidget(QtWidgets.QPushButton):
         self._message_label = QtWidgets.QLabel()
         self.layout().addWidget(self._message_label)
         self.layout().addStretch()
-        self._status_icon = StatusMaterialIconWidget('')
+        self._status_icon = StatusMaterialIconWidget("")
         self.layout().addWidget(self._status_icon)
 
         self.set_status(constants.status.UNKNOWN_STATUS)
 
-    def set_status(self, new_status, message=''):
+    def set_status(self, new_status, message=""):
         assert (
             new_status in constants.status.status_bool_mapping.keys()
-        ), f'Invalid status: {new_status}'
+        ), f"Invalid status: {new_status}"
         self.status = new_status
         if message:
             self._message_label.setText(message)
-        set_property(self, 'status', self.status.lower())
+        set_property(self, "status", self.status.lower())
         color = self._status_icon.set_status(self.status, size=24)
-        self._message_label.setStyleSheet(f'color: #{color}')
+        self._message_label.setStyleSheet(f"color: #{color}")
 
 
 class ProgressPhaseButtonWidget(QtWidgets.QPushButton):
-    '''Showing progress of a progress phase, when pressed the log is shown.'''
+    """Showing progress of a progress phase, when pressed the log is shown."""
 
     show_overlay_signal = QtCore.Signal(object)
     hide_overlay_signal = QtCore.Signal()
@@ -93,12 +93,12 @@ class ProgressPhaseButtonWidget(QtWidgets.QPushButton):
 
     @log_message.setter
     def log_message(self, value):
-        '''Store for log *value* for view and set it as tooltip'''
+        """Store for log *value* for view and set it as tooltip"""
         self._log_message = value
-        self.setToolTip(value or '')
+        self.setToolTip(value or "")
 
-    def __init__(self, label, category='', tags=None, parent=None):
-        '''Instantiate the PhaseButtonWidget with *label* and *status*'''
+    def __init__(self, label, category="", tags=None, parent=None):
+        """Instantiate the PhaseButtonWidget with *label* and *status*"""
 
         super(ProgressPhaseButtonWidget, self).__init__(parent=parent)
 
@@ -136,7 +136,7 @@ class ProgressPhaseButtonWidget(QtWidgets.QPushButton):
         v_layout = QtWidgets.QVBoxLayout()
 
         label_widget = QtWidgets.QLabel(self._label)
-        label_widget.setProperty('h3', True)
+        label_widget.setProperty("h3", True)
         v_layout.addWidget(label_widget)
 
         # Show tags as chips
@@ -145,12 +145,12 @@ class ProgressPhaseButtonWidget(QtWidgets.QPushButton):
 
         for tag in self._tags:
             tag_widget = QtWidgets.QLabel(tag)
-            tag_widget.setProperty('secondary', True)
+            tag_widget.setProperty("secondary", True)
             tag_widget.setStyleSheet(
-                'background: #333333; padding: 1px; border-radius: 6px;'
+                "background: #333333; padding: 1px; border-radius: 6px;"
             )
             h_layout.addWidget(tag_widget)
-        h_layout.addWidget(QtWidgets.QLabel(''), 100)  # Add spacing
+        h_layout.addWidget(QtWidgets.QLabel(""), 100)  # Add spacing
 
         v_layout.addLayout(h_layout)
 
@@ -159,11 +159,11 @@ class ProgressPhaseButtonWidget(QtWidgets.QPushButton):
         v_layout = QtWidgets.QVBoxLayout()
 
         self._status_message_widget = QtWidgets.QLabel(self.status)
-        self._status_message_widget.setProperty('secondary', True)
+        self._status_message_widget.setProperty("secondary", True)
         v_layout.addWidget(self._status_message_widget)
 
         self._time_widget = QtWidgets.QLabel()
-        self._time_widget.setProperty('secondary', True)
+        self._time_widget.setProperty("secondary", True)
         v_layout.addWidget(self._time_widget)
 
         self.layout().addLayout(v_layout)
@@ -174,7 +174,7 @@ class ProgressPhaseButtonWidget(QtWidgets.QPushButton):
         self._log_message_widget.setLayout(QtWidgets.QVBoxLayout())
         self._log_message_widget.layout().addSpacing(5)
         self._log_message_widget.layout().addWidget(
-            QtWidgets.QLabel(f'{self.label} log:')
+            QtWidgets.QLabel(f"{self.label} log:")
         )
 
         self._log_text_edit = QtWidgets.QTextEdit()
@@ -192,34 +192,37 @@ class ProgressPhaseButtonWidget(QtWidgets.QPushButton):
     def update_status(
         self, new_status, status_message, log_message, time=None
     ):
-        '''Update the status of the phase to *new_status* and set *status_message*. 
-        Build log messages from *log*.''' ''
+        """Update the status of the phase to *new_status* and set *status_message*. 
+        Build log messages from *log*.""" ""
         color = self.set_status(new_status)
-        self._status_message_widget.setText(f'[{status_message.upper()}]')
-        self._status_message_widget.setStyleSheet(f'color: #{color};')
-        if time:
-            self._time_widget.setText(f'{time:.3f}s')
+        self._status_message_widget.setText(f"[{status_message.upper()}]")
+        self._status_message_widget.setStyleSheet(f"color: #{color};")
+        if time is not None:
+            if time < 0.001:
+                self._time_widget.setText("< 0.001s")
+            else:
+                self._time_widget.setText(f"{time:.3f}s")
         else:
-            self._time_widget.setText('')
+            self._time_widget.setText("")
         self.log_message = log_message
 
     def set_status(self, new_status):
-        '''Visualize *new_status* on the button'''
+        """Visualize *new_status* on the button"""
         self.status = new_status
-        set_property(self, 'status', self.status.lower())
+        set_property(self, "status", self.status.lower())
         return self._icon_widget.set_status(self.status)
 
     def _on_click_callback(self):
-        '''Emits a show_overlay_signal when current widget is clicked'''
+        """Emits a show_overlay_signal when current widget is clicked"""
         self.show_overlay_signal.emit(self._overlay_widget)
         self.show_log()
 
     def _on_overlay_close_callback(self):
-        '''Emits a hide_overlay_signal when overlay close button is clicked'''
+        """Emits a hide_overlay_signal when overlay close button is clicked"""
         self.hide_overlay_signal.emit()
 
     def show_log(self):
-        '''Sets the log message into the _log_text_edit'''
+        """Sets the log message into the _log_text_edit"""
         if self.log_message:
             self._log_text_edit.setText(self.log_message)
         else:
