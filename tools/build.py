@@ -891,6 +891,8 @@ def build_package(invokation_path, pkg_path, args, command=None):
             extendscript_file = 'ps{}.jsx'
         elif DCC_NAME == 'premiere':
             extendscript_file = 'pp{}.jsx'
+        elif DCC_NAME == 'aftereffects':
+            extendscript_file = 'af{}.jsx'
         else:
             raise Exception('Unsupported Adobe DCC: {}'.format(DCC_NAME))
 
@@ -985,19 +987,24 @@ def build_package(invokation_path, pkg_path, args, command=None):
                         os.makedirs(os.path.dirname(d))
                     print(shutil.copy2(s, d))
 
-
-
         rvpkg_staging = os.path.join(tempfile.mkdtemp(), 'rvpkg')
 
         # BUILD DEPENDENCIES ZIP
         subprocess.check_call(
-            [sys.executable, '-m', 'pip', 'install','.','--target',
-            os.path.join(rvpkg_staging, 'dependencies')]
+            [
+                sys.executable,
+                '-m',
+                'pip',
+                'install',
+                '.',
+                '--target',
+                os.path.join(rvpkg_staging, 'dependencies'),
+            ]
         )
         shutil.make_archive(
             os.path.join(rvpkg_staging, 'dependencies'),
             'zip',
-            os.path.join(rvpkg_staging, 'dependencies')
+            os.path.join(rvpkg_staging, 'dependencies'),
         )
         shutil.rmtree(os.path.join(rvpkg_staging, 'dependencies'))
         # END BUILD DEPENDENCIES ZIP
