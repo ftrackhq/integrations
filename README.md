@@ -20,7 +20,12 @@ or download the source ZIP from the [Integrations repository](https://github.com
 Follow these steps to prepare your environment:
 
 1. Install uv.
-2. Create a Python >=3.13, <3.14 virtual environment with `uv venv`.
+2. From the repository root, create and activate a local virtual environment:
+
+```bash
+uv venv .venv
+source .venv/bin/activate
+```
 
 ### How to install compatible PySide2 on Silicon based Mac 
 

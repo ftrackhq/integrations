@@ -6,6 +6,16 @@ ftrack connect rv integration.
 
 ### Preparations
 
+Install uv.
+
+Create and activate a project-local virtual environment:
+
+```bash
+cd projects/rv
+uv venv .venv
+source .venv/bin/activate
+```
+
 Update release notes.
 
 Set version in `pyproject.toml` (use semantic versioning, for example `MAJOR.MINOR.PATCH` or prerelease `MAJOR.MINOR.PATCHrcN`).

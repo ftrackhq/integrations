@@ -7,7 +7,15 @@ Community owned Maya integration for ftrack.
 ### Preparations
 
 
-Install uv and create a Python `>=3.13,<3.14` virtual environment.
+Install uv.
+
+Create and activate a project-local virtual environment:
+
+```bash
+cd projects/framework-maya
+uv venv .venv
+source .venv/bin/activate
+```
 
 Update release notes.
 

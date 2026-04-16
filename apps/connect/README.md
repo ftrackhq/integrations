@@ -34,9 +34,13 @@ found at <https://developer.ftrack.com/integrating-pipelines/connect/>
 See Monorepo build CI
 
 ### Manual Build
-1. Create and activate a virtual environment:
-- Create a Python 3.13 virtual environment with uv.
-- Activate the virtual environment. 
+1. Create and activate a project-local virtual environment:
+
+```bash
+cd apps/connect
+uv venv .venv
+source .venv/bin/activate
+```
 
 2. Build resources:
 ```bash

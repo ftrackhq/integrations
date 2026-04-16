@@ -11,9 +11,13 @@ Community owned Houdini integration for ftrack.
 
 1. Install uv
 
-2. Create a Python `>=3.13,<3.14` virtual environment.
+2. Create and activate a project-local virtual environment:
 
-3. Activate the virtual environment. 
+```bash
+cd projects/framework-houdini
+uv venv .venv
+source .venv/bin/activate
+```
 
 4. If any dependent libraries updated, make sure to release them to PyPi prior to building the plugin.
 

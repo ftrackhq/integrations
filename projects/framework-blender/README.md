@@ -9,9 +9,13 @@ Community owned Blender integration for ftrack.
 
 Install uv
 
-Create a Python `>=3.13,<3.14` virtual environment.
+Create and activate a project-local virtual environment:
 
-Activate the virtual environment. 
+```bash
+cd projects/framework-blender
+uv venv .venv
+source .venv/bin/activate
+```
 
 Update release notes.
 
