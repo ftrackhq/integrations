@@ -20,15 +20,15 @@ from ftrack_connect.application_launcher import (
 logger = logging.getLogger(__name__)
 
 cwd = os.path.dirname(__file__)
-connect_plugin_path = os.path.abspath(os.path.join(cwd, '..'))
+connect_plugin_path = os.path.abspath(os.path.join(cwd, ".."))
 
 # Read version number from __version__.py
 __version__ = get_connect_plugin_version(connect_plugin_path)
 
-python_dependencies = os.path.join(connect_plugin_path, 'dependencies')
+python_dependencies = os.path.join(connect_plugin_path, "dependencies")
 
 
-RV_LINUX_INSTALLATION_PATH = os.getenv('RV_INSTALLATION_PATH', '/usr/local/rv')
+RV_LINUX_INSTALLATION_PATH = os.getenv("RV_INSTALLATION_PATH", "/usr/local/rv")
 
 
 class RvApplicationLauncher(ApplicationLauncher):
@@ -44,7 +44,7 @@ class RvApplicationLauncher(ApplicationLauncher):
         )._get_application_environment(application, context)
 
         environment = append_path(
-            python_dependencies, 'PYTHONPATH', environment
+            python_dependencies, "PYTHONPATH", environment
         )
 
         return environment
@@ -53,9 +53,9 @@ class RvApplicationLauncher(ApplicationLauncher):
 class LaunchRvAction(ApplicationLaunchAction):
     """Adobe plugins discover and launch action."""
 
-    context = [None, 'Task', 'AssetVersion']
-    identifier = 'ftrack-connect-launch-rv'
-    label = 'rv'
+    context = [None, "Task", "AssetVersion"]
+    identifier = "ftrack-connect-launch-rv"
+    label = "rv"
 
     def __init__(self, session, application_store, launcher):
         """Initialise action with *applicationStore* and *launcher*.
@@ -79,10 +79,10 @@ class LaunchRvAction(ApplicationLaunchAction):
             expiry = datetime.datetime.now() + datetime.timedelta(hours=1)
 
         action = {
-            'action': 'create',
-            'type': 'tempdata',
-            'data': data,
-            'expiry': expiry,
+            "action": "create",
+            "type": "tempdata",
+            "data": data,
+            "expiry": expiry,
         }
 
         return self.session.call(action)
@@ -95,9 +95,9 @@ class LaunchRvAction(ApplicationLaunchAction):
             *applicationIdentifier* to identify which application to start.
 
         """
-        applicationIdentifier = event['data']['applicationIdentifier']
+        applicationIdentifier = event["data"]["applicationIdentifier"]
 
-        context = event['data'].copy()
+        context = event["data"].copy()
 
         return self.launcher.launch(applicationIdentifier, context)
 
@@ -121,52 +121,52 @@ class RvApplicationStore(ApplicationStore):
         """
         applications = []
 
-        if self.current_os == 'darwin':
-            prefix = ['/', 'Applications']
+        if self.current_os == "darwin":
+            prefix = ["/", "Applications"]
             applications.extend(
                 self._search_filesystem(
-                    expression=prefix + ['RV.*\.app'],
-                    label='Review with RV',
-                    variant='{version}',
-                    applicationIdentifier='rv_{variant}_with_review',
-                    icon='rv',
+                    expression=prefix + [r"RV.*\.app"],
+                    label="Review with RV",
+                    variant="{version}",
+                    applicationIdentifier="rv_{variant}_with_review",
+                    icon="rv",
                     launchArguments=[
-                        '--args',
-                        '-flags',
-                        'ModeManagerPreload=ftrack',
+                        "--args",
+                        "-flags",
+                        "ModeManagerPreload=ftrack",
                     ],
-                    integrations={'legacy': ['ftrack-rv']},
+                    integrations={"legacy": ["ftrack-rv"]},
                 )
             )
 
-        elif self.current_os == 'windows':
-            prefix = ['C:\\', 'Program Files.*']
+        elif self.current_os == "windows":
+            prefix = ["C:\\", "Program Files.*"]
             applications.extend(
                 self._search_filesystem(
                     expression=prefix
                     + [
-                        '[Autodesk|Tweak|Shotgun|ShotGrid]',
-                        'RV.\d.+',
-                        'bin',
-                        'rv.exe',
+                        "[Autodesk|Tweak|Shotgun|ShotGrid]",
+                        r"RV.\d.+",
+                        "bin",
+                        "rv.exe",
                     ],
-                    label='Review with RV',
-                    variant='{version}',
-                    applicationIdentifier='rv_{variant}_with_review',
-                    icon='rv',
-                    launchArguments=['-flags', 'ModeManagerPreload=ftrack'],
-                    versionExpression=re.compile(r'(?P<version>\d+.\d+.\d+)'),
-                    integrations={'legacy': ['ftrack-rv']},
+                    label="Review with RV",
+                    variant="{version}",
+                    applicationIdentifier="rv_{variant}_with_review",
+                    icon="rv",
+                    launchArguments=["-flags", "ModeManagerPreload=ftrack"],
+                    versionExpression=re.compile(r"(?P<version>\d+.\d+.\d+)"),
+                    integrations={"legacy": ["ftrack-rv"]},
                 )
             )
 
-        elif self.current_os == 'linux':
+        elif self.current_os == "linux":
             separator = os.path.sep
             prefix = RV_LINUX_INSTALLATION_PATH
             if not os.path.exists(RV_LINUX_INSTALLATION_PATH):
                 self.logger.debug(
-                    'No folder found for '
-                    '$RV_INSTALLATION_PATH at : {0}'.format(
+                    "No folder found for "
+                    "$RV_INSTALLATION_PATH at : {0}".format(
                         RV_LINUX_INSTALLATION_PATH
                     )
                 )
@@ -187,21 +187,21 @@ class RvApplicationStore(ApplicationStore):
                     # Detect if Centos7 or Rocky Linux 9
                     self._search_filesystem(
                         expression=prefix
-                        + ['rv-centos7-x86-64-\d.+', 'bin', 'rv$'],
-                        label='Review with RV',
-                        variant='{version}',
-                        applicationIdentifier='rv_{variant}_with_review',
-                        icon='rv',
+                        + [r"rv-centos7-x86-64-\d.+", "bin", "rv$"],
+                        label="Review with RV",
+                        variant="{version}",
+                        applicationIdentifier="rv_{variant}_with_review",
+                        icon="rv",
                         launchArguments=[
-                            '-flags',
-                            'ModeManagerPreload=ftrack',
+                            "-flags",
+                            "ModeManagerPreload=ftrack",
                         ],
-                        integrations={'legacy': ['ftrack-rv']},
+                        integrations={"legacy": ["ftrack-rv"]},
                     )
                 )
 
         self.logger.debug(
-            'Discovered applications:\n{0}'.format(
+            "Discovered applications:\n{0}".format(
                 pprint.pformat(applications)
             )
         )
@@ -228,4 +228,4 @@ def register(session, **kw):
     action = LaunchRvAction(session, application_store, launcher)
     action.register()
 
-    logger.info('Registered rv launcher v{}.'.format(__version__))
+    logger.info("Registered rv launcher v{}.".format(__version__))

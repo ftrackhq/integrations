@@ -5,3 +5,7 @@
     font-size: 11px;
     background-color: $background;
 }
+
+QMainWindow, QDialog {
+    background-color: $background;
+}

@@ -19,81 +19,62 @@ found at <https://developer.ftrack.com/integrating-pipelines/connect/>
 
 2. Update release notes.
 
-3. Install Poetry (https://python-poetry.org/docs/#installation)
+3. Install uv (https://docs.astral.sh/uv/)
 
-4. Set or bump version in pyproject.toml:
-
-```bash
-   cd integrations/apps/connect
-```
-
+4. Set or bump version in pyproject.toml
 
 ```bash
-    poetry version prerelease
-```
-or:
-```bash
-    poetry version patch
-```
-or:
-```bash
-    poetry version minor
-```
-or:
-```bash
-    poetry version major
+   cd apps/connect
 ```
 
 5. Tag and push to SCM
-
 
 ### CI build
 
 See Monorepo build CI
 
 ### Manual Build
-1. Create and activate a virtual environment:
-- Create a Python 3.10 virtual environment.
-- Activate the virtual environment. 
+1. Create and activate a project-local virtual environment:
+
+```bash
+cd apps/connect
+uv venv .venv
+source .venv/bin/activate
+```
 
 2. Build resources:
 ```bash
-cd integrations
-pip install -r tools/requirements-connect.txt
-python tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py --pyside_version 6 build_qt_resources apps/connect
+cd apps/connect
+uv run python ../../tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py --pyside_version 6 build_qt_resources .
 ```
-3. Go to the Connect package within monorepo:
+
+3. Update dependencies:
 
 ```bash
-    cd integrations/apps/connect
+    uv lock
+    uv sync
 ```
-
-4. Update dependencies:
+4. Test connect and install it from sources (Optional)
 
 ```bash
-    poetry update
+    uv sync --extra dev
 ```
-5. Test connect and install it from sources (Optional)
+5. Start connect:
 
 ```bash
-    poetry install --with dev --sync
+    uv run python -m ftrack_connect
 ```
-   1. Start connect:
-
-   ```bash
-       python -m ftrack_connect
-   ```
 6. Build Connect wheel (Optional)
 
 ```bash
-  poetry build
+  uv build
 ```
 
 7. Generate distributible connect installer
 
 ```bash
-  poetry install --with installer --sync
-  poetry run ftrack-connect-installer --codesign true
+  uv sync --extra installer
+  uv run ftrack-connect-installer --codesign true
 ```
 **Note:** If you don't codesign, the resultant dmg file will not be valid to be shared and will appear as damaged app in other computers.
 
@@ -112,17 +93,16 @@ python tools/build.py --style_path resource --output_path source/ftrack_connect/
 1. Install documentation dependencies:
 
 ```bash
-  poetry install --only documentation
+  uv sync --extra documentation
 ```
 
 2. Build documentation:
 
 ```bash
-    poetry run sphinx-build -b html doc dist/doc
+    uv run sphinx-build -b html doc dist/doc
 ```
 
 ## Publish to PyPi
 
 This is performed by the CI, to publish to PyPi test - follow the instructions in integrations README.md at root level of 
 repository.
-
