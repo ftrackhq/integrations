@@ -39,17 +39,24 @@ See Monorepo build CI
 
 ### Manual build
 
+Run all commands below from `projects/framework-photoshop`.
+
 1. Build with uv
 
 ```bash
-    uv build
+uv build
 ```
 
-2. Build Connect plugin from wheel and the locked dependencies using Monorepo custom toolset:
+2. Build the UXP artifact:
 
 ```bash
-    cd projects/framework-photoshop
-    uv run python ../../tools/build.py build_connect_plugin .
+uv run python ../../tools/build.py --remove_intermediate_folder build_uxp .
+```
+
+3. Build Connect plugin from wheel and locked dependencies:
+
+```bash
+uv run python ../../tools/build.py --remove_intermediate_folder --include_assets dist/*.ccx build_connect_plugin .
 ```
 
 If the build fails and Photoshop is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 
@@ -72,8 +79,7 @@ Copy the resulting dist/ftrack-framework-photoshop-<version> folder to your conn
 Build UXP artifact:
 
 ```bash
-    cd projects/framework-photoshop
-    uv run python ../../tools/build.py --remove_intermediate_folder build_uxp .
+uv run python ../../tools/build.py --remove_intermediate_folder build_uxp .
 ```
 
 The output artifact is placed in `projects/framework-photoshop/dist/` as:

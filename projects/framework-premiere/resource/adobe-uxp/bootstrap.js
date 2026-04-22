@@ -28,6 +28,9 @@ const STATIC_LAUNCHER_ICON_PATH = "./icons/publish.png";
 const LAUNCHER_RENDER_MODE = "button_text_click_dynamic_icon";
 const HEARTBEAT_INTERVAL_MS = 3000;
 const ENABLE_PANEL_HEARTBEAT = false;
+const CONNECT_APP_NAME = "ftrack-connect";
+const CONNECT_APP_AUTHOR = "ftrack";
+const DCC_SLUG = "framework-premiere";
 
 const LAUNCHER_CLICKABLE_MODES = [
     "button_text_click",
@@ -40,41 +43,118 @@ const LAUNCHER_CLICKABLE_MODES = [
 
 function platformPathJoin(parts) {
     const separator = os.platform().indexOf("win") === 0 ? "\\" : "/";
-    return parts.join(separator);
+    return parts.filter(Boolean).join(separator);
+}
+
+
+function isWindowsPlatform() {
+    return os.platform().indexOf("win") === 0;
+}
+
+
+function isMacOSPlatform() {
+    return os.platform() === "darwin";
+}
+
+
+function getWindowsLocalAppDataPath() {
+    if (
+        typeof process !== "undefined" &&
+        process &&
+        process.env &&
+        process.env.LOCALAPPDATA
+    ) {
+        return process.env.LOCALAPPDATA;
+    }
+
+    return platformPathJoin([
+        os.homedir(),
+        "AppData",
+        "Local",
+    ]);
+}
+
+
+function getConnectUserDataPath() {
+    if (isMacOSPlatform()) {
+        return platformPathJoin([
+            os.homedir(),
+            "Library",
+            "Application Support",
+            CONNECT_APP_NAME,
+        ]);
+    }
+
+    if (isWindowsPlatform()) {
+        return platformPathJoin([
+            getWindowsLocalAppDataPath(),
+            CONNECT_APP_AUTHOR,
+            CONNECT_APP_NAME,
+        ]);
+    }
+
+    return platformPathJoin([
+        os.homedir(),
+        ".local",
+        "share",
+        CONNECT_APP_NAME,
+    ]);
 }
 
 
 function getDefaultBootstrapPath() {
     return platformPathJoin([
-        os.homedir(),
-        ".ftrack",
-        "framework-premiere",
+        getConnectUserDataPath(),
+        DCC_SLUG,
         "uxp-bootstrap",
         "bootstrap-latest.json",
     ]);
 }
 
 
+function getCredentialsPath() {
+    return platformPathJoin([
+        getConnectUserDataPath(),
+        "credentials.json",
+    ]);
+}
+
+
 function isValidBootstrapData(data) {
+    return !!(
+        data &&
+        typeof data === "object" &&
+        data.remote_integration_session_id
+    );
+}
+
+
+function parseCredentialsData(data) {
     if (!data || typeof data !== "object") {
-        return false;
+        return null;
     }
 
-    const requiredKeys = [
-        "server_url",
-        "api_user",
-        "api_key",
-        "remote_integration_session_id",
-    ];
-
-    for (let index = 0; index < requiredKeys.length; index += 1) {
-        const key = requiredKeys[index];
-        if (!data[key]) {
-            return false;
-        }
+    let account = null;
+    if (Array.isArray(data.accounts) && data.accounts.length > 0) {
+        account = data.accounts[0];
+    } else if (data.server_url && data.api_user && data.api_key) {
+        account = data;
     }
 
-    return true;
+    if (
+        !account ||
+        !account.server_url ||
+        !account.api_user ||
+        !account.api_key
+    ) {
+        return null;
+    }
+
+    return {
+        server_url: String(account.server_url),
+        api_user: String(account.api_user),
+        api_key: String(account.api_key),
+    };
 }
 
 
@@ -88,11 +168,14 @@ function toFileUrl(path) {
         return normalized;
     }
 
+    let fileUrl = "";
     if (normalized.indexOf("/") === 0) {
-        return "file:" + normalized;
+        fileUrl = "file:" + normalized;
+    } else {
+        fileUrl = "file:/" + normalized;
     }
 
-    return "file:/" + normalized;
+    return fileUrl;
 }
 
 
@@ -104,34 +187,52 @@ async function readJsonFile(path) {
 }
 
 
+async function loadLaunchEnvironment() {
+    const bootstrapPath = getDefaultBootstrapPath();
+    let bootstrapData = null;
+    try {
+        bootstrapData = await readJsonFile(bootstrapPath);
+    } catch (error) {
+        console.log(
+            "[INFO] Could not read bootstrap file " + bootstrapPath + ": " + error,
+        );
+        return null;
+    }
+
+    if (!isValidBootstrapData(bootstrapData)) {
+        console.log("[INFO] Invalid bootstrap payload in: " + bootstrapPath);
+        return null;
+    }
+
+    const credentialsPath = getCredentialsPath();
+    let credentialsData = null;
+    try {
+        credentialsData = await readJsonFile(credentialsPath);
+    } catch (error) {
+        console.log(
+            "[INFO] Could not read credentials file " + credentialsPath + ": " + error,
+        );
+        return null;
+    }
+
+    const credentials = parseCredentialsData(credentialsData);
+    if (!credentials) {
+        console.log("[INFO] Invalid credentials payload in: " + credentialsPath);
+        return null;
+    }
+
+    return {
+        server_url: credentials.server_url,
+        api_user: credentials.api_user,
+        api_key: credentials.api_key,
+        remote_integration_session_id: bootstrapData.remote_integration_session_id,
+    };
+
+}
+
+
 async function loadBootstrapData() {
-    const candidatePaths = [];
-    const defaultPath = getDefaultBootstrapPath();
-
-    candidatePaths.push(defaultPath);
-
-    const cachedPath = localStorage.getItem("ftrack.premiere.bootstrap_path");
-    if (cachedPath && cachedPath !== defaultPath) {
-        candidatePaths.push(cachedPath);
-    }
-
-    for (let index = 0; index < candidatePaths.length; index += 1) {
-        const path = candidatePaths[index];
-        try {
-            const data = await readJsonFile(path);
-            if (!isValidBootstrapData(data)) {
-                continue;
-            }
-            localStorage.setItem("ftrack.premiere.bootstrap_path", path);
-            return data;
-        } catch (error) {
-            console.log(
-                "[INFO] Could not read bootstrap file " + path + ": " + error,
-            );
-        }
-    }
-
-    return null;
+    return loadLaunchEnvironment();
 }
 
 

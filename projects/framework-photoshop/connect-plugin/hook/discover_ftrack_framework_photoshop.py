@@ -1,12 +1,14 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
-import os
-import json
-import time
-import ftrack_api
-import logging
 import functools
+import json
+import logging
+import os
+import time
 import uuid
+
+import ftrack_api
+import platformdirs
 
 from ftrack_utils.version import get_connect_plugin_version
 
@@ -24,111 +26,61 @@ __version__ = get_connect_plugin_version(connect_plugin_path)
 
 python_dependencies = os.path.join(connect_plugin_path, "dependencies")
 
-UXP_BOOTSTRAP_FOLDER = os.path.join(
-    os.path.expanduser("~"),
-    ".ftrack",
-    "framework-photoshop",
-    "uxp-bootstrap",
-)
-UXP_BOOTSTRAP_FILE_PREFIX = "bootstrap-"
 UXP_BOOTSTRAP_LATEST_FILENAME = "bootstrap-latest.json"
-UXP_BOOTSTRAP_MAX_AGE_SECONDS = 24 * 60 * 60
 
 
-def _cleanup_stale_uxp_bootstrap_files():
-    """Remove stale UXP bootstrap files."""
-    if not os.path.isdir(UXP_BOOTSTRAP_FOLDER):
-        return
-
-    now = time.time()
-    for filename in os.listdir(UXP_BOOTSTRAP_FOLDER):
-        if not filename.startswith(UXP_BOOTSTRAP_FILE_PREFIX):
-            continue
-        if not filename.endswith(".json"):
-            continue
-
-        path = os.path.join(UXP_BOOTSTRAP_FOLDER, filename)
-        try:
-            age = now - os.path.getmtime(path)
-            if age > UXP_BOOTSTRAP_MAX_AGE_SECONDS:
-                os.remove(path)
-        except OSError:
-            logger.warning(
-                "Failed removing stale UXP bootstrap file: %s", path
-            )
+def _get_connect_user_data_dir():
+    """Return ftrack Connect user data directory."""
+    return platformdirs.user_data_dir("ftrack-connect", "ftrack")
 
 
-def _write_uxp_bootstrap_data(session, launch_data, photoshop_version):
+def _get_uxp_bootstrap_folder():
+    """Return UXP bootstrap folder for Photoshop."""
+    return os.path.join(_get_connect_user_data_dir(), NAME, "uxp-bootstrap")
+
+
+def _get_uxp_bootstrap_path():
+    """Return latest UXP bootstrap path for Photoshop."""
+    return os.path.join(
+        _get_uxp_bootstrap_folder(),
+        UXP_BOOTSTRAP_LATEST_FILENAME,
+    )
+
+
+def _write_uxp_bootstrap_data(
+    remote_integration_session_id, photoshop_version
+):
     """Write UXP bootstrap data to disk and return the bootstrap path."""
-    _cleanup_stale_uxp_bootstrap_files()
-
-    os.makedirs(UXP_BOOTSTRAP_FOLDER, exist_ok=True)
-
-    remote_integration_session_id = launch_data["integration"]["env"][
-        "FTRACK_REMOTE_INTEGRATION_SESSION_ID"
-    ]
+    bootstrap_path = _get_uxp_bootstrap_path()
+    bootstrap_folder = os.path.dirname(bootstrap_path)
+    os.makedirs(bootstrap_folder, exist_ok=True)
 
     bootstrap_data = {
-        "server_url": getattr(session, "server_url", None)
-        or os.environ.get("FTRACK_SERVER"),
-        "api_user": getattr(session, "api_user", None)
-        or os.environ.get("FTRACK_API_USER"),
-        "api_key": getattr(session, "api_key", None)
-        or os.environ.get("FTRACK_API_KEY"),
         "remote_integration_session_id": remote_integration_session_id,
         "photoshop_version": str(photoshop_version),
         "created_at": int(time.time()),
     }
 
-    missing = [
-        key
-        for key in (
-            "server_url",
-            "api_user",
-            "api_key",
-            "remote_integration_session_id",
-        )
-        if not bootstrap_data.get(key)
-    ]
-    if missing:
-        raise RuntimeError(
-            "Missing values required for UXP bootstrap data: {}".format(
-                ", ".join(missing)
-            )
-        )
+    temp_bootstrap_path = f"{bootstrap_path}.tmp"
 
-    filename = (
-        f"{UXP_BOOTSTRAP_FILE_PREFIX}{remote_integration_session_id}.json"
-    )
-    bootstrap_path = os.path.join(UXP_BOOTSTRAP_FOLDER, filename)
-    latest_bootstrap_path = os.path.join(
-        UXP_BOOTSTRAP_FOLDER, UXP_BOOTSTRAP_LATEST_FILENAME
-    )
+    with open(temp_bootstrap_path, "w", encoding="utf-8") as handle:
+        json.dump(bootstrap_data, handle, ensure_ascii=True)
 
-    with open(bootstrap_path, "w", encoding="utf-8") as handle:
-        json.dump(bootstrap_data, handle)
-
-    with open(latest_bootstrap_path, "w", encoding="utf-8") as handle:
-        json.dump(bootstrap_data, handle)
+    os.replace(temp_bootstrap_path, bootstrap_path)
 
     try:
         os.chmod(bootstrap_path, 0o600)
-        os.chmod(latest_bootstrap_path, 0o600)
     except OSError:
-        logger.warning(
-            "Could not set strict permissions on UXP bootstrap files: %s and %s",
+        logger.debug(
+            "Could not set strict permissions on UXP bootstrap file: %s",
             bootstrap_path,
-            latest_bootstrap_path,
+            exc_info=True,
         )
 
     logger.info(
-        "Wrote Photoshop UXP bootstrap file for session %s: %s",
+        "Wrote Photoshop UXP bootstrap file for session %s to %s",
         remote_integration_session_id,
         bootstrap_path,
-    )
-    logger.info(
-        "Updated Photoshop UXP latest bootstrap file: %s",
-        latest_bootstrap_path,
     )
 
     return bootstrap_path
@@ -177,18 +129,23 @@ def on_launch_integration(session, event):
         photoshop_version
     )
 
+    remote_integration_session_id = launch_data["integration"]["env"][
+        "FTRACK_REMOTE_INTEGRATION_SESSION_ID"
+    ]
+
     bootstrap_path = _write_uxp_bootstrap_data(
-        session, launch_data, photoshop_version
+        remote_integration_session_id,
+        photoshop_version,
     )
     launch_data["integration"]["env"][
         "FTRACK_PHOTOSHOP_UXP_BOOTSTRAP_PATH"
     ] = bootstrap_path
     launch_data["integration"]["env"]["FTRACK_PHOTOSHOP_UXP_BOOTSTRAP_DIR"] = (
-        UXP_BOOTSTRAP_FOLDER
+        os.path.dirname(bootstrap_path)
     )
     launch_data["integration"]["env"][
         "FTRACK_PHOTOSHOP_UXP_BOOTSTRAP_LATEST_PATH"
-    ] = os.path.join(UXP_BOOTSTRAP_FOLDER, UXP_BOOTSTRAP_LATEST_FILENAME)
+    ] = bootstrap_path
 
     selection = event["data"].get("context", {}).get("selection", [])
 

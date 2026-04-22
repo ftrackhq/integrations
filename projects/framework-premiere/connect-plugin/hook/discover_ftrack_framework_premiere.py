@@ -1,12 +1,15 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
-import os
-import json
-import ftrack_api
-import logging
 import functools
+import json
+import logging
+import os
+import time
 import uuid
+
+import ftrack_api
+import platformdirs
 
 from ftrack_utils.version import get_connect_plugin_version
 
@@ -23,32 +26,49 @@ connect_plugin_path = os.path.abspath(os.path.join(cwd, ".."))
 __version__ = get_connect_plugin_version(connect_plugin_path)
 
 python_dependencies = os.path.join(connect_plugin_path, "dependencies")
+UXP_BOOTSTRAP_LATEST_FILENAME = "bootstrap-latest.json"
+
+
+def _get_connect_user_data_dir():
+    """Return ftrack Connect user data directory."""
+    return platformdirs.user_data_dir("ftrack-connect", "ftrack")
 
 
 def _get_uxp_bootstrap_path():
     return os.path.join(
-        os.path.expanduser("~"),
-        ".ftrack",
-        "framework-premiere",
+        _get_connect_user_data_dir(),
+        NAME,
         "uxp-bootstrap",
-        "bootstrap-latest.json",
+        UXP_BOOTSTRAP_LATEST_FILENAME,
     )
 
 
-def _write_uxp_bootstrap_data(session, remote_integration_session_id):
+def _write_uxp_bootstrap_data(remote_integration_session_id, premiere_version):
     bootstrap_path = _get_uxp_bootstrap_path()
     bootstrap_folder = os.path.dirname(bootstrap_path)
     os.makedirs(bootstrap_folder, exist_ok=True)
 
     data = {
-        "server_url": session.server_url,
-        "api_user": session.api_user,
-        "api_key": session.api_key,
         "remote_integration_session_id": remote_integration_session_id,
+        "premiere_version": str(premiere_version),
+        "created_at": int(time.time()),
     }
 
-    with open(bootstrap_path, "w", encoding="utf-8") as stream:
+    temp_bootstrap_path = f"{bootstrap_path}.tmp"
+
+    with open(temp_bootstrap_path, "w", encoding="utf-8") as stream:
         json.dump(data, stream, ensure_ascii=True)
+
+    os.replace(temp_bootstrap_path, bootstrap_path)
+
+    try:
+        os.chmod(bootstrap_path, 0o600)
+    except OSError:
+        logger.debug(
+            "Could not set strict permissions on UXP bootstrap file: %s",
+            bootstrap_path,
+            exc_info=True,
+        )
 
     return bootstrap_path
 
@@ -100,12 +120,18 @@ def on_launch_integration(session, event):
     )
 
     bootstrap_path = _write_uxp_bootstrap_data(
-        session,
         remote_integration_session_id,
+        integration_version,
     )
     launch_data["integration"]["env"]["FTRACK_PREMIERE_UXP_BOOTSTRAP_PATH"] = (
         bootstrap_path
     )
+    launch_data["integration"]["env"]["FTRACK_PREMIERE_UXP_BOOTSTRAP_DIR"] = (
+        os.path.dirname(bootstrap_path)
+    )
+    launch_data["integration"]["env"][
+        "FTRACK_PREMIERE_UXP_BOOTSTRAP_LATEST_PATH"
+    ] = bootstrap_path
 
     selection = event["data"].get("context", {}).get("selection", [])
 

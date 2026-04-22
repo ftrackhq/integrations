@@ -83,8 +83,8 @@ if not app:
     app = QtWidgets.QApplication(sys.argv)
 
 
-def _get_application_icon_path():
-    """Return icon path for Premiere standalone helper app, if available."""
+def _get_application_icon():
+    """Return icon for Premiere standalone helper app, if available."""
     package_root = os.path.abspath(os.path.dirname(__file__))
     package_candidates = [
         os.path.join(package_root, "resources", "ftrack-logo-96.png"),
@@ -93,11 +93,18 @@ def _get_application_icon_path():
 
     for candidate in package_candidates:
         if os.path.isfile(candidate):
+            icon = QtGui.QIcon(candidate)
+            if icon.isNull():
+                logger.debug(
+                    "Packaged helper icon exists but failed to load: %s",
+                    candidate,
+                )
+                continue
             logger.info(
                 "Using packaged helper icon: %s",
                 candidate,
             )
-            return candidate
+            return icon
 
     integration_root = os.path.abspath(
         os.path.join(os.path.dirname(__file__), "..", "..")
@@ -124,29 +131,26 @@ def _get_application_icon_path():
                     except KeyError:
                         continue
 
-                    cache_dir = os.path.join(
-                        os.path.expanduser("~"),
-                        ".ftrack",
-                        "framework-premiere",
-                        "standalone-assets",
-                    )
-                    os.makedirs(cache_dir, exist_ok=True)
+                    pixmap = QtGui.QPixmap()
+                    if not pixmap.loadFromData(icon_data):
+                        logger.debug(
+                            "Failed loading helper icon bytes from CCX asset:"
+                            " %s in %s",
+                            ccx_icon_path,
+                            ccx_path,
+                        )
+                        continue
 
-                    extracted_icon_path = os.path.join(
-                        cache_dir,
-                        f"{os.path.basename(ccx_filename)}-{os.path.basename(ccx_icon_path)}",
-                    )
-
-                    with open(
-                        extracted_icon_path, "wb"
-                    ) as extracted_icon_file:
-                        extracted_icon_file.write(icon_data)
+                    icon = QtGui.QIcon(pixmap)
+                    if icon.isNull():
+                        continue
 
                     logger.info(
-                        "Using helper icon extracted from CCX: %s",
-                        extracted_icon_path,
+                        "Using helper icon loaded from CCX asset: %s in %s",
+                        ccx_icon_path,
+                        ccx_path,
                     )
-                    return extracted_icon_path
+                    return icon
         except Exception:
             logger.debug(
                 "Failed reading icon assets from CCX: %s",
@@ -160,17 +164,10 @@ def _get_application_icon_path():
 def _configure_application_identity():
     """Set standalone process app icon metadata."""
 
-    icon_path = _get_application_icon_path()
-    if icon_path:
-        icon = QtGui.QIcon(icon_path)
-        if not icon.isNull():
-            app.setWindowIcon(icon)
-            logger.info("Applied helper app icon: %s", icon_path)
-        else:
-            logger.warning(
-                "Resolved helper icon path but Qt icon was null: %s",
-                icon_path,
-            )
+    icon = _get_application_icon()
+    if icon and not icon.isNull():
+        app.setWindowIcon(icon)
+        logger.info("Applied helper app icon.")
     else:
         logger.warning(
             "No helper icon asset found, using default Python icon."
