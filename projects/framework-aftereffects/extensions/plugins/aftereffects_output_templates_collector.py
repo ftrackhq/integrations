@@ -12,23 +12,46 @@ class AfterEffectsOutputTemplatesCollectorPlugin(BasePlugin):
 
     def ui_hook(self, payload):
         """
-        Return all available templated aviable in Local After Effects Installation
+        Return all available templates in local After Effects installation.
         """
         # Get existing RPC connection instance
         aftereffects_connection = JavascriptRPC.instance()
 
         # Get project data containing the path
         try:
-            templates = aftereffects_connection.rpc(
+            templates_result = aftereffects_connection.rpc(
                 "getOutputModuleTemplateNames"
-            ).split(",")
+            )
         except Exception as e:
             self.logger.exception(e)
             raise PluginExecutionError(
                 f"Exception querying the templates data: {e}"
             )
-        # Will return a list of template, or an error message if no
-        # templates aviable.
+
+        if isinstance(templates_result, str):
+            if templates_result.startswith("Error:"):
+                raise PluginExecutionError(
+                    f"Error querying output module templates: {templates_result}"
+                )
+
+            templates = [
+                template_name.strip()
+                for template_name in templates_result.split(",")
+                if template_name.strip()
+            ]
+        elif isinstance(templates_result, list):
+            templates = [
+                str(template_name).strip()
+                for template_name in templates_result
+                if str(template_name).strip()
+            ]
+        else:
+            templates = []
+
+        if not templates:
+            raise PluginExecutionError(
+                "No output module templates available in After Effects."
+            )
 
         self.logger.debug(f"Got After Effects templates: {templates}")
 

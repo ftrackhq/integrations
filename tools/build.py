@@ -52,6 +52,7 @@ import sys
 import subprocess
 import fileinput
 import tempfile
+import re
 
 
 # tomli has been integrated into python 3.11+
@@ -80,6 +81,27 @@ def is_monorepo(path):
                 if line.startswith('name = "ftrack-integrations-monorepo"'):
                     return True
     return False
+
+
+def normalize_uxp_version(version):
+    """Normalize project version to semver (x.y.z) for UXP manifests/artifacts."""
+    if not version:
+        raise ValueError("Missing project version for UXP build.")
+
+    # Keep only the leading numeric-dot prefix from a PEP440 version
+    # (e.g. 26.3.0rc1 / 26.3.0.dev0 -> 26.3.0).
+    match = re.match(r"^\s*([0-9]+(?:\.[0-9]+){0,2})", str(version))
+    if not match:
+        raise ValueError(
+            "Could not normalize UXP version from project version: "
+            f"{version}"
+        )
+
+    tokens = match.group(1).split(".")
+    while len(tokens) < 3:
+        tokens.append("0")
+
+    return ".".join(tokens[:3])
 
 
 def build_package(invokation_path, pkg_path, args, command=None):
@@ -155,13 +177,8 @@ def build_package(invokation_path, pkg_path, args, command=None):
         assert VERSION, 'No version could be extracted from "pyproject.toml"!'
 
         if command == "build_uxp":
-            # Align version, cannot contain rc/alpha/beta
-            if VERSION.find("rc") > -1:
-                VERSION = VERSION.split("rc")[0]
-            elif VERSION.find("a") > -1:
-                VERSION = VERSION.split("a")[0]
-            elif VERSION.find("b") > -1:
-                VERSION = VERSION.split("b")[0]
+            # Align version with UXP manifest requirements (x.y.z only).
+            VERSION = normalize_uxp_version(VERSION)
 
     else:
         logging.warning(

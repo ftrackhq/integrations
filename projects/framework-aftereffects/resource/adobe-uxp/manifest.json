@@ -1,0 +1,103 @@
+{
+  "manifestVersion": 5,
+  "id": "com.ftrack.framework.aftereffects.uxp.panel",
+  "name": "ftrack After Effects",
+  "version": "${VERSION}",
+  "main": "index.html",
+  "host": {
+    "app": "aftereffects",
+    "minVersion": "25.0.0"
+  },
+  "entrypoints": [
+    {
+      "type": "panel",
+      "id": "ftrackPanel",
+      "label": {
+        "default": "ftrack"
+      },
+      "minimumSize": {
+        "width": 280,
+        "height": 220
+      },
+      "maximumSize": {
+        "width": 400,
+        "height": 800
+      },
+      "preferredDockedSize": {
+        "width": 300,
+        "height": 260
+      },
+      "preferredFloatingSize": {
+        "width": 320,
+        "height": 320
+      },
+      "icons": [
+        {
+          "width": 23,
+          "height": 23,
+          "path": "icons/ftrack-logo-48.png",
+          "scale": [
+            1,
+            2
+          ],
+          "theme": [
+            "dark",
+            "darkest",
+            "medium",
+            "light",
+            "lightest"
+          ],
+          "species": [
+            "generic"
+          ]
+        }
+      ]
+    }
+  ],
+  "icons": [
+    {
+      "width": 23,
+      "height": 23,
+      "path": "icons/ftrack-logo-48.png",
+      "scale": [
+        1,
+        2
+      ],
+      "theme": [
+        "dark",
+        "darkest",
+        "medium",
+        "light",
+        "lightest"
+      ],
+      "species": [
+        "generic"
+      ]
+    }
+  ],
+  "requiredPermissions": {
+    "network": {
+      "domains": "all"
+    },
+    "launchProcess": {
+      "schemes": [
+        "https"
+      ],
+      "extensions": [
+        ".aep",
+        ".aet",
+        ".mp4",
+        ".mov",
+        ".avi",
+        ".wav",
+        ".aif",
+        ".jpg",
+        ".jpeg",
+        ".png",
+        ".tif",
+        ".tiff"
+      ]
+    },
+    "localFileSystem": "fullAccess"
+  }
+}

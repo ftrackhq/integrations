@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>ftrack After Effects</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="lib/ftrack.0.7.2.min.js"></script>
+    <script src="lib/event-constants.js"></script>
+    <script src="lib/events-core.js"></script>
+    <script src="lib/utils.js"></script>
+    <script src="bootstrap-dcc.js"></script>
+    <script src="bootstrap.js"></script>
+  </head>
+  <body>
+    <div id="connecting">
+      <div class="loader_container">
+        <img class="loader" src="icons/loader.gif" />
+      </div>
+      <p class="loader_text">Connecting to ftrack...</p>
+    </div>
+    <div id="content" style="display: none">
+      <div id="context_section">
+        <div id="context_thumbnail_container">
+          <img
+            id="context_thumbnail"
+            class="context_thumbnail"
+            src="icons/thumbnail.png"
+            alt="context thumbnail"
+          />
+        </div>
+        <div id="context_info">
+          <div id="context_name" class="context_name"></div>
+          <div id="context_path" class="context_path"></div>
+          <a id="context_open" href="#" class="context_open">
+            <img
+              class="context_open_icon"
+              src="icons/open_in_new.png"
+              alt="Open in ftrack"
+            />
+          </a>
+        </div>
+      </div>
+      <div id="tools_section">
+        <table id="launch_configs"></table>
+      </div>
+    </div>
+    <div id="error" class="error_message" style="display: none; visibility: hidden"></div>
+  </body>
+</html>

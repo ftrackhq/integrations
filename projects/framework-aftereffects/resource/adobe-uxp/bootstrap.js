@@ -1,0 +1,834 @@
+/*
+ ftrack Adobe framework integration common bootstrap (UXP)
+
+ Copyright (c) 2026 ftrack
+*/
+
+const os = require("os");
+const { shell } = require("uxp");
+const { storage } = require("uxp");
+const aftereffects = require("aftereffects");
+const app = aftereffects.app || aftereffects;
+
+
+var event_manager = undefined;
+var remote_integration_session_id = undefined;
+var connected = false;
+var panel_launchers;
+var context_id = undefined;
+var project_id = undefined;
+var panel_bindings_initialized = false;
+var panel_heartbeat_interval = null;
+
+const CONNECT_DELAY_MS = 1500;
+const ISOLATE_LAUNCHER_RENDERING = false;
+const ISOLATE_REMOTE_THUMBNAIL = false;
+const LOCAL_CONTEXT_THUMBNAIL_PATH = "./icons/thumbnail.png";
+const STATIC_LAUNCHER_ICON_PATH = "./icons/publish.png";
+const LAUNCHER_RENDER_MODE = "button_text_click_dynamic_icon";
+const HEARTBEAT_INTERVAL_MS = 3000;
+const ENABLE_PANEL_HEARTBEAT = false;
+const CONNECT_APP_NAME = "ftrack-connect";
+const CONNECT_APP_AUTHOR = "ftrack";
+const DCC_SLUG = "framework-aftereffects";
+
+const LAUNCHER_CLICKABLE_MODES = [
+    "button_text_click",
+    "button_text_click_css_icon",
+    "button_text_click_static_icon",
+    "button_text_click_dynamic_icon",
+    "full",
+];
+
+
+function platformPathJoin(parts) {
+    const separator = os.platform().indexOf("win") === 0 ? "\\" : "/";
+    return parts.filter(Boolean).join(separator);
+}
+
+
+function isWindowsPlatform() {
+    return os.platform().indexOf("win") === 0;
+}
+
+
+function isMacOSPlatform() {
+    return os.platform() === "darwin";
+}
+
+
+function getWindowsLocalAppDataPath() {
+    if (
+        typeof process !== "undefined" &&
+        process &&
+        process.env &&
+        process.env.LOCALAPPDATA
+    ) {
+        return process.env.LOCALAPPDATA;
+    }
+
+    return platformPathJoin([
+        os.homedir(),
+        "AppData",
+        "Local",
+    ]);
+}
+
+
+function getConnectUserDataPath() {
+    if (isMacOSPlatform()) {
+        return platformPathJoin([
+            os.homedir(),
+            "Library",
+            "Application Support",
+            CONNECT_APP_NAME,
+        ]);
+    }
+
+    if (isWindowsPlatform()) {
+        return platformPathJoin([
+            getWindowsLocalAppDataPath(),
+            CONNECT_APP_AUTHOR,
+            CONNECT_APP_NAME,
+        ]);
+    }
+
+    return platformPathJoin([
+        os.homedir(),
+        ".local",
+        "share",
+        CONNECT_APP_NAME,
+    ]);
+}
+
+
+function getDefaultBootstrapPath() {
+    return platformPathJoin([
+        getConnectUserDataPath(),
+        DCC_SLUG,
+        "uxp-bootstrap",
+        "bootstrap-latest.json",
+    ]);
+}
+
+
+function getCredentialsPath() {
+    return platformPathJoin([
+        getConnectUserDataPath(),
+        "credentials.json",
+    ]);
+}
+
+
+function isValidBootstrapData(data) {
+    return !!(
+        data &&
+        typeof data === "object" &&
+        data.remote_integration_session_id
+    );
+}
+
+
+function parseCredentialsData(data) {
+    if (!data || typeof data !== "object") {
+        return null;
+    }
+
+    let account = null;
+    if (Array.isArray(data.accounts) && data.accounts.length > 0) {
+        account = data.accounts[0];
+    } else if (data.server_url && data.api_user && data.api_key) {
+        account = data;
+    }
+
+    if (
+        !account ||
+        !account.server_url ||
+        !account.api_user ||
+        !account.api_key
+    ) {
+        return null;
+    }
+
+    return {
+        server_url: String(account.server_url),
+        api_user: String(account.api_user),
+        api_key: String(account.api_key),
+    };
+}
+
+
+function toFileUrl(path) {
+    if (typeof path !== "string") {
+        throw new Error("Invalid path type");
+    }
+
+    const normalized = path.replace(/\\/g, "/");
+    if (normalized.indexOf("file:") === 0) {
+        return normalized;
+    }
+
+    let fileUrl = "";
+    if (normalized.indexOf("/") === 0) {
+        fileUrl = "file:" + normalized;
+    } else {
+        fileUrl = "file:/" + normalized;
+    }
+
+    return fileUrl;
+}
+
+
+async function readJsonFile(path) {
+    const fs = storage.localFileSystem;
+    const entry = await fs.getEntryWithUrl(toFileUrl(path));
+    const raw = await entry.read();
+    return JSON.parse(raw);
+}
+
+
+async function loadLaunchEnvironment() {
+    const bootstrapPath = getDefaultBootstrapPath();
+    let bootstrapData = null;
+    try {
+        bootstrapData = await readJsonFile(bootstrapPath);
+    } catch (error) {
+        console.log(
+            "[INFO] Could not read bootstrap file " + bootstrapPath + ": " + error,
+        );
+        return null;
+    }
+
+    if (!isValidBootstrapData(bootstrapData)) {
+        console.log("[INFO] Invalid bootstrap payload in: " + bootstrapPath);
+        return null;
+    }
+
+    const credentialsPath = getCredentialsPath();
+    let credentialsData = null;
+    try {
+        credentialsData = await readJsonFile(credentialsPath);
+    } catch (error) {
+        console.log(
+            "[INFO] Could not read credentials file " + credentialsPath + ": " + error,
+        );
+        return null;
+    }
+
+    const credentials = parseCredentialsData(credentialsData);
+    if (!credentials) {
+        console.log("[INFO] Invalid credentials payload in: " + credentialsPath);
+        return null;
+    }
+
+    return {
+        server_url: credentials.server_url,
+        api_user: credentials.api_user,
+        api_key: credentials.api_key,
+        remote_integration_session_id: bootstrapData.remote_integration_session_id,
+    };
+
+}
+
+
+async function loadBootstrapData() {
+    return loadLaunchEnvironment();
+}
+
+
+function getAppVersionMajor() {
+    const rawVersion = String(app.version || "0");
+    const parsed = parseInt(rawVersion.split(".")[0], 10);
+    if (Number.isNaN(parsed)) {
+        return 0;
+    }
+    return parsed;
+}
+
+
+function logPanel(message) {
+    console.log("[ftrack panel] " + message);
+}
+
+
+function startPanelHeartbeat() {
+    if (!ENABLE_PANEL_HEARTBEAT) {
+        return;
+    }
+
+    if (panel_heartbeat_interval) {
+        return;
+    }
+
+    panel_heartbeat_interval = setInterval(() => {
+        logPanel(
+            "Heartbeat connected=" +
+            String(connected) +
+            " event_manager=" +
+            String(Boolean(event_manager)) +
+            " context_id=" +
+            String(context_id || "<none>") +
+            " launchers=" +
+            String(Array.isArray(panel_launchers) ? panel_launchers.length : 0),
+        );
+    }, HEARTBEAT_INTERVAL_MS);
+
+    logPanel("Heartbeat started (" + String(HEARTBEAT_INTERVAL_MS) + "ms).");
+}
+
+
+function installGlobalErrorHandlers() {
+    if (window.__ftrack_global_error_handlers_installed__) {
+        return;
+    }
+
+    window.__ftrack_global_error_handlers_installed__ = true;
+
+    window.addEventListener("error", (event) => {
+        try {
+            const error = event && event.error;
+            const message = event && event.message ? event.message : "<no message>";
+            const stack = error && error.stack ? error.stack : "<no stack>";
+            console.error("[ftrack panel] Global error: " + message + " stack: " + stack);
+        } catch (handlerError) {
+            console.error("[ftrack panel] Failed in global error handler.", handlerError);
+        }
+    });
+
+    window.addEventListener("unhandledrejection", (event) => {
+        try {
+            const reason = event && event.reason ? event.reason : "<no reason>";
+            console.error("[ftrack panel] Unhandled promise rejection:", reason);
+        } catch (handlerError) {
+            console.error("[ftrack panel] Failed in rejection handler.", handlerError);
+        }
+    });
+
+    logPanel("Global error handlers installed.");
+}
+
+
+function ensurePanelBindings() {
+    if (panel_bindings_initialized) {
+        return;
+    }
+
+    const contextOpenButton = document.getElementById("context_open");
+    if (!contextOpenButton) {
+        console.warn("[ftrack panel] Missing context_open button while binding events.");
+        return;
+    }
+
+    contextOpenButton.addEventListener("click", () => {
+        openContext();
+    });
+
+    contextOpenButton.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            openContext();
+        }
+    });
+
+    panel_bindings_initialized = true;
+    logPanel("Static panel events bound.");
+}
+
+
+function clearElementChildren(element) {
+    while (element.firstChild) {
+        element.removeChild(element.firstChild);
+    }
+}
+
+
+function getLauncherIconClassName(launcher) {
+    const iconName = launcher && launcher.icon
+        ? String(launcher.icon).toLowerCase()
+        : "default";
+
+    if (iconName === "publish") {
+        return "launcher_icon_publish";
+    }
+
+    if (iconName === "open") {
+        return "launcher_icon_open";
+    }
+
+    return "launcher_icon_default";
+}
+
+
+function getLauncherIconSymbol(launcher) {
+    const iconName = launcher && launcher.icon
+        ? String(launcher.icon).toLowerCase()
+        : "default";
+
+    if (iconName === "publish") {
+        return String.fromCharCode(0x2934);
+    }
+
+    if (iconName === "open") {
+        return String.fromCharCode(0x2197);
+    }
+
+    return String.fromCharCode(0x2022);
+}
+
+
+function createLauncherIconSpacer() {
+    const spacer = document.createElement("span");
+    spacer.className = "launcher_icon_spacer";
+    spacer.setAttribute("aria-hidden", "true");
+    spacer.textContent = " ";
+    return spacer;
+}
+
+
+function getLauncherIconPath(launcher) {
+    if (!launcher || !launcher.icon) {
+        return STATIC_LAUNCHER_ICON_PATH;
+    }
+
+    const iconName = String(launcher.icon).trim();
+    if (!iconName) {
+        return STATIC_LAUNCHER_ICON_PATH;
+    }
+
+    return "./icons/" + iconName + ".png";
+}
+
+
+function renderPanelLaunchers(launchers) {
+    const launcherTable = document.getElementById("launch_configs");
+    if (!launcherTable) {
+        throw new Error("Missing launch_configs element.");
+    }
+
+    clearElementChildren(launcherTable);
+
+    if (ISOLATE_LAUNCHER_RENDERING) {
+        logPanel("UI isolation mode enabled: skipping launcher rendering.");
+        return;
+    }
+
+    if (!Array.isArray(launchers)) {
+        console.warn("[ftrack panel] panel_launchers payload is not an array.");
+        return;
+    }
+
+    logPanel("Launcher render mode: " + LAUNCHER_RENDER_MODE);
+
+    for (let idx = 0; idx < launchers.length; idx += 1) {
+        const launcher = launchers[idx];
+        if (!launcher || !launcher.name) {
+            continue;
+        }
+
+        const row = document.createElement("tr");
+        const cell = document.createElement("td");
+
+        if (LAUNCHER_RENDER_MODE === "text_only") {
+            const label = document.createElement("span");
+            label.className = "launcher_label";
+            label.textContent = launcher.label || launcher.name;
+            cell.appendChild(label);
+            row.appendChild(cell);
+            launcherTable.appendChild(row);
+            continue;
+        }
+
+        const button = document.createElement("div");
+        button.className = "launcher_button";
+        button.setAttribute("role", "button");
+        button.setAttribute("tabindex", "0");
+
+        if (LAUNCHER_CLICKABLE_MODES.indexOf(LAUNCHER_RENDER_MODE) > -1) {
+            const triggerLaunch = () => {
+                launchTool(launcher.name);
+            };
+
+            button.addEventListener("click", () => {
+                triggerLaunch();
+            });
+
+            button.addEventListener("keydown", (event) => {
+                if (
+                    event.key === "Enter"
+                    || event.key === " "
+                    || event.key === "Spacebar"
+                    || event.code === "Space"
+                ) {
+                    event.preventDefault();
+                    triggerLaunch();
+                }
+            });
+
+            button.setAttribute("aria-disabled", "false");
+        } else {
+            button.className += " launcher_button_disabled";
+            button.setAttribute("aria-disabled", "true");
+            button.setAttribute("tabindex", "-1");
+        }
+
+        const label = document.createElement("span");
+        label.className = "launcher_label";
+        label.textContent = launcher.label || launcher.name;
+
+        if (LAUNCHER_RENDER_MODE === "button_text_click_css_icon") {
+            const icon = document.createElement("span");
+            icon.className = "launcher_icon " + getLauncherIconClassName(launcher);
+            icon.setAttribute("aria-hidden", "true");
+            icon.textContent = getLauncherIconSymbol(launcher);
+            button.appendChild(icon);
+            button.appendChild(createLauncherIconSpacer());
+        } else if (
+            LAUNCHER_RENDER_MODE === "button_text_click_static_icon"
+            || LAUNCHER_RENDER_MODE === "button_text_click_dynamic_icon"
+            || LAUNCHER_RENDER_MODE === "full"
+        ) {
+            const image = document.createElement("img");
+            image.className = "launcher_image";
+            if (LAUNCHER_RENDER_MODE === "button_text_click_static_icon") {
+                image.src = STATIC_LAUNCHER_ICON_PATH;
+            } else {
+                image.src = getLauncherIconPath(launcher);
+            }
+            image.alt = launcher.label || launcher.name;
+            image.addEventListener("error", () => {
+                if (image.src !== STATIC_LAUNCHER_ICON_PATH) {
+                    logPanel(
+                        "Launcher icon failed to load for " +
+                        launcher.name +
+                        ", falling back to static icon.",
+                    );
+                    image.src = STATIC_LAUNCHER_ICON_PATH;
+                }
+            });
+            button.appendChild(image);
+        }
+
+        button.appendChild(label);
+        cell.appendChild(button);
+        row.appendChild(cell);
+        launcherTable.appendChild(row);
+    }
+}
+
+
+function updatePanelContext(data) {
+    const contextThumbnail = document.getElementById("context_thumbnail");
+    const contextName = document.getElementById("context_name");
+    const contextPath = document.getElementById("context_path");
+
+    if (!contextThumbnail || !contextName || !contextPath) {
+        throw new Error("Missing context panel elements.");
+    }
+
+    if (ISOLATE_REMOTE_THUMBNAIL) {
+        contextThumbnail.src = LOCAL_CONTEXT_THUMBNAIL_PATH;
+        if (data.context_thumbnail) {
+            logPanel("UI isolation mode enabled: skipping remote thumbnail assignment.");
+        }
+    } else {
+        const thumbnailUrl = data.context_thumbnail;
+
+        contextThumbnail.onerror = () => {
+            logPanel("Remote context thumbnail failed to load, using local fallback.");
+            contextThumbnail.onerror = null;
+            contextThumbnail.src = LOCAL_CONTEXT_THUMBNAIL_PATH;
+        };
+
+        contextThumbnail.src = thumbnailUrl || LOCAL_CONTEXT_THUMBNAIL_PATH;
+    }
+
+    contextName.textContent = data.context_name || "";
+    contextPath.textContent = data.context_path || "";
+}
+
+
+async function initializeIntegration() {
+    /* Initialise the JS integration. */
+    try {
+        installGlobalErrorHandlers();
+        ensurePanelBindings();
+        logPanel("Initialising integration.");
+
+        const env = await loadBootstrapData();
+        if (!env) {
+            error(
+                "No ftrack bootstrap data available, make sure you launch After Effects from a task within ftrack Studio or Connect!",
+                false,
+            );
+            return;
+        }
+
+        logPanel("Bootstrap data loaded.");
+        initializeSession(env, getAppVersionMajor());
+    } catch (e) {
+        console.error("[INTERNAL ERROR] Failed to initialise integration!", e);
+        error("[INTERNAL ERROR] Failed to initialise integration! " + e + " Details: " + e.stack, false);
+    }
+}
+
+
+function initializeSession(env, appVersion) {
+    /* Initialise the ftrack API session. */
+    try {
+        logPanel("Initialising session.");
+        remote_integration_session_id = env.remote_integration_session_id;
+
+        var session = new ftrack.Session(
+            env.server_url,
+            env.api_user,
+            env.api_key,
+            { autoConnectEventHub: true },
+        );
+
+        event_manager = new EventManager(session);
+
+        event_manager.subscribe.integration_context_data(
+            handleIntegrationContextDataCallback,
+        );
+        event_manager.subscribe.remote_integration_rpc(
+            handleRemoteIntegrationRPCCallback,
+        );
+
+        logPanel("Event subscriptions ready.");
+
+        sleep(CONNECT_DELAY_MS).then(() => {
+            logPanel(
+                "Publishing discover event after startup delay of " +
+                String(CONNECT_DELAY_MS) +
+                "ms.",
+            );
+            connect(appVersion);
+        });
+
+        try {
+            ftrackInitialiseExtension(session, event_manager, remote_integration_session_id);
+        } catch (e) {
+            console.log(
+                "[WARNING] Failed to initialise ftrack additional extensions! " +
+                e +
+                " Details: " +
+                e.stack,
+            );
+        }
+    } catch (e) {
+        console.error("[INTERNAL ERROR] Failed to initialise ftrack session!", e);
+        error("[INTERNAL ERROR] Failed to initialise ftrack session! " + e + " Details: " + e.stack, false);
+    }
+}
+
+
+function connect(appVersion) {
+    /* Initiate connection with standalone Python part. */
+    try {
+        event_manager.publish.discover_remote_integration(
+            prepareEventData({
+                version: appVersion,
+            }),
+        );
+        logPanel("Discover event published.");
+    } catch (e) {
+        console.error("[INTERNAL ERROR] Failed to publish standalone process discovery event!", e);
+        error("[INTERNAL ERROR] Failed to publish standalone process discovery event! " + e + " Details: " + e.stack, false);
+    }
+}
+
+
+function prepareEventData(data) {
+    /* Append integration session id to event data */
+    data.remote_integration_session_id = remote_integration_session_id;
+    return data;
+}
+
+
+function handleIntegrationContextDataCallback(event) {
+    /* Standalone process has sent context data */
+    try {
+        logPanel("Handling integration context data event.");
+
+        if (!event || !event.data) {
+            console.warn("[ftrack panel] Ignoring malformed context data event.");
+            return;
+        }
+
+        if (event.data.remote_integration_session_id !== remote_integration_session_id) {
+            logPanel("Ignoring context event for different integration session.");
+            return;
+        }
+
+        if (event.data.panel_launchers !== undefined) {
+            logPanel("Rendering panel launchers.");
+            panel_launchers = event.data.panel_launchers;
+
+            try {
+                renderPanelLaunchers(panel_launchers);
+            } catch (launcherError) {
+                console.error("[INTERNAL ERROR] Failed rendering launchers!", launcherError);
+                throw launcherError;
+            }
+
+            logPanel("Panel launchers rendered.");
+        }
+
+        if (event.data.context_id !== context_id) {
+            logPanel("Updating context details.");
+            context_id = event.data.context_id;
+            project_id = event.data.project_id;
+
+            try {
+                updatePanelContext(event.data);
+            } catch (contextError) {
+                console.error("[INTERNAL ERROR] Failed updating context fields!", contextError);
+                throw contextError;
+            }
+
+            logPanel("Context details updated.");
+        }
+
+        if (!connected) {
+            logPanel("Marking integration as connected.");
+            connected = true;
+            showElement("connecting", false);
+            showElement("content", true);
+            startPanelHeartbeat();
+
+            try {
+                ftrackIntegrationConnected();
+            } catch (e) {
+                console.log("[WARNING] Failed to tell extension we are connected! " + e + " Details: " + e.stack);
+            }
+        } else {
+            logPanel("Replying to context data event.");
+            event_manager.publish_reply(
+                event,
+                prepareEventData({
+                    result: true,
+                }),
+            );
+        }
+    } catch (e) {
+        console.error("[INTERNAL ERROR] Failed setting up panel!", e);
+        error("[INTERNAL ERROR] Failed setting up panel! " + e + " Details: " + e.stack, false);
+    }
+}
+
+
+function launchTool(tool_name) {
+    let idx = 0;
+    var dialog_name = undefined;
+    var tool_options = undefined;
+    while (idx < panel_launchers.length) {
+        let launcher = panel_launchers[idx];
+        if (launcher.name === tool_name) {
+            dialog_name = launcher.dialog_name;
+            tool_options = launcher.options;
+            break;
+        }
+        idx += 1;
+    }
+    event_manager.publish.remote_integration_run_dialog(
+        prepareEventData({
+            name: tool_name,
+            dialog_name: dialog_name,
+            options: tool_options,
+        }),
+    );
+}
+
+
+async function handleRemoteIntegrationRPCCallback(event) {
+    if (!FTRACK_RPC_FUNCTION_MAPPING) {
+        const error_message =
+            "[INTERNAL ERROR] No RPC function mappings defined, please make sure to define FTRACK_RPC_FUNCTION_MAPPING in bootstrap-dcc.js!";
+        event_manager.publish_reply(
+            event,
+            prepareEventData({
+                error_message: error_message,
+            }),
+        );
+        error(error_message, false);
+        return;
+    }
+
+    try {
+        if (event.data.remote_integration_session_id !== remote_integration_session_id) {
+            return;
+        }
+
+        const function_name_raw = event.data.function_name;
+        const function_name = FTRACK_RPC_FUNCTION_MAPPING[function_name_raw];
+
+        if (function_name === undefined || function_name.length === 0) {
+            const error_message =
+                "[INTERNAL ERROR] No RPC function mapping defined for '" + function_name_raw + "'";
+            event_manager.publish_reply(
+                event,
+                prepareEventData({
+                    error_message: error_message,
+                }),
+            );
+            error(error_message, false);
+            return;
+        }
+
+        const fn = window.FTRACK_RPC_FUNCTIONS
+            ? window.FTRACK_RPC_FUNCTIONS[function_name]
+            : window[function_name];
+
+        if (typeof fn !== "function") {
+            const error_message =
+                "[INTERNAL ERROR] RPC function not found: '" + function_name + "'";
+            event_manager.publish_reply(
+                event,
+                prepareEventData({
+                    error_message: error_message,
+                }),
+            );
+            error(error_message, false);
+            return;
+        }
+
+        const result = await fn.apply(null, event.data.args || []);
+
+        event_manager.publish_reply(
+            event,
+            prepareEventData({
+                result: result,
+            }),
+        );
+    } catch (e) {
+        const error_message =
+            "[INTERNAL ERROR] Failed to run RPC call! " + e + " Details: " + e.stack;
+        event_manager.publish_reply(
+            event,
+            prepareEventData({
+                error_message: error_message,
+            }),
+        );
+        error(error_message, false);
+    }
+}
+
+
+function openContext() {
+    if (!event_manager || !event_manager.session || !context_id || !project_id) {
+        console.warn("[ftrack panel] Context URL is not available yet.");
+        return;
+    }
+
+    const task_url =
+        event_manager.session.serverUrl +
+        "/#slideEntityId=" +
+        context_id +
+        "&slideEntityType=task&view=tasks&itemId=projects&entityId=" +
+        project_id +
+        "&entityType=show";
+    shell.openExternal(task_url);
+}
+
+
+initializeIntegration();
