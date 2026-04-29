@@ -1,0 +1,30 @@
+type: tool_config
+name: standalone-asset-manager
+config_type: asset_manager
+engine:
+  - type: plugin
+    plugin: am_test_discover
+    options:
+      filter:
+        asset_name: "*"
+        asset_type_name: "*"
+
+  - type: plugin
+    plugin: am_update_latest_action
+
+  - type: plugin
+    plugin: am_default_resolver
+    options:
+      linked_only: true
+      max_link_depth: 1
+      status_names_include: [".*"]
+      status_names_exclude: ["(?i)(\\W|^)(Omitted)(\\W|$)"]
+      task_types:
+        "*":
+          asset_types:
+            - asset_type: "*"
+              filters:
+                task_names_include: [".*"]
+                task_names_exclude: [".^"]
+                asset_names_include: [".*"]
+                asset_names_exclude: [".^"]
