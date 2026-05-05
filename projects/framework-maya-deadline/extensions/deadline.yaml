@@ -1,0 +1,9 @@
+# DCC config for framework-maya-deadline.
+#
+# This extension bootstraps independently via userSetup.py and does
+# not use the framework DCC config mechanism for menu/tool
+# registration.  This file exists to satisfy the build system
+# which expects extensions/{dcc_name}.yaml.
+type: dcc_config
+name: framework-maya-deadline
+tools: []
