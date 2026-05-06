@@ -75,21 +75,51 @@ Separately-installable Connect plugin that loads alongside `framework-maya` insi
 
 ---
 
-## Milestone 3: Maya Scene Tracer [PLANNED]
+## Milestone 3: Scene Asset Tracer [DONE]
 
-**Goal:** `MayaTracer` that queries the live Maya scene graph to discover all file dependencies, returning a `TracedAsset` tree compatible with `ftrack-deadline-assets`.
+**Goal:** DCC-agnostic asset tracer with Maya-specific implementations for live scene queries and headless `.ma` file parsing.
 
-### Deliverables
-- `MayaTracer` class using `maya.cmds` (references, textures, alembic, image planes, audio)
-- Vendored `TracedAsset` pydantic model from `ftrack-deadline-assets`
-- Tests: trace with references, textures, empty scene, missing files
+### What was built
 
-### Files
-```
-source/ftrack_framework_maya_deadline/tracer/
-    maya_tracer.py, controller.py, models.py
-tests/test_tracer.py
-```
+**Shared library: `ftrack_utils.asset_tracer`** (in `libs/utils/`)
+
+| File | Purpose |
+|------|---------|
+| `asset_tracer/__init__.py` | Exports: TracedAsset, BaseTracer, TraceController |
+| `asset_tracer/models.py` | `TracedAsset` dataclass (paths, assets, flatten()) |
+| `asset_tracer/base.py` | `BaseTracer` ABC with `get_dependencies(path) -> list[Path]` |
+| `asset_tracer/controller.py` | `TraceController`: registry, recursive tracing, cycle detection |
+| `asset_tracer/tracers.py` | `DirectoryTracer` (clique), `TextureTracer` (UDIM expansion) |
+
+**Maya tracers** (in `projects/framework-maya-deadline/`)
+
+| File | Purpose |
+|------|---------|
+| `tracer/__init__.py` | Re-exports, registers MayaFileTracer for `.ma` files |
+| `tracer/maya_scene_tracer.py` | `MayaSceneTracer`: live scene tracing via `maya.cmds` |
+| `tracer/maya_file_tracer.py` | `MayaFileTracer`: headless `.ma` regex parser |
+
+**Test fixtures** (13 `.ma` files in `tests/fixtures/`)
+
+### Key decisions
+
+- **DCC-agnostic, not deadline-specific**: The tracer lives in `ftrack_utils.asset_tracer`, reusable by any integration. Not coupled to Deadline Cloud.
+- **dataclasses, not pydantic**: Avoids adding a heavy dependency to ftrack-utils. API-compatible with `ftrack-deadline-assets` TracedAsset schema.
+- **clique, not pyseq**: Uses the existing ftrack-utils dependency for sequence detection. Zero new dependencies.
+- **Registry pattern**: `TraceController.register_tracer()` replaces hardcoded if-chains. DCC plugins register their file tracers at import time.
+- **Mixed live + headless**: `MayaSceneTracer` queries `maya.cmds` for the current scene (non-referenced nodes only). `MayaFileTracer` parses `.ma` files headlessly. The controller recursively follows references.
+- **`.mb` files as leaf nodes**: Can't be parsed headlessly. Future: headless Maya instance. 
+- **UDIM fallback**: When TextureTracer can't expand (directory doesn't exist), the original UDIM path is preserved as a leaf node.
+- **Reference filtering**: `_is_referenced()` uses `cmds.referenceQuery()` to skip nodes from referenced scenes, preventing double-counting.
+
+### Test counts
+
+- 15 shared module tests (`libs/utils/tests/test_asset_tracer.py`) — TracedAsset model, controller dispatch, recursion, cycle detection
+- 16 headless parser tests (`tests/test_file_tracer.py`) — all fixture types, recursive tracing, cycle detection, .mb leaf
+- 9 live scene tests (`tests/test_tracer.py`) — empty/unsaved scene, textures, references, audio, image planes, reference filtering
+- 22 fixture validation tests (`tests/test_fixture_validation.py`) — loads each fixture in Maya, compares live vs headless tracer output, verifies reference filtering
+
+Total: 62 new tests (13 existing from M1-M2 = 75 total)
 
 ---
 
@@ -138,7 +168,7 @@ M1: Scaffold + Hook [DONE]
  |
  +---> M2: Callbacks + Dialog Shells [DONE]
  |         |
- +---> M3: Scene Tracer (parallelizable with M2)
+ +---> M3: Scene Asset Tracer [DONE]
  |         |
  +---- M4: Compare Dialog (requires M2 + M3)
            |
@@ -166,7 +196,8 @@ Test markers:
 - `@pytest.mark.deadline_cloud` — requires AWS credentials (M4-M6)
 - All M1-M2 tests run without external services
 
-Current test count: 13 (3 smoke + 10 callbacks), all passing.
+Current test count: 75 (3 smoke + 10 callbacks + 15 shared asset_tracer + 16 headless parser + 9 live tracer + 22 fixture validation).
+Headless tests (31) run with plain pytest. Live tests (44) run via dcc-test-harness.
 
 ---
 

@@ -21,6 +21,24 @@ Connect's `_get_integrations_environments` only processes env vars from hooks wh
 - **Open**: `MSceneMessage.kBeforeOpenCheck` via OpenMaya API (pre-open, modal `exec()` dialog). Fires before Maya reads the scene file, allowing asset sync to complete before references are resolved. Returns True to proceed or False to cancel the open.
 - Both callbacks are **opt-in** via toggle menu items. State persisted in Maya `optionVar`.
 
+### Scene asset tracer
+
+The tracer has two layers:
+
+**Shared module** (`ftrack_utils.asset_tracer` in `libs/utils/`): DCC-agnostic tracer framework. Zero new dependencies (uses stdlib `dataclasses` and the existing `clique` dep).
+
+- `TracedAsset` — dataclass with `paths: list[Path]`, `assets: list[TracedAsset]`, `flatten() -> list[Path]`. Same schema as `ftrack-deadline-assets` but using dataclasses not pydantic.
+- `BaseTracer` — ABC: `get_dependencies(cls, path: Path) -> list[Path]`
+- `TraceController` — recursive tracing with cycle detection (ancestor list). Registry-based dispatch: DCC plugins call `register_tracer([".ma"], MayaFileTracer)` at import time. Two entry points: `trace(path)` for headless, `trace_live(scene_path, deps)` for DCC plugins.
+- `DirectoryTracer` / `TextureTracer` — built-in file-type tracers using `clique`.
+
+**Maya tracers** (`ftrack_framework_maya_deadline.tracer`):
+
+- `MayaSceneTracer` — queries the live scene via `maya.cmds`. Returns only **direct** (non-referenced) deps so the controller can recurse into references without double-counting. Uses `cmds.referenceQuery(node, filename=True)` to detect referenced nodes.
+- `MayaFileTracer` — headless `.ma` regex parser implementing `BaseTracer`. Handles multi-line `file -r` commands (with `re.DOTALL`), `setAttr` patterns for textures/alembic/gpuCache/imagePlane/audio. Resolves relative paths against the `.ma` file's parent directory.
+- `.mb` files are treated as leaf nodes (can't be parsed headlessly; headless Maya deferred to future).
+- The tracer `__init__.py` imports `MayaFileTracer` and registers it for `.ma` files, but does NOT import `MayaSceneTracer` (which requires `maya.cmds`). Import `MayaSceneTracer` directly from its module inside Maya.
+
 ### Build system note
 
 The build system derives `DCC_NAME` from `PROJECT_NAME.split("-")[-1]` which gives `"deadline"`. The `extensions/deadline.yaml` stub exists to satisfy this. No launch config is needed or provided (it would cause a warning about missing `identifier` field).
@@ -57,8 +75,17 @@ uv run python -m pytest /path/to/framework-maya-deadline/tests/ -v \
 
 The first plugin is the primary (provides Maya launch config). The second is layered on top (source layout supported — adds `source/` to PYTHONPATH automatically).
 
+## Testing
+
+Two test categories:
+
+- **Headless tests** (no Maya, fast): `test_file_tracer.py` uses `importlib` to import `MayaFileTracer` directly from its module file, bypassing the main package `__init__.py` (which imports `maya.cmds`). Run with `uv run python -m pytest tests/test_file_tracer.py`.
+- **Live tests** (dcc-test-harness): `test_smoke.py`, `test_callbacks.py`, `test_tracer.py`, `test_fixture_validation.py`. The validation tests extend `ftrack_utils.__path__` inside Maya so the new `asset_tracer` subpackage is found even if the bundled ftrack-utils doesn't include it yet.
+
+Shared module tests live in `libs/utils/tests/test_asset_tracer.py`.
+
 ## Dependencies
 
-- Runtime: `ftrack-python-api`, framework libs (`ftrack-constants`, `ftrack-utils`, `ftrack-framework-core`)
+- Runtime: `ftrack-python-api`, `ftrack-utils` (for `asset_tracer` module), framework libs (`ftrack-constants`, `ftrack-framework-core`)
 - Later milestones add: `deadline`, `boto3`, `xxhash`, `pydantic`
 - Test: `dcc-test-harness[test]` (with `ftrack-connect` override to resolve version conflicts)
