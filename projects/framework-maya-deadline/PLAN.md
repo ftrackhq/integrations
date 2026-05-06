@@ -123,39 +123,63 @@ Total: 62 new tests (13 existing from M1-M2 = 75 total)
 
 ---
 
-## Milestone 4: Compare Dialog + Deadline Cloud Integration [PLANNED]
+## Milestone 4: Compare Dialog + Deadline Cloud Integration [DONE]
 
-**Goal:** Wire save dialog to trace, compare against S3 manifests, show change summary. Farm/queue selection.
+**Goal:** Wire save dialog to trace, hash files, check S3 sync status, show results. Farm/queue selection.
 
-### Deliverables
-- Fully functional `DeadlineSaveDialog` with farm/queue dropdowns, compare button, results panel
-- `DeadlineWrapper` for AWS auth, S3 ops, manifest comparison
-- `FtrackWrapper` for session helpers
+**Key architectural decision:** No ftrack AssetVersion involvement. The extension handles file sync to S3 CAS (content-addressable storage). ftrack publishing happens through the normal framework-maya workflow. Manifests are a job-submission concern (created at render time), not a sync concern.
+
+### What was built
+
+| File | Purpose |
+|------|---------|
+| `source/.../wrappers/__init__.py` | Re-exports DeadlineWrapper |
+| `source/.../wrappers/deadline.py` | Lazy boto3 session, farm/queue listing, S3 sync check via S3AssetManager + S3AssetUploader |
+| `source/.../dialogs/widgets/workers.py` | QThread workers: FarmLoadWorker, QueueLoadWorker, SyncCheckWorker |
+| `source/.../dialogs/widgets/farm_queue_selector.py` | Cascading farm/queue dropdowns with async loading and config defaults |
+| `source/.../dialogs/widgets/sync_status_widget.py` | Summary labels + QTreeWidget grouped by "Needs Upload" / "Already Synced" |
+| `source/.../dialogs/save_dialog.py` | Full rebuild: scene path, FarmQueueSelector, Compare button, SyncStatusWidget, Sync (disabled) / Close |
+| `tests/test_deadline_wrapper.py` | 8 mocked headless tests + 4 integration tests (deadline_cloud marker) |
+| `tests/test_sync_dialog.py` | 7 live Maya dialog tests |
+
+### Key decisions
+
+- **No ftrack AssetVersion**: Comparison is "local files vs S3 CAS", not "current vs previous version". Hash each file (XXH128), check if `{rootPrefix}/Data/{hash}.xxh128` exists via S3 HEAD request. Binary per file: "needs upload" vs "already synced".
+- **No manifests for comparison**: Manifests are created transiently during hashing (by `S3AssetManager.hash_assets_and_create_manifest()`) but are not uploaded to S3. Manifest upload is a job-submission concern.
+- **Deadline Cloud Monitor for auth**: `get_boto3_session()` from the deadline SDK reads credentials configured by the Deadline Cloud Monitor desktop app. No custom auth flow.
+- **deadline + boto3 as core dependencies**: Moved from optional `deadline-libs` group to core `dependencies` in pyproject.toml so they're included in the built dist.
+- **Lazy wrapper init**: DeadlineWrapper created on first dialog interaction, not at construction. If SDK unavailable, a stub is used and an error is shown inline.
+- **QThread workers**: All AWS I/O runs off Maya's main thread. Scene tracing (fast, `maya.cmds` queries) runs on main thread, then SyncCheckWorker handles hashing + S3 checks.
+- **importlib pattern for headless tests**: Tests import the wrapper module directly via `importlib` to bypass the package `__init__.py` (which imports `maya.cmds`).
+
+### Test counts
+
+- 8 headless mocked tests (`tests/test_deadline_wrapper.py`)
+- 4 integration tests (skipped, `@pytest.mark.deadline_cloud`, no instance yet)
+- 7 live Maya dialog tests (`tests/test_sync_dialog.py`)
+
+Total: 19 new tests (31 existing headless + 44 existing live = 94 total project tests)
 
 ---
 
-## Milestone 5: Publish (S3 Upload + ftrack AssetVersion) [PLANNED]
+## Milestone 5: Sync (S3 Upload) [PLANNED]
 
-**Goal:** Full publish: trace -> hash (XXH128) -> upload S3 -> create manifests -> create ftrack AssetVersion with scene + inputManifest components.
+**Goal:** Upload missing files to S3 CAS. No ftrack AssetVersion, no manifest upload — just push file content so it's pre-staged for future Deadline Cloud job submissions.
 
-### Publish flow
-1. Trace via MayaTracer
-2. Expand sequences
-3. Get queue S3 settings
-4. Hash all files (XXH128), create local manifest
-5. Upload to S3 (content-addressable: `{root}/Data/{hash}.xxh128`)
-6. Upload manifest to S3
-7. Create ftrack AssetVersion with components
-8. Display success
+### Sync flow
+1. Reuse M4's trace + hash + S3 check
+2. Upload files not yet on S3 to `{rootPrefix}/Data/{hash}.xxh128`
+3. Show progress (bytes uploaded, transfer rate)
+4. Display success summary
 
 ---
 
 ## Milestone 6: Open Dialog, Download, and Polish [PLANNED]
 
-**Goal:** Pre-open dialog detects published versions, offers download of changed files. Config persistence, error handling.
+**Goal:** Pre-open dialog detects synced files, offers download. Config persistence, error handling.
 
 ### Deliverables
-- `DeadlineOpenDialog` with version detection, quick/deep compare, download
+- `DeadlineOpenDialog` with S3 status detection, download
 - `optionVar` persistence for farm/queue selection
 - Error handling: no network, expired AWS creds, missing files
 
@@ -170,9 +194,9 @@ M1: Scaffold + Hook [DONE]
  |         |
  +---> M3: Scene Asset Tracer [DONE]
  |         |
- +---- M4: Compare Dialog (requires M2 + M3)
+ +---- M4: Compare Dialog + Deadline Cloud [DONE]
            |
-           M5: Publish (requires M4)
+           M5: Sync / S3 Upload (requires M4)
            |
            M6: Open + Download + Polish (requires M5)
 ```
@@ -196,8 +220,8 @@ Test markers:
 - `@pytest.mark.deadline_cloud` — requires AWS credentials (M4-M6)
 - All M1-M2 tests run without external services
 
-Current test count: 75 (3 smoke + 10 callbacks + 15 shared asset_tracer + 16 headless parser + 9 live tracer + 22 fixture validation).
-Headless tests (31) run with plain pytest. Live tests (44) run via dcc-test-harness.
+Current test count: 94 (3 smoke + 10 callbacks + 15 shared asset_tracer + 16 headless parser + 9 live tracer + 22 fixture validation + 8 deadline wrapper mocked + 4 deadline wrapper integration + 7 save dialog M4).
+Headless tests (39) run with plain pytest. Live tests (51) run via dcc-test-harness. Integration tests (4) require `@pytest.mark.deadline_cloud`.
 
 ---
 

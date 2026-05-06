@@ -25,7 +25,7 @@ class TestMenuItems:
     """Verify Deadline Cloud submenu has all expected items."""
 
     def test_action_items(self, dcc_client):
-        """Publish and Scene Status menu items exist."""
+        """Sync menu item exists."""
         _ensure_bootstrap(dcc_client)
         result = dcc_client.execute(
             "import maya.cmds as cmds\n"
@@ -38,8 +38,7 @@ class TestMenuItems:
             "cmds.menuItem(i, q=True, label=True))\n"
             "__result__ = labels\n"
         )
-        assert "Publish to Deadline..." in result
-        assert "Scene Status..." in result
+        assert "Sync..." in result
 
     def test_toggle_items(self, dcc_client):
         """Sync on Save and Sync on Open toggles exist."""
@@ -137,19 +136,19 @@ class TestSyncToggle:
 class TestDialogs:
     """Verify dialogs open from menu items and scriptJobs."""
 
-    def test_manual_publish_dialog(self, dcc_client):
-        """Clicking 'Publish to Deadline...' opens the dialog."""
+    def test_manual_sync_dialog(self, dcc_client):
+        """Clicking 'Sync...' opens the dialog."""
         _ensure_bootstrap(dcc_client)
         dcc_client.execute(
             "from ftrack_framework_maya_deadline"
             " import callbacks\n"
-            "callbacks.show_save_dialog()\n"
+            "callbacks.show_sync_dialog()\n"
         )
         time.sleep(1)
         result = dcc_client.execute(
             "from ftrack_framework_maya_deadline"
             " import callbacks\n"
-            "dlg = callbacks._save_dialog\n"
+            "dlg = callbacks._sync_dialog\n"
             "__result__ = dlg is not None"
             " and dlg.isVisible()\n"
         )
@@ -158,22 +157,22 @@ class TestDialogs:
         dcc_client.execute(
             "from ftrack_framework_maya_deadline"
             " import callbacks\n"
-            "if callbacks._save_dialog:\n"
-            "    callbacks._save_dialog.close()\n"
+            "if callbacks._sync_dialog:\n"
+            "    callbacks._sync_dialog.close()\n"
         )
 
-    def test_manual_status_dialog(self, dcc_client):
-        """Clicking 'Scene Status...' opens the dialog non-blocking."""
+    def test_manual_sync_dialog_second_call(self, dcc_client):
+        """Calling show_sync_dialog again reuses visible dialog."""
         dcc_client.execute(
             "from ftrack_framework_maya_deadline"
             " import callbacks\n"
-            "callbacks.show_open_dialog()\n"
+            "callbacks.show_sync_dialog()\n"
         )
         time.sleep(1)
         result = dcc_client.execute(
             "from ftrack_framework_maya_deadline"
             " import callbacks\n"
-            "dlg = callbacks._open_dialog\n"
+            "dlg = callbacks._sync_dialog\n"
             "__result__ = dlg is not None"
             " and dlg.isVisible()\n"
         )
@@ -182,12 +181,12 @@ class TestDialogs:
         dcc_client.execute(
             "from ftrack_framework_maya_deadline"
             " import callbacks\n"
-            "if callbacks._open_dialog:\n"
-            "    callbacks._open_dialog.close()\n"
+            "if callbacks._sync_dialog:\n"
+            "    callbacks._sync_dialog.close()\n"
         )
 
     def test_save_triggers_dialog(self, dcc_client):
-        """Saving with sync enabled opens the publish dialog."""
+        """Saving with sync enabled opens the sync dialog."""
         _ensure_bootstrap(dcc_client)
         dcc_client.execute(
             "from ftrack_framework_maya_deadline"
@@ -197,9 +196,9 @@ class TestDialogs:
         dcc_client.execute(
             "from ftrack_framework_maya_deadline"
             " import callbacks\n"
-            "if callbacks._save_dialog:\n"
-            "    callbacks._save_dialog.close()\n"
-            "callbacks._save_dialog = None\n"
+            "if callbacks._sync_dialog:\n"
+            "    callbacks._sync_dialog.close()\n"
+            "callbacks._sync_dialog = None\n"
         )
         dcc_client.execute(
             "import maya.cmds as cmds\n"
@@ -213,7 +212,7 @@ class TestDialogs:
         result = dcc_client.execute(
             "from ftrack_framework_maya_deadline"
             " import callbacks\n"
-            "dlg = callbacks._save_dialog\n"
+            "dlg = callbacks._sync_dialog\n"
             "__result__ = dlg is not None"
             " and dlg.isVisible()\n"
         )
@@ -223,9 +222,9 @@ class TestDialogs:
             "from ftrack_framework_maya_deadline"
             " import callbacks\n"
             "callbacks.toggle_save(False)\n"
-            "if callbacks._save_dialog:\n"
-            "    callbacks._save_dialog.close()\n"
-            "callbacks._save_dialog = None\n"
+            "if callbacks._sync_dialog:\n"
+            "    callbacks._sync_dialog.close()\n"
+            "callbacks._sync_dialog = None\n"
         )
 
     def test_dialog_singleton(self, dcc_client):
@@ -233,30 +232,30 @@ class TestDialogs:
         dcc_client.execute(
             "from ftrack_framework_maya_deadline"
             " import callbacks\n"
-            "callbacks.show_save_dialog()\n"
+            "callbacks.show_sync_dialog()\n"
         )
         time.sleep(0.5)
         first_id = dcc_client.execute(
             "from ftrack_framework_maya_deadline"
             " import callbacks\n"
-            "__result__ = id(callbacks._save_dialog)\n"
+            "__result__ = id(callbacks._sync_dialog)\n"
         )
         dcc_client.execute(
             "from ftrack_framework_maya_deadline"
             " import callbacks\n"
-            "callbacks.show_save_dialog()\n"
+            "callbacks.show_sync_dialog()\n"
         )
         time.sleep(0.5)
         second_id = dcc_client.execute(
             "from ftrack_framework_maya_deadline"
             " import callbacks\n"
-            "__result__ = id(callbacks._save_dialog)\n"
+            "__result__ = id(callbacks._sync_dialog)\n"
         )
         assert first_id == second_id
         # Clean up
         dcc_client.execute(
             "from ftrack_framework_maya_deadline"
             " import callbacks\n"
-            "if callbacks._save_dialog:\n"
-            "    callbacks._save_dialog.close()\n"
+            "if callbacks._sync_dialog:\n"
+            "    callbacks._sync_dialog.close()\n"
         )

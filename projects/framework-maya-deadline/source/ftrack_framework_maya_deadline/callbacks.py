@@ -25,9 +25,8 @@ OPEN_OPTVAR = "ftrack_deadline_sync_on_open"
 _save_job_id = None
 _open_cb_id = None
 
-# Dialog singletons (avoid stacking on rapid saves)
-_save_dialog = None
-_open_dialog = None
+# Dialog singleton (avoid stacking on rapid saves)
+_sync_dialog = None
 
 
 # -- optionVar helpers --
@@ -139,7 +138,7 @@ def toggle_open(enabled, *args):
 
 def _on_scene_saved():
     """Called by Maya on SceneSaved.  Defers dialog open."""
-    cmds.evalDeferred(_show_save_dialog)
+    cmds.evalDeferred(lambda: _show_sync_dialog(direction="upload"))
 
 
 # -- Open check callback --
@@ -148,7 +147,7 @@ def _on_scene_saved():
 def _on_before_open(retCode, fileObject, clientData):
     """Called by Maya before opening a scene file.
 
-    Shows the scene status dialog as a modal (blocking) dialog
+    Shows the sync dialog as a modal (blocking) dialog
     so that asset sync can complete before Maya reads the file.
 
     Args:
@@ -162,76 +161,56 @@ def _on_before_open(retCode, fileObject, clientData):
     scene_path = fileObject.resolvedFullName()
     logger.info("kBeforeOpenCheck fired for: %s", scene_path)
 
-    proceed = _show_open_dialog_modal(scene_path)
+    proceed = _show_sync_dialog_modal(scene_path)
     return proceed
 
 
 # -- Dialog management --
 
 
-def _show_save_dialog():
-    """Show the publish dialog (non-blocking singleton)."""
-    global _save_dialog
-    from .dialogs.save_dialog import DeadlineSaveDialog
+def _show_sync_dialog(direction="both"):
+    """Show the sync dialog (non-blocking singleton)."""
+    global _sync_dialog
+    from .dialogs.sync_dialog import DeadlineSyncDialog
     from .utils import get_maya_main_window
 
-    if _save_dialog is not None:
+    if _sync_dialog is not None:
         try:
-            if _save_dialog.isVisible():
-                _save_dialog.raise_()
-                _save_dialog.activateWindow()
+            if _sync_dialog.isVisible():
+                _sync_dialog.raise_()
+                _sync_dialog.activateWindow()
                 return
         except RuntimeError:
-            _save_dialog = None
+            _sync_dialog = None
 
-    _save_dialog = DeadlineSaveDialog(parent=get_maya_main_window())
-    _save_dialog.show()
+    _sync_dialog = DeadlineSyncDialog(
+        direction=direction, parent=get_maya_main_window()
+    )
+    _sync_dialog.show()
 
 
-def _show_open_dialog_modal(scene_path=None):
-    """Show the scene status dialog as a modal dialog.
+def _show_sync_dialog_modal(scene_path=None):
+    """Show the sync dialog as a modal dialog.
 
     Blocks until the user closes it.  Returns True to
     proceed with the open, False to cancel.
     """
-    from .dialogs.open_dialog import DeadlineOpenDialog
+    from .dialogs.sync_dialog import DeadlineSyncDialog
     from .utils import get_maya_main_window, QtWidgets
 
-    dialog = DeadlineOpenDialog(
+    dialog = DeadlineSyncDialog(
         scene_path=scene_path,
+        modal=True,
+        direction="download",
         parent=get_maya_main_window(),
     )
     result = dialog.exec()
     return result == QtWidgets.QDialog.Accepted
 
 
-def _show_open_dialog():
-    """Show the scene status dialog (non-blocking, for menu)."""
-    global _open_dialog
-    from .dialogs.open_dialog import DeadlineOpenDialog
-    from .utils import get_maya_main_window
-
-    if _open_dialog is not None:
-        try:
-            if _open_dialog.isVisible():
-                _open_dialog.raise_()
-                _open_dialog.activateWindow()
-                return
-        except RuntimeError:
-            _open_dialog = None
-
-    _open_dialog = DeadlineOpenDialog(parent=get_maya_main_window())
-    _open_dialog.show()
-
-
-def show_save_dialog(*args):
-    """Menu callback: open publish dialog directly."""
-    _show_save_dialog()
-
-
-def show_open_dialog(*args):
-    """Menu callback: open scene status dialog directly."""
-    _show_open_dialog()
+def show_sync_dialog(*args):
+    """Menu callback: open sync dialog directly."""
+    _show_sync_dialog()
 
 
 # -- Startup restore --

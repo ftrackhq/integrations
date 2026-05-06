@@ -39,6 +39,22 @@ The tracer has two layers:
 - `.mb` files are treated as leaf nodes (can't be parsed headlessly; headless Maya deferred to future).
 - The tracer `__init__.py` imports `MayaFileTracer` and registers it for `.ma` files, but does NOT import `MayaSceneTracer` (which requires `maya.cmds`). Import `MayaSceneTracer` directly from its module inside Maya.
 
+### Deadline Cloud integration (M4)
+
+The save dialog connects to AWS Deadline Cloud to check which scene files are already synced to S3.
+
+**Architecture**: No ftrack AssetVersion involvement. The comparison is "local files vs S3 CAS" (content-addressable storage). Each file is hashed (XXH128) and checked against `{rootPrefix}/Data/{hash}.xxh128` via S3 HEAD request. Manifests are a job-submission concern, not a sync concern.
+
+**Authentication**: Relies on Deadline Cloud Monitor being configured. `get_boto3_session()` from the deadline SDK reads `~/.deadline/config`.
+
+**Key classes:**
+- `DeadlineWrapper` (`wrappers/deadline.py`) — lazy boto3 session, farm/queue listing, `check_sync_status()` using `S3AssetManager` + `S3AssetUploader`
+- `FarmQueueSelector` (`dialogs/widgets/farm_queue_selector.py`) — cascading QComboBox dropdowns, async loading via QThread workers, pre-selects from deadline config defaults
+- `SyncStatusWidget` (`dialogs/widgets/sync_status_widget.py`) — summary + QTreeWidget grouped by "Needs Upload" / "Already Synced"
+- Workers (`dialogs/widgets/workers.py`) — `FarmLoadWorker`, `QueueLoadWorker`, `SyncCheckWorker` (QObject + moveToThread pattern)
+
+**Threading model**: `MayaSceneTracer.trace()` runs on the main thread (requires `maya.cmds`). All AWS calls (farm/queue listing, file hashing, S3 checks) run off the main thread via QThread workers.
+
 ### Build system note
 
 The build system derives `DCC_NAME` from `PROJECT_NAME.split("-")[-1]` which gives `"deadline"`. The `extensions/deadline.yaml` stub exists to satisfy this. No launch config is needed or provided (it would cause a warning about missing `identifier` field).
@@ -79,13 +95,14 @@ The first plugin is the primary (provides Maya launch config). The second is lay
 
 Two test categories:
 
-- **Headless tests** (no Maya, fast): `test_file_tracer.py` uses `importlib` to import `MayaFileTracer` directly from its module file, bypassing the main package `__init__.py` (which imports `maya.cmds`). Run with `uv run python -m pytest tests/test_file_tracer.py`.
-- **Live tests** (dcc-test-harness): `test_smoke.py`, `test_callbacks.py`, `test_tracer.py`, `test_fixture_validation.py`. The validation tests extend `ftrack_utils.__path__` inside Maya so the new `asset_tracer` subpackage is found even if the bundled ftrack-utils doesn't include it yet.
+- **Headless tests** (no Maya, fast): `test_file_tracer.py` and `test_deadline_wrapper.py` use `importlib` to import modules directly from their file paths, bypassing the main package `__init__.py` (which imports `maya.cmds`). Run with `uv run python -m pytest tests/test_file_tracer.py tests/test_deadline_wrapper.py -k "not deadline_cloud"`.
+- **Integration tests** (`@pytest.mark.deadline_cloud`): real Deadline Cloud API tests in `test_deadline_wrapper.py`. Require AWS credentials and a configured Deadline Cloud instance. Run with `uv run python -m pytest -m deadline_cloud`.
+- **Live tests** (dcc-test-harness): `test_smoke.py`, `test_callbacks.py`, `test_tracer.py`, `test_fixture_validation.py`, `test_sync_dialog.py`. The validation tests extend `ftrack_utils.__path__` inside Maya so the new `asset_tracer` subpackage is found even if the bundled ftrack-utils doesn't include it yet.
 
 Shared module tests live in `libs/utils/tests/test_asset_tracer.py`.
 
 ## Dependencies
 
-- Runtime: `ftrack-python-api`, `ftrack-utils` (for `asset_tracer` module), framework libs (`ftrack-constants`, `ftrack-framework-core`)
-- Later milestones add: `deadline`, `boto3`, `xxhash`, `pydantic`
+- Runtime: `ftrack-python-api`, `deadline` (AWS Deadline Cloud SDK), `boto3` (AWS SDK), `ftrack-utils` (for `asset_tracer` module), framework libs (`ftrack-constants`, `ftrack-framework-core`)
+- Optional (transitive via deadline): `xxhash`, `pydantic`
 - Test: `dcc-test-harness[test]` (with `ftrack-connect` override to resolve version conflicts)

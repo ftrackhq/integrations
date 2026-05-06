@@ -56,15 +56,9 @@ def bootstrap():
 
     # -- Action items --
     cmds.menuItem(
-        "dl_publish",
-        label="Publish to Deadline...",
-        command=callbacks.show_save_dialog,
-        parent=submenu,
-    )
-    cmds.menuItem(
-        "dl_status",
-        label="Scene Status...",
-        command=callbacks.show_open_dialog,
+        "dl_sync",
+        label="Sync...",
+        command=callbacks.show_sync_dialog,
         parent=submenu,
     )
 

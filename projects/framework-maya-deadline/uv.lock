@@ -303,13 +303,13 @@ name = "ftrack-framework-maya-deadline"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "boto3" },
+    { name = "deadline" },
     { name = "ftrack-python-api" },
 ]
 
 [package.optional-dependencies]
-deadline-libs = [
-    { name = "boto3" },
-    { name = "deadline" },
+deadline-extras = [
     { name = "pydantic" },
     { name = "xxhash" },
 ]
@@ -326,17 +326,17 @@ test = [
 
 [package.metadata]
 requires-dist = [
-    { name = "boto3", marker = "extra == 'deadline-libs'", specifier = ">=1.35.0" },
+    { name = "boto3", specifier = ">=1.35.0" },
     { name = "dcc-test-harness", extras = ["test"], marker = "extra == 'test'", directory = "../../../dcc-test-harness" },
-    { name = "deadline", marker = "extra == 'deadline-libs'", specifier = ">=0.49.0" },
+    { name = "deadline", specifier = ">=0.49.0" },
     { name = "ftrack-constants", marker = "extra == 'ftrack-libs'", directory = "../../libs/constants" },
     { name = "ftrack-framework-core", marker = "extra == 'framework-libs'", directory = "../../libs/framework-core" },
     { name = "ftrack-python-api", specifier = ">=3.1.0,<4.0.0" },
     { name = "ftrack-utils", marker = "extra == 'ftrack-libs'", directory = "../../libs/utils" },
-    { name = "pydantic", marker = "extra == 'deadline-libs'", specifier = ">=2.0.0" },
-    { name = "xxhash", marker = "extra == 'deadline-libs'", specifier = ">=3.0.0" },
+    { name = "pydantic", marker = "extra == 'deadline-extras'", specifier = ">=2.0.0" },
+    { name = "xxhash", marker = "extra == 'deadline-extras'", specifier = ">=3.0.0" },
 ]
-provides-extras = ["ftrack-libs", "framework-libs", "deadline-libs", "test"]
+provides-extras = ["ftrack-libs", "framework-libs", "deadline-extras", "test"]
 
 [[package]]
 name = "ftrack-python-api"
@@ -375,9 +375,6 @@ requires-dist = [
     { name = "six", specifier = ">=1,<2" },
     { name = "toml", specifier = ">=0.10.2,<1.0.0" },
 ]
-
-[package.metadata.requires-dev]
-dev = [{ name = "pytest", specifier = ">=9.0.3" }]
 
 [[package]]
 name = "future"
