@@ -69,9 +69,10 @@ Separately-installable Connect plugin that loads alongside `framework-maya` insi
 - **Opt-in via menu toggle**: "Sync on Save" and "Sync on Open" checkBox menuItems. State in `optionVar` (`ftrack_deadline_sync_on_save`, `ftrack_deadline_sync_on_open`). Default: disabled.
 - **Pre-open callback**: `MSceneMessage.kBeforeOpenCheck` (not SceneOpened scriptJob). Fires before Maya reads the scene, blocking until the modal dialog closes. Returns True to proceed or False to cancel. This ensures assets can be synced before Maya resolves references.
 - **Post-save callback**: `SceneSaved` scriptJob with `evalDeferred`. Non-blocking.
-- **Two separate dialogs**: `DeadlineSaveDialog` (publish flow) and `DeadlineOpenDialog` (download flow). Each evolves independently.
 - **Own utils.py**: PySide6/shiboken6 fallback, no import from framework-maya internals.
-- **Dialog singleton**: Module-level references avoid stacking on rapid saves. Reuses visible instance if still open.
+- **Dialog singleton**: Module-level reference avoids stacking on rapid saves. Reuses visible instance if still open.
+
+*Note: M2 originally built two separate dialog shells (save + open). These were merged into a single `DeadlineSyncDialog` in M4.*
 
 ---
 
@@ -138,14 +139,16 @@ Total: 62 new tests (13 existing from M1-M2 = 75 total)
 | `source/.../dialogs/widgets/workers.py` | QThread workers: FarmLoadWorker, QueueLoadWorker, SyncCheckWorker |
 | `source/.../dialogs/widgets/farm_queue_selector.py` | Cascading farm/queue dropdowns with async loading and config defaults |
 | `source/.../dialogs/widgets/sync_status_widget.py` | Summary labels + QTreeWidget grouped by "Needs Upload" / "Already Synced" |
-| `source/.../dialogs/save_dialog.py` | Full rebuild: scene path, FarmQueueSelector, Compare button, SyncStatusWidget, Sync (disabled) / Close |
+| `source/.../dialogs/sync_dialog.py` | Unified sync dialog replacing save/open shells. Direction selector (Upload/Download/Both), modal mode for pre-open callback |
 | `tests/test_deadline_wrapper.py` | 8 mocked headless tests + 4 integration tests (deadline_cloud marker) |
-| `tests/test_sync_dialog.py` | 7 live Maya dialog tests |
+| `tests/test_sync_dialog.py` | 12 live Maya dialog tests |
 
 ### Key decisions
 
 - **No ftrack AssetVersion**: Comparison is "local files vs S3 CAS", not "current vs previous version". Hash each file (XXH128), check if `{rootPrefix}/Data/{hash}.xxh128` exists via S3 HEAD request. Binary per file: "needs upload" vs "already synced".
 - **No manifests for comparison**: Manifests are created transiently during hashing (by `S3AssetManager.hash_assets_and_create_manifest()`) but are not uploaded to S3. Manifest upload is a job-submission concern.
+- **Unified dialog**: Merged save/open dialogs into single `DeadlineSyncDialog`. Direction selector (Upload/Download/Both) sits next to the Sync button. Modal mode (Continue/Cancel) for pre-open callback, non-blocking for menu/save. Menu simplified to one "Sync..." entry plus toggles.
+- **Direction defaults**: Menu opens with "Both", save callback with "Upload", pre-open callback with "Download".
 - **Deadline Cloud Monitor for auth**: `get_boto3_session()` from the deadline SDK reads credentials configured by the Deadline Cloud Monitor desktop app. No custom auth flow.
 - **deadline + boto3 as core dependencies**: Moved from optional `deadline-libs` group to core `dependencies` in pyproject.toml so they're included in the built dist.
 - **Lazy wrapper init**: DeadlineWrapper created on first dialog interaction, not at construction. If SDK unavailable, a stub is used and an error is shown inline.
@@ -155,10 +158,10 @@ Total: 62 new tests (13 existing from M1-M2 = 75 total)
 ### Test counts
 
 - 8 headless mocked tests (`tests/test_deadline_wrapper.py`)
-- 4 integration tests (skipped, `@pytest.mark.deadline_cloud`, no instance yet)
-- 7 live Maya dialog tests (`tests/test_sync_dialog.py`)
+- 4 integration tests (`@pytest.mark.deadline_cloud`, verified against `ftrack-test farm`)
+- 12 live Maya dialog tests (`tests/test_sync_dialog.py`)
 
-Total: 19 new tests (31 existing headless + 44 existing live = 94 total project tests)
+Total: 24 new tests (31 existing headless + 44 existing live = 99 total project tests)
 
 ---
 
@@ -220,8 +223,8 @@ Test markers:
 - `@pytest.mark.deadline_cloud` — requires AWS credentials (M4-M6)
 - All M1-M2 tests run without external services
 
-Current test count: 94 (3 smoke + 10 callbacks + 15 shared asset_tracer + 16 headless parser + 9 live tracer + 22 fixture validation + 8 deadline wrapper mocked + 4 deadline wrapper integration + 7 save dialog M4).
-Headless tests (39) run with plain pytest. Live tests (51) run via dcc-test-harness. Integration tests (4) require `@pytest.mark.deadline_cloud`.
+Current test count: 99 (3 smoke + 10 callbacks + 15 shared asset_tracer + 16 headless parser + 9 live tracer + 22 fixture validation + 8 deadline wrapper mocked + 4 deadline wrapper integration + 12 sync dialog).
+Headless tests (39) run with plain pytest. Live tests (56) run via dcc-test-harness. Integration tests (4) require `@pytest.mark.deadline_cloud`.
 
 ---
 
@@ -235,5 +238,4 @@ Headless tests (39) run with plain pytest. Live tests (51) run via dcc-test-harn
 | `TraceController` + tracers | `ftrack-deadline-assets/.../tracer/` |
 | `TracedAsset` model | `ftrack-deadline-assets/.../tracer/models.py` |
 | `DeadlineWrapper` (S3, hashing) | `ftrack-deadline-assets/.../wrappers/deadline.py` |
-| `FtrackWrapper` (AssetVersion) | `ftrack-deadline-assets/.../wrappers/ftrack.py` |
 | Qt dialog parented to Maya | `shiboken6.wrapInstance` + `MQtUtil.mainWindow()` |

@@ -17,9 +17,20 @@ Connect's `_get_integrations_environments` only processes env vars from hooks wh
 
 ### Callback design
 
-- **Save**: `SceneSaved` scriptJob (post-save, non-blocking `show()` dialog)
-- **Open**: `MSceneMessage.kBeforeOpenCheck` via OpenMaya API (pre-open, modal `exec()` dialog). Fires before Maya reads the scene file, allowing asset sync to complete before references are resolved. Returns True to proceed or False to cancel the open.
-- Both callbacks are **opt-in** via toggle menu items. State persisted in Maya `optionVar`.
+- **Save**: `SceneSaved` scriptJob (post-save, non-blocking `show()` dialog, direction defaults to "Upload")
+- **Open**: `MSceneMessage.kBeforeOpenCheck` via OpenMaya API (pre-open, modal `exec()` dialog, direction defaults to "Download"). Fires before Maya reads the scene file, allowing asset sync to complete before references are resolved. Returns True to proceed or False to cancel the open.
+- Both callbacks open the same unified `DeadlineSyncDialog` — save in non-blocking mode, open in modal mode.
+- Both are **opt-in** via toggle menu items. State persisted in Maya `optionVar`.
+
+### Menu structure
+
+```
+Deadline Cloud
+├── Sync...              → opens DeadlineSyncDialog (direction: Both)
+├── ─────────
+├── Sync on Save [toggle] → auto-opens dialog after save (direction: Upload)
+└── Sync on Open [toggle] → auto-opens modal dialog before open (direction: Download)
+```
 
 ### Scene asset tracer
 
@@ -39,15 +50,16 @@ The tracer has two layers:
 - `.mb` files are treated as leaf nodes (can't be parsed headlessly; headless Maya deferred to future).
 - The tracer `__init__.py` imports `MayaFileTracer` and registers it for `.ma` files, but does NOT import `MayaSceneTracer` (which requires `maya.cmds`). Import `MayaSceneTracer` directly from its module inside Maya.
 
-### Deadline Cloud integration (M4)
+### Deadline Cloud integration
 
-The save dialog connects to AWS Deadline Cloud to check which scene files are already synced to S3.
+The sync dialog connects to AWS Deadline Cloud to check which scene files are already synced to S3.
 
 **Architecture**: No ftrack AssetVersion involvement. The comparison is "local files vs S3 CAS" (content-addressable storage). Each file is hashed (XXH128) and checked against `{rootPrefix}/Data/{hash}.xxh128` via S3 HEAD request. Manifests are a job-submission concern, not a sync concern.
 
-**Authentication**: Relies on Deadline Cloud Monitor being configured. `get_boto3_session()` from the deadline SDK reads `~/.deadline/config`.
+**Authentication**: Relies on Deadline Cloud Monitor being configured. `get_boto3_session()` from the deadline SDK reads `~/.deadline/config`. Verified against `ftrack-test farm` / `ftrack-test-queue` on `ftracktest-bucket-3452567690`.
 
 **Key classes:**
+- `DeadlineSyncDialog` (`dialogs/sync_dialog.py`) — unified dialog for all entry points. Constructor params: `scene_path` (explicit path for pre-open), `modal` (True for pre-open Continue/Cancel), `direction` ("upload"/"download"/"both"). Direction selector (radio buttons) sits next to the Sync button.
 - `DeadlineWrapper` (`wrappers/deadline.py`) — lazy boto3 session, farm/queue listing, `check_sync_status()` using `S3AssetManager` + `S3AssetUploader`
 - `FarmQueueSelector` (`dialogs/widgets/farm_queue_selector.py`) — cascading QComboBox dropdowns, async loading via QThread workers, pre-selects from deadline config defaults
 - `SyncStatusWidget` (`dialogs/widgets/sync_status_widget.py`) — summary + QTreeWidget grouped by "Needs Upload" / "Already Synced"
@@ -76,11 +88,17 @@ cd ../..
 uv run python tools/build.py --include_resources resource/bootstrap build_connect_plugin projects/framework-maya-deadline
 ```
 
-Deploy the built `dist/ftrack-framework-maya-deadline-X.Y.Z/` directory to `FTRACK_CONNECT_PLUGIN_PATH`.
+Deploy the built `dist/ftrack-framework-maya-deadline-X.Y.Z/` directory to the Connect plugin path (e.g., `~/Documents/ftrack_connect_plugins/`).
 
 ## Testing
 
-Tests run via `dcc-test-harness` from its repo, using multiple `--dcc-connect-plugin` flags:
+Three test categories:
+
+- **Headless tests** (no Maya, fast): `test_file_tracer.py` and `test_deadline_wrapper.py` use `importlib` to import modules directly from their file paths, bypassing the main package `__init__.py` (which imports `maya.cmds`). Run with `uv run python -m pytest tests/test_file_tracer.py tests/test_deadline_wrapper.py -k "not deadline_cloud"`.
+- **Integration tests** (`@pytest.mark.deadline_cloud`): real Deadline Cloud API tests in `test_deadline_wrapper.py`. Require AWS credentials and a configured Deadline Cloud instance. Run with `uv run python -m pytest -m deadline_cloud`.
+- **Live tests** (dcc-test-harness): `test_smoke.py`, `test_callbacks.py`, `test_tracer.py`, `test_fixture_validation.py`, `test_sync_dialog.py`. The validation tests extend `ftrack_utils.__path__` inside Maya so the new `asset_tracer` subpackage is found even if the bundled ftrack-utils doesn't include it yet.
+
+Live tests run via `dcc-test-harness` from its repo, using multiple `--dcc-connect-plugin` flags:
 
 ```bash
 cd /path/to/dcc-test-harness
@@ -90,14 +108,6 @@ uv run python -m pytest /path/to/framework-maya-deadline/tests/ -v \
 ```
 
 The first plugin is the primary (provides Maya launch config). The second is layered on top (source layout supported — adds `source/` to PYTHONPATH automatically).
-
-## Testing
-
-Two test categories:
-
-- **Headless tests** (no Maya, fast): `test_file_tracer.py` and `test_deadline_wrapper.py` use `importlib` to import modules directly from their file paths, bypassing the main package `__init__.py` (which imports `maya.cmds`). Run with `uv run python -m pytest tests/test_file_tracer.py tests/test_deadline_wrapper.py -k "not deadline_cloud"`.
-- **Integration tests** (`@pytest.mark.deadline_cloud`): real Deadline Cloud API tests in `test_deadline_wrapper.py`. Require AWS credentials and a configured Deadline Cloud instance. Run with `uv run python -m pytest -m deadline_cloud`.
-- **Live tests** (dcc-test-harness): `test_smoke.py`, `test_callbacks.py`, `test_tracer.py`, `test_fixture_validation.py`, `test_sync_dialog.py`. The validation tests extend `ftrack_utils.__path__` inside Maya so the new `asset_tracer` subpackage is found even if the bundled ftrack-utils doesn't include it yet.
 
 Shared module tests live in `libs/utils/tests/test_asset_tracer.py`.
 
