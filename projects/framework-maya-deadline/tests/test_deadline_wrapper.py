@@ -340,6 +340,16 @@ class TestCheckSyncStatus:
 # ---------------------------------------------------------------------------
 
 
+def _load_real_wrapper():
+    """Load DeadlineWrapper with the real deadline SDK (no stubs)."""
+    spec = importlib.util.spec_from_file_location(
+        "deadline_wrapper_real", _wrapper_path
+    )
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod.DeadlineWrapper
+
+
 @pytest.mark.deadline_cloud
 class TestDeadlineCloudIntegration:
     """Real Deadline Cloud API tests.
@@ -352,10 +362,7 @@ class TestDeadlineCloudIntegration:
     """
 
     def test_list_farms_returns_non_empty(self):
-        from ftrack_framework_maya_deadline.wrappers.deadline import (
-            DeadlineWrapper as RealWrapper,
-        )
-
+        RealWrapper = _load_real_wrapper()
         wrapper = RealWrapper()
         farms = wrapper.list_farms()
         assert len(farms) > 0
@@ -363,41 +370,33 @@ class TestDeadlineCloudIntegration:
         assert "displayName" in farms[0]
 
     def test_list_queues_returns_queues(self):
-        from ftrack_framework_maya_deadline.wrappers.deadline import (
-            DeadlineWrapper as RealWrapper,
-        )
-
+        RealWrapper = _load_real_wrapper()
         wrapper = RealWrapper()
-        defaults = wrapper.get_configured_defaults()
-        assert defaults["farm_id"], "No default farm configured"
+        farms = wrapper.list_farms()
+        assert len(farms) > 0, "No farms available"
 
-        queues = wrapper.list_queues(defaults["farm_id"])
+        queues = wrapper.list_queues(farms[0]["farmId"])
         assert len(queues) > 0
         assert "queueId" in queues[0]
         assert "displayName" in queues[0]
 
     def test_get_queue_settings_returns_s3_settings(self):
-        from ftrack_framework_maya_deadline.wrappers.deadline import (
-            DeadlineWrapper as RealWrapper,
-        )
-
+        RealWrapper = _load_real_wrapper()
         wrapper = RealWrapper()
-        defaults = wrapper.get_configured_defaults()
-        assert defaults["farm_id"], "No default farm configured"
-        assert defaults["queue_id"], "No default queue configured"
+        farms = wrapper.list_farms()
+        assert len(farms) > 0, "No farms available"
+        queues = wrapper.list_queues(farms[0]["farmId"])
+        assert len(queues) > 0, "No queues available"
 
         queue, s3_settings = wrapper.get_queue_settings(
-            defaults["farm_id"], defaults["queue_id"]
+            farms[0]["farmId"], queues[0]["queueId"]
         )
         assert "displayName" in queue
         assert hasattr(s3_settings, "s3BucketName")
         assert hasattr(s3_settings, "rootPrefix")
 
     def test_get_configured_defaults_returns_dict(self):
-        from ftrack_framework_maya_deadline.wrappers.deadline import (
-            DeadlineWrapper as RealWrapper,
-        )
-
+        RealWrapper = _load_real_wrapper()
         wrapper = RealWrapper()
         defaults = wrapper.get_configured_defaults()
         assert "farm_id" in defaults
