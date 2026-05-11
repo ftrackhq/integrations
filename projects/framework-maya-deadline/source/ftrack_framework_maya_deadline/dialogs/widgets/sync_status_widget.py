@@ -121,6 +121,35 @@ class SyncStatusWidget(QtWidgets.QWidget):
         self._summary_label.setText(f"Error: {message}")
         self._tree.clear()
 
+    def set_upload_complete(self, result):
+        """Update display after a successful upload.
+
+        Args:
+            result: dict with ``uploaded_files``, ``uploaded_bytes``,
+                ``skipped_files``, ``total_time``, ``transfer_rate``.
+        """
+        uploaded = result.get("uploaded_files", 0)
+        uploaded_bytes = result.get("uploaded_bytes", 0)
+        skipped = result.get("skipped_files", 0)
+        total_time = result.get("total_time", 0)
+
+        parts = []
+        if uploaded:
+            parts.append(
+                f"{uploaded} file(s) uploaded "
+                f"({format_bytes(uploaded_bytes)})"
+            )
+        if skipped:
+            parts.append(f"{skipped} file(s) already synced (skipped)")
+        if total_time:
+            parts.append(f"{total_time:.1f}s")
+
+        self._summary_label.setText(
+            "Upload complete: " + " · ".join(parts)
+            if parts
+            else "Upload complete."
+        )
+
     def clear(self):
         """Reset to initial empty state."""
         self._summary_label.setText("Click Compare to check sync status.")

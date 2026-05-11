@@ -84,6 +84,7 @@ def register_open_callback():
     _open_cb_id = om2.MSceneMessage.addCheckFileCallback(
         om2.MSceneMessage.kBeforeOpenCheck,
         _on_before_open,
+        None,  # clientData — ensures Maya passes all 3 args
     )
     logger.info(
         "Registered kBeforeOpenCheck callback (id=%s)",
@@ -144,14 +145,16 @@ def _on_scene_saved():
 # -- Open check callback --
 
 
-def _on_before_open(retCode, fileObject, clientData):
+def _on_before_open(fileObject, clientData=None):
     """Called by Maya before opening a scene file.
+
+    In Maya API 2.0, check callbacks receive ``(fileObject,
+    clientData)`` and return True/False (no retCode parameter).
 
     Shows the sync dialog as a modal (blocking) dialog
     so that asset sync can complete before Maya reads the file.
 
     Args:
-        retCode: MSceneMessage return code (bool ref).
         fileObject: MFileObject with the path being opened.
         clientData: User data (unused).
 

@@ -52,20 +52,27 @@ The tracer has two layers:
 
 ### Deadline Cloud integration
 
-The sync dialog connects to AWS Deadline Cloud to check which scene files are already synced to S3.
+The sync dialog connects to AWS Deadline Cloud to check which scene files are already synced to S3 and upload missing files.
 
-**Architecture**: No ftrack AssetVersion involvement. The comparison is "local files vs S3 CAS" (content-addressable storage). Each file is hashed (XXH128) and checked against `{rootPrefix}/Data/{hash}.xxh128` via S3 HEAD request. Manifests are a job-submission concern, not a sync concern.
+**Architecture**: No ftrack AssetVersion involvement. The comparison is "local files vs S3 CAS" (content-addressable storage). Each file is hashed (XXH128) and checked against `{rootPrefix}/Data/{hash}.xxh128` via S3 HEAD request. Uploads use `S3AssetManager.upload_assets()` which also uploads manifests (useful for future job submission).
+
+**Shared library: `ftrack_utils.aws`** (in `libs/utils/`): DCC-agnostic AWS/Deadline Cloud utilities, reusable by any DCC extension (Nuke, Houdini, etc.).
+
+- `S3SyncManager` — two-phase sync: `prepare_sync()` hashes files and checks S3, returns `SyncPlan` that retains manifests. `upload_files()` uploads from that plan without re-hashing.
+- `SyncPlan` / `SyncFileEntry` / `UploadResult` / `ProgressInfo` — dataclass models. `SyncPlan.to_display_dict()` returns the M4-compatible format for `SyncStatusWidget`.
+- `deadline.py` — stateless functions: `get_configured_defaults()`, `list_farms()`, `list_queues()`, `get_queue_settings()`, `get_queue_session()`, `get_deadline_boto3_session()`.
+- Optional dependency: `pip install ftrack-utils[aws]` pulls in `deadline` and `boto3`.
 
 **Authentication**: Relies on Deadline Cloud Monitor being configured. `get_boto3_session()` from the deadline SDK reads `~/.deadline/config`. Verified against `ftrack-test farm` / `ftrack-test-queue` on `ftracktest-bucket-3452567690`.
 
 **Key classes:**
-- `DeadlineSyncDialog` (`dialogs/sync_dialog.py`) — unified dialog for all entry points. Constructor params: `scene_path` (explicit path for pre-open), `modal` (True for pre-open Continue/Cancel), `direction` ("upload"/"download"/"both"). Direction selector (radio buttons) sits next to the Sync button.
-- `DeadlineWrapper` (`wrappers/deadline.py`) — lazy boto3 session, farm/queue listing, `check_sync_status()` using `S3AssetManager` + `S3AssetUploader`
+- `DeadlineSyncDialog` (`dialogs/sync_dialog.py`) — unified dialog for all entry points. Constructor params: `scene_path` (explicit path for pre-open), `modal` (True for pre-open Continue/Cancel), `direction` ("upload"/"download"/"both"). Two-step flow: Compare (trace + hash + S3 check) then Sync (upload). Progress bar + cancel button during upload.
+- `DeadlineWrapper` (`wrappers/deadline.py`) — thin facade over `ftrack_utils.aws`. Lazy boto3 session, delegates config/discovery/sync to shared library. Caches `SyncPlan` from Compare for the Upload step.
 - `FarmQueueSelector` (`dialogs/widgets/farm_queue_selector.py`) — cascading QComboBox dropdowns, async loading via QThread workers, pre-selects from deadline config defaults
-- `SyncStatusWidget` (`dialogs/widgets/sync_status_widget.py`) — summary + QTreeWidget grouped by "Needs Upload" / "Already Synced"
-- Workers (`dialogs/widgets/workers.py`) — `FarmLoadWorker`, `QueueLoadWorker`, `SyncCheckWorker` (QObject + moveToThread pattern)
+- `SyncStatusWidget` (`dialogs/widgets/sync_status_widget.py`) — summary + QTreeWidget grouped by "Needs Upload" / "Already Synced". `set_upload_complete()` shows upload stats.
+- Workers (`dialogs/widgets/workers.py`) — `FarmLoadWorker`, `QueueLoadWorker`, `SyncCheckWorker`, `SyncUploadWorker` (QObject + moveToThread pattern). `SyncUploadWorker` bridges SDK's `ProgressReportMetadata` to Qt signals and supports cancellation.
 
-**Threading model**: `MayaSceneTracer.trace()` runs on the main thread (requires `maya.cmds`). All AWS calls (farm/queue listing, file hashing, S3 checks) run off the main thread via QThread workers.
+**Threading model**: `MayaSceneTracer.trace()` runs on the main thread (requires `maya.cmds`). All AWS calls (farm/queue listing, file hashing, S3 checks, uploads) run off the main thread via QThread workers.
 
 ### Build system note
 
@@ -81,11 +88,15 @@ The build system derives `DCC_NAME` from `PROJECT_NAME.split("-")[-1]` which giv
 
 ## Building
 
+The project uses `requires-python = ">= 3.11"` because it runs inside Maya's embedded Python 3.11. The venv must use Python 3.11 so that compiled C extensions (xxhash, pyyaml, markupsafe, charset-normalizer) get the correct `cpython-311` wheels. The lockfile is universal — use `uv lock --python 3.13` since ftrack-connect (test dep) requires `>= 3.13` for resolution.
+
 ```bash
 cd projects/framework-maya-deadline
+uv venv --python 3.11          # only needed once
+uv lock --python 3.13          # universal lockfile covering 3.11 runtime + 3.13 test deps
+uv sync --extra ftrack-libs --extra framework-libs --extra test
 uv build
-cd ../..
-uv run python tools/build.py --include_resources resource/bootstrap build_connect_plugin projects/framework-maya-deadline
+uv run python ../../tools/build.py --platform_dependent --include_resources resource/bootstrap build_connect_plugin .
 ```
 
 Deploy the built `dist/ftrack-framework-maya-deadline-X.Y.Z/` directory to the Connect plugin path (e.g., `~/Documents/ftrack_connect_plugins/`).
@@ -113,6 +124,6 @@ Shared module tests live in `libs/utils/tests/test_asset_tracer.py`.
 
 ## Dependencies
 
-- Runtime: `ftrack-python-api`, `deadline` (AWS Deadline Cloud SDK), `boto3` (AWS SDK), `ftrack-utils` (for `asset_tracer` module), framework libs (`ftrack-constants`, `ftrack-framework-core`)
-- Optional (transitive via deadline): `xxhash`, `pydantic`
+- Runtime: `ftrack-python-api`, `deadline` (AWS Deadline Cloud SDK), `boto3` (AWS SDK), `xxhash` (file hashing for S3 CAS), `ftrack-utils` (for `asset_tracer` module), framework libs (`ftrack-constants`, `ftrack-framework-core`)
+- Optional: `pydantic` (deadline-extras)
 - Test: `dcc-test-harness[test]` (with `ftrack-connect` override to resolve version conflicts)

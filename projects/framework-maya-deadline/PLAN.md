@@ -165,15 +165,45 @@ Total: 24 new tests (31 existing headless + 44 existing live = 99 total project 
 
 ---
 
-## Milestone 5: Sync (S3 Upload) [PLANNED]
+## Milestone 5: Sync (S3 Upload) [DONE]
 
-**Goal:** Upload missing files to S3 CAS. No ftrack AssetVersion, no manifest upload — just push file content so it's pre-staged for future Deadline Cloud job submissions.
+**Goal:** Upload missing files to S3 CAS via `S3AssetManager.upload_assets()`. Extract DCC-agnostic sync logic into `ftrack_utils.aws` for reuse.
 
-### Sync flow
-1. Reuse M4's trace + hash + S3 check
-2. Upload files not yet on S3 to `{rootPrefix}/Data/{hash}.xxh128`
-3. Show progress (bytes uploaded, transfer rate)
-4. Display success summary
+### What was built
+
+**Shared library: `ftrack_utils.aws`** (in `libs/utils/`)
+
+| File | Purpose |
+|------|---------|
+| `aws/__init__.py` | Public API exports |
+| `aws/models.py` | `SyncPlan`, `SyncFileEntry`, `UploadResult`, `ProgressInfo` dataclasses |
+| `aws/deadline.py` | Stateless functions: config defaults, farm/queue discovery, session mgmt |
+| `aws/s3_sync.py` | `S3SyncManager`: `prepare_sync()` + `upload_files()` |
+
+**Maya integration updates** (in `projects/framework-maya-deadline/`)
+
+| File | Purpose |
+|------|---------|
+| `wrappers/deadline.py` | Refactored: thin facade over `ftrack_utils.aws`, caches `SyncPlan` |
+| `dialogs/widgets/workers.py` | Added `SyncUploadWorker` with progress + cancellation |
+| `dialogs/sync_dialog.py` | Wired Sync button, progress bar, cancel button, upload flow |
+| `dialogs/widgets/sync_status_widget.py` | Added `set_upload_complete()` |
+
+### Key decisions
+
+- **Two-phase design**: `prepare_sync()` returns a `SyncPlan` retaining manifests. `upload_files()` reuses them — no re-hashing after Compare.
+- **Manifests uploaded with content**: `upload_assets()` handles both atomically. Manifests are useful for future job submission.
+- **Cancellation via SDK callback**: `SyncUploadWorker` bridges the SDK's `ProgressReportMetadata` callback (return False to cancel → `AssetSyncCancelledError`).
+- **Optional deps**: `ftrack-utils[aws]` extra pulls in `deadline>=0.49.0` + `boto3>=1.35.0`.
+- **Backward-compatible**: `check_sync_status()` returns the same dict as M4 (via `SyncPlan.to_display_dict()`).
+
+### Test counts
+
+- 24 shared module tests (`libs/utils/tests/test_aws.py`) — models, S3SyncManager, deadline functions
+- 12 headless wrapper tests (`tests/test_deadline_wrapper.py`) — 8 existing (updated) + 4 new upload tests
+- 7 new live dialog tests (`tests/test_sync_dialog.py`) — sync button, progress bar, cancel button, upload complete
+
+Total: 43 new tests (56 existing headless + 56 existing live = 155 total)
 
 ---
 
@@ -199,7 +229,7 @@ M1: Scaffold + Hook [DONE]
  |         |
  +---- M4: Compare Dialog + Deadline Cloud [DONE]
            |
-           M5: Sync / S3 Upload (requires M4)
+           M5: Sync / S3 Upload [DONE]
            |
            M6: Open + Download + Polish (requires M5)
 ```
@@ -223,8 +253,8 @@ Test markers:
 - `@pytest.mark.deadline_cloud` — requires AWS credentials (M4-M6)
 - All M1-M2 tests run without external services
 
-Current test count: 99 (3 smoke + 10 callbacks + 15 shared asset_tracer + 16 headless parser + 9 live tracer + 22 fixture validation + 8 deadline wrapper mocked + 4 deadline wrapper integration + 12 sync dialog).
-Headless tests (39) run with plain pytest. Live tests (56) run via dcc-test-harness. Integration tests (4) require `@pytest.mark.deadline_cloud`.
+Current test count: 142+ (3 smoke + 10 callbacks + 15 shared asset_tracer + 24 shared aws + 16 headless parser + 9 live tracer + 22 fixture validation + 12 deadline wrapper mocked + 4 deadline wrapper integration + 19 sync dialog + 7 new upload dialog).
+Headless tests (67) run with plain pytest. Live tests (63+) run via dcc-test-harness. Integration tests (4) require `@pytest.mark.deadline_cloud`.
 
 ---
 
@@ -238,4 +268,7 @@ Headless tests (39) run with plain pytest. Live tests (56) run via dcc-test-harn
 | `TraceController` + tracers | `ftrack-deadline-assets/.../tracer/` |
 | `TracedAsset` model | `ftrack-deadline-assets/.../tracer/models.py` |
 | `DeadlineWrapper` (S3, hashing) | `ftrack-deadline-assets/.../wrappers/deadline.py` |
+| `S3AssetManager.upload_assets()` | `ftrack-deadline-assets/.../wrappers/deadline.py:461` |
+| `ProgressReportMetadata` callback | deadline SDK `progress_tracker.py` |
+| `asset_tracer` module structure | `ftrack_utils/asset_tracer/` (model for `aws/` subpackage) |
 | Qt dialog parented to Maya | `shiboken6.wrapInstance` + `MQtUtil.mainWindow()` |

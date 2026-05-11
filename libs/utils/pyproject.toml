@@ -4,7 +4,7 @@ version = "4.0.0"
 description = "ftrack utils library"
 readme = "README.md"
 license = { text = "Apache-2.0" }
-requires-python = ">= 3.13, < 3.14"
+requires-python = ">= 3.11"
 authors = [
   { name = "ftrack Integrations Team", email = "integrations@backlight.co" }
 ]
@@ -16,6 +16,9 @@ dependencies = [
   "six>=1, <2",
   "toml>=0.10.2, <1.0.0",
 ]
+
+[project.optional-dependencies]
+aws = ["deadline>=0.49.0", "boto3>=1.35.0"]
 
 [project.urls]
 homepage = "https://ftrack.com"

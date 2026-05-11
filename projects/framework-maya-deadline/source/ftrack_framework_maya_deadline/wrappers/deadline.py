@@ -1,48 +1,58 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2025 ftrack
 
-"""AWS Deadline Cloud wrapper for farm/queue discovery and S3 sync checks.
+"""AWS Deadline Cloud wrapper for Maya integration.
 
-Requires Deadline Cloud Monitor to be installed and configured on the
-artist's machine.  The SDK's ``get_boto3_session()`` reads credentials
-from ``~/.deadline/config`` and the AWS credential chain.
+Thin facade over :mod:`ftrack_utils.aws` that manages lazy-init
+boto3 sessions and caches the last :class:`SyncPlan` so the dialog
+can Compare then Upload without re-hashing.
+
+Requires Deadline Cloud Monitor to be installed and configured on
+the artist's machine.
 """
 
 import logging
 from pathlib import Path
-from typing import Optional
+from typing import Callable, Optional
 
-import boto3
-
-from deadline.client.api import get_boto3_session
-from deadline.client import api
-from deadline.job_attachments.models import JobAttachmentS3Settings
-from deadline.job_attachments.upload import S3AssetManager, S3AssetUploader
-from deadline.client.config.config_file import get_cache_directory, get_setting
+from ftrack_utils.aws import (
+    S3SyncManager,
+    SyncPlan,
+    UploadResult,
+    get_configured_defaults as _get_defaults,
+    get_deadline_boto3_session,
+    get_queue_session as _get_queue_session,
+    get_queue_settings as _get_queue_settings,
+    list_farms as _list_farms,
+    list_queues as _list_queues,
+)
+from ftrack_utils.aws.models import ProgressInfo
 
 logger = logging.getLogger(__name__)
 
 
 class DeadlineWrapper:
-    """AWS Deadline Cloud operations for farm/queue discovery and S3 sync
-    status checks.
+    """AWS Deadline Cloud operations for the Maya sync dialog.
 
-    All boto3 clients are lazy-initialised on first access so that
-    creating the wrapper instance is cheap and fast.
+    Delegates configuration, discovery, and S3 sync operations to
+    :mod:`ftrack_utils.aws`.  Adds lazy session management and
+    plan caching for the two-step Compare → Upload flow.
     """
 
     def __init__(self, profile: Optional[str] = None):
         self._profile = profile
         self._aws_session = None
         self._deadline = None
+        self._sync_manager: Optional[S3SyncManager] = None
+        self._last_plan: Optional[SyncPlan] = None
 
     # -- Lazy-init properties -----------------------------------------
 
     @property
-    def aws_session(self) -> boto3.Session:
+    def aws_session(self):
         """Return the default boto3 session (Deadline Cloud Monitor creds)."""
         if self._aws_session is None:
-            self._aws_session = get_boto3_session()
+            self._aws_session = get_deadline_boto3_session()
         return self._aws_session
 
     @property
@@ -61,9 +71,7 @@ class DeadlineWrapper:
             dict with ``farm_id`` and ``queue_id`` keys (values may be
             *None* if not configured).
         """
-        farm_id = get_setting("defaults.farm_id") or None
-        queue_id = get_setting("defaults.queue_id") or None
-        return {"farm_id": farm_id, "queue_id": queue_id}
+        return _get_defaults()
 
     # -- Farm / queue discovery ---------------------------------------
 
@@ -72,41 +80,42 @@ class DeadlineWrapper:
 
         Each dict contains at least ``farmId`` and ``displayName``.
         """
-        response = api.list_farms()
-        return response.get("farms", [])
+        return _list_farms()
 
     def list_queues(self, farm_id: str) -> list[dict]:
         """Return all queues for *farm_id*.
 
         Each dict contains at least ``queueId`` and ``displayName``.
         """
-        response = api.list_queues(farmId=farm_id)
-        return response.get("queues", [])
+        return _list_queues(farm_id)
 
-    def get_queue_settings(
-        self, farm_id: str, queue_id: str
-    ) -> tuple[dict, JobAttachmentS3Settings]:
+    def get_queue_settings(self, farm_id: str, queue_id: str):
         """Return ``(queue_dict, s3_settings)`` for a queue."""
-        queue = self.deadline.get_queue(farmId=farm_id, queueId=queue_id)
-        s3_settings = JobAttachmentS3Settings(**queue["jobAttachmentSettings"])
-        return queue, s3_settings
+        return _get_queue_settings(self.deadline, farm_id, queue_id)
 
     def get_queue_session(
         self,
         farm_id: str,
         queue_id: str,
         queue_name: Optional[str] = None,
-    ) -> boto3.Session:
+    ):
         """Return a queue-scoped boto3 session for S3 access."""
-        return api.get_queue_user_boto3_session(
-            deadline=self.deadline,
-            config=None,
-            farm_id=farm_id,
-            queue_id=queue_id,
-            queue_display_name=queue_name,
+        return _get_queue_session(
+            self.deadline, None, farm_id, queue_id, queue_name
         )
 
-    # -- Sync status check --------------------------------------------
+    # -- Sync operations ----------------------------------------------
+
+    def _get_sync_manager(self, farm_id: str, queue_id: str) -> S3SyncManager:
+        """Create an :class:`S3SyncManager` for the given queue."""
+        queue, s3_settings = self.get_queue_settings(farm_id, queue_id)
+        queue_session = self.get_queue_session(
+            farm_id, queue_id, queue.get("displayName")
+        )
+        self._sync_manager = S3SyncManager(
+            farm_id, queue_id, s3_settings, queue_session
+        )
+        return self._sync_manager
 
     def check_sync_status(
         self,
@@ -116,115 +125,42 @@ class DeadlineWrapper:
     ) -> dict:
         """Hash local files and check which are already on S3.
 
-        This does **not** upload anything.  It hashes every file in
-        *file_paths* (XXH128, with local cache) and issues an S3 HEAD
-        request per hash to determine whether the content already exists
-        in the queue's content-addressable store.
+        Backward-compatible: returns the same dict as M4.  Also
+        caches the :class:`SyncPlan` internally so
+        :meth:`upload_files` can proceed without re-hashing.
+        """
+        manager = self._get_sync_manager(farm_id, queue_id)
+        plan = manager.prepare_sync(file_paths)
+        self._last_plan = plan
+        return plan.to_display_dict()
+
+    def upload_files(
+        self,
+        plan: Optional[SyncPlan] = None,
+        on_progress: Optional[Callable[[ProgressInfo], bool]] = None,
+    ) -> UploadResult:
+        """Upload files from the last sync check (or explicit *plan*).
 
         Args:
-            file_paths: Absolute paths to check.
-            farm_id: Deadline Cloud farm ID.
-            queue_id: Deadline Cloud queue ID.
+            plan: Optional explicit :class:`SyncPlan`.  When *None*,
+                uses the plan cached by :meth:`check_sync_status`.
+            on_progress: Optional callback receiving
+                :class:`ProgressInfo` snapshots.  Return *False* to
+                cancel the upload.
 
         Returns:
-            dict with keys::
+            An :class:`UploadResult` with summary statistics.
 
-                needs_upload    – list of {path, size, hash}
-                already_synced  – list of {path, size, hash}
-                total_files     – int
-                total_size_bytes – int
-                upload_size_bytes – int (sum of sizes not yet on S3)
+        Raises:
+            RuntimeError: If no plan is available.
         """
-        # 1. Queue settings (bucket + rootPrefix)
-        queue, s3_settings = self.get_queue_settings(farm_id, queue_id)
-        s3_bucket = s3_settings.s3BucketName
-        root_prefix = s3_settings.rootPrefix
-
-        # 2. Queue-scoped session for S3 access
-        queue_session = self.get_queue_session(
-            farm_id, queue_id, queue.get("displayName")
-        )
-
-        # 3. Hash files and create local manifests (in memory only)
-        logger.info("Hashing %d files...", len(file_paths))
-        asset_manager = S3AssetManager(
-            farm_id=farm_id,
-            queue_id=queue_id,
-            job_attachment_settings=s3_settings,
-            session=queue_session,
-        )
-
-        upload_group = asset_manager.prepare_paths_for_upload(
-            file_paths,
-            [],  # no output directories
-            [],  # no referenced paths
-        )
-
-        cache_directory = get_cache_directory()
-        (_, manifests) = asset_manager.hash_assets_and_create_manifest(
-            upload_group.asset_groups,
-            upload_group.total_input_files,
-            upload_group.total_input_bytes,
-            cache_directory,
-        )
-
-        # 4. Collect all hashed file entries from manifests
-        hashed_files = []
-        for manifest_root in manifests:
-            if not manifest_root.asset_manifest:
-                continue
-            for path_obj in manifest_root.asset_manifest.paths:
-                hashed_files.append(path_obj)
-
-        logger.info(
-            "Hashing complete: %d file(s). Checking S3 existence...",
-            len(hashed_files),
-        )
-
-        # 5. Check S3 existence per hash
-        uploader = S3AssetUploader(session=queue_session)
-        needs_upload = []
-        already_synced = []
-        upload_size = 0
-        total_size = 0
-
-        for path_obj in hashed_files:
-            file_size = path_obj.size if hasattr(path_obj, "size") else 0
-            file_hash = path_obj.hash if hasattr(path_obj, "hash") else ""
-            file_path = str(path_obj.path) if hasattr(path_obj, "path") else ""
-            total_size += file_size
-
-            s3_key = f"{root_prefix}/Data/{file_hash}.xxh128"
-
-            try:
-                on_s3 = uploader.file_already_uploaded(s3_bucket, s3_key)
-            except Exception:
-                logger.warning(
-                    "S3 check failed for %s — assuming needs upload",
-                    file_hash,
-                    exc_info=True,
-                )
-                on_s3 = False
-
-            entry = {"path": file_path, "size": file_size, "hash": file_hash}
-            if on_s3:
-                already_synced.append(entry)
-            else:
-                needs_upload.append(entry)
-                upload_size += file_size
-
-        logger.info(
-            "Sync check complete: %d need upload (%s bytes), "
-            "%d already synced",
-            len(needs_upload),
-            f"{upload_size:,}",
-            len(already_synced),
-        )
-
-        return {
-            "needs_upload": needs_upload,
-            "already_synced": already_synced,
-            "total_files": len(hashed_files),
-            "total_size_bytes": total_size,
-            "upload_size_bytes": upload_size,
-        }
+        plan = plan or self._last_plan
+        if not plan:
+            raise RuntimeError(
+                "No sync plan available. Run check_sync_status() first."
+            )
+        if not self._sync_manager:
+            raise RuntimeError(
+                "No sync manager available. " "Run check_sync_status() first."
+            )
+        return self._sync_manager.upload_files(plan, on_progress)

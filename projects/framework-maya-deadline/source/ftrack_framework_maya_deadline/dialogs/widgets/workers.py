@@ -87,6 +87,66 @@ class SyncCheckWorker(QtCore.QObject):
             self.error.emit(str(exc))
 
 
+class SyncUploadWorker(QtCore.QObject):
+    """Upload files to S3 CAS with progress reporting.
+
+    Bridges the deadline SDK's ``on_uploading_assets`` callback
+    (which runs on the worker thread) to a Qt signal so the dialog
+    can update the UI on the main thread.
+
+    To cancel an in-progress upload, call :meth:`cancel`.  The
+    next SDK progress callback will return *False*, causing the
+    SDK to raise ``AssetSyncCancelledError``.
+    """
+
+    progress = QtCore.Signal(dict)  # ProgressInfo as dict
+    finished = QtCore.Signal(dict)  # UploadResult as dict
+    error = QtCore.Signal(str)
+
+    def __init__(self, deadline_wrapper):
+        super().__init__()
+        self._wrapper = deadline_wrapper
+        self._cancelled = False
+
+    def run(self):
+        try:
+            result = self._wrapper.upload_files(
+                on_progress=self._on_sdk_progress,
+            )
+            self.finished.emit(
+                {
+                    "uploaded_files": result.uploaded_files,
+                    "uploaded_bytes": result.uploaded_bytes,
+                    "skipped_files": result.skipped_files,
+                    "skipped_bytes": result.skipped_bytes,
+                    "total_time": result.total_time,
+                    "transfer_rate": result.transfer_rate,
+                }
+            )
+        except Exception as exc:
+            if "cancelled" in str(exc).lower():
+                self.error.emit("Upload cancelled.")
+            else:
+                logger.error("Upload failed: %s", exc, exc_info=True)
+                self.error.emit(str(exc))
+
+    def _on_sdk_progress(self, info):
+        """Bridge ProgressInfo to Qt signal.  Return False to cancel."""
+        self.progress.emit(
+            {
+                "progress": info.progress,
+                "message": info.message,
+                "processed_files": info.processed_files,
+                "transfer_rate": info.transfer_rate,
+            }
+        )
+        return not self._cancelled
+
+    def cancel(self):
+        """Request cancellation of the in-progress upload."""
+        self._cancelled = True
+
+
 def start_worker(worker, parent=None):
     """Start a worker on a new QThread.
 

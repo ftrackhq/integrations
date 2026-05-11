@@ -19,7 +19,7 @@ import maya.cmds as cmds
 from ..utils import QtWidgets, QtCore, format_bytes
 from .widgets.farm_queue_selector import FarmQueueSelector
 from .widgets.sync_status_widget import SyncStatusWidget
-from .widgets.workers import SyncCheckWorker, start_worker
+from .widgets.workers import SyncCheckWorker, SyncUploadWorker, start_worker
 
 logger = logging.getLogger(__name__)
 
@@ -103,6 +103,12 @@ class DeadlineSyncDialog(QtWidgets.QDialog):
         self._results = SyncStatusWidget(parent=self)
         layout.addWidget(self._results, 1)
 
+        # Progress bar (hidden until upload starts)
+        self._progress_bar = QtWidgets.QProgressBar()
+        self._progress_bar.setRange(0, 100)
+        self._progress_bar.setVisible(False)
+        layout.addWidget(self._progress_bar)
+
         # Bottom buttons — differ by mode
         btn_layout = QtWidgets.QHBoxLayout()
         btn_layout.addStretch()
@@ -125,32 +131,31 @@ class DeadlineSyncDialog(QtWidgets.QDialog):
             self.BOTH: self._rb_both,
         }.get(self._default_direction, self._rb_both).setChecked(True)
 
-        if self._is_modal:
-            # Pre-open mode: Sync direction + Cancel / Continue
-            self._sync_btn = QtWidgets.QPushButton("Sync")
-            self._sync_btn.setEnabled(False)
-            self._sync_btn.setToolTip(
-                "Sync will be available in the next update"
-            )
-            btn_layout.addWidget(self._sync_btn)
+        # Sync button (disabled until Compare shows files needing upload)
+        self._sync_btn = QtWidgets.QPushButton("Sync")
+        self._sync_btn.setEnabled(False)
+        self._sync_btn.setToolTip("Upload files to S3 that are not yet synced")
+        self._sync_btn.clicked.connect(self._on_sync_clicked)
+        btn_layout.addWidget(self._sync_btn)
 
-            cancel_btn = QtWidgets.QPushButton("Cancel Open")
-            cancel_btn.clicked.connect(self.reject)
-            btn_layout.addWidget(cancel_btn)
+        # Cancel button (hidden, shown during upload)
+        self._cancel_btn = QtWidgets.QPushButton("Cancel")
+        self._cancel_btn.setVisible(False)
+        self._cancel_btn.clicked.connect(self._on_cancel_clicked)
+        btn_layout.addWidget(self._cancel_btn)
+
+        if self._is_modal:
+            # Pre-open mode: Cancel Open / Continue
+            cancel_open_btn = QtWidgets.QPushButton("Cancel Open")
+            cancel_open_btn.clicked.connect(self.reject)
+            btn_layout.addWidget(cancel_open_btn)
 
             continue_btn = QtWidgets.QPushButton("Continue")
             continue_btn.setDefault(True)
             continue_btn.clicked.connect(self.accept)
             btn_layout.addWidget(continue_btn)
         else:
-            # Normal mode: Sync direction + Sync / Close
-            self._sync_btn = QtWidgets.QPushButton("Sync")
-            self._sync_btn.setEnabled(False)
-            self._sync_btn.setToolTip(
-                "Sync will be available in the next update"
-            )
-            btn_layout.addWidget(self._sync_btn)
-
+            # Normal mode: Close
             close_btn = QtWidgets.QPushButton("Close")
             close_btn.clicked.connect(self.close)
             btn_layout.addWidget(close_btn)
@@ -208,9 +213,18 @@ class DeadlineSyncDialog(QtWidgets.QDialog):
         QtWidgets.QApplication.processEvents()
 
         try:
-            from ..tracer.maya_scene_tracer import MayaSceneTracer
+            if self._explicit_scene_path:
+                # Pre-open: headless parse (scene not loaded in Maya yet)
+                from pathlib import Path
 
-            traced_asset = MayaSceneTracer.trace()
+                from ..tracer import TraceController
+
+                traced_asset = TraceController.trace(Path(scene_path))
+            else:
+                # Post-save / menu: live scene query
+                from ..tracer.maya_scene_tracer import MayaSceneTracer
+
+                traced_asset = MayaSceneTracer.trace()
         except Exception as exc:
             self._on_error(f"Scene tracing failed: {exc}")
             return
@@ -231,6 +245,7 @@ class DeadlineSyncDialog(QtWidgets.QDialog):
 
         # Kick off async sync check
         self._set_busy(True)
+        self._sync_btn.setEnabled(False)
         self._results.set_loading(
             f"Hashing {len(file_paths)} file(s) and checking S3..."
         )
@@ -262,9 +277,70 @@ class DeadlineSyncDialog(QtWidgets.QDialog):
             format_bytes(upload_size),
         )
 
+        # Enable Sync button when there are files to upload.
+        self._sync_btn.setEnabled(n_upload > 0)
+
     def _on_compare_error(self, message):
         self._set_busy(False)
         self._on_error(message)
+
+    # -- Upload flow --------------------------------------------------
+
+    def _on_sync_clicked(self):
+        """Upload files identified by the last Compare."""
+        direction = self.current_direction
+        if direction == self.DOWNLOAD:
+            self._on_error("Download is not yet available.")
+            return
+
+        self._set_upload_busy(True)
+
+        worker = SyncUploadWorker(self._get_wrapper())
+        worker.progress.connect(self._on_upload_progress)
+        worker.finished.connect(self._on_upload_finished)
+        worker.error.connect(self._on_upload_error)
+
+        self._active_thread, self._active_worker = start_worker(
+            worker, parent=self
+        )
+
+    def _on_upload_progress(self, info):
+        """Update progress bar and status from SDK callback."""
+        self._progress_bar.setValue(int(info["progress"]))
+        rate = format_bytes(info["transfer_rate"]) + "/s"
+        self._status_label.setText(f'{info["message"]} ({rate})')
+
+    def _on_upload_finished(self, result):
+        """Show upload summary."""
+        self._set_upload_busy(False)
+
+        uploaded = result["uploaded_files"]
+        size = format_bytes(result["uploaded_bytes"])
+        time_s = result["total_time"]
+        self._status_label.setText(
+            f"Upload complete: {uploaded} file(s), {size} " f"in {time_s:.1f}s"
+        )
+        self._results.set_upload_complete(result)
+
+        # Nothing left to upload after a successful sync.
+        self._sync_btn.setEnabled(False)
+
+        logger.info(
+            "Upload complete: %d file(s), %s in %.1fs",
+            uploaded,
+            size,
+            time_s,
+        )
+
+    def _on_upload_error(self, message):
+        self._set_upload_busy(False)
+        self._on_error(message)
+
+    def _on_cancel_clicked(self):
+        """Request cancellation of the in-progress upload."""
+        if self._active_worker and hasattr(self._active_worker, "cancel"):
+            self._active_worker.cancel()
+            self._status_label.setText("Cancelling...")
 
     # -- Helpers ------------------------------------------------------
 
@@ -284,9 +360,24 @@ class DeadlineSyncDialog(QtWidgets.QDialog):
         if busy:
             self._status_label.setText("Working...")
 
+    def _set_upload_busy(self, busy):
+        """Show/hide progress bar and cancel button during upload."""
+        self._progress_bar.setVisible(busy)
+        self._progress_bar.setValue(0)
+        self._cancel_btn.setVisible(busy)
+        self._compare_btn.setEnabled(not busy)
+        self._sync_btn.setEnabled(not busy)
+        self._farm_queue.set_enabled(not busy)
+        if busy:
+            self._status_label.setText("Starting upload...")
+
     def _on_error(self, message):
-        self._status_label.setText("")
-        self._results.set_error(message)
+        # Guard: _on_error can be called from _get_wrapper() during
+        # _build_ui() before _status_label / _results are created.
+        if hasattr(self, "_status_label"):
+            self._status_label.setText("")
+        if hasattr(self, "_results"):
+            self._results.set_error(message)
         logger.warning("Dialog error: %s", message)
 
     def showEvent(self, event):

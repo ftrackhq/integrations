@@ -259,3 +259,125 @@ dialog.deleteLater()
 direction
 """)
     assert result == "upload"
+
+
+def test_sync_button_initially_disabled(dcc_client):
+    """Sync button should be disabled until Compare finds uploads."""
+    result = dcc_client.execute("""
+from ftrack_framework_maya_deadline.dialogs.sync_dialog import (
+    DeadlineSyncDialog,
+)
+from ftrack_framework_maya_deadline.utils import get_maya_main_window
+
+dialog = DeadlineSyncDialog(parent=get_maya_main_window())
+enabled = dialog._sync_btn.isEnabled()
+text = dialog._sync_btn.text()
+dialog.close()
+dialog.deleteLater()
+(enabled, text)
+""")
+    assert result == (False, "Sync")
+
+
+def test_sync_button_has_click_handler(dcc_client):
+    """Sync button should have a click handler connected."""
+    result = dcc_client.execute("""
+from ftrack_framework_maya_deadline.dialogs.sync_dialog import (
+    DeadlineSyncDialog,
+)
+from ftrack_framework_maya_deadline.utils import get_maya_main_window
+
+dialog = DeadlineSyncDialog(parent=get_maya_main_window())
+# Check that the clicked signal has at least one receiver
+has_receivers = dialog._sync_btn.receivers(
+    dialog._sync_btn.clicked
+) > 0
+dialog.close()
+dialog.deleteLater()
+has_receivers
+""")
+    assert result is True
+
+
+def test_progress_bar_hidden_by_default(dcc_client):
+    """Progress bar should be hidden until upload starts."""
+    result = dcc_client.execute("""
+from ftrack_framework_maya_deadline.dialogs.sync_dialog import (
+    DeadlineSyncDialog,
+)
+from ftrack_framework_maya_deadline.utils import get_maya_main_window
+
+dialog = DeadlineSyncDialog(parent=get_maya_main_window())
+visible = dialog._progress_bar.isVisible()
+dialog.close()
+dialog.deleteLater()
+visible
+""")
+    assert result is False
+
+
+def test_cancel_button_hidden_by_default(dcc_client):
+    """Cancel button should be hidden until upload starts."""
+    result = dcc_client.execute("""
+from ftrack_framework_maya_deadline.dialogs.sync_dialog import (
+    DeadlineSyncDialog,
+)
+from ftrack_framework_maya_deadline.utils import get_maya_main_window
+
+dialog = DeadlineSyncDialog(parent=get_maya_main_window())
+visible = dialog._cancel_btn.isVisible()
+dialog.close()
+dialog.deleteLater()
+visible
+""")
+    assert result is False
+
+
+def test_modal_dialog_has_expected_buttons(dcc_client):
+    """Modal dialog should have Sync, Cancel Open, Continue."""
+    result = dcc_client.execute("""
+from ftrack_framework_maya_deadline.dialogs.sync_dialog import (
+    DeadlineSyncDialog,
+)
+from ftrack_framework_maya_deadline.utils import (
+    get_maya_main_window, QtWidgets,
+)
+
+dialog = DeadlineSyncDialog(
+    scene_path="/tmp/test.ma", modal=True,
+    parent=get_maya_main_window(),
+)
+
+buttons = dialog.findChildren(QtWidgets.QPushButton)
+labels = sorted([b.text() for b in buttons])
+dialog.close()
+dialog.deleteLater()
+labels
+""")
+    assert "Cancel Open" in result
+    assert "Continue" in result
+    assert "Sync" in result
+    assert "Compare" in result
+
+
+def test_sync_status_widget_upload_complete(dcc_client):
+    """SyncStatusWidget.set_upload_complete should update summary."""
+    result = dcc_client.execute("""
+from ftrack_framework_maya_deadline.dialogs.widgets.sync_status_widget import (
+    SyncStatusWidget,
+)
+
+widget = SyncStatusWidget()
+widget.set_upload_complete({
+    "uploaded_files": 5,
+    "uploaded_bytes": 10240,
+    "skipped_files": 3,
+    "total_time": 2.5,
+    "transfer_rate": 4096.0,
+})
+
+summary = widget._summary_label.text()
+widget.deleteLater()
+("Upload complete" in summary, "5 file(s)" in summary)
+""")
+    assert result == (True, True)
