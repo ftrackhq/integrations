@@ -95,6 +95,24 @@ _spec.loader.exec_module(_mod)
 
 DeadlineWrapper = _mod.DeadlineWrapper
 
+# Register MayaFileTracer for .ma files (normally done by the package __init__).
+_tracer_path = (
+    Path(__file__).parent.parent
+    / "source"
+    / "ftrack_framework_maya_deadline"
+    / "tracer"
+    / "maya_file_tracer.py"
+)
+_tracer_spec = importlib.util.spec_from_file_location(
+    "maya_file_tracer", _tracer_path
+)
+_tracer_mod = importlib.util.module_from_spec(_tracer_spec)
+_tracer_spec.loader.exec_module(_tracer_mod)
+
+from ftrack_utils.asset_tracer import TraceController as _TC  # noqa: E402
+
+_TC.register_tracer([".ma"], _tracer_mod.MayaFileTracer)
+
 
 # ---------------------------------------------------------------------------
 # Headless / mocked tests
@@ -219,11 +237,13 @@ class TestCheckSyncStatus:
 
         return wrapper
 
-    def test_returns_expected_keys(self):
+    def test_returns_expected_keys(self, tmp_path):
+        test_file = tmp_path / "file.exr"
+        test_file.write_bytes(b"data")
         wrapper = self._setup_wrapper_with_mock_manager(
             {
                 "needs_upload": [
-                    {"path": "/test/file.exr", "size": 100, "hash": "abc123"}
+                    {"path": str(test_file), "size": 100, "hash": "abc123"}
                 ],
                 "already_synced": [],
                 "total_files": 1,
@@ -232,9 +252,7 @@ class TestCheckSyncStatus:
             }
         )
 
-        result = wrapper.check_sync_status(
-            [Path("/test/file.exr")], "farm-1", "queue-1"
-        )
+        result = wrapper.check_sync_status([test_file], "farm-1", "queue-1")
 
         assert "needs_upload" in result
         assert "already_synced" in result
@@ -246,14 +264,16 @@ class TestCheckSyncStatus:
         assert result["total_files"] == 1
         assert result["upload_size_bytes"] == 100
 
-    def test_already_synced_file(self):
+    def test_already_synced_file(self, tmp_path):
         """File whose hash exists on S3 should be in already_synced."""
+        test_file = tmp_path / "synced.exr"
+        test_file.write_bytes(b"data")
         wrapper = self._setup_wrapper_with_mock_manager(
             {
                 "needs_upload": [],
                 "already_synced": [
                     {
-                        "path": "/test/synced.exr",
+                        "path": str(test_file),
                         "size": 200,
                         "hash": "already_there",
                     }
@@ -264,9 +284,7 @@ class TestCheckSyncStatus:
             }
         )
 
-        result = wrapper.check_sync_status(
-            [Path("/test/synced.exr")], "farm-1", "queue-1"
-        )
+        result = wrapper.check_sync_status([test_file], "farm-1", "queue-1")
 
         assert len(result["needs_upload"]) == 0
         assert len(result["already_synced"]) == 1
@@ -311,7 +329,9 @@ class TestUploadFiles:
         result = wrapper.upload_files()
 
         assert result.uploaded_files == 1
-        mock_manager.upload_files.assert_called_once_with(plan, None)
+        mock_manager.upload_files.assert_called_once_with(
+            plan, None, scene_hash=None
+        )
 
     def test_upload_files_without_plan_raises(self):
         wrapper = DeadlineWrapper()
@@ -365,7 +385,259 @@ class TestUploadFiles:
         cb = MagicMock()
         wrapper.upload_files(on_progress=cb)
 
-        mock_manager.upload_files.assert_called_once_with(plan, cb)
+        mock_manager.upload_files.assert_called_once_with(
+            plan, cb, scene_hash=None
+        )
+
+
+# ---------------------------------------------------------------------------
+# Sync flow tests — verify upload/download/compare using temp files.
+# ---------------------------------------------------------------------------
+
+
+class TestSyncFlow:
+    """End-to-end tests for the check_sync_status upload/download flow.
+
+    Uses real temp files and a mock S3SyncManager to verify that:
+    - All traced files (including deps) are passed to prepare_sync
+    - Missing files are passed to prepare_download
+    - Results are merged correctly in the returned dict
+    """
+
+    def _make_scene_with_deps(self, tmp_path):
+        """Create a minimal .ma scene with dependencies."""
+        shared = tmp_path / "shared"
+        shared.mkdir()
+        scene_dir = tmp_path / "v1"
+        scene_dir.mkdir()
+
+        # Scene file
+        scene = scene_dir / "shot.ma"
+        scene.write_text(
+            "//Maya ASCII 2025 scene\n"
+            'requires maya "2025";\n'
+            'file -r -ns "room" -dr 1 -rfn "roomRN"\n'
+            '         -typ "mayaAscii" "../shared/room.ma";\n'
+            'createNode file -n "tex";\n'
+            '    setAttr ".fileTextureName" -type "string"'
+            ' "../shared/diffuse.exr";\n'
+            'createNode AlembicNode -n "cache";\n'
+            '    setAttr ".abc_File" -type "string" "anim.abc";\n'
+        )
+
+        # Dependencies
+        ref = shared / "room.ma"
+        ref.write_text(
+            "//Maya ASCII 2025 scene\n"
+            'requires maya "2025";\n'
+            'createNode file -n "woodTex";\n'
+            '    setAttr ".fileTextureName" -type "string"'
+            ' "wood.exr";\n'
+        )
+        (shared / "diffuse.exr").write_bytes(b"exr-data")
+        (shared / "wood.exr").write_bytes(b"wood-exr")
+        (scene_dir / "anim.abc").write_bytes(b"abc-data")
+
+        return scene
+
+    def _make_wrapper(self, prepare_sync_result, prepare_download_result):
+        """Create wrapper with mocked sync manager."""
+        mock_manager = MagicMock()
+        mock_manager.prepare_sync.return_value = prepare_sync_result
+        mock_manager.prepare_download.return_value = prepare_download_result
+
+        wrapper = DeadlineWrapper()
+        wrapper._aws_session = MagicMock()
+        wrapper._deadline = MagicMock()
+        wrapper._get_sync_manager = MagicMock(return_value=mock_manager)
+
+        return wrapper, mock_manager
+
+    def test_all_files_passed_to_prepare_sync_when_all_exist(self, tmp_path):
+        """When all files exist, prepare_sync receives all of them."""
+        from ftrack_utils.aws.models import SyncFileEntry, SyncPlan
+
+        scene = self._make_scene_with_deps(tmp_path)
+
+        # Trace the scene
+        from ftrack_utils.asset_tracer import TraceController
+
+        asset = TraceController.trace(scene)
+        file_paths = asset.flatten()
+
+        # All should exist
+        assert all(p.exists() for p in file_paths)
+        assert len(file_paths) == 5  # scene + room.ma + diffuse + wood + abc
+
+        plan = SyncPlan(
+            needs_upload=[
+                SyncFileEntry(path=str(p), size=10, hash="h")
+                for p in file_paths
+            ],
+            already_synced=[],
+            total_files=len(file_paths),
+            total_size_bytes=50,
+            upload_size_bytes=50,
+        )
+        dl_plan = SyncPlan(needs_upload=[], already_synced=[])
+
+        wrapper, mock_mgr = self._make_wrapper(plan, dl_plan)
+        wrapper.check_sync_status(file_paths, "farm-1", "queue-1")
+
+        # prepare_sync called with all resolved paths
+        call_args = mock_mgr.prepare_sync.call_args[0][0]
+        assert len(call_args) == 5
+
+    def test_missing_files_passed_to_prepare_download(self, tmp_path):
+        """When some files are deleted, they go to prepare_download."""
+        from ftrack_utils.aws.models import SyncFileEntry, SyncPlan
+
+        scene = self._make_scene_with_deps(tmp_path)
+
+        from ftrack_utils.asset_tracer import TraceController
+
+        asset = TraceController.trace(scene)
+        file_paths = asset.flatten()
+        assert len(file_paths) == 5
+
+        # Delete two deps
+        shared = tmp_path / "shared"
+        (shared / "diffuse.exr").unlink()
+        (shared / "wood.exr").unlink()
+
+        existing = [p.resolve() for p in file_paths if p.exists()]
+        missing = [p.resolve() for p in file_paths if not p.exists()]
+        assert len(existing) == 3
+        assert len(missing) == 2
+
+        upload_plan = SyncPlan(
+            needs_upload=[],
+            already_synced=[
+                SyncFileEntry(path=str(p), size=10, hash="h") for p in existing
+            ],
+            total_files=len(existing),
+            total_size_bytes=30,
+            upload_size_bytes=0,
+        )
+        dl_plan = SyncPlan(
+            needs_upload=[],
+            already_synced=[],
+            needs_download=[
+                SyncFileEntry(path=str(p), size=10, hash="h") for p in missing
+            ],
+            download_size_bytes=20,
+        )
+
+        wrapper, mock_mgr = self._make_wrapper(upload_plan, dl_plan)
+        result = wrapper.check_sync_status(
+            file_paths, "farm-1", "queue-1", scene_hash="abc123"
+        )
+
+        # prepare_sync called with only existing files
+        sync_call = mock_mgr.prepare_sync.call_args[0][0]
+        assert len(sync_call) == 3
+
+        # prepare_download called with ALL file paths + scene_hash
+        dl_call_args = mock_mgr.prepare_download.call_args
+        assert len(dl_call_args[0][0]) == 5  # all file_paths
+        assert dl_call_args[1]["scene_hash"] == "abc123"
+
+        # Result dict contains both upload and download info
+        assert len(result["needs_download"]) == 2
+        assert result["download_size_bytes"] == 20
+
+    def test_result_dict_has_needs_download_key(self, tmp_path):
+        """Result dict always contains needs_download key."""
+        from ftrack_utils.aws.models import SyncPlan
+
+        scene = self._make_scene_with_deps(tmp_path)
+
+        from ftrack_utils.asset_tracer import TraceController
+
+        file_paths = TraceController.trace(scene).flatten()
+
+        plan = SyncPlan(needs_upload=[], already_synced=[])
+        dl_plan = SyncPlan(needs_upload=[], already_synced=[])
+        wrapper, _ = self._make_wrapper(plan, dl_plan)
+
+        result = wrapper.check_sync_status(file_paths, "farm-1", "queue-1")
+
+        assert "needs_download" in result
+        assert "download_size_bytes" in result
+
+    def test_deleted_reference_appears_in_trace(self, tmp_path):
+        """Deleted .ma reference is preserved in trace (not silently lost)."""
+        scene = self._make_scene_with_deps(tmp_path)
+
+        from ftrack_utils.asset_tracer import TraceController
+
+        # Trace with everything present
+        all_paths = TraceController.trace(scene).flatten()
+        assert len(all_paths) == 5
+
+        # Delete the referenced .ma file
+        ref = tmp_path / "shared" / "room.ma"
+        ref.unlink()
+
+        # Re-trace — room.ma should still appear (preserved by controller)
+        partial_paths = TraceController.trace(scene).flatten()
+
+        # room.ma should be in the trace even though it doesn't exist
+        room_names = [p.name for p in partial_paths]
+        assert "room.ma" in room_names, (
+            f"Deleted reference 'room.ma' was silently dropped. "
+            f"Got: {room_names}"
+        )
+
+    def test_deleted_deps_not_in_needs_upload(self, tmp_path):
+        """Deleted files should NOT be passed to prepare_sync."""
+        from ftrack_utils.aws.models import SyncPlan
+
+        scene = self._make_scene_with_deps(tmp_path)
+
+        from ftrack_utils.asset_tracer import TraceController
+
+        file_paths = TraceController.trace(scene).flatten()
+
+        # Delete two files
+        (tmp_path / "shared" / "diffuse.exr").unlink()
+        (tmp_path / "v1" / "anim.abc").unlink()
+
+        plan = SyncPlan(needs_upload=[], already_synced=[])
+        dl_plan = SyncPlan(needs_upload=[], already_synced=[])
+        wrapper, mock_mgr = self._make_wrapper(plan, dl_plan)
+
+        wrapper.check_sync_status(file_paths, "farm-1", "queue-1")
+
+        # prepare_sync should only receive files that exist
+        sync_paths = mock_mgr.prepare_sync.call_args[0][0]
+        for p in sync_paths:
+            assert p.exists(), f"Non-existent file passed to prepare_sync: {p}"
+
+    def test_paths_are_resolved(self, tmp_path):
+        """Paths with ../ are resolved before passing to SDK."""
+        from ftrack_utils.aws.models import SyncPlan
+
+        scene = self._make_scene_with_deps(tmp_path)
+
+        from ftrack_utils.asset_tracer import TraceController
+
+        file_paths = TraceController.trace(scene).flatten()
+
+        # Some paths have ../ (e.g., v1/../shared/room.ma)
+        has_dotdot = any(".." in str(p) for p in file_paths)
+        assert has_dotdot, "Test expects paths with ../ from tracer"
+
+        plan = SyncPlan(needs_upload=[], already_synced=[])
+        dl_plan = SyncPlan(needs_upload=[], already_synced=[])
+        wrapper, mock_mgr = self._make_wrapper(plan, dl_plan)
+
+        wrapper.check_sync_status(file_paths, "farm-1", "queue-1")
+
+        # All paths passed to prepare_sync should be resolved (no ../)
+        sync_paths = mock_mgr.prepare_sync.call_args[0][0]
+        for p in sync_paths:
+            assert ".." not in str(p), f"Unresolved path: {p}"
 
 
 # ---------------------------------------------------------------------------

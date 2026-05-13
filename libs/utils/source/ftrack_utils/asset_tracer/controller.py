@@ -161,7 +161,8 @@ class TraceController:
             return TracedAsset(paths=[current], assets=[])
 
         except FileNotFoundError:
-            logger.debug("File not found: %s", current)
-            return TracedAsset(paths=[], assets=[])
+            # Preserve the path so download flows can detect it as missing.
+            logger.debug("File not found (preserving path): %s", current)
+            return TracedAsset(paths=[current], assets=[])
 
         return TracedAsset(paths=[current], assets=child_assets)

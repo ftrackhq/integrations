@@ -12,6 +12,14 @@ import logging
 from typing import Optional
 
 import boto3
+from botocore.exceptions import (
+    ClientError,
+    ConnectTimeoutError,
+    CredentialRetrievalError,
+    EndpointConnectionError,
+    NoCredentialsError,
+    PartialCredentialsError,
+)
 
 from deadline.client.api import get_boto3_session
 from deadline.client import api
@@ -19,6 +27,34 @@ from deadline.client.config.config_file import get_setting
 from deadline.job_attachments.models import JobAttachmentS3Settings
 
 logger = logging.getLogger(__name__)
+
+
+def is_credential_error(exc: Exception) -> bool:
+    """Return True if *exc* indicates invalid or missing AWS credentials."""
+    if isinstance(
+        exc,
+        (
+            NoCredentialsError,
+            PartialCredentialsError,
+            CredentialRetrievalError,
+        ),
+    ):
+        return True
+    if isinstance(exc, ClientError):
+        code = exc.response.get("Error", {}).get("Code", "")
+        if code in (
+            "ExpiredTokenException",
+            "UnrecognizedClientException",
+            "InvalidIdentityToken",
+            "AccessDeniedException",
+        ):
+            return True
+    return False
+
+
+def is_network_error(exc: Exception) -> bool:
+    """Return True if *exc* indicates a network connectivity problem."""
+    return isinstance(exc, (EndpointConnectionError, ConnectTimeoutError))
 
 
 def get_deadline_boto3_session() -> boto3.Session:

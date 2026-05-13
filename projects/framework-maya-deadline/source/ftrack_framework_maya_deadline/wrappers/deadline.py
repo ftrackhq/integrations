@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import Callable, Optional
 
 from ftrack_utils.aws import (
+    DownloadResult,
     S3SyncManager,
     SyncPlan,
     UploadResult,
@@ -122,15 +123,43 @@ class DeadlineWrapper:
         file_paths: list[Path],
         farm_id: str,
         queue_id: str,
+        scene_hash: Optional[str] = None,
     ) -> dict:
-        """Hash local files and check which are already on S3.
+        """Hash local files, check S3 upload status, and check download status.
 
-        Backward-compatible: returns the same dict as M4.  Also
-        caches the :class:`SyncPlan` internally so
-        :meth:`upload_files` can proceed without re-hashing.
+        Combines upload and download checks into a single result dict.
+        Caches the :class:`SyncPlan` internally so :meth:`upload_files`
+        and :meth:`download_files` can proceed without re-checking.
         """
         manager = self._get_sync_manager(farm_id, queue_id)
-        plan = manager.prepare_sync(file_paths)
+
+        # Resolve paths (remove ../ components) — the SDK needs
+        # clean absolute paths for grouping and hashing.
+        file_paths = [p.resolve() for p in file_paths]
+
+        # Separate files into existing (for upload check) and missing
+        # (for download check via manifest lookup).
+        existing = [p for p in file_paths if p.exists()]
+
+        # Upload check: hash existing files, check S3.
+        if existing:
+            plan = manager.prepare_sync(existing)
+        else:
+            plan = SyncPlan(needs_upload=[], already_synced=[])
+
+        # Download check: match manifest by scene hash, check all
+        # manifest files against local filesystem.
+        # Use the first file path as scene_path (it's always the
+        # scene file from the tracer's flatten() output).
+        scene_path = file_paths[0] if file_paths else None
+        dl_plan = manager.prepare_download(
+            file_paths,
+            scene_hash=scene_hash,
+            scene_path=scene_path,
+        )
+        plan.needs_download = dl_plan.needs_download
+        plan.download_size_bytes = dl_plan.download_size_bytes
+
         self._last_plan = plan
         return plan.to_display_dict()
 
@@ -138,6 +167,7 @@ class DeadlineWrapper:
         self,
         plan: Optional[SyncPlan] = None,
         on_progress: Optional[Callable[[ProgressInfo], bool]] = None,
+        scene_hash: Optional[str] = None,
     ) -> UploadResult:
         """Upload files from the last sync check (or explicit *plan*).
 
@@ -163,4 +193,50 @@ class DeadlineWrapper:
             raise RuntimeError(
                 "No sync manager available. " "Run check_sync_status() first."
             )
-        return self._sync_manager.upload_files(plan, on_progress)
+        return self._sync_manager.upload_files(
+            plan, on_progress, scene_hash=scene_hash
+        )
+
+    def check_download_status(
+        self,
+        file_paths: list[Path],
+        farm_id: str,
+        queue_id: str,
+    ) -> dict:
+        """Check which traced files are missing locally but in S3 manifests.
+
+        Caches the plan for :meth:`download_files`.
+        """
+        manager = self._get_sync_manager(farm_id, queue_id)
+        plan = manager.prepare_download(file_paths)
+        self._last_plan = plan
+        return plan.to_display_dict()
+
+    def download_files(
+        self,
+        plan: Optional[SyncPlan] = None,
+        on_progress: Optional[Callable[[ProgressInfo], bool]] = None,
+    ) -> DownloadResult:
+        """Download files from S3 CAS identified by the last check.
+
+        Args:
+            plan: Optional explicit :class:`SyncPlan`.  When *None*,
+                uses the plan cached by :meth:`check_download_status`.
+            on_progress: Optional callback receiving
+                :class:`ProgressInfo` snapshots.  Return *False* to
+                cancel.
+
+        Returns:
+            A :class:`DownloadResult` with summary statistics.
+        """
+        plan = plan or self._last_plan
+        if not plan:
+            raise RuntimeError(
+                "No sync plan available. Run check_download_status() first."
+            )
+        if not self._sync_manager:
+            raise RuntimeError(
+                "No sync manager available. "
+                "Run check_download_status() first."
+            )
+        return self._sync_manager.download_files(plan, on_progress)

@@ -19,7 +19,12 @@ import maya.cmds as cmds
 from ..utils import QtWidgets, QtCore, format_bytes
 from .widgets.farm_queue_selector import FarmQueueSelector
 from .widgets.sync_status_widget import SyncStatusWidget
-from .widgets.workers import SyncCheckWorker, SyncUploadWorker, start_worker
+from .widgets.workers import (
+    SyncCheckWorker,
+    SyncDownloadWorker,
+    SyncUploadWorker,
+    start_worker,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -55,6 +60,7 @@ class DeadlineSyncDialog(QtWidgets.QDialog):
         self._deadline_wrapper = None
         self._active_thread = None
         self._active_worker = None
+        self._scene_hash = None
 
         self._build_ui()
 
@@ -81,6 +87,7 @@ class DeadlineSyncDialog(QtWidgets.QDialog):
         # Farm / queue selector
         self._farm_queue = FarmQueueSelector(self._get_wrapper(), parent=self)
         self._farm_queue.error_occurred.connect(self._on_error)
+        self._farm_queue.credential_error.connect(self._on_credential_error)
         layout.addWidget(self._farm_queue)
 
         # Separator
@@ -213,15 +220,16 @@ class DeadlineSyncDialog(QtWidgets.QDialog):
         QtWidgets.QApplication.processEvents()
 
         try:
-            if self._explicit_scene_path:
-                # Pre-open: headless parse (scene not loaded in Maya yet)
-                from pathlib import Path
+            from pathlib import Path
 
+            scene_p = Path(scene_path)
+            if scene_p.suffix.lower() == ".ma":
+                # Headless parse — finds ALL references, even unresolved
                 from ..tracer import TraceController
 
-                traced_asset = TraceController.trace(Path(scene_path))
+                traced_asset = TraceController.trace(scene_p)
             else:
-                # Post-save / menu: live scene query
+                # .mb files can't be parsed headlessly
                 from ..tracer.maya_scene_tracer import MayaSceneTracer
 
                 traced_asset = MayaSceneTracer.trace()
@@ -238,9 +246,23 @@ class DeadlineSyncDialog(QtWidgets.QDialog):
             self._on_error("No files found in scene dependencies.")
             return
 
+        # Hash the scene file for manifest matching.
+        try:
+            from deadline.job_attachments.asset_manifests import (
+                HashAlgorithm,
+                hash_file,
+            )
+
+            self._scene_hash = hash_file(str(scene_path), HashAlgorithm.XXH128)
+        except Exception:
+            logger.warning("Could not hash scene file", exc_info=True)
+            self._scene_hash = None
+
         logger.info(
-            "Traced %d file(s) from scene. Starting sync check...",
+            "Traced %d file(s) from scene (hash=%s). "
+            "Starting sync check...",
             len(file_paths),
+            self._scene_hash,
         )
 
         # Kick off async sync check
@@ -251,11 +273,16 @@ class DeadlineSyncDialog(QtWidgets.QDialog):
         )
 
         worker = SyncCheckWorker(
-            self._get_wrapper(), file_paths, farm_id, queue_id
+            self._get_wrapper(),
+            file_paths,
+            farm_id,
+            queue_id,
+            scene_hash=self._scene_hash,
         )
         worker.progress.connect(self._on_progress)
         worker.finished.connect(self._on_compare_finished)
         worker.error.connect(self._on_compare_error)
+        worker.credential_error.connect(self._on_credential_error)
 
         self._active_thread, self._active_worker = start_worker(
             worker, parent=self
@@ -270,15 +297,15 @@ class DeadlineSyncDialog(QtWidgets.QDialog):
         self._results.set_results(result)
 
         n_upload = len(result.get("needs_upload", []))
-        upload_size = result.get("upload_size_bytes", 0)
+        n_download = len(result.get("needs_download", []))
         logger.info(
-            "Sync check complete: %d file(s) need upload (%s)",
+            "Sync check complete: %d need upload, %d need download",
             n_upload,
-            format_bytes(upload_size),
+            n_download,
         )
 
-        # Enable Sync button when there are files to upload.
-        self._sync_btn.setEnabled(n_upload > 0)
+        # Enable Sync button when there are files to transfer.
+        self._sync_btn.setEnabled(n_upload > 0 or n_download > 0)
 
     def _on_compare_error(self, message):
         self._set_busy(False)
@@ -287,18 +314,27 @@ class DeadlineSyncDialog(QtWidgets.QDialog):
     # -- Upload flow --------------------------------------------------
 
     def _on_sync_clicked(self):
-        """Upload files identified by the last Compare."""
+        """Upload or download files identified by the last Compare."""
         direction = self.current_direction
+
         if direction == self.DOWNLOAD:
-            self._on_error("Download is not yet available.")
+            self._start_download()
             return
+        if direction == self.BOTH:
+            # Upload first, then download on completion.
+            self._download_after_upload = True
+        else:
+            self._download_after_upload = False
 
         self._set_upload_busy(True)
 
-        worker = SyncUploadWorker(self._get_wrapper())
+        worker = SyncUploadWorker(
+            self._get_wrapper(), scene_hash=self._scene_hash
+        )
         worker.progress.connect(self._on_upload_progress)
         worker.finished.connect(self._on_upload_finished)
         worker.error.connect(self._on_upload_error)
+        worker.credential_error.connect(self._on_credential_error)
 
         self._active_thread, self._active_worker = start_worker(
             worker, parent=self
@@ -321,8 +357,6 @@ class DeadlineSyncDialog(QtWidgets.QDialog):
             f"Upload complete: {uploaded} file(s), {size} " f"in {time_s:.1f}s"
         )
         self._results.set_upload_complete(result)
-
-        # Nothing left to upload after a successful sync.
         self._sync_btn.setEnabled(False)
 
         logger.info(
@@ -332,15 +366,56 @@ class DeadlineSyncDialog(QtWidgets.QDialog):
             time_s,
         )
 
+        # If direction was "both", start download after upload.
+        if getattr(self, "_download_after_upload", False):
+            self._download_after_upload = False
+            self._start_download()
+
     def _on_upload_error(self, message):
         self._set_upload_busy(False)
         self._on_error(message)
 
     def _on_cancel_clicked(self):
-        """Request cancellation of the in-progress upload."""
+        """Request cancellation of the in-progress operation."""
         if self._active_worker and hasattr(self._active_worker, "cancel"):
             self._active_worker.cancel()
             self._status_label.setText("Cancelling...")
+
+    # -- Download flow ------------------------------------------------
+
+    def _start_download(self):
+        """Download files identified by the last Compare."""
+        self._set_upload_busy(True)
+
+        worker = SyncDownloadWorker(self._get_wrapper())
+        worker.progress.connect(self._on_upload_progress)
+        worker.finished.connect(self._on_download_finished)
+        worker.error.connect(self._on_upload_error)
+        worker.credential_error.connect(self._on_credential_error)
+
+        self._active_thread, self._active_worker = start_worker(
+            worker, parent=self
+        )
+
+    def _on_download_finished(self, result):
+        """Show download summary."""
+        self._set_upload_busy(False)
+
+        downloaded = result["downloaded_files"]
+        size = format_bytes(result["downloaded_bytes"])
+        time_s = result["total_time"]
+        self._status_label.setText(
+            f"Download complete: {downloaded} file(s), {size} "
+            f"in {time_s:.1f}s"
+        )
+        self._sync_btn.setEnabled(False)
+
+        logger.info(
+            "Download complete: %d file(s), %s in %.1fs",
+            downloaded,
+            size,
+            time_s,
+        )
 
     # -- Helpers ------------------------------------------------------
 
@@ -379,6 +454,35 @@ class DeadlineSyncDialog(QtWidgets.QDialog):
         if hasattr(self, "_results"):
             self._results.set_error(message)
         logger.warning("Dialog error: %s", message)
+
+    def _on_credential_error(self, message):
+        """Show Deadline Cloud login dialog and retry on success."""
+        self._set_busy(False)
+        self._farm_queue.set_enabled(True)
+        logger.warning("Credential error — launching login: %s", message)
+
+        try:
+            from deadline.client.ui.dialogs import DeadlineLoginDialog
+        except ImportError:
+            self._on_error(
+                "Deadline Cloud SDK UI not available. "
+                "Please log in via Deadline Cloud Monitor."
+            )
+            return
+
+        if DeadlineLoginDialog.login(parent=self):
+            self._on_login_succeeded()
+        else:
+            self._on_error(
+                "Login cancelled. Click the refresh button to retry."
+            )
+
+    def _on_login_succeeded(self):
+        """Reset wrapper after successful login and reload farms."""
+        logger.info("Deadline Cloud login succeeded — reloading farms")
+        self._deadline_wrapper = None
+        self._farm_queue.set_wrapper(self._get_wrapper())
+        self._farm_queue.load_farms()
 
     def showEvent(self, event):
         """Load farms when the dialog is first shown."""

@@ -8,7 +8,6 @@ file tree grouped by "Needs Upload" / "Already Synced".
 """
 
 import logging
-from pathlib import Path
 
 from ...utils import QtWidgets, format_bytes
 
@@ -49,8 +48,10 @@ class SyncStatusWidget(QtWidgets.QWidget):
 
         needs = sync_status.get("needs_upload", [])
         synced = sync_status.get("already_synced", [])
+        downloads = sync_status.get("needs_download", [])
         total_size = sync_status.get("total_size_bytes", 0)
         upload_size = sync_status.get("upload_size_bytes", 0)
+        download_size = sync_status.get("download_size_bytes", 0)
 
         # Summary text
         parts = []
@@ -59,13 +60,18 @@ class SyncStatusWidget(QtWidgets.QWidget):
                 f"{len(needs)} file(s) need upload "
                 f"({format_bytes(upload_size)})"
             )
+        if downloads:
+            parts.append(
+                f"{len(downloads)} file(s) need download "
+                f"({format_bytes(download_size)})"
+            )
         if synced:
-            synced_size = total_size - upload_size
+            synced_size = total_size - upload_size - download_size
             parts.append(
                 f"{len(synced)} file(s) already synced "
-                f"({format_bytes(synced_size)})"
+                f"({format_bytes(max(synced_size, 0))})"
             )
-        if not needs and not synced:
+        if not needs and not synced and not downloads:
             parts.append("No files found.")
 
         self._summary_label.setText(" · ".join(parts))
@@ -84,7 +90,27 @@ class SyncStatusWidget(QtWidgets.QWidget):
                 item = QtWidgets.QTreeWidgetItem(
                     upload_group,
                     [
-                        _short_path(entry["path"]),
+                        entry["path"],
+                        format_bytes(entry["size"]),
+                    ],
+                )
+                item.setToolTip(0, entry["path"])
+
+        # "Needs Download" group
+        if downloads:
+            download_group = QtWidgets.QTreeWidgetItem(
+                self._tree,
+                [
+                    f"Needs Download ({len(downloads)})",
+                    format_bytes(download_size),
+                ],
+            )
+            download_group.setExpanded(True)
+            for entry in sorted(downloads, key=lambda e: e["path"]):
+                item = QtWidgets.QTreeWidgetItem(
+                    download_group,
+                    [
+                        entry["path"],
                         format_bytes(entry["size"]),
                     ],
                 )
@@ -92,12 +118,12 @@ class SyncStatusWidget(QtWidgets.QWidget):
 
         # "Already Synced" group (collapsed by default)
         if synced:
-            synced_size = total_size - upload_size
+            synced_size = total_size - upload_size - download_size
             synced_group = QtWidgets.QTreeWidgetItem(
                 self._tree,
                 [
                     f"Already Synced ({len(synced)})",
-                    format_bytes(synced_size),
+                    format_bytes(max(synced_size, 0)),
                 ],
             )
             synced_group.setExpanded(False)
@@ -105,7 +131,7 @@ class SyncStatusWidget(QtWidgets.QWidget):
                 item = QtWidgets.QTreeWidgetItem(
                     synced_group,
                     [
-                        _short_path(entry["path"]),
+                        entry["path"],
                         format_bytes(entry["size"]),
                     ],
                 )
@@ -154,11 +180,3 @@ class SyncStatusWidget(QtWidgets.QWidget):
         """Reset to initial empty state."""
         self._summary_label.setText("Click Compare to check sync status.")
         self._tree.clear()
-
-
-def _short_path(path_str, max_parts=4):
-    """Return the last *max_parts* components of a path for display."""
-    parts = Path(path_str).parts
-    if len(parts) <= max_parts:
-        return path_str
-    return str(Path(*parts[-max_parts:]))

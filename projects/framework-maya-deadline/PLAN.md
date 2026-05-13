@@ -207,14 +207,62 @@ Total: 43 new tests (56 existing headless + 56 existing live = 155 total)
 
 ---
 
-## Milestone 6: Open Dialog, Download, and Polish [PLANNED]
+## M5 post-work: Build + Callback + Auth fixes [DONE]
 
-**Goal:** Pre-open dialog detects synced files, offers download. Config persistence, error handling.
+Fixes applied after M5 integration testing.
 
-### Deliverables
-- `DeadlineOpenDialog` with S3 status detection, download
-- `optionVar` persistence for farm/queue selection
-- Error handling: no network, expired AWS creds, missing files
+### What was built
+
+| Change | Details |
+|--------|---------|
+| Python 3.11 build support | Relaxed `requires-python` to `>= 3.11` on monorepo libs (constants, utils, framework-core) and dcc-test-harness so compiled extensions (xxhash, pyyaml, markupsafe) get `cpython-311` wheels matching Maya 2026's Python. Project venv uses 3.11; lockfile is universal via `uv lock --python 3.13`. |
+| xxhash as core dep | Moved from `deadline-extras` optional to core `dependencies`. Required for S3 CAS file hashing. |
+| S3AssetUploader SDK fix | deadline SDK 0.56.1 added required kwargs `s3_max_pool_connections` and `small_file_threshold_multiplier` to `S3AssetUploader.__init__()`. Added with defaults (50, 20). |
+| Pre-open callback fix | Maya API 2.0 check callbacks use `(fileObject, clientData)` signature with return value, not `(retCode, fileObject, clientData)`. Fixed signature and explicit `clientData=None` in registration. |
+| Headless tracing for pre-open | Compare flow uses `TraceController.trace(Path)` (headless `MayaFileTracer`) when `_explicit_scene_path` is set (pre-open), `MayaSceneTracer.trace()` (live) otherwise. |
+| Auto-login on credential errors | `is_credential_error()` in `ftrack_utils.aws.deadline` detects `NoCredentialsError`, `PartialCredentialsError`, `CredentialRetrievalError`, and auth-related `ClientError` codes. Workers emit `credential_error` signal → dialog shows `DeadlineLoginDialog.login()` (SDK's blocking login) → on success resets wrapper and reloads farms. |
+
+### Test counts
+
+- 9 `is_credential_error` tests in `libs/utils/tests/test_aws.py`
+- Existing headless + shared tests unchanged (12 + 33 = 45)
+
+---
+
+## Milestone 6: Download, Auto-Login, Persistence, Error Handling [DONE]
+
+**Goal:** S3 CAS download via manifest matching, auto-login on credential errors, farm/queue persistence, network error handling.
+
+### What was built
+
+| Component | Details |
+|-----------|---------|
+| **S3 CAS download** | `S3SyncManager.find_manifest_for_scene(scene_hash)` — HEADs manifests in S3 to find the one tagged with the scene's XXH128 hash. `prepare_download(file_paths, scene_hash, scene_path)` — derives asset root by matching scene's absolute path against its relative manifest entry, checks all manifest files against local filesystem. `download_files(plan)` — builds synthetic manifests, calls SDK's `download_files_from_manifests()`. |
+| **Scene-hash metadata** | `upload_files(scene_hash=)` stores `scene-hash` as S3 object metadata on the manifest via `copy_object` after upload. Enables deterministic manifest matching by content hash. |
+| **Auto-login** | `is_credential_error()` and `is_network_error()` in `ftrack_utils.aws.deadline`. Workers emit `credential_error` signal → dialog shows `DeadlineLoginDialog.login()` (SDK's blocking login) → on success resets wrapper and reloads farms. Detects `NoCredentialsError`, `PartialCredentialsError`, `CredentialRetrievalError`, auth-related `ClientError` codes, `EndpointConnectionError`, `ConnectTimeoutError`. |
+| **optionVar persistence** | `ftrack_deadline_farm_id` / `ftrack_deadline_queue_id` saved on selection change, restored before SDK defaults on load. Uses `cmds.optionVar(exists=)` to avoid `0` for unset vars. |
+| **Headless tracing** | All `.ma` scenes use `TraceController.trace()` (headless `MayaFileTracer`) regardless of entry point. Finds ALL references including unresolved ones Maya skipped. |
+| **Path handling** | `TraceController` preserves paths on `FileNotFoundError` (not silently dropped). Wrapper resolves `../` before passing to SDK. `prepare_sync` reconstructs absolute paths from asset root + relative manifest paths. |
+| **Download UI** | `SyncDownloadWorker` with progress + cancellation. `SyncStatusWidget` shows "Needs Download" group. Direction="download" and "both" wired in dialog. Full absolute paths displayed. |
+| **Models** | `DownloadResult` dataclass. `SyncPlan.needs_download` and `download_size_bytes` fields. `to_display_dict()` includes download data. |
+
+### Test counts
+
+- 6 sync flow tests (`TestSyncFlow` in `test_deadline_wrapper.py`) — trace + upload/download separation, path resolution, deleted ref preservation
+- 4 network error tests + 9 credential error tests in `test_aws.py`
+- Existing tests updated for `scene_hash` parameter
+
+### TODO (open / deferred)
+
+1. **Automated upload/download integration tests** (next milestone) — Write `@pytest.mark.deadline_cloud` tests that exercise the full sync round-trip against real S3. Each test run generates randomized file contents (random bytes for textures/abc/audio, random node names in `.ma` fixtures) so every upload produces unique hashes and actually hits S3. Scene hash changes too, producing a fresh manifest each run. Requires an S3 lifecycle rule on the test bucket (`DeadlineCloud/` prefix, 7-day expiration) to auto-clean accumulated test data. Tests should cover: upload all deps → verify manifest has scene-hash metadata → delete local deps → compare (should show "Needs Download") → download → verify files restored with correct content. Ask AWS account admin to add the lifecycle rule on `ftracktest-bucket-3452567690`.
+
+2. **End-to-end pre-open test in Maya** — The full `kBeforeOpenCheck` → headless trace → compare → download → Continue → Maya opens flow hasn't been tested as a complete automated workflow. Requires manual testing with Maya + AWS credentials.
+
+3. **"Both" direction UX** — Upload then download works sequentially, but there's no combined progress display (upload finishes, then download starts separately).
+
+4. **Cross-machine download** — Asset root derivation assumes the scene file's relative position is the same on both machines. Different directory layouts (e.g., `/projects/show/` vs `/mnt/shared/show/`) would require path remapping — not yet addressed.
+
+5. **dcc-test-harness `requires-python`** — Changed to `>=3.11` in the separate `dcc-test-harness` repo (`/Users/dennis.weil/code/ftrackhq/dcc-test-harness/pyproject.toml`). Needs to be committed there.
 
 ---
 
@@ -231,7 +279,9 @@ M1: Scaffold + Hook [DONE]
            |
            M5: Sync / S3 Upload [DONE]
            |
-           M6: Open + Download + Polish (requires M5)
+           M5-post: Build + Callback + Auth fixes [DONE]
+           |
+           M6: Download + Auto-Login + Polish [DONE]
 ```
 
 ---
@@ -253,8 +303,8 @@ Test markers:
 - `@pytest.mark.deadline_cloud` — requires AWS credentials (M4-M6)
 - All M1-M2 tests run without external services
 
-Current test count: 142+ (3 smoke + 10 callbacks + 15 shared asset_tracer + 24 shared aws + 16 headless parser + 9 live tracer + 22 fixture validation + 12 deadline wrapper mocked + 4 deadline wrapper integration + 19 sync dialog + 7 new upload dialog).
-Headless tests (67) run with plain pytest. Live tests (63+) run via dcc-test-harness. Integration tests (4) require `@pytest.mark.deadline_cloud`.
+Current test count: 165+ (3 smoke + 10 callbacks + 15 shared asset_tracer + 37 shared aws (incl. 9 credential + 4 network) + 16 headless parser + 9 live tracer + 22 fixture validation + 18 deadline wrapper mocked (incl. 6 sync flow) + 4 deadline wrapper integration + 19 sync dialog + 7 upload dialog + 16 versioned sync tests).
+Headless tests (102) run with plain pytest. Live tests (63+) run via dcc-test-harness. Integration tests (4) require `@pytest.mark.deadline_cloud`.
 
 ---
 

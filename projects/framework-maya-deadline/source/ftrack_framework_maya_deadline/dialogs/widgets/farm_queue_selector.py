@@ -9,10 +9,15 @@ pre-selects defaults from ``~/.deadline/config``.
 
 import logging
 
+import maya.cmds as cmds
+
 from ...utils import QtWidgets, QtCore
 from .workers import FarmLoadWorker, QueueLoadWorker, start_worker
 
 logger = logging.getLogger(__name__)
+
+FARM_OPTVAR = "ftrack_deadline_farm_id"
+QUEUE_OPTVAR = "ftrack_deadline_queue_id"
 
 
 class FarmQueueSelector(QtWidgets.QWidget):
@@ -28,6 +33,7 @@ class FarmQueueSelector(QtWidgets.QWidget):
 
     queue_selected = QtCore.Signal(str, str)
     error_occurred = QtCore.Signal(str)
+    credential_error = QtCore.Signal(str)
 
     def __init__(self, deadline_wrapper, parent=None):
         super().__init__(parent)
@@ -113,9 +119,14 @@ class FarmQueueSelector(QtWidgets.QWidget):
         worker = FarmLoadWorker(self._wrapper)
         worker.farms_loaded.connect(self._on_farms_loaded)
         worker.error.connect(self._on_error)
+        worker.credential_error.connect(self.credential_error)
         self._active_thread, self._active_worker = start_worker(
             worker, parent=self
         )
+
+    def set_wrapper(self, wrapper):
+        """Replace the wrapper (e.g. after re-login)."""
+        self._wrapper = wrapper
 
     def set_enabled(self, enabled):
         """Enable or disable all controls."""
@@ -136,7 +147,11 @@ class FarmQueueSelector(QtWidgets.QWidget):
             self._farm_combo.blockSignals(False)
             return
 
-        default_farm = (self._defaults or {}).get("farm_id")
+        # Prefer optionVar (last user selection), fall back to SDK defaults
+        saved_farm = None
+        if cmds.optionVar(exists=FARM_OPTVAR):
+            saved_farm = cmds.optionVar(q=FARM_OPTVAR)
+        default_farm = saved_farm or (self._defaults or {}).get("farm_id")
         select_idx = 0
 
         for i, farm in enumerate(farms):
@@ -154,6 +169,7 @@ class FarmQueueSelector(QtWidgets.QWidget):
         farm_id = self.current_farm_id
         if not farm_id:
             return
+        cmds.optionVar(sv=(FARM_OPTVAR, farm_id))
         self._load_queues(farm_id)
 
     def _reload_queues(self):
@@ -169,6 +185,7 @@ class FarmQueueSelector(QtWidgets.QWidget):
         worker = QueueLoadWorker(self._wrapper, farm_id)
         worker.queues_loaded.connect(self._on_queues_loaded)
         worker.error.connect(self._on_error)
+        worker.credential_error.connect(self.credential_error)
         self._active_thread, self._active_worker = start_worker(
             worker, parent=self
         )
@@ -183,7 +200,10 @@ class FarmQueueSelector(QtWidgets.QWidget):
             self._queue_combo.blockSignals(False)
             return
 
-        default_queue = (self._defaults or {}).get("queue_id")
+        saved_queue = None
+        if cmds.optionVar(exists=QUEUE_OPTVAR):
+            saved_queue = cmds.optionVar(q=QUEUE_OPTVAR)
+        default_queue = saved_queue or (self._defaults or {}).get("queue_id")
         select_idx = 0
 
         for i, q in enumerate(queues):
@@ -201,6 +221,7 @@ class FarmQueueSelector(QtWidgets.QWidget):
         farm_id = self.current_farm_id
         queue_id = self.current_queue_id
         if farm_id and queue_id:
+            cmds.optionVar(sv=(QUEUE_OPTVAR, queue_id))
             self.queue_selected.emit(farm_id, queue_id)
 
     def _on_error(self, message):

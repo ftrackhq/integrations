@@ -17,8 +17,9 @@ Connect's `_get_integrations_environments` only processes env vars from hooks wh
 
 ### Callback design
 
-- **Save**: `SceneSaved` scriptJob (post-save, non-blocking `show()` dialog, direction defaults to "Upload")
-- **Open**: `MSceneMessage.kBeforeOpenCheck` via OpenMaya API (pre-open, modal `exec()` dialog, direction defaults to "Download"). Fires before Maya reads the scene file, allowing asset sync to complete before references are resolved. Returns True to proceed or False to cancel the open.
+- **Save**: `SceneSaved` scriptJob (post-save, non-blocking `show()` dialog, direction defaults to "Upload"). Uses `MayaSceneTracer` (live `maya.cmds` queries) to trace the current scene.
+- **Open**: `MSceneMessage.kBeforeOpenCheck` via `maya.api.OpenMaya` (pre-open, modal `exec()` dialog, direction defaults to "Download"). Fires before Maya reads the scene file, allowing asset sync to complete before references are resolved. Returns True to proceed or False to cancel the open. Uses `TraceController.trace()` (headless `MayaFileTracer`) since the scene isn't loaded yet.
+- **Maya API 2.0 note**: Check callbacks use return values (not a `retCode` parameter). The callback signature is `(fileObject, clientData=None)`, not `(retCode, fileObject, clientData)`. Pass explicit `clientData=None` to `addCheckFileCallback` to ensure Maya passes all arguments.
 - Both callbacks open the same unified `DeadlineSyncDialog` — save in non-blocking mode, open in modal mode.
 - Both are **opt-in** via toggle menu items. State persisted in Maya `optionVar`.
 
@@ -58,19 +59,19 @@ The sync dialog connects to AWS Deadline Cloud to check which scene files are al
 
 **Shared library: `ftrack_utils.aws`** (in `libs/utils/`): DCC-agnostic AWS/Deadline Cloud utilities, reusable by any DCC extension (Nuke, Houdini, etc.).
 
-- `S3SyncManager` — two-phase sync: `prepare_sync()` hashes files and checks S3, returns `SyncPlan` that retains manifests. `upload_files()` uploads from that plan without re-hashing.
-- `SyncPlan` / `SyncFileEntry` / `UploadResult` / `ProgressInfo` — dataclass models. `SyncPlan.to_display_dict()` returns the M4-compatible format for `SyncStatusWidget`.
-- `deadline.py` — stateless functions: `get_configured_defaults()`, `list_farms()`, `list_queues()`, `get_queue_settings()`, `get_queue_session()`, `get_deadline_boto3_session()`.
+- `S3SyncManager` — bidirectional sync: `prepare_sync()` hashes files and checks S3 (upload check), `upload_files(scene_hash=)` uploads and tags the manifest with scene-hash metadata, `find_manifest_for_scene(scene_hash)` HEADs manifests to find the one matching the scene, `prepare_download(file_paths, scene_hash, scene_path)` derives the asset root and checks all manifest files against local filesystem, `download_files(plan)` downloads via SDK's `download_files_from_manifests()`.
+- `SyncPlan` / `SyncFileEntry` / `UploadResult` / `DownloadResult` / `ProgressInfo` — dataclass models. `SyncPlan` has `needs_upload`, `already_synced`, `needs_download` fields.
+- `deadline.py` — stateless functions: `get_configured_defaults()`, `list_farms()`, `list_queues()`, `get_queue_settings()`, `get_queue_session()`, `get_deadline_boto3_session()`, `is_credential_error()`, `is_network_error()`.
 - Optional dependency: `pip install ftrack-utils[aws]` pulls in `deadline` and `boto3`.
 
-**Authentication**: Relies on Deadline Cloud Monitor being configured. `get_boto3_session()` from the deadline SDK reads `~/.deadline/config`. Verified against `ftrack-test farm` / `ftrack-test-queue` on `ftracktest-bucket-3452567690`.
+**Authentication**: Relies on Deadline Cloud Monitor being configured. `get_boto3_session()` from the deadline SDK reads `~/.deadline/config`. Verified against `ftrack-test farm` / `ftrack-test-queue` on `ftracktest-bucket-3452567690`. On credential errors (expired, missing, invalid), workers emit a `credential_error` signal which triggers `DeadlineLoginDialog.login()` — the SDK's built-in blocking login dialog. On success the wrapper is reset and farms reload automatically. Detection uses `is_credential_error()` from `ftrack_utils.aws.deadline` which checks for `NoCredentialsError`, `PartialCredentialsError`, `CredentialRetrievalError`, and auth-related `ClientError` codes.
 
 **Key classes:**
-- `DeadlineSyncDialog` (`dialogs/sync_dialog.py`) — unified dialog for all entry points. Constructor params: `scene_path` (explicit path for pre-open), `modal` (True for pre-open Continue/Cancel), `direction` ("upload"/"download"/"both"). Two-step flow: Compare (trace + hash + S3 check) then Sync (upload). Progress bar + cancel button during upload.
-- `DeadlineWrapper` (`wrappers/deadline.py`) — thin facade over `ftrack_utils.aws`. Lazy boto3 session, delegates config/discovery/sync to shared library. Caches `SyncPlan` from Compare for the Upload step.
-- `FarmQueueSelector` (`dialogs/widgets/farm_queue_selector.py`) — cascading QComboBox dropdowns, async loading via QThread workers, pre-selects from deadline config defaults
-- `SyncStatusWidget` (`dialogs/widgets/sync_status_widget.py`) — summary + QTreeWidget grouped by "Needs Upload" / "Already Synced". `set_upload_complete()` shows upload stats.
-- Workers (`dialogs/widgets/workers.py`) — `FarmLoadWorker`, `QueueLoadWorker`, `SyncCheckWorker`, `SyncUploadWorker` (QObject + moveToThread pattern). `SyncUploadWorker` bridges SDK's `ProgressReportMetadata` to Qt signals and supports cancellation.
+- `DeadlineSyncDialog` (`dialogs/sync_dialog.py`) — unified dialog for all entry points. Constructor params: `scene_path` (explicit path for pre-open), `modal` (True for pre-open Continue/Cancel), `direction` ("upload"/"download"/"both"). Two-step flow: Compare (trace + hash scene + S3 check + manifest lookup) then Sync (upload and/or download). Computes scene hash (XXH128) and passes through to workers. Shows `DeadlineLoginDialog` on credential errors.
+- `DeadlineWrapper` (`wrappers/deadline.py`) — thin facade over `ftrack_utils.aws`. Lazy boto3 session, delegates config/discovery/sync to shared library. Caches `SyncPlan` from Compare for Upload/Download. Resolves `../` paths before passing to SDK. Passes `scene_hash` and `scene_path` to download flow.
+- `FarmQueueSelector` (`dialogs/widgets/farm_queue_selector.py`) — cascading QComboBox dropdowns, async loading via QThread workers. Pre-selects from `optionVar` (`ftrack_deadline_farm_id` / `ftrack_deadline_queue_id`), falls back to SDK defaults. Saves selection to `optionVar` on change. Emits `credential_error` signal.
+- `SyncStatusWidget` (`dialogs/widgets/sync_status_widget.py`) — summary + QTreeWidget grouped by "Needs Upload" / "Needs Download" / "Already Synced". Full absolute paths displayed.
+- Workers (`dialogs/widgets/workers.py`) — `FarmLoadWorker`, `QueueLoadWorker`, `SyncCheckWorker`, `SyncUploadWorker`, `SyncDownloadWorker` (QObject + moveToThread pattern). All workers emit `credential_error` signal for auth failures, friendly messages for network errors. Upload/download workers bridge SDK progress callbacks to Qt signals with cancellation.
 
 **Threading model**: `MayaSceneTracer.trace()` runs on the main thread (requires `maya.cmds`). All AWS calls (farm/queue listing, file hashing, S3 checks, uploads) run off the main thread via QThread workers.
 

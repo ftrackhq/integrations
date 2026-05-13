@@ -49,6 +49,18 @@ class UploadResult:
 
 
 @dataclass
+class DownloadResult:
+    """Summary of a completed download."""
+
+    downloaded_files: int
+    downloaded_bytes: int
+    skipped_files: int
+    skipped_bytes: int
+    total_time: float  # seconds
+    transfer_rate: float  # bytes/sec
+
+
+@dataclass
 class SyncPlan:
     """Result of :meth:`S3SyncManager.prepare_sync`.
 
@@ -60,9 +72,11 @@ class SyncPlan:
 
     needs_upload: list[SyncFileEntry]
     already_synced: list[SyncFileEntry]
-    total_files: int
-    total_size_bytes: int
-    upload_size_bytes: int
+    needs_download: list[SyncFileEntry] = field(default_factory=list)
+    total_files: int = 0
+    total_size_bytes: int = 0
+    upload_size_bytes: int = 0
+    download_size_bytes: int = 0
 
     # Internal — retained for upload_files() to avoid re-hashing.
     _manifests: list = field(default_factory=list, repr=False)
@@ -85,7 +99,12 @@ class SyncPlan:
                 {"path": f.path, "size": f.size, "hash": f.hash}
                 for f in self.already_synced
             ],
+            "needs_download": [
+                {"path": f.path, "size": f.size, "hash": f.hash}
+                for f in self.needs_download
+            ],
             "total_files": self.total_files,
             "total_size_bytes": self.total_size_bytes,
             "upload_size_bytes": self.upload_size_bytes,
+            "download_size_bytes": self.download_size_bytes,
         }

@@ -546,3 +546,101 @@ class TestDeadlineFunctions:
         mock_session = MagicMock()
         _deadline_mod.get_boto3_session = MagicMock(return_value=mock_session)
         assert _deadline_mod.get_deadline_boto3_session() is mock_session
+
+
+# ===================================================================
+# is_credential_error tests
+# ===================================================================
+
+
+class TestIsCredentialError:
+    """Tests for is_credential_error()."""
+
+    def test_no_credentials_error(self):
+        from botocore.exceptions import NoCredentialsError
+
+        assert _deadline_mod.is_credential_error(NoCredentialsError())
+
+    def test_partial_credentials_error(self):
+        from botocore.exceptions import PartialCredentialsError
+
+        exc = PartialCredentialsError(provider="test", cred_var="key")
+        assert _deadline_mod.is_credential_error(exc)
+
+    def test_expired_token(self):
+        from botocore.exceptions import ClientError
+
+        exc = ClientError(
+            {"Error": {"Code": "ExpiredTokenException", "Message": ""}},
+            "ListFarms",
+        )
+        assert _deadline_mod.is_credential_error(exc)
+
+    def test_access_denied(self):
+        from botocore.exceptions import ClientError
+
+        exc = ClientError(
+            {"Error": {"Code": "AccessDeniedException", "Message": ""}},
+            "ListFarms",
+        )
+        assert _deadline_mod.is_credential_error(exc)
+
+    def test_unrecognized_client(self):
+        from botocore.exceptions import ClientError
+
+        exc = ClientError(
+            {"Error": {"Code": "UnrecognizedClientException", "Message": ""}},
+            "ListFarms",
+        )
+        assert _deadline_mod.is_credential_error(exc)
+
+    def test_credential_retrieval_error(self):
+        from botocore.exceptions import CredentialRetrievalError
+
+        exc = CredentialRetrievalError(
+            provider="custom-process", error_msg="credentials are expired"
+        )
+        assert _deadline_mod.is_credential_error(exc)
+
+    def test_non_auth_client_error(self):
+        from botocore.exceptions import ClientError
+
+        exc = ClientError(
+            {"Error": {"Code": "ThrottlingException", "Message": ""}},
+            "ListFarms",
+        )
+        assert not _deadline_mod.is_credential_error(exc)
+
+    def test_generic_exception(self):
+        assert not _deadline_mod.is_credential_error(RuntimeError("oops"))
+
+    def test_value_error(self):
+        assert not _deadline_mod.is_credential_error(ValueError("bad"))
+
+
+class TestIsNetworkError:
+    """Tests for is_network_error()."""
+
+    def test_endpoint_connection_error(self):
+        from botocore.exceptions import EndpointConnectionError
+
+        exc = EndpointConnectionError(
+            endpoint_url="https://deadline.us-east-1.amazonaws.com"
+        )
+        assert _deadline_mod.is_network_error(exc)
+
+    def test_connect_timeout_error(self):
+        from botocore.exceptions import ConnectTimeoutError
+
+        exc = ConnectTimeoutError(
+            endpoint_url="https://deadline.us-east-1.amazonaws.com"
+        )
+        assert _deadline_mod.is_network_error(exc)
+
+    def test_generic_exception(self):
+        assert not _deadline_mod.is_network_error(RuntimeError("oops"))
+
+    def test_credential_error_is_not_network(self):
+        from botocore.exceptions import NoCredentialsError
+
+        assert not _deadline_mod.is_network_error(NoCredentialsError())
