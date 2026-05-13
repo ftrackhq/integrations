@@ -136,3 +136,29 @@ def deadline_s3_settings(deadline_wrapper, deadline_farm, deadline_queue):
             f"configured in jobAttachmentSettings."
         )
     return queue, s3_settings
+
+
+@pytest.fixture(scope="session")
+def deadline_queue_session(deadline_wrapper, deadline_farm, deadline_queue):
+    """Queue-scoped boto3 session for S3 access."""
+    return deadline_wrapper.get_queue_session(
+        deadline_farm["farmId"],
+        deadline_queue["queueId"],
+        deadline_queue.get("displayName"),
+    )
+
+
+@pytest.fixture(scope="session")
+def s3_sync_manager(
+    deadline_farm, deadline_queue, deadline_s3_settings, deadline_queue_session
+):
+    """Real :class:`S3SyncManager` bound to the test farm/queue."""
+    from ftrack_utils.aws import S3SyncManager
+
+    _, s3_settings = deadline_s3_settings
+    return S3SyncManager(
+        deadline_farm["farmId"],
+        deadline_queue["queueId"],
+        s3_settings,
+        deadline_queue_session,
+    )

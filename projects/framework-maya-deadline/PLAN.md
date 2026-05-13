@@ -254,7 +254,7 @@ Fixes applied after M5 integration testing.
 
 ### TODO (open / deferred)
 
-1. **Automated upload/download integration tests** (next milestone) — Write `@pytest.mark.deadline_cloud` tests that exercise the full sync round-trip against real S3. Each test run generates randomized file contents (random bytes for textures/abc/audio, random node names in `.ma` fixtures) so every upload produces unique hashes and actually hits S3. Scene hash changes too, producing a fresh manifest each run. Requires an S3 lifecycle rule on the test bucket (`DeadlineCloud/` prefix, 7-day expiration) to auto-clean accumulated test data. Tests should cover: upload all deps → verify manifest has scene-hash metadata → delete local deps → compare (should show "Needs Download") → download → verify files restored with correct content. Ask AWS account admin to add the lifecycle rule on `ftracktest-bucket-3452567690`.
+1. ~~**Automated upload/download integration tests**~~ — **DONE** (see M7 below).
 
 2. **End-to-end pre-open test in Maya** — The full `kBeforeOpenCheck` → headless trace → compare → download → Continue → Maya opens flow hasn't been tested as a complete automated workflow. Requires manual testing with Maya + AWS credentials.
 
@@ -263,6 +263,37 @@ Fixes applied after M5 integration testing.
 4. **Cross-machine download** — Asset root derivation assumes the scene file's relative position is the same on both machines. Different directory layouts (e.g., `/projects/show/` vs `/mnt/shared/show/`) would require path remapping — not yet addressed.
 
 5. **dcc-test-harness `requires-python`** — Changed to `>=3.11` in the separate `dcc-test-harness` repo (`/Users/dennis.weil/code/ftrackhq/dcc-test-harness/pyproject.toml`). Needs to be committed there.
+
+---
+
+## Milestone 7: Automated S3 Round-Trip Integration Tests [DONE]
+
+**Goal:** Exercise the full upload/download lifecycle against real S3 with randomised fixtures.
+
+### What was built
+
+| Component | Details |
+|-----------|---------|
+| **`test_s3_roundtrip.py`** | 6 `@pytest.mark.deadline_cloud` tests exercising `S3SyncManager` directly against real S3. Each test gets its own randomised fixture tree (via function-scoped `randomized_scene` fixture) ensuring unique CAS hashes per run. |
+| **Fixture randomisation** | `_randomize_tree()` copies `fixtures/versioned/` to `tmp_path`, appends `// test-nonce: <uuid>` to `.ma` files and 32 random bytes to binary files. Original fixtures never modified. |
+| **conftest fixtures** | `deadline_queue_session` (session) and `s3_sync_manager` (session) provide a pre-validated `S3SyncManager` bound to the test farm/queue. |
+
+### Test cases
+
+| Test | What it verifies |
+|------|-----------------|
+| `test_upload_all_deps` | Trace → prepare_sync → all need upload → upload succeeds |
+| `test_manifest_has_scene_hash` | Upload → find_manifest_for_scene returns non-None manifest |
+| `test_reupload_is_noop` | Second prepare_sync → all in already_synced, upload_size_bytes == 0 |
+| `test_download_plan_detects_missing` | Upload → delete deps → prepare_download → deleted files in needs_download |
+| `test_download_restores_files` | Upload → delete → download → files restored with correct hashes |
+| `test_full_roundtrip` | Golden path: trace → upload → find manifest → delete → download → verify content |
+
+### Test counts
+
+- 6 new S3 round-trip tests in `test_s3_roundtrip.py`
+- Existing integration tests unchanged (3 in `test_deadline_wrapper.py`)
+- Total `@pytest.mark.deadline_cloud` tests: 9
 
 ---
 
@@ -282,6 +313,8 @@ M1: Scaffold + Hook [DONE]
            M5-post: Build + Callback + Auth fixes [DONE]
            |
            M6: Download + Auto-Login + Polish [DONE]
+           |
+           M7: S3 Round-Trip Integration Tests [DONE]
 ```
 
 ---
@@ -303,8 +336,8 @@ Test markers:
 - `@pytest.mark.deadline_cloud` — requires AWS credentials (M4-M6)
 - All M1-M2 tests run without external services
 
-Current test count: 165+ (3 smoke + 10 callbacks + 15 shared asset_tracer + 37 shared aws (incl. 9 credential + 4 network) + 16 headless parser + 9 live tracer + 22 fixture validation + 18 deadline wrapper mocked (incl. 6 sync flow) + 4 deadline wrapper integration + 19 sync dialog + 7 upload dialog + 16 versioned sync tests).
-Headless tests (102) run with plain pytest. Live tests (63+) run via dcc-test-harness. Integration tests (4) require `@pytest.mark.deadline_cloud`.
+Current test count: 171+ (3 smoke + 10 callbacks + 15 shared asset_tracer + 37 shared aws (incl. 9 credential + 4 network) + 16 headless parser + 9 live tracer + 22 fixture validation + 18 deadline wrapper mocked (incl. 6 sync flow) + 4 deadline wrapper integration + 6 S3 round-trip integration + 19 sync dialog + 7 upload dialog + 16 versioned sync tests).
+Headless tests (102) run with plain pytest. Live tests (63+) run via dcc-test-harness. Integration tests (10) require `@pytest.mark.deadline_cloud`.
 
 ---
 
