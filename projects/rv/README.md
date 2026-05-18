@@ -69,19 +69,31 @@ Use this method to launch RV directly from ftrack Connect with automatic session
 1. **Install ftrack Connect**
    - Download and install [ftrack Connect](https://www.ftrack.com/en/portfolio/connect) for your platform
 
-2. **Download the integration package**
-   - Obtain the latest RV Connect plugin package from your ftrack administrator or from the [ftrack Integrations releases](https://github.com/ftrackhq/integrations/releases)
-   - The package is a `.zip` file containing both the Connect plugin and the bundled RV package (`.rvpkg`)
+2. **Install the RV integration plugin**
 
-3. **Install the plugin in Connect**
-   - Extract the downloaded `.zip` file
+   **Method A: Using Connect Plugin Manager (Recommended)**
+   
+   - Launch ftrack Connect and log in
+   - Open the **Plugin Manager** widget in Connect
+   - Search for "RV" in the available plugins
+   - Click **Install** on the RV integration plugin
+   - The plugin will be downloaded and installed automatically
+   - Restart ftrack Connect
+   
+   **Method B: Manual Installation from GitHub**
+   
+   If the plugin is not available in the Plugin Manager, or you need a specific version:
+   
+   - Download the latest RV Connect plugin package from the [ftrack Integrations releases](https://github.com/ftrackhq/integrations/releases)
+   - The package is a `.zip` file containing both the Connect plugin and the bundled RV package (`.rvpkg`)
+   - Extract the downloaded `.zip` file to a location on your system
    - Launch ftrack Connect
-   - Go to **Settings → Plugins**
-   - Click **Add Plugin** and select the extracted plugin folder
+   - Go to the plugins configuration (via Connect's plugin settings or the plugins directory)
+   - Add the extracted plugin folder to your Connect plugins directory
    - The RV package (`.rvpkg`) is already bundled within the Connect plugin and will be deployed automatically
    - Restart ftrack Connect
 
-4. **Linux-specific requirement**
+3. **Linux-specific requirement**
    - On Linux systems, set the `RV_INSTALLATION_PATH` environment variable to point to your RV installation root directory:
    
    ```bash
