@@ -25,14 +25,14 @@ class NukeSetupFrameRangeStartupPlugin(BasePlugin):
                 )
                 fps = task['parent']['custom_attributes'].get('fps', 24)
                 # Set start frame
-                nuke.root()['first_frame'].setValue(int(st_frame))
+                nuke.root()['first_frame'].setValue(float(st_frame))
                 # Set end frame
-                nuke.root()['last_frame'].setValue(int(end_frame))
+                nuke.root()['last_frame'].setValue(float(end_frame))
                 # Set frames per second (fps)
                 nuke.root()['fps'].setValue(int(fps))
             except Exception as error:
                 raise PluginExecutionError(
-                    f"Error trying to setup frame range on maya, error: {error}"
+                    f"Error trying to setup frame range on nuke, error: {error}"
                 )
         else:
             self.logger.warning("Couldn't find a task to pick up frame range")
