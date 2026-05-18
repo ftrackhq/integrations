@@ -277,6 +277,12 @@ def build_package(invokation_path, pkg_path, args, command=None):
                 "App launcher config path not found: {}".format(launcher_path)
             )
 
+        # Config folder (example configuration files)
+        config_path = os.path.join(ROOT_PATH, "config")
+        if os.path.isdir(config_path):
+            logging.info("Copying config folder")
+            shutil.copytree(config_path, os.path.join(STAGING_PATH, "config"))
+
         # Resources
 
         if args.include_resources:

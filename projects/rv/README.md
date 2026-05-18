@@ -25,11 +25,12 @@ Use this method when you want to use RV with ftrack integration without installi
 
 1. **Download the integration package**
    - Obtain the latest RV Connect plugin package from your ftrack administrator or from the [ftrack Integrations releases](https://github.com/ftrackhq/integrations/releases)
-   - The package is a `.zip` file containing both the Connect plugin and the RV package (`.rvpkg`)
+   - The package is a `.zip` file containing the Connect plugin, RV package (`.rvpkg`), and example configuration files
 
-2. **Extract the RV package**
+2. **Extract the package**
    - Unzip the downloaded package
    - Locate the `ftrack-<version>.rvpkg` file inside the extracted folder
+   - The `config/` folder contains example configuration files (see below)
 
 3. **Install the package in RV**
    - Launch RV
@@ -38,8 +39,9 @@ Use this method when you want to use RV with ftrack integration without installi
    - Click **Add Package** and select the `ftrack-<version>.rvpkg` file from the extracted folder
    - Restart RV
 
-3. **Configure ftrack credentials**
-   - Set the following environment variables before launching RV:
+4. **Configure ftrack credentials**
+   
+   Set the following environment variables before launching RV:
      - `FTRACK_SERVER`: Your ftrack server URL (e.g., `https://yourcompany.ftrackapp.com`)
      - `FTRACK_API_USER`: Your ftrack username or API user
      - `FTRACK_API_KEY`: Your ftrack API key
@@ -51,14 +53,111 @@ Use this method when you want to use RV with ftrack integration without installi
    set FTRACK_API_KEY=your_api_key
    "C:\Program Files\Autodesk\RV-2024.1.0\bin\rv.exe"
    ```
+   
+   **Windows (System-wide - PowerShell as Administrator):**
+   
+   To set environment variables permanently so RV can always access them:
+   ```powershell
+   [System.Environment]::SetEnvironmentVariable('FTRACK_SERVER', 'https://yourcompany.ftrackapp.com', 'User')
+   [System.Environment]::SetEnvironmentVariable('FTRACK_API_USER', 'your_username', 'User')
+   [System.Environment]::SetEnvironmentVariable('FTRACK_API_KEY', 'your_api_key', 'User')
+   ```
+   
+   After setting, restart RV or log out and log back in for changes to take effect.
 
-   **macOS/Linux (Terminal):**
+   **macOS (Terminal session only):**
    ```bash
    export FTRACK_SERVER=https://yourcompany.ftrackapp.com
    export FTRACK_API_USER=your_username
    export FTRACK_API_KEY=your_api_key
    /Applications/RV.app/Contents/MacOS/RV
    ```
+   
+   **macOS (System-wide for GUI applications):**
+   
+   On macOS, applications launched from Finder or Dock don't inherit shell environment variables. To make ftrack credentials available system-wide:
+   
+   1. **Copy the example LaunchAgent configuration file:**
+      ```bash
+      mkdir -p ~/Library/LaunchAgents
+      cp <path-to-extracted-package>/config/macos/com.ftrack.rv.plist ~/Library/LaunchAgents/com.ftrack.rv.plist
+      ```
+      
+      > **Note**: An example `com.ftrack.rv.plist` file is included in the `config/macos/` directory of the downloaded package. See the included `config/README.md` for detailed instructions.
+   
+   2. **Edit the file with your actual credentials:**
+      ```bash
+      nano ~/Library/LaunchAgents/com.ftrack.rv.plist
+      ```
+      
+      Replace the following placeholder values:
+      - `https://yourcompany.ftrackapp.com` → Your ftrack server URL
+      - `your_username` → Your ftrack username or API user
+      - `your_api_key` → Your ftrack API key
+   
+   3. **Set proper file permissions (security):**
+      ```bash
+      chmod 600 ~/Library/LaunchAgents/com.ftrack.rv.plist
+      ```
+   
+   4. **Load the configuration:**
+      ```bash
+      launchctl load ~/Library/LaunchAgents/com.ftrack.rv.plist
+      ```
+   
+   5. **Verify it's loaded:**
+      ```bash
+      launchctl list | grep ftrack
+      ```
+   
+   6. **Log out and log back in** or restart any running applications
+   
+   Now RV launched from Finder, Dock, or any other method will have access to the ftrack credentials.
+   
+   To update credentials later:
+   ```bash
+   # Unload the existing configuration
+   launchctl unload ~/Library/LaunchAgents/com.ftrack.rv.plist
+   
+   # Edit the file
+   nano ~/Library/LaunchAgents/com.ftrack.rv.plist
+   
+   # Reload the configuration
+   launchctl load ~/Library/LaunchAgents/com.ftrack.rv.plist
+   ```
+
+   **Linux (Terminal session only):**
+   ```bash
+   export FTRACK_SERVER=https://yourcompany.ftrackapp.com
+   export FTRACK_API_USER=your_username
+   export FTRACK_API_KEY=your_api_key
+   /usr/local/rv/bin/rv
+   ```
+   
+   **Linux (System-wide):**
+   
+   Add to your shell profile (`~/.bashrc`, `~/.zshrc`, or `~/.profile`):
+   ```bash
+   export FTRACK_SERVER=https://yourcompany.ftrackapp.com
+   export FTRACK_API_USER=your_username
+   export FTRACK_API_KEY=your_api_key
+   ```
+   
+   Then reload your profile:
+   ```bash
+   source ~/.bashrc  # or ~/.zshrc, ~/.profile
+   ```
+
+5. **Configure RV protocol handler (Optional)**
+   
+   To enable launching RV from your web browser:
+   
+   - Launch RV
+   - Navigate to **RV → Preferences** (or **Edit → Preferences** on Windows/Linux)
+   - Go to the **Networking** tab
+   - Enable **"Register RV URL protocol"** or **"Enable rvlink protocol handler"**
+   - Follow any system prompts to register the protocol handler
+   - This allows launching RV directly from ftrack's web interface via `rvlink://` URLs
 
 #### Option 2: Connect Mode (with ftrack Connect)
 
@@ -93,7 +192,22 @@ Use this method to launch RV directly from ftrack Connect with automatic session
    - The RV package (`.rvpkg`) is already bundled within the Connect plugin and will be deployed automatically
    - Restart ftrack Connect
 
-3. **Linux-specific requirement**
+3. **Configure RV protocol handler (Optional - for web browser launch)**
+   
+   To launch RV directly from your web browser via the `rvlink://` protocol:
+   
+   - Launch RV
+   - Navigate to **RV → Preferences** (or **Edit → Preferences** on Windows/Linux)
+   - Go to the **Networking** tab
+   - Enable **"Register RV URL protocol"** or **"Enable rvlink protocol handler"**
+   - Follow any system prompts to register the protocol handler
+   - This allows launching RV from ftrack's web interface using review links
+   
+   For detailed protocol handler setup, refer to the [Autodesk RV protocol documentation](https://help.autodesk.com/view/SGSUB/ENU/)
+   
+   > **Note**: When using the protocol handler in standalone mode (without Connect), you'll need to configure ftrack credentials via environment variables as described in the standalone installation section.
+
+4. **Linux-specific requirement**
    - On Linux systems, set the `RV_INSTALLATION_PATH` environment variable to point to your RV installation root directory:
    
    ```bash
@@ -225,6 +339,10 @@ projects/rv/
 │   └── hook/
 │       ├── discover_ftrack_rv.py
 │       └── ftrack_rv_launcher.py
+├── config/                    # Example configuration files
+│   ├── macos/
+│   │   └── com.ftrack.rv.plist  # macOS LaunchAgent example
+│   └── README.md              # Configuration instructions
 ├── pyproject.toml            # Project metadata and dependencies
 ├── release_notes.md          # Release changelog
 └── README.md                 # This file
@@ -317,6 +435,7 @@ uv run python ../../tools/build.py --include_assets ./ftrack-26.3.rvpkg build_co
 - Locates the Python wheel built in Step 3
 - Creates a staging directory with Connect plugin structure
 - Copies files from `connect-plugin/hook/` to staging
+- Automatically copies the `config/` folder with example configuration files
 - Installs the wheel and Connect dependencies into staging
 - Copies the `.rvpkg` file specified in `--include_assets` into the staging directory
 - Creates a `.zip` archive in the `dist/` folder
@@ -329,6 +448,10 @@ ftrack-rv-26.3.0/
 ├── hook/
 │   ├── discover_ftrack_rv.py
 │   └── ftrack_rv_launcher.py
+├── config/                   # Example configuration files
+│   ├── macos/
+│   │   └── com.ftrack.rv.plist
+│   └── README.md
 ├── dependencies/              # Connect dependencies
 │   ├── ftrack_rv/            # From the wheel
 │   ├── ftrack_python_api/
