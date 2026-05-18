@@ -1,6 +1,5 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2024 ftrack
-import os
 
 from ftrack_utils.paths import get_temp_path
 
@@ -8,7 +7,6 @@ from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
 from ftrack_utils.rpc import JavascriptRPC
-import ftrack_framework_aftereffects
 
 
 class AfterEffectsMovieExporterPlugin(BasePlugin):
@@ -23,8 +21,8 @@ class AfterEffectsMovieExporterPlugin(BasePlugin):
 
         extension = "mp4"
 
-        template_name = store['components'][component_name].get(
-            'template_name'
+        template_name = store["components"][component_name].get(
+            "template_name"
         )
 
         new_file_path = get_temp_path(filename_extension=extension)

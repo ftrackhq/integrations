@@ -8,41 +8,22 @@ Community owned After Effects integration for ftrack.
 ### Preparations
 
 
-1. Install Poetry
+1. Install [uv](https://docs.astral.sh/uv/)
 
-2. Create a Python 3.10 virtual environment. 
+2. If any dependent libraries updated, make sure to release them to PyPi prior to building the plugin.
 
-3. Activate the virtual environment. 
+3. Update release notes.
 
-4. If any dependent libraries updated, make sure to release them to PyPi prior to building the plugin.
+4. Set or bump version in pyproject.toml.
 
-5. Update release notes.
-
-6. Set or bump version in pyproject.toml:
+5. If dependencies updated, update the lock file. Remember to properly validate/test the change of dependencies.
 
 ```bash
-    poetry version prerelease
-```
-or:
-```bash
-    poetry version patch
-```
-or:
-```bash
-    poetry version minor
-```
-or:
-```bash
-    poetry version major
+    cd projects/framework-aftereffects
+    uv lock
 ```
 
-7. If dependencies updated, update the Poetry lock file. Remember to properly validate/test the change of dependencies.
-
-```bash
-    $ poetry update
-```
-
-8. Tag and push to SCM
+6. Tag and push to SCM
 
 
 ### CI build
@@ -52,10 +33,11 @@ See Monorepo build CI
 
 ### Manual build
 
-Build with Poetry:
+Build with uv:
 
 ```bash
-    poetry build
+    cd projects/framework-aftereffects
+    uv build
 ```
 
 Build Connect plugin:
@@ -63,10 +45,10 @@ Build Connect plugin:
 
 ```bash
     cd integrations
-    python tools/build.py build_connect_plugin projects/framework-aftereffects
+    uv run python tools/build.py build_connect_plugin projects/framework-aftereffects
 ```
 
-If the build fails and After Effects is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 
+If the build fails and After Effects is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag
 to build the plugin.
 
 To build from source, not involving PyPi, use the `--from_source` flag.
@@ -119,15 +101,20 @@ Build Ftrack Qt Style:
 
 ```bash
     cd integrations
-    pip install -r tools/requirements.txt
-    python tools/build.py build_qt_resources --css_only libs/qt-style
+    uv run python tools/build.py build_qt_resources --css_only libs/qt-style
 ```
 
 Create Adobe extension:
 
 ```bash
-    cd integrations 
-    python tools/build.py build_cep projects/framework-aftereffects
+    cd integrations
+    uv run python tools/build.py build_cep projects/framework-aftereffects
+```
+
+To build without signing (for local development):
+
+```bash
+    uv run python tools/build.py --nosign build_cep projects/framework-aftereffects
 ```
 
 

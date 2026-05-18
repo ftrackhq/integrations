@@ -20,13 +20,17 @@ class AfterEffectsProjectOpenerPlugin(BasePlugin):
         """
         component_name = self.options.get("component")
 
-        collected_path = store["components"][component_name].get("collected_path")
+        collected_path = store["components"][component_name].get(
+            "collected_path"
+        )
 
         if not collected_path:
-            raise PluginExecutionError(f"No path provided to open!")
+            raise PluginExecutionError("No path provided to open!")
 
         if not os.path.exists(collected_path):
-            raise PluginExecutionError(f'Project "{collected_path}" does not exist!')
+            raise PluginExecutionError(
+                f'Project "{collected_path}" does not exist!'
+            )
 
         try:
             # Get existing RPC connection instance

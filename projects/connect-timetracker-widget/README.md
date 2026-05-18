@@ -4,27 +4,21 @@
 
 ### Preparations
 
+Install uv.
+
+Create and activate a project-local virtual environment:
+
+```bash
+cd projects/connect-timetracker-widget
+uv venv .venv
+source .venv/bin/activate
+```
+
 Update release notes.
 
-Set or bump version in pyproject.toml:
+Set version in `pyproject.toml` (use semantic versioning, for example `MAJOR.MINOR.PATCH` or prerelease `MAJOR.MINOR.PATCHrcN`).
 
-```bash
-    poetry version prerelease
-```
-or:
-```bash
-    poetry version patch
-```
-or:
-```bash
-    poetry version minor
-```
-or:
-```bash
-    poetry version major
-```
-
-Bump the connect plugin version in integrations/projects/connect-timetracker-widget/connect-plugin/__version__.py
+Bump the connect plugin version in projects/connect-timetracker-widget/connect-plugin/__version__.py
 
 Tag and push to SCM
 
@@ -35,21 +29,21 @@ See Monorepo build CI
 
 ### Manual build
 
-Build with Poetry:
+Build with uv:
 
 ```bash
-  cd integrations/projects/connect-timetracker-widget
-  poetry build
+  cd projects/connect-timetracker-widget
+  uv build
 ```
 
 Build Connect plugin:
 
 ```bash
-  cd integrations
-  python tools/build.py build_connect_plugin projects/connect-timetracker-widget
+  cd projects/connect-timetracker-widget
+  uv run python ../../tools/build.py build_connect_plugin .
 ```
 
-If the build fails and publisher widget is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 
+If the build fails and timetracker widget is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 
 to build the plugin.
 
 
@@ -59,12 +53,11 @@ to build the plugin.
 Install documentation dependencies:
 
 ```bash
-  poetry install --with documentation
+  uv sync --extra documentation
 ```
 
 Build documentation:
 
 ```bash
-    poetry run sphinx-build -b html doc dist/doc
+    uv run sphinx-build -b html doc dist/doc
 ```
-

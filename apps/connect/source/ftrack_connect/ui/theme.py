@@ -8,24 +8,37 @@ except ImportError:
 
 
 def applyFont():
-    '''Add application font.'''
-    fonts = [':/ftrack/font/regular', ':/ftrack/font/medium']
+    """Add application font."""
+    fonts = [
+        ":/ftrack/connect/font/regular",
+        ":/ftrack/connect/font/medium",
+    ]
     for font in fonts:
-        QtGui.QFontDatabase.addApplicationFont(font)
+        if QtCore.QFile(font).exists():
+            QtGui.QFontDatabase.addApplicationFont(font)
 
 
-def applyTheme(widget, theme='light', baseTheme=None):
-    '''Apply *theme* to *widget*.'''
+def applyTheme(widget, theme="light", baseTheme=None):
+    """Apply *theme* to *widget*."""
     # Set base style.
     if baseTheme and QtWidgets.QApplication.style().objectName() != baseTheme:
         QtWidgets.QApplication.setStyle(baseTheme)
 
     # Load stylesheet from resource file and apply.
-    fileObject = QtCore.QFile(':/ftrack/style/{0}'.format(theme))
-    fileObject.open(
-        QtCore.QFile.OpenModeFlag.ReadOnly | QtCore.QFile.OpenModeFlag.Text
-    )
-    stream = QtCore.QTextStream(fileObject)
-    styleSheetContent = stream.readAll()
+    candidate_paths = [
+        ":/ftrack/connect/style/{0}".format(theme),
+        ":/ftrack/style/{0}".format(theme),
+    ]
 
-    widget.setStyleSheet(styleSheetContent)
+    for theme_path in candidate_paths:
+        fileObject = QtCore.QFile(theme_path)
+        if not fileObject.exists():
+            continue
+
+        fileObject.open(
+            QtCore.QFile.OpenModeFlag.ReadOnly | QtCore.QFile.OpenModeFlag.Text
+        )
+        stream = QtCore.QTextStream(fileObject)
+        styleSheetContent = stream.readAll()
+        widget.setStyleSheet(styleSheetContent)
+        break

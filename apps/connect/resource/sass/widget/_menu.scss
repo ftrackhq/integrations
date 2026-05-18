@@ -14,11 +14,11 @@ QMenu::item {
 }
 
 QMenu::item:selected:enabled {
-    background: $highlight-background;
+    background: mix($background-raised, $blend-color, 92%);
 }
 
 QMenu::item:pressed:enabled {
-    background: $highlight-background;
+    background: mix($background-raised, $blend-color, 92%);
 }
 
 QMenu::item:unchecked {

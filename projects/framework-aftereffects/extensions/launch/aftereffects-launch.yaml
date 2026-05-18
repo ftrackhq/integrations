@@ -11,6 +11,7 @@ integrations:
 label: Adobe After Effects
 icon: after_effects
 variant: "{version}"
+version_year_offset: 2000
 search_path:
   windows:
     prefix:
@@ -27,7 +28,7 @@ search_path:
       - Applications
     expression:
       - Adobe After Effects*
-      - Adobe After Effects (\d+)\.app
+      - Adobe After Effects (\d+|\(Beta\))\.app
 standalone_module: ftrack_framework_aftereffects
 extensions_path:
   - extensions/common

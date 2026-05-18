@@ -23,7 +23,9 @@ class AfterEffectsProjectCollectorPlugin(BasePlugin):
             project_path = aftereffects_connection.rpc("getProjectPath")
         except Exception as e:
             self.logger.exception(e)
-            raise PluginExecutionError(f"Exception querying the project data: {e}")
+            raise PluginExecutionError(
+                f"Exception querying the project data: {e}"
+            )
 
         # Will return a path to the .aep file, or an error message if no
         # project is open.

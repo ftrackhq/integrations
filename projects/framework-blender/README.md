@@ -7,33 +7,21 @@ Community owned Blender integration for ftrack.
 ### Preparations
 
 
-Install Poetry
+Install uv
 
-Create a Python 3.11 virtual environment.
+Create and activate a project-local virtual environment:
 
-Activate the virtual environment. 
+```bash
+cd projects/framework-blender
+uv venv .venv
+source .venv/bin/activate
+```
 
 Update release notes.
 
-Set or bump version in pyproject.toml:
+Set version in `pyproject.toml` (use semantic versioning, for example `MAJOR.MINOR.PATCH` or prerelease `MAJOR.MINOR.PATCHrcN`).
 
-```bash
-    poetry version prerelease
-```
-or:
-```bash
-    poetry version patch
-```
-or:
-```bash
-    poetry version minor
-```
-or:
-```bash
-    poetry version major
-```
-
-Bump the connect plugin version in integrations/projects/framework-blender/connect-plugin/__version__.py
+Bump the connect plugin version in projects/framework-blender/connect-plugin/__version__.py
 
 Tag and push to SCM
 
@@ -45,18 +33,18 @@ See Monorepo build CI
 
 ### Manual build
 
-Build with Poetry:
+Build with uv:
 
 ```bash
-    poetry build
+    uv build
 ```
 
 Build Connect plugin:
 
 
 ```bash
-    cd integrations
-    python tools/build.py --include_resources resource/bootstrap build_connect_plugin projects/framework-blender
+    cd projects/framework-blender
+    uv run python ../../tools/build.py --include_resources resource/bootstrap build_connect_plugin .
 ```
 
 If the build fails and Blender is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 

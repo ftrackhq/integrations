@@ -35,8 +35,40 @@ class EventManager {
             event.source.applicationId === 'ftrack.api.javascript') {
             return;
         }
-        console.log("Received event: " + JSON.stringify(event));
-        callback_fn(event);
+
+        let serialized_event = "<event serialization failed>";
+        try {
+            serialized_event = JSON.stringify(event);
+        } catch (serialization_error) {
+            console.error(
+                "[INTERNAL ERROR] Failed serializing incoming event!",
+                serialization_error,
+            );
+        }
+
+        console.log("Received event: " + serialized_event);
+
+        try {
+            const callback_result = callback_fn(event);
+
+            if (
+                callback_result
+                && typeof callback_result === "object"
+                && typeof callback_result.catch === "function"
+            ) {
+                callback_result.catch((callback_error) => {
+                    console.error(
+                        "[INTERNAL ERROR] Failed handling incoming async event callback!",
+                        callback_error,
+                    );
+                });
+            }
+        } catch (callback_error) {
+            console.error(
+                "[INTERNAL ERROR] Failed handling incoming event callback!",
+                callback_error,
+            );
+        }
     }
 
     _publish(topic, data) {
@@ -106,5 +138,3 @@ class Subscribe {
     }
 
 };
-
-

@@ -1,88 +1,93 @@
-[tool.poetry]
+# 1. PEP 621 Project Metadata (replaces [tool.poetry])
+[project]
 name = "ftrack-connect"
 version = "25.11.0rc1"
-description='ftrack Connect desktop application.'
-authors = ["ftrack Integrations Team <integrations@backlight.co>"]
+description = "ftrack Connect desktop application."
 readme = "README.md"
-packages = [{include = "ftrack_connect", from = "source"}]
-license = "Apache-2.0"
+license = { text = "Apache-2.0" }
+requires-python = ">= 3.13, < 3.14"
+authors = [
+  { name = "ftrack Integrations Team", email = "integrations@backlight.co" }
+]
+dependencies = [
+  "PySide6==6.6.3",
+  "clique==1.6.1",
+  "Riffle>=2.0.0",
+  "arrow>=0.4.6, <1",
+  "platformdirs>=4.0.0, <5.0.0",
+  "packaging>=25, <26",
+  "requests>=2, <3",
+  "qtawesome",
+  "darkdetect",
+  "certifi>=2024.7.4, <2025",
+  "urllib3>=2.6.0,<3",
+  "pyyaml>=6.0.1, <7.0.0",
+
+  # ftrack
+  "ftrack-python-api>=3.1.0, <4.0.0",
+  "ftrack-action-handler",
+  "ftrack-constants>=4.0.0, <5.0.0",
+  "ftrack-utils>=4.0.0, <5.0.0",
+  "ftrack-framework-core>=4.0.0, <5.0.0",
+]
+
+# 2. Project URLs
+[project.urls]
 homepage = "https://ftrack.com"
 repository = "https://github.com/ftrackhq/integrations/tree/main/apps/connect"
 
-[[tool.poetry.source]]
-name = "PyPI"
-priority = "primary"
+# 4. Optional Dependencies
+[project.optional-dependencies]
+dev = [
+  # Replaced black with ruff for consistency
+  "ruff >= 0.1.0, < 1.0.0"
+  # ftrack-framework-core and ftrack-utils are handled by the root pyproject.toml
+]
+testPypi = [
+  # "ftrack-framework-core = { version = ">=2.0.0", index = "testpypi" }" # uv doesn't support index mapping in-file yet
+  # "ftrack-utils = { version = ">=2.0.0", index = "testpypi" }"
+]
+installer = [
+  "ftrack-app-installer" # Path defined in [tool.uv.sources]
+]
+documentation = [
+  "libsass >=0.23.0, <1",
+  "sphinx >=5, <10",
+  "Jinja2 >=3.1, <4",
+  "sphinx_rtd_theme >=1, <3",
+  "lowdown >=0.1.0, <1",
+]
+test = [
+  "pytest >=7, <9",
+]
 
-[[tool.poetry.source]]
-name = "testpypi"
-url = "https://test.pypi.org/simple/"
-priority = "explicit"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
-
-[tool.poetry.dependencies]
-python = ">= 3.8, < 3.11"
-PySide6 = "6.6.3"
-clique = "1.6.1"
-Riffle = ">= 2.0.0" # Remove this one when possible
-arrow = ">= 0.4.6, < 1"
-platformdirs = "^4.0.0"
-requests = ">= 2, <3"
-qtawesome = "*"
-darkdetect = "*"
-certifi = ">=2022,<2023"
-urllib3 = "<2"
-pyyaml = "^6.0.1"
-
-#ftrack
-ftrack-python-api = "^2.5.4"
-ftrack-action-handler = "*"
-ftrack-utils = {  version = "^3.0.0"}
-ftrack-framework-core = {  version = "^3.0.0"}
-
-[tool.poetry.group.dev]
-optional = true
-
-# TODO: activate this and install using poetry install --with dev if you want to pick dependencies from local
-[tool.poetry.group.dev.dependencies]
-#ftrack-framework-core = { path = "../../libs/framework-core", develop = true }
-#ftrack-utils = { path = "../../libs/utils", develop = true }
-
-[tool.poetry.group.testPypi]
-optional = true
-
-# TODO: activate this and install using poetry install --with testPypi if you want to pick dependencies from test pypi
-[tool.poetry.group.testPypi.dependencies]
-#ftrack-framework-core = { version = "^2.0.0", source = "testpypi" }
-#ftrack-utils = { version = "^2.0.0", source = "testpypi" }
-
-[tool.poetry.group.installer]
-optional = true
-
-[tool.poetry.group.installer.dependencies]
-ftrack-app-installer = { path = "../../installers/app-installer", develop = true }
-
-[tool.poetry.scripts]
+# 5. Scripts
+[project.scripts]
 ftrack-connect-installer = "installer:main"
 
-[tool.poetry.group.documentation]
-optional = true
+# 6. Build System (using hatchling)
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
-[tool.poetry.group.documentation.dependencies]
-pyScss = ">= 1.2.0, < 2"
-sphinx = ">= 1.8.5, < 4"
-Jinja2 = ">2, <=3.0.3"
-sphinx_rtd_theme = ">= 0.1.6, < 1"
-lowdown = ">= 0.1.0, < 1"
+# 7. Hatchling Configuration (replaces [tool.poetry.packages])
+[tool.hatch.build.targets.wheel]
+# This tells hatch to look for the package in the 'source' directory
+packages = ["source/ftrack_connect"]
 
-[tool.poetry.group.test]
-optional = true
+[tool.hatch.build.targets.wheel.force-include]
+"installer.py" = "installer.py"
 
-[tool.poetry.group.test.dependencies]
-pytest = "^2.3.5, <3"
+# 8. UV-specific configuration for local path dependencies
+[tool.uv.sources]
+ftrack-app-installer = { path = "../../installers/app-installer" }
+ftrack-constants = { path = "../../libs/constants" }
+ftrack-utils = { path = "../../libs/utils" }
+ftrack-framework-core = { path = "../../libs/framework-core" }
 
-[tool.black]
+[tool.ruff]
 line-length = 79
-skip-string-normalization = true
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"

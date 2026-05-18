@@ -1,18 +1,22 @@
 <RCC>
-    <qresource prefix='ftrack/image/light'>
+    <qresource prefix='ftrack/connect/image/light'>
         <file alias='downArrow'>image/arrow_down_light.svg</file>
         <file alias='checkbox_unchecked'>image/checkbox/light/checkbox_unchecked.png</file>
         <file alias='checkbox_checked'>image/checkbox/light/checkbox_checked.png</file>
         <file alias='checkbox_unchecked_disabled'>image/checkbox/light/checkbox_unchecked_disabled.png</file>
         <file alias='checkbox_checked_disabled'>image/checkbox/light/checkbox_checked_disabled.png</file>
+        <file alias='ftrackLogoGreyDark'>image/main_icon.svg</file>
+        <file alias='ftrackLogoLabelDark'>image/ftrack_logo_dark.svg</file>
     </qresource>
 
-    <qresource prefix='ftrack/image/dark'>
+    <qresource prefix='ftrack/connect/image/dark'>
         <file alias='downArrow'>image/arrow_down_dark.svg</file>
         <file alias='checkbox_unchecked'>image/checkbox/dark/checkbox_unchecked.png</file>
         <file alias='checkbox_checked'>image/checkbox/dark/checkbox_checked.png</file>
         <file alias='checkbox_unchecked_disabled'>image/checkbox/dark/checkbox_unchecked_disabled.png</file>
         <file alias='checkbox_checked_disabled'>image/checkbox/dark/checkbox_checked_disabled.png</file>
+        <file alias='ftrackLogoGreyDark'>image/main_icon.svg</file>
+        <file alias='ftrackLogoLabelDark'>image/ftrack_logo_light.svg</file>
     </qresource>
 
     <qresource prefix='ftrack/titlebar'>
@@ -36,12 +40,12 @@
         <file alias='light'>image/menu_bar_mac_dark.svg</file>
     </qresource>
 
-    <qresource prefix='ftrack/style'>
+    <qresource prefix='ftrack/connect/style'>
         <file alias='light'>style_light.css</file>
         <file alias='dark'>style_dark.css</file>
     </qresource>
 
-    <qresource prefix='ftrack/font'>
+    <qresource prefix='ftrack/connect/font'>
         <file alias='regular'>fonts/Roboto-Regular.ttf</file>
         <file alias='medium'>fonts/Roboto-Medium.ttf</file>
         <file alias='ftrack'>fonts/ftrack-icon.ttf</file>
