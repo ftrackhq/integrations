@@ -1,0 +1,61 @@
+[project]
+name = "ftrack-framework-aftereffects"
+version = "26.3.0rc1"
+description = "ftrack After Effects integration"
+readme = "README.md"
+license = { text = "Apache-2.0" }
+requires-python = ">= 3.13, < 3.14"
+authors = [
+  { name = "ftrack Integrations Team", email = "integrations@backlight.co" }
+]
+
+dependencies = [
+  "ftrack-python-api>=3.1.0, <4.0.0",
+]
+
+[project.urls]
+homepage = "https://ftrack.com"
+repository = "https://github.com/ftrackhq/integrations/tree/main/projects/framework-aftereffects"
+
+[project.optional-dependencies]
+ftrack-libs = [
+  "ftrack-constants>=4.0.0, <5.0.0",
+  "ftrack-utils>=4.0.0, <5.0.0",
+  "ftrack-qt>=4.0.0, <5.0.0",
+  "ftrack-qt-style>=4.0.0, <5.0.0",
+]
+framework-libs = [
+  "ftrack-framework-core>=4.0.0, <5.0.0",
+  "ftrack-framework-qt>=4.0.0, <5.0.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["source/ftrack_framework_aftereffects"]
+
+[tool.uv.sources]
+ftrack-constants = { path = "../../libs/constants" }
+ftrack-framework-core = { path = "../../libs/framework-core" }
+ftrack-framework-qt = { path = "../../libs/framework-qt" }
+ftrack-qt = { path = "../../libs/qt" }
+ftrack-qt-style = { path = "../../libs/qt-style" }
+ftrack-utils = { path = "../../libs/utils" }
+
+[[tool.uv.index]]
+name = "pypi"
+url = "https://pypi.org/simple"
+
+[[tool.uv.index]]
+name = "testpypi"
+url = "https://test.pypi.org/simple"
+explicit = true
+
+[tool.ruff]
+line-length = 79
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
