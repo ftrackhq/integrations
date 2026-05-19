@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.ftrack.rv</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>true</string>
+    </array>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>FTRACK_SERVER</key>
+        <string>https://yourcompany.ftrackapp.com</string>
+        <key>FTRACK_API_USER</key>
+        <string>your_username</string>
+        <key>FTRACK_API_KEY</key>
+        <string>your_api_key</string>
+    </dict>
+    <key>RunAtLoad</key>
+    <true/>
+</dict>
+</plist>

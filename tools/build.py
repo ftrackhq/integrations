@@ -10,7 +10,7 @@ official CI/CD build implementation in place.
 
 Changelog:
 
-0.5.1 [25.11.0] Restore build_cep for After Effects CEP/ZXP signing
+0.5.1 [26.5.0] Restore build_cep for After Effects CEP/ZXP signing
 0.5.0 [25.11.0] Replace poetry with uv; Use dmgbuild to avoid npm dependency; use proper toml parser tomli/tomllib
 0.4.24 [24.11.08] platform_dependent flag in build script.
 0.4.23 [24.05.20] Fixed bug when building qt-style from sources.
@@ -279,6 +279,12 @@ def build_package(invokation_path, pkg_path, args, command=None):
             logging.warning(
                 "App launcher config path not found: {}".format(launcher_path)
             )
+
+        # Config folder (example configuration files)
+        config_path = os.path.join(ROOT_PATH, "config")
+        if os.path.isdir(config_path):
+            logging.info("Copying config folder")
+            shutil.copytree(config_path, os.path.join(STAGING_PATH, "config"))
 
         # Resources
 
