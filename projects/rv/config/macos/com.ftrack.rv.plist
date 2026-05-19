@@ -6,17 +6,12 @@
     <string>com.ftrack.rv</string>
     <key>ProgramArguments</key>
     <array>
-        <string>true</string>
+        <string>/bin/sh</string>
+        <string>-c</string>
+        <string>launchctl setenv FTRACK_SERVER "YOUR_SERVER_URL"
+launchctl setenv FTRACK_API_USER "YOUR_API_USERNAME"
+launchctl setenv FTRACK_API_KEY "YOUR_API_KEY"</string>
     </array>
-    <key>EnvironmentVariables</key>
-    <dict>
-        <key>FTRACK_SERVER</key>
-        <string>https://yourcompany.ftrackapp.com</string>
-        <key>FTRACK_API_USER</key>
-        <string>your_username</string>
-        <key>FTRACK_API_KEY</key>
-        <string>your_api_key</string>
-    </dict>
     <key>RunAtLoad</key>
     <true/>
 </dict>
