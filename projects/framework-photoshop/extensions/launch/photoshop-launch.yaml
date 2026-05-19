@@ -11,6 +11,7 @@ integrations:
 label: Adobe Photoshop
 icon: photoshop
 variant: "{version}"
+version_year_offset: 1999
 search_path:
   windows:
     prefix:

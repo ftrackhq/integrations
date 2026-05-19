@@ -67,7 +67,7 @@ jobs:
         with:
           python-version: '3.13'
       - name: install uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86  # v5
       - name: Build Qt resources
         shell: bash
         run: |
@@ -109,17 +109,17 @@ jobs:
         with:
           python-version: '3.13'
       - name: install uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86  # v5
       - name: Build Qt resources
         shell: bash
         run: |
           uv sync --directory apps/connect
           uv run --directory apps/connect --with-requirements ../../tools/requirements-connect.txt python ../../tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py --pyside_version 6 build_qt_resources .
-      - uses: google-github-actions/auth@v2
+      - uses: google-github-actions/auth@c200f3691d83b41bf9bbd8638997a462592937ed  # v2
         if: env.CODESIGN == 'True'
         with:
           credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
-      - uses: google-github-actions/setup-gcloud@v2
+      - uses: google-github-actions/setup-gcloud@e427ad8a34f8676edf47cf7d7925499adf3eb74f  # v2
       - name: Setup Java JDK
         uses: actions/setup-java@v4
         with:
@@ -160,7 +160,7 @@ jobs:
         with:
           python-version: '3.13'
       - name: install uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86  # v5
       - name: Install npm dependencies
         run: npm install -g appdmg
       - name: Set CPPFLAGS LDFLAGS

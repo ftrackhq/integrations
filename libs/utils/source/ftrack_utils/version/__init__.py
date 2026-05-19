@@ -30,6 +30,26 @@ def parse_application_version(value):
     return Version("0")
 
 
+def resolve_marketing_version(loose_version, version_year_offset, path):
+    """Resolve a marketing version from an internal version.
+
+    If *version_year_offset* is set, converts the major component of
+    *loose_version* to a marketing year (e.g. major 27 + 1999 = 2026).
+
+    If *path* contains "(Beta)", returns a " (beta)" suffix.
+
+    Returns a tuple of (*resolved_version*, *beta_suffix*) where
+    *beta_suffix* is either " (beta)" or "".
+    """
+    if version_year_offset is not None and loose_version > Version("0"):
+        year = loose_version.major + version_year_offset
+        loose_version = Version(str(year))
+
+    beta_suffix = " (beta)" if "(Beta)" in path else ""
+
+    return loose_version, beta_suffix
+
+
 def get_version(package_name, package_path):
     """Return version string for *package_name* at *package_path*"""
     result = "0.0.0"

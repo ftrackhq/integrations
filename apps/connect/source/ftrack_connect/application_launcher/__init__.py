@@ -24,6 +24,7 @@ from ftrack_utils.usage import get_usage_tracker
 from ftrack_utils.version import (
     DEFAULT_VERSION_EXPRESSION,
     parse_application_version,
+    resolve_marketing_version,
 )
 from packaging.version import Version
 
@@ -193,6 +194,7 @@ class ApplicationStore(object):
         environment_variables=None,
         connect_plugin_path=None,
         rosetta=False,
+        version_year_offset=None,
     ):
         r"""
         Return list of applications found in filesystem matching *expression*.
@@ -301,6 +303,11 @@ class ApplicationStore(object):
 
                         versionMatch = versionExpression.search(path)
                         loose_version = Version("0")
+                        # Only apply version_year_offset when the
+                        # version comes from Info.plist, not when
+                        # it was already extracted as a marketing
+                        # year from the filesystem path.
+                        effective_offset = None
 
                         if versionMatch:
                             version = versionMatch.group("version")
@@ -332,9 +339,17 @@ class ApplicationStore(object):
                                         loose_version = (
                                             parse_application_version(version)
                                         )
+                                        effective_offset = version_year_offset
 
-                        variant_str = variant.format(
-                            version=str(loose_version)
+                        loose_version, beta_suffix = resolve_marketing_version(
+                            loose_version,
+                            effective_offset,
+                            path,
+                        )
+
+                        variant_str = (
+                            variant.format(version=str(loose_version))
+                            + beta_suffix
                         )
 
                         if integrations:
@@ -1145,7 +1160,11 @@ class ApplicationLaunchAction(BaseAction):
         applications = self.application_store.applications
 
         applications = sorted(
-            applications, key=lambda application: application["label"]
+            applications,
+            key=lambda application: (
+                application["label"],
+                application.get("variant", ""),
+            ),
         )
 
         for application in applications:
