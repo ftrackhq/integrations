@@ -13,13 +13,12 @@ from uuid import uuid1 as uuid
 import logging
 
 
-import rv
 from rv import commands as rvc
 from rv import extra_commands as rve
 from rv import runtime as rvr
 
 
-ftrack_rv_logger_name = 'ftrack_rv'
+ftrack_rv_logger_name = "ftrack_rv"
 
 
 try:
@@ -28,31 +27,31 @@ try:
     ftrack_logging.configure_logging(ftrack_rv_logger_name)
     # Setup logging.
 except Exception as error:
-    logging.warning('Failed to Initialize logging.', error)
+    logging.warning("Failed to Initialize logging.", error)
 
 logger = logging.getLogger(ftrack_rv_logger_name)
 logger.debug(f'PY3 Enabled: {os.environ.get("RV_PYTHON3", "NOT SET")}')
-logger.debug(f'Interpreter {sys.executable}')
-logger.debug(f'version {sys.version_info}')
+logger.debug(f"Interpreter {sys.executable}")
+logger.debug(f"version {sys.version_info}")
 
 
 # Check for base environment presence.
-required_envs = ['FTRACK_SERVER', 'FTRACK_API_KEY']
+required_envs = ["FTRACK_SERVER", "FTRACK_API_KEY"]
 for env in required_envs:
     if env not in os.environ:
-        logger.error(f'{env} environment not found!')
+        logger.error(f"{env} environment not found!")
 
 
 # Setup ssl certificate path.
-cacert_path = os.path.join(os.path.dirname(__file__), 'cacert.pem')
-os.environ['REQUESTS_CA_BUNDLE'] = cacert_path
+cacert_path = os.path.join(os.path.dirname(__file__), "cacert.pem")
+os.environ["REQUESTS_CA_BUNDLE"] = cacert_path
 
 # Setup dependencies path.
 dependencies_path = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), 'dependencies.zip')
+    os.path.join(os.path.dirname(__file__), "dependencies.zip")
 )
 
-logger.debug(f'Adding {dependencies_path} to PATH')
+logger.debug(f"Adding {dependencies_path} to PATH")
 sys.path.insert(0, dependencies_path)
 
 
@@ -61,8 +60,8 @@ try:
     import ftrack_api
     from ftrack_api.symbol import ORIGIN_LOCATION_ID, SERVER_LOCATION_ID
 
-except ImportError as e:
-    logger.error(f'No Ftrack API module found in {dependencies_path}')
+except ImportError:
+    logger.error(f"No Ftrack API module found in {dependencies_path}")
     raise
 
 
@@ -79,20 +78,35 @@ layoutSourceNode = None
 annotation_components = {}
 
 
-# Initialize New API
+# Initialize New API. Failures are captured so the module still imports;
+# callers (see ftrack.py) check ``session is None`` / ``session_init_error``
+# and render an error panel instead of crashing the plugin.
+session = None
+origin_location = None
+server_location = None
+session_init_error = ""
+session_init_reason = ""
 try:
     session = ftrack_api.Session(auto_connect_event_hub=False)
 
     # Get some useful locations.
-    origin_location = session.get('Location', ORIGIN_LOCATION_ID)
-    server_location = session.get('Location', SERVER_LOCATION_ID)
+    origin_location = session.get("Location", ORIGIN_LOCATION_ID)
+    server_location = session.get("Location", SERVER_LOCATION_ID)
 
-except Exception as e:
-    logger.error(e)
-    raise
+except Exception as exception:
+    logger.exception("Failed to initialize ftrack API session.")
+    session = None
+    origin_location = None
+    server_location = None
+    session_init_error = traceback.format_exc()
+    session_init_reason = (
+        "Could not connect to the ftrack server. Verify FTRACK_SERVER "
+        "and FTRACK_API_KEY are set (or pass ftrackUrl=... via rvlink), "
+        f"then restart RV. ({type(exception).__name__}: {exception})"
+    )
 
 
-def _getSourceNode(nodeType='sequence'):
+def _getSourceNode(nodeType="sequence"):
     """
     Return the source node of the specified type (sequence, stack, or layout).
 
@@ -113,27 +127,27 @@ def _getSourceNode(nodeType='sequence'):
     global stackSourceNode
     global layoutSourceNode
 
-    if nodeType == 'sequence':
+    if nodeType == "sequence":
         if sequenceSourceNode is None:
-            sequenceSourceNode = rvc.newNode('RVSequenceGroup', 'Sequence')
+            sequenceSourceNode = rvc.newNode("RVSequenceGroup", "Sequence")
 
-            rve.setUIName(sequenceSourceNode, 'SequenceNode')
+            rve.setUIName(sequenceSourceNode, "SequenceNode")
 
         return sequenceSourceNode
 
-    elif nodeType == 'stack':
+    elif nodeType == "stack":
         if stackSourceNode is None:
-            stackSourceNode = rvc.newNode('RVStackGroup', 'Stack')
+            stackSourceNode = rvc.newNode("RVStackGroup", "Stack")
 
-            rve.setUIName(stackSourceNode, 'StackNode')
+            rve.setUIName(stackSourceNode, "StackNode")
 
         return stackSourceNode
 
-    elif nodeType == 'layout':
+    elif nodeType == "layout":
         if layoutSourceNode is None:
-            layoutSourceNode = rvc.newNode('RVLayoutGroup', 'Layout')
+            layoutSourceNode = rvc.newNode("RVLayoutGroup", "Layout")
 
-            rve.setUIName(layoutSourceNode, 'LayoutNode')
+            rve.setUIName(layoutSourceNode, "LayoutNode")
 
         return layoutSourceNode
 
@@ -151,11 +165,11 @@ def _setWipeMode(state):
     Returns:
         None
     """
-    if rvr.eval('rvui.wipeShown()', ['rvui']) != -1 and state is False:
-        rvr.eval('rvui.toggleWipe()', ['rvui'])
+    if rvr.eval("rvui.wipeShown()", ["rvui"]) != -1 and state is False:
+        rvr.eval("rvui.toggleWipe()", ["rvui"])
 
-    if rvr.eval('rvui.wipeShown()', ['rvui']) == -1 and state is True:
-        rvr.eval('rvui.toggleWipe()', ['rvui'])
+    if rvr.eval("rvui.wipeShown()", ["rvui"]) == -1 and state is True:
+        rvr.eval("rvui.toggleWipe()", ["rvui"])
 
 
 def _getFilePath(componentId):
@@ -176,13 +190,13 @@ def _getFilePath(componentId):
     """
     global componentFilesystemPaths
     path = componentFilesystemPaths.get(componentId, None)
-    logger.debug(f'_getFilePath {componentId} :: {path}')
+    logger.debug(f"_getFilePath {componentId} :: {path}")
 
     if path is None:
-        ftrack_component = session.get('Component', componentId)
+        ftrack_component = session.get("Component", componentId)
         location = session.pick_location(component=ftrack_component)
         path = location.get_filesystem_path(ftrack_component)
-        logger.debug(f'adding {componentId} to {componentFilesystemPaths}')
+        logger.debug(f"adding {componentId} to {componentFilesystemPaths}")
         componentFilesystemPaths[componentId] = path
 
     return path
@@ -256,19 +270,19 @@ def loadPlaylist(playlist, index=None, includeFrame=None):
     _setWipeMode(False)
     startFrame = 1
 
-    if not includeFrame == 'false':
+    if not includeFrame == "false":
         startFrame = rve.sourceFrame(rvc.frame(), None)
 
-    for oldSource in rvc.nodesOfType('RVSourceGroup'):
+    for oldSource in rvc.nodesOfType("RVSourceGroup"):
         rvc.deleteNode(oldSource)
 
     sources = []
     for item in playlist:
-        sources.append(_getFilePath(item.get('componentId')))
+        sources.append(_getFilePath(item.get("componentId")))
 
-    sequenceSourceNode = _getSourceNode('sequence')
+    sequenceSourceNode = _getSourceNode("sequence")
 
-    _ftrackCreateGroup(sources, sequenceSourceNode, 'defaultLayout')
+    _ftrackCreateGroup(sources, sequenceSourceNode, "defaultLayout")
     rvc.setViewNode(sequenceSourceNode)
 
     if index:
@@ -298,16 +312,16 @@ def validateComponentLocation(componentId, versionId):
         )
         try:
             rvc.sendInternalEvent(
-                'ftrack-event',
+                "ftrack-event",
                 base64.b64encode(
                     json.dumps(
-                        {'type': 'breakItem', 'versionId': versionId}
+                        {"type": "breakItem", "versionId": versionId}
                     ).encode("utf-8")
-                ).decode('ascii'),
+                ).decode("ascii"),
                 None,
             )
         except Exception:
-            logger.error('Could not send internal event to ftrack.')
+            logger.error("Could not send internal event to ftrack.")
 
 
 def ftrackCompare(data):
@@ -332,31 +346,31 @@ def ftrackCompare(data):
     except Exception:
         pass
 
-    componentIdA = data.get('componentIdA')
-    componentIdB = data.get('componentIdB')
-    mode = data.get('mode')
+    componentIdA = data.get("componentIdA")
+    componentIdB = data.get("componentIdB")
+    mode = data.get("mode")
 
     trackA = _getFilePath(componentIdA)
 
-    layout = 'defaultStack' if mode == 'wipe' else 'defaultLayout'
+    layout = "defaultStack" if mode == "wipe" else "defaultLayout"
 
-    if not mode == 'load':
+    if not mode == "load":
         trackB = _getFilePath(componentIdB)
 
         try:
-            if mode == 'wipe':
-                sourceNode = _getSourceNode('stack')
+            if mode == "wipe":
+                sourceNode = _getSourceNode("stack")
                 _ftrackCreateGroup([trackA, trackB], sourceNode, layout)
                 rvc.setViewNode(sourceNode)
-                rvr.eval('rvui.toggleWipe()', ['rvui'])
+                rvr.eval("rvui.toggleWipe()", ["rvui"])
             else:
-                sourceNode = _getSourceNode('layout')
+                sourceNode = _getSourceNode("layout")
                 _ftrackCreateGroup([trackA, trackB], sourceNode, layout)
                 rvc.setViewNode(sourceNode)
         except Exception:
             print(traceback.format_exc())
     else:
-        sourceNode = _getSourceNode('layout')
+        sourceNode = _getSourceNode("layout")
         _ftrackCreateGroup([trackA], sourceNode, layout)
         rvc.setViewNode(sourceNode)
 
@@ -376,7 +390,7 @@ def _getEntityFromEnvironment():
     """
     # Check for environment variable specifying additional information to
     # use when loading.
-    eventEnvironmentVariable = 'FTRACK_CONNECT_EVENT'
+    eventEnvironmentVariable = "FTRACK_CONNECT_EVENT"
 
     eventData = os.environ.get(eventEnvironmentVariable)
 
@@ -385,26 +399,26 @@ def _getEntityFromEnvironment():
             decodedEventData = json.loads(base64.b64decode(eventData))
         except (TypeError, ValueError):
             logger.error(
-                f'Failed to decode {eventEnvironmentVariable}: {eventData}'
+                f"Failed to decode {eventEnvironmentVariable}: {eventData}"
             )
         else:
-            selection = decodedEventData.get('selection', [])
-            logger.info(f'selection {selection}')
+            selection = decodedEventData.get("selection", [])
+            logger.info(f"selection {selection}")
             # At present only a single entity which should represent an
             # ftrack List is supported.
             if selection:
                 try:
                     entity = selection[0]
-                    entityId = entity.get('entityId')
-                    entityType = entity.get('entityType')
+                    entityId = entity.get("entityId")
+                    entityType = entity.get("entityType")
                     return entityId, entityType
                 except (IndexError, AttributeError, KeyError):
                     logger.error(
-                        f'Failed to extract selection information from: {selection}'
+                        f"Failed to extract selection information from: {selection}"
                     )
     else:
         logger.debug(
-            f'No event data retrieved. {eventEnvironmentVariable} not set.'
+            f"No event data retrieved. {eventEnvironmentVariable} not set."
         )
 
     return None, None
@@ -414,30 +428,22 @@ def getNavigationURL(params=None):
     """
     Return URL to navigation panel in ftrack.
 
-    This method generates a URL to the navigation panel based on provided parameters.
-
-    Args:
-        params (dict, optional): Parameters to use for generating the URL. Defaults to None.
-
-    Returns:
-        str: URL to the navigation panel.
+    Returns an empty string when no URL can be generated. Use
+    :func:`_generateURL` directly when you also need the failure reason.
     """
-    return _generateURL(params, 'review_navigation')
+    url, _reason = _generateURL(params, "review_navigation")
+    return url
 
 
 def getActionURL(params=None):
     """
     Return URL to action panel in ftrack.
 
-    This method generates a URL to the action panel based on provided parameters.
-
-    Args:
-        params (dict, optional): Parameters to use for generating the URL. Defaults to None.
-
-    Returns:
-        str: URL to the action panel.
+    Returns an empty string when no URL can be generated. Use
+    :func:`_generateURL` directly when you also need the failure reason.
     """
-    return _generateURL(params, 'review_action')
+    url, _reason = _generateURL(params, "review_action")
+    return url
 
 
 def _translateEntityType(entityType):
@@ -459,23 +465,23 @@ def _translateEntityType(entityType):
     """
     # Get entity type and make sure it is lower cased. Most places except
     # the component tab in the Sidebar will use lower case notation.
-    entity_type = entityType.replace('_', '').lower()
+    entity_type = entityType.replace("_", "").lower()
 
     for schema in session.schemas:
-        alias_for = schema.get('alias_for')
+        alias_for = schema.get("alias_for")
 
         if (
             alias_for
             and isinstance(alias_for, str)
             and alias_for.lower() == entity_type
         ):
-            return schema['id']
+            return schema["id"]
 
     for schema in session.schemas:
-        if schema['id'].lower() == entity_type:
-            return schema['id']
+        if schema["id"].lower() == entity_type:
+            return schema["id"]
 
-    raise ValueError(f'Unable to translate entity type: {entity_type}.')
+    raise ValueError(f"Unable to translate entity type: {entity_type}.")
 
 
 def _get_temp_data_url(name, temp_data_id):
@@ -492,14 +498,14 @@ def _get_temp_data_url(name, temp_data_id):
         str: Full URL with entityType and entityId parameters.
     """
     operation = {
-        'action': 'get_widget_url',
-        'name': name,
-        'theme': None,
+        "action": "get_widget_url",
+        "name": name,
+        "theme": None,
     }
 
     result = session.call([operation])
-    url = result[0]['widget_url']
-    full_url = f'{url}&entityType=tempdata&entityId={temp_data_id}'
+    url = result[0]["widget_url"]
+    full_url = f"{url}&entityType=tempdata&entityId={temp_data_id}"
     return full_url
 
 
@@ -507,51 +513,92 @@ def _generateURL(params=None, panelName=None):
     """
     Generate a URL to a ftrack panel based on parameters.
 
-    This method creates a URL to a ftrack panel (navigation or action) based on
-    provided parameters or environment data.
-
     Args:
-        params (dict, optional): Parameters to use for generating the URL. Defaults to None.
-        panelName (str, optional): Name of the panel to generate URL for. Defaults to None.
+        params: Parameters string (JSON) to use for generating the URL.
+        panelName: Name of the panel to generate URL for.
 
     Returns:
-        str: URL to the ftrack panel.
+        tuple[str, str]: ``(url, reason)``. ``url`` is the resolved panel URL,
+        or an empty string when no URL could be generated. When ``url`` is
+        empty, ``reason`` is a human-readable explanation that callers can
+        surface in the UI; otherwise ``reason`` is empty.
     """
-    logger.info(f'_generateURL with params: {params}')
-    url = ''
+    logger.info(f"_generateURL with params: {params}")
+    if session is None:
+        return "", session_init_reason
+    url = ""
+    reason = ""
     try:
         entityId = None
         entityType = None
+        context_provided = bool(params) or bool(
+            os.environ.get("FTRACK_CONNECT_EVENT")
+        )
 
         if params:
             panelName = panelName or params
             try:
                 params = json.loads(params)
-                entityId = params['entityId'][0]
-                entityType = params['entityType'][0]
+                entityId = params["entityId"][0]
+                entityType = params["entityType"][0]
             except Exception:
                 entityId, entityType = _getEntityFromEnvironment()
+        else:
+            entityId, entityType = _getEntityFromEnvironment()
 
-            if entityId and entityType:
-                if entityType != 'tempdata':
-                    new_entity_type = _translateEntityType(entityType)
-                    new_entity = session.get(new_entity_type, entityId)
-                    try:
-                        url = session.get_widget_url(
-                            panelName, entity=new_entity
-                        )
-                    except Exception as exception:
-                        logger.error(str(exception))
-                else:
-                    try:
-                        url = _get_temp_data_url(panelName, entityId)
-                    except Exception as exception:
-                        logger.error(str(exception))
+        if not (entityId and entityType):
+            if context_provided:
+                reason = (
+                    "A launch context was provided but did not contain a "
+                    "valid entity selection. See the ftrack-rv log for "
+                    "details."
+                )
+            else:
+                reason = (
+                    "No entity selection was provided. Launch RV from "
+                    "ftrack Connect with a Task, AssetVersion, or List "
+                    "selected, or open a review link from the ftrack web "
+                    "UI via the rvlink:// protocol handler."
+                )
+        elif entityType != "tempdata":
+            new_entity = None
+            try:
+                new_entity_type = _translateEntityType(entityType)
+                new_entity = session.get(new_entity_type, entityId)
+            except Exception as exception:
+                logger.error(str(exception))
+                reason = (
+                    f'Failed to look up {entityType} {entityId} on '
+                    f'{os.environ.get("FTRACK_SERVER", "the ftrack server")}: '
+                    f'{exception}'
+                )
 
-        logger.info(f'Returning url "{url}"')
+            if new_entity is None and not reason:
+                reason = (
+                    f'Could not find {entityType} with id {entityId} on '
+                    f'{os.environ.get("FTRACK_SERVER", "the ftrack server")}.'
+                )
+            elif new_entity is not None:
+                try:
+                    url = session.get_widget_url(panelName, entity=new_entity)
+                except Exception as exception:
+                    logger.error(str(exception))
+                    reason = (
+                        f"ftrack returned an error while fetching the "
+                        f"{panelName} panel URL: {exception}"
+                    )
+        else:
+            try:
+                url = _get_temp_data_url(panelName, entityId)
+            except Exception as exception:
+                logger.error(str(exception))
+                reason = f"Failed to load temporary data panel: {exception}"
+
+        logger.info(f'Returning url "{url}" reason "{reason}"')
     except Exception as error:
-        logger.exception(f'Failed to generate URL. {error}')
-    return url
+        logger.exception(f"Failed to generate URL. {error}")
+        reason = f"Unexpected error generating URL: {error}"
+    return url, reason
 
 
 def ftrackFilePath(id):
@@ -574,8 +621,8 @@ def ftrackFilePath(id):
             filepath = tempfile.gettempdir()
         return filepath
     except Exception:
-        logger.exception('Failed to get file path.')
-        return ''
+        logger.exception("Failed to get file path.")
+        return ""
 
 
 def ftrackUUID():
@@ -608,16 +655,16 @@ def ftrackJumpTo(index=0, startFrame=1):
         index = int(index)
         frameNumber = 0
 
-        for idx, source in enumerate(rvc.nodesOfType('RVFileSource')):
+        for idx, source in enumerate(rvc.nodesOfType("RVFileSource")):
             if not idx >= index:
                 data = rvc.sourceMediaInfoList(source)[0]
-                add = (data.get('endFrame', 0) - data.get('startFrame', 0)) + 1
+                add = (data.get("endFrame", 0) - data.get("startFrame", 0)) + 1
                 add = 1 if add == 0 else add
                 frameNumber += add
 
         rvc.setFrame(frameNumber + startFrame)
     except Exception:
-        logger.exception('Failed to jump to index.')
+        logger.exception("Failed to jump to index.")
 
 
 def create_component(encoded_args):
@@ -644,19 +691,19 @@ def create_component(encoded_args):
     component_id = None
     try:
         args = json.loads(encoded_args)
-        file_name = args['file_name']
-        frame = args['frame']
+        file_name = args["file_name"]
+        frame = args["frame"]
 
-        component_name = f'Frame_{frame}'
-        file_path = os.path.join(ftrackFilePath(''), file_name)
-        logger.info(fr'Creating component: {file_path}')
+        component_name = f"Frame_{frame}"
+        file_path = os.path.join(ftrackFilePath(""), file_name)
+        logger.info(rf"Creating component: {file_path}")
         component = session.create_component(
             path=file_path, data=dict(name=component_name), location=None
         )
-        component_id = component['id']
+        component_id = component["id"]
         annotation_components[component_id] = component
     except Exception:
-        logger.exception('Failed to create component.')
+        logger.exception("Failed to create component.")
 
     return component_id
 
@@ -682,12 +729,12 @@ def upload_component(component_id):
     """
     try:
         logger.info(
-            f'Adding component {component_id} to ftrack server location.'
+            f"Adding component {component_id} to ftrack server location."
         )
         component = annotation_components[component_id]
         server_location.add_component(component, origin_location)
         del annotation_components[component_id]
     except Exception:
-        logger.exception('Failed to upload component')
+        logger.exception("Failed to upload component")
     else:
         return component_id
