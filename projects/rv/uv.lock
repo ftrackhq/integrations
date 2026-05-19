@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = "==3.13.*"
 
 [[package]]
@@ -112,7 +112,7 @@ wheels = [
 
 [[package]]
 name = "ftrack-rv"
-version = "26.3.0rc1"
+version = "26.5.0rc1"
 source = { editable = "." }
 dependencies = [
     { name = "ftrack-python-api" },
