@@ -7,9 +7,12 @@ import re
 import tempfile
 import os
 import logging
-import platform
 import base64
+import html
 import importlib
+import traceback
+import threading
+import subprocess
 
 
 if importlib.util.find_spec("PySide2"):
@@ -26,38 +29,122 @@ else:
 # setup logging
 from ftrack_logging import configure_logging
 
-configure_logging('ftrack_rv')
-logger = logging.getLogger('ftrack_rv')
+configure_logging("ftrack_rv")
+logger = logging.getLogger("ftrack_rv")
 
 # Setup dependencies path.
 dependencies_path = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), 'dependencies.zip')
+    os.path.join(os.path.dirname(__file__), "dependencies.zip")
 )
 
-logger.debug(f'Adding {dependencies_path} to PATH')
+logger.debug(f"Adding {dependencies_path} to PATH")
 sys.path.insert(0, dependencies_path)
 
 
+# import RV modules early so command-line flags can be consulted before
+# the rest of the plugin (and ftrack_rv_api's module-level session
+# construction) runs.
+import rv  # noqa: E402  ordering matters; see comment above
+from rv import commands as rvc  # noqa: E402
+from rv import extra_commands as rve  # noqa: E402
+from rv import qtutils as rvq  # noqa: E402
+
+
+# Captured plugin-initialization failure surfaced in the UI. Set by any
+# of the protected blocks below or by FtrackMode.__init__. Format:
+# ``(short_reason: str, details: str)`` where details is typically a
+# traceback. ``None`` means initialization succeeded so far.
+_init_error = None
+
+
+# Pre-import environment setup. When RV is launched via the rvlink://
+# protocol handler, FTRACK_SERVER is only present as a command-line
+# flag (ftrackUrl=...) and is not in os.environ -- so we must promote
+# it before ftrack_rv_api imports and tries to construct a session.
 try:
-    import ftrack_api
-    from ftrack_api.symbol import ORIGIN_LOCATION_ID, SERVER_LOCATION_ID
-except ImportError as error:
-    raise ImportError('Could not import ftrack api, aborting.')
+    _commandline_url = rvc.commandLineFlag("ftrackUrl", None)
+    if _commandline_url and not os.environ.get("FTRACK_SERVER"):
+        os.environ["FTRACK_SERVER"] = _commandline_url
 
-# import ftack_rv_api
-import ftrack_rv_api as fra
+    # Setup ssl certificate path.
+    _cacert_path = os.path.join(os.path.dirname(__file__), "cacert.pem")
+    os.environ["REQUESTS_CA_BUNDLE"] = _cacert_path
+except Exception:
+    logger.exception("Pre-import ftrack environment setup failed.")
+    _init_error = (
+        "Failed to set up the ftrack environment before module load.",
+        traceback.format_exc(),
+    )
 
-# import RV related modules
 
-import rv
-from rv import commands as rvc
-from rv import extra_commands as rve
-from rv import qtutils as rvq
+try:
+    import ftrack_api  # noqa: E402
+except ImportError:
+    logger.exception("Could not import ftrack_api.")
+    ftrack_api = None
+    if _init_error is None:
+        _init_error = (
+            "Could not load the ftrack API module. "
+            "The dependencies bundle may be missing or corrupt.",
+            traceback.format_exc(),
+        )
 
-import threading
-import subprocess
 
-mode_name = 'ftrack'
+# Import ftrack_rv_api. It captures its own session-construction failure
+# rather than raising, so the import itself only fails on genuine code
+# errors (syntax, missing deps).
+try:
+    import ftrack_rv_api as fra  # noqa: E402
+except Exception:
+    logger.exception("Could not import ftrack_rv_api.")
+    fra = None
+    if _init_error is None:
+        _init_error = (
+            "Could not load the ftrack API module. See traceback below.",
+            traceback.format_exc(),
+        )
+
+# If the module imported but its session failed to construct, surface
+# that as the panel error.
+if _init_error is None and fra is not None and fra.session is None:
+    _init_error = (
+        fra.session_init_reason or "Could not connect to the ftrack server.",
+        fra.session_init_error,
+    )
+
+mode_name = "ftrack"
+
+
+def _render_error_html(reason, details=None):
+    """Read the noserver template and substitute the reason and optional details.
+
+    When *details* is provided (typically a traceback), the page includes
+    a collapsible ``<details>`` block showing the full text. The reason
+    is always rendered as the primary message. Both inputs are HTML-
+    escaped.
+    """
+    template_path = os.path.join(
+        os.path.dirname(os.path.dirname(__file__)),
+        "SupportFiles",
+        "ftrack",
+        "noserver.html",
+    )
+    with open(template_path, "r", encoding="utf-8") as fh:
+        template = fh.read()
+
+    if details:
+        details_block = (
+            "<details>"
+            "<summary>Show traceback</summary>"
+            f"<pre>{html.escape(details)}</pre>"
+            "</details>"
+        )
+    else:
+        details_block = ""
+
+    template = template.replace("{{REASON}}", html.escape(reason))
+    template = template.replace("{{DETAILS_BLOCK}}", details_block)
+    return template
 
 
 class Runner(threading.Thread):
@@ -124,15 +211,25 @@ class FtrackMode(rv.rvtypes.MinorMode):
         Args:
             name (str): The name of the minor mode instance
         """
-        logger.debug('init')
+        logger.debug("init")
         rv.rvtypes.MinorMode.__init__(self)
 
         self._name = name
+        self._session = None
 
-        self.setup_variables()
-        self.check_envs()
-        self.create_session()
-        self.create_bindings()
+        global _init_error
+        try:
+            self.setup_variables()
+            self.check_envs()
+            self.create_session()
+            self.create_bindings()
+        except Exception:
+            logger.exception("FtrackMode initialization failed.")
+            if _init_error is None:
+                _init_error = (
+                    "ftrack plugin initialization failed.",
+                    traceback.format_exc(),
+                )
 
     @property
     def name(self):
@@ -146,39 +243,45 @@ class FtrackMode(rv.rvtypes.MinorMode):
 
     def create_session(self):
         """
-        This method initializes the ftrack API session with auto-connect event hub disabled,
+        Initialize the ftrack API session with auto-connect event hub disabled.
+
+        If session construction fails the exception is captured into the
+        module-level ``_init_error`` so the panel can surface it; we do
+        not re-raise, which would prevent the mode from registering.
         """
-        self._session = ftrack_api.Session(auto_connect_event_hub=False)
+        global _init_error
+        if ftrack_api is None:
+            self._session = None
+            return
+        try:
+            self._session = ftrack_api.Session(auto_connect_event_hub=False)
+        except Exception as exception:
+            logger.exception("Failed to construct ftrack API session.")
+            self._session = None
+            if _init_error is None:
+                _init_error = (
+                    "Could not connect to the ftrack server. Verify "
+                    "FTRACK_SERVER and FTRACK_API_KEY are set (or pass "
+                    "ftrackUrl=... via rvlink), then restart RV. "
+                    f"({type(exception).__name__}: {exception})",
+                    traceback.format_exc(),
+                )
 
     def check_envs(self):
         """
-        Checks and sets up the required environment variables for Ftrack integration.
+        Log the resolved ftrack environment.
 
-        This method first checks if a command-line URL is provided. If not, it verifies
-        that the required environment variables (FTRACK_SERVER and FTRACK_API_KEY) are
-        present. If a command-line URL is provided, it sets the FTRACK_SERVER environment
-        variable to that URL. Additionally, it sets the REQUESTS_CA_BUNDLE environment
-        variable to point to the cacert.pem file located in the plugin directory.
-
-        Logs debug and info messages about the environment variables being checked and
-        set.
+        The actual env-var promotion (``ftrackUrl`` command-line flag to
+        ``FTRACK_SERVER``, ``REQUESTS_CA_BUNDLE`` to bundled cacert) now
+        happens at module top level so that the session in
+        ``ftrack_rv_api`` can be constructed without first instantiating
+        this mode. This method just logs the resolved state and warns if
+        any required variable is still missing.
         """
-        logger.debug('check_envs')
-        commandline_url = rvc.commandLineFlag('ftrackUrl', None)
-
-        logger.debug(f'command line url {commandline_url}')
-        if not commandline_url:
-            # Check for base environment presence.
-            required_envs = ['FTRACK_SERVER', 'FTRACK_API_KEY']
-            for env in required_envs:
-                if env not in os.environ:
-                    logger.error(f'{env} environment not found!')
-        else:
-            os.environ['FTRACK_SERVER'] = commandline_url
-
-        # Setup ssl certificate path.
-        cacert_path = os.path.join(os.path.dirname(__file__), 'cacert.pem')
-        os.environ['REQUESTS_CA_BUNDLE'] = cacert_path
+        logger.debug("check_envs")
+        for env in ("FTRACK_SERVER", "FTRACK_API_KEY"):
+            if env not in os.environ:
+                logger.error(f"{env} environment not found!")
 
         logger.info(f'env FTRACK_SERVER: {os.getenv("FTRACK_SERVER")}')
         logger.info(f'env FTRACK_API_KEY: {os.getenv("FTRACK_API_KEY")}')
@@ -209,17 +312,30 @@ class FtrackMode(rv.rvtypes.MinorMode):
             - The URL is generated using the command line parameters
             - JavaScript export is enabled for the web page
         """
-        logger.debug('createActionWindow')
+        logger.debug("createActionWindow")
 
-        title = ''
+        title = ""
         startSize = 500
         showTitle = False
         if self._dockActionWidget:
             return
 
-        url = fra._generateURL(
-            rvc.commandLineFlag("params", None), "review_action"
-        )
+        # Same init-error handling as the navigation panel: surface
+        # captured failures via the error template rather than calling
+        # _generateURL when there's no usable session.
+        if _init_error is not None:
+            url = ""
+            reason, details = _init_error
+        elif fra is None:
+            url = ""
+            reason = "ftrack API module is not available."
+            details = None
+        else:
+            url, reason = fra._generateURL(
+                rvc.commandLineFlag("params", None), "review_action"
+            )
+            details = None
+
         self._dockActionWidget = QtWidgets.QDockWidget(
             title, self.mainWindow, QtCore.Qt.Widget
         )
@@ -235,7 +351,13 @@ class FtrackMode(rv.rvtypes.MinorMode):
             )
         )
 
-        self._webActionWidget.load(QtCore.QUrl(url))
+        if url:
+            self._webActionWidget.load(QtCore.QUrl(url))
+        else:
+            logger.info(f"action panel unavailable: {reason}")
+            self._webActionWidget.setHtml(
+                _render_error_html(reason, details=details)
+            )
         rvq.javascriptExport(self._webActionWidget.page())
         self._dockActionWidget.setWidget(self._baseActionWidget)
 
@@ -278,7 +400,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
         Returns:
             QtWidgets.QWidget: A widget containing the QWebEngineView for displaying web content
         """
-        logger.debug('makeit')
+        logger.debug("makeit")
 
         form = QtWidgets.QWidget(self.mainWindow, QtCore.Qt.Widget)
         verticalLayout = QtWidgets.QVBoxLayout(form)
@@ -310,7 +432,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
             When called with event.contents() = "1", this method will create
             a floating dock widget for the first dock widget in the application.
         """
-        logger.debug('toggleFloating')
+        logger.debug("toggleFloating")
 
         index = int(event.contents())
 
@@ -343,7 +465,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
         Args:
             event: The event object that triggered the shutdown process
         """
-        logger.debug('shutdown')
+        logger.debug("shutdown")
         event.reject()
 
         if self._webNavigationWidget:
@@ -371,7 +493,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
         """
         content = base64.b64decode(event.contents())
 
-        logger.debug(f'ftrackEvent {content}')
+        logger.debug(f"ftrackEvent {content}")
 
         jsContent = f'FT.updateFtrack("{event.contents()}")'
         logger.debug(jsContent)
@@ -402,7 +524,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
         Returns:
             None
         """
-        logger.debug('toggleTitleBar')
+        logger.debug("toggleTitleBar")
 
         if not dockWidget.isFloating():
             dockWidget.setTitleBarWidget(QtWidgets.QWidget(self.mainWindow))
@@ -425,7 +547,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
         Returns:
             None
         """
-        logger.debug('viewLoaded')
+        logger.debug("viewLoaded")
 
         view.setMaximumWidth(16777215)
         view.setMinimumWidth(0)
@@ -452,30 +574,35 @@ class FtrackMode(rv.rvtypes.MinorMode):
         if not self._firstRender:
             return
 
-        logger.debug('initUI')
+        logger.debug("initUI")
 
         self._firstRender = False
         showTitle = False
         startSize = 500
 
-        params = rvc.commandLineFlag("params", None)
-        url = fra._generateURL(params, 'review_navigation')
+        # If anything went wrong during plugin or session initialization
+        # we surface that here rather than calling into fra (which may
+        # not have a usable session).
+        if _init_error is not None:
+            url = ""
+            reason, details = _init_error
+            logger.info(f"navigation panel unavailable: {reason}")
+        elif fra is None:
+            url = ""
+            reason = "ftrack API module is not available."
+            details = None
+            logger.info(f"navigation panel unavailable: {reason}")
+        else:
+            params = rvc.commandLineFlag("params", None)
+            url, reason = fra._generateURL(params, "review_navigation")
+            details = None
 
-        if not url:
-            noServer = os.path.join(
-                os.path.dirname(os.path.dirname(__file__)),
-                "SupportFiles",
-                "ftrack",
-                'noserver.html',
-            )
-            urlPrefix = (
-                "file:///" if (platform.system() == "Windows") else "file://"
-            )
-            url = ''.join([urlPrefix, noServer]).replace('\\', '//')
+            if url:
+                logger.info(f"url: {url}")
+            else:
+                logger.info(f"navigation panel unavailable: {reason}")
 
-        logger.info(f'url: {url}')
-
-        title = ''
+        title = ""
         self._dockNavigationWidget = QtWidgets.QDockWidget(
             title, self.mainWindow, QtCore.Qt.Widget
         )
@@ -489,7 +616,12 @@ class FtrackMode(rv.rvtypes.MinorMode):
             lambda: self.view_loaded(self._baseNavigationWidget)
         )
 
-        self._webNavigationWidget.load(QtCore.QUrl(str(url)))
+        if url:
+            self._webNavigationWidget.load(QtCore.QUrl(str(url)))
+        else:
+            self._webNavigationWidget.setHtml(
+                _render_error_html(reason, details=details)
+            )
         rvq.javascriptExport(self._webNavigationWidget.page())
         self._dockNavigationWidget.setWidget(self._baseNavigationWidget)
 
@@ -540,12 +672,12 @@ class FtrackMode(rv.rvtypes.MinorMode):
             None
 
         """
-        logger.debug(f'FrameChanged | evt : {event}')
+        logger.debug(f"FrameChanged | evt : {event}")
 
         frame = rvc.sourcesAtFrame(rvc.frame())[0]
         source = int(re.match("[a-zA-Z]+([0-9]+)", frame).group(1))
         logger.debug(
-            f'FrameChanged | _currentSource : {self._currentSource} , source {source}'
+            f"FrameChanged | _currentSource : {self._currentSource} , source {source}"
         )
 
         if self._currentSource != source:
@@ -553,9 +685,9 @@ class FtrackMode(rv.rvtypes.MinorMode):
 
             data = base64.b64encode(
                 json.dumps(
-                    {'type': 'changedGroup', 'index': str(_currentSource)}
+                    {"type": "changedGroup", "index": str(_currentSource)}
                 ).encode("utf-8")
-            ).decode('ascii')
+            ).decode("ascii")
 
             logger.debug(data)
             jsData = f'FT.updateFtrack("{data}")'
@@ -574,7 +706,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
             the view node to "sourceGroup00000group1".
 
         """
-        logger.debug(f'navGroupChanged {event}')
+        logger.debug(f"navGroupChanged {event}")
         self.setViewNode("sourceGroup00000" + event.contents())
 
     def ftrack_toggle(self, event):
@@ -591,7 +723,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
         Returns:
             None
         """
-        logger.debug(f'ftrackToggle {event}')
+        logger.debug(f"ftrackToggle {event}")
 
         if self._isHidden:
             self._isHidden = False
@@ -615,7 +747,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
 
         Note: This method only hides the panels - it does not remove them from the UI.
         """
-        logger.debug(f'hidePanels')
+        logger.debug("hidePanels")
 
         if self._baseNavigationWidget:
             self._baseNavigationWidget.hide()
@@ -643,7 +775,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
         This method is useful for restoring the user interface to a full-featured state
         after panels have been hidden or minimized.
         """
-        logger.debug(f'hidePanels')
+        logger.debug("hidePanels")
 
         if self._baseNavigationWidget:
             self._baseNavigationWidget.show()
@@ -670,7 +802,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
         Returns:
             None
         """
-        logger.debug(f'showPanelsOnStartupToggle')
+        logger.debug("showPanelsOnStartupToggle")
 
         if not self._showPanelsOnStartup:
             rvc.writeSettings("ftrack", "showPanelsOnStartUp", True)
@@ -725,7 +857,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
         Also sets up a context menu with options to toggle panels and access
         preferences, including a setting to show panels on startup.
         """
-        logger.debug('create_bindings')
+        logger.debug("create_bindings")
 
         self._showPanelsOnStartup = rvc.readSettings(
             "ftrackMode", "showPanelsOnStartUp", True
@@ -856,7 +988,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
         # This will cause the component to use the same filesystem path
         # during the entire session.
 
-        logger.debug('setup_variables')
+        logger.debug("setup_variables")
         self.mainWindow = rvq.sessionWindow()
         self._firstRender = True
         self._isHidden = False
@@ -896,9 +1028,9 @@ class FtrackMode(rv.rvtypes.MinorMode):
         Returns:
             None
         """
-        logger.debug(f'Uploading all annotated frames')
-        logger.debug(f'self._doUpload {self._doUpload}')
-        logger.debug(f'self._annotatedFrames {self._annotatedFrames}')
+        logger.debug("Uploading all annotated frames")
+        logger.debug(f"self._doUpload {self._doUpload}")
+        logger.debug(f"self._annotatedFrames {self._annotatedFrames}")
         for i, path in enumerate(self._doUpload):
             self.upload_annotation(path, i)
 
@@ -914,11 +1046,11 @@ class FtrackMode(rv.rvtypes.MinorMode):
             count (int): The current upload count to display in the Ftrack UI
 
         """
-        logger.debug(f'uploadingCount: {count}')
+        logger.debug(f"uploadingCount: {count}")
 
         data = base64.b64encode(
-            json.dumps({'type': 'uploadCount', 'count': count}).encode("utf-8")
-        ).decode('ascii')
+            json.dumps({"type": "uploadCount", "count": count}).encode("utf-8")
+        ).decode("ascii")
 
         self._webActionWidget.page().runJavaScript(
             f'FT.updateFtrack("{data}")'
@@ -961,16 +1093,16 @@ class FtrackMode(rv.rvtypes.MinorMode):
         - Error handling is assumed to be managed by the parent class or framework
         - The component ID is used for tracking and reference throughout the upload process
         """
-        logger.debug(f'uploading file : {filename}')
+        logger.debug(f"uploading file : {filename}")
 
-        encoded_args = json.dumps({'file_name': filename, 'frame': frame})
+        encoded_args = json.dumps({"file_name": filename, "frame": frame})
 
         component_id = fra.create_component(encoded_args)
-        logger.debug(f'created component : {component_id}')
+        logger.debug(f"created component : {component_id}")
         self.on_upload_started(component_id)
 
         fra.upload_component(component_id)
-        logger.debug(f'Upload completed')
+        logger.debug("Upload completed")
         self.on_upload_complete(component_id)
 
     def on_upload_started(self, component_id):
@@ -998,7 +1130,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
 
         """
         data_string = json.dumps(
-            {'type': 'uploadStarted', 'attachment': component_id}
+            {"type": "uploadStarted", "attachment": component_id}
         )
 
         self._update_ftrack(data_string)
@@ -1027,7 +1159,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
             - This method should only be called after a successful upload
               operation to ensure data consistency
         """
-        data_string = json.dumps({'type': 'uploadEnded', 'id': component_id})
+        data_string = json.dumps({"type": "uploadEnded", "id": component_id})
 
         self._update_ftrack(data_string)
 
@@ -1050,10 +1182,10 @@ class FtrackMode(rv.rvtypes.MinorMode):
             - The encoded data is passed to the Ftrack integration via JavaScript.
             - This method logs the data string for debugging purposes.
         """
-        logger.debug(f'_update_ftrack: {data_string}')
+        logger.debug(f"_update_ftrack: {data_string}")
 
-        data = data_string.encode('utf-8')
-        data = base64.b64encode(data).decode('ascii')
+        data = data_string.encode("utf-8")
+        data = base64.b64encode(data).decode("ascii")
         self._webActionWidget.page().runJavaScript(
             f'FT.updateFtrack("{data}")'
         )
@@ -1089,7 +1221,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
         """
         _token = event.contents()
         _name = event.name()
-        logger.debug(f'ftrackExportAll: {_token} :: {_name}')
+        logger.debug(f"ftrackExportAll: {_token} :: {_name}")
 
         # Add all the frames and export
         # Generate filenames that are unique
@@ -1110,23 +1242,23 @@ class FtrackMode(rv.rvtypes.MinorMode):
             frames = rve.findAnnotatedFrames()
 
         self._annotatedFrames = frames
-        logger.debug(f'frames : {frames})')
+        logger.debug(f"frames : {frames})")
 
         for i in frames:
             tmpUpload.append(f"{_uuid}_{i:04d}.jpg")
 
-        session_name = os.path.join(_filePath, f'rvsession_{_uuid}.rv')
+        session_name = os.path.join(_filePath, f"rvsession_{_uuid}.rv")
 
         self._doUpload = tmpUpload
         tmpSession = rvc.saveSession(session_name, True)
-        logger.debug(f'tmpSession : {tmpSession}')
+        logger.debug(f"tmpSession : {tmpSession}")
 
         args = [
             session_name,
             "-o",
             f"{_filePath}/{_uuid}_#.jpg",
             "-t",
-            ','.join([str(f) for f in frames]),
+            ",".join([str(f) for f in frames]),
             "-overlay",
             "frameburn",
             "0.8",
@@ -1134,7 +1266,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
             "30.0",
         ]
 
-        logger.debug(f'rvsession args: {args}')
+        logger.debug(f"rvsession args: {args}")
 
         self.uploading_count(len(self._doUpload))
         if len(self._doUpload) > 0:
@@ -1167,11 +1299,11 @@ class FtrackMode(rv.rvtypes.MinorMode):
             The command includes -v for verbose output and -err-to-out to redirect error
             messages to standard output. The method logs the full command for debugging.
         """
-        rvioc = os.getenv('RV_APP_RVIO', 'rvio')
-        cmd = [rvioc, '-v', '-err-to-out']
-        license = os.getenv('RV_APP_USE_LICENSE_FILE')
+        rvioc = os.getenv("RV_APP_RVIO", "rvio")
+        cmd = [rvioc, "-v", "-err-to-out"]
+        license = os.getenv("RV_APP_USE_LICENSE_FILE")
         if license:
-            cmd.append('-lic', license)
+            cmd.append("-lic", license)
 
         cmd.extend(inargs)
         logger.debug(f'rvio cmd : {" ".join(cmd)}')
@@ -1179,7 +1311,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
         proc.start()
 
     def activate(self):
-        '''
+        """
         Activate the ftrack plugin in RV.
 
         This method is called when the plugin is first loaded in RV. It activates
@@ -1191,12 +1323,12 @@ class FtrackMode(rv.rvtypes.MinorMode):
 
         Returns:
             None
-        '''
+        """
         rv.rvtypes.MinorMode.activate(self)
         self._dockNavigationWidget.show()
 
     def deactivate(self):
-        '''
+        """
         Deactivate the ftrack plugin in RV.
 
         This method is called when the plugin is being unloaded or deactivated.
@@ -1206,7 +1338,7 @@ class FtrackMode(rv.rvtypes.MinorMode):
 
         Returns:
             None
-        '''
+        """
         rv.rvtypes.MinorMode.deactivate(self)
         self._dockNavigationWidget.hide()
 

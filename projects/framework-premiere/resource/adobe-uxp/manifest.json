@@ -1,0 +1,101 @@
+{
+  "manifestVersion": 5,
+  "id": "com.ftrack.framework.premiere.uxp.panel",
+  "name": "ftrack Premiere",
+  "version": "${VERSION}",
+  "main": "index.html",
+  "host": {
+    "app": "premierepro",
+    "minVersion": "25.6.0"
+  },
+  "entrypoints": [
+    {
+      "type": "panel",
+      "id": "ftrackPanel",
+      "label": {
+        "default": "ftrack"
+      },
+      "minimumSize": {
+        "width": 280,
+        "height": 220
+      },
+      "maximumSize": {
+        "width": 400,
+        "height": 800
+      },
+      "preferredDockedSize": {
+        "width": 300,
+        "height": 260
+      },
+      "preferredFloatingSize": {
+        "width": 320,
+        "height": 320
+      },
+      "icons": [
+        {
+          "width": 23,
+          "height": 23,
+          "path": "icons/ftrack-logo-48.png",
+          "scale": [
+            1,
+            2
+          ],
+          "theme": [
+            "dark",
+            "darkest",
+            "medium",
+            "light",
+            "lightest"
+          ],
+          "species": [
+            "generic"
+          ]
+        }
+      ]
+    }
+  ],
+  "icons": [
+    {
+      "width": 23,
+      "height": 23,
+      "path": "icons/ftrack-logo-48.png",
+      "scale": [
+        1,
+        2
+      ],
+      "theme": [
+        "dark",
+        "darkest",
+        "medium",
+        "light",
+        "lightest"
+      ],
+      "species": [
+        "generic"
+      ]
+    }
+  ],
+  "requiredPermissions": {
+    "network": {
+      "domains": "all"
+    },
+    "launchProcess": {
+      "schemes": [
+        "https"
+      ],
+      "extensions": [
+          ".prproj",
+          ".epr",
+          ".mp4",
+          ".mov",
+          ".m4v",
+          ".wav",
+          ".aif",
+          ".jpg",
+          ".jpeg",
+          ".png"
+        ]
+      },
+    "localFileSystem": "fullAccess"
+  }
+}

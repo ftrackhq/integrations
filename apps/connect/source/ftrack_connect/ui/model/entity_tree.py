@@ -13,11 +13,11 @@ import qtawesome as qta
 
 
 def ItemFactory(session, entity):
-    '''Return appropriate :py:class:`Item` to represent *entity*.
+    """Return appropriate :py:class:`Item` to represent *entity*.
 
     If *entity* is null then return :class:`Root` item.
 
-    '''
+    """
     if not entity:
         return Root(session)
 
@@ -25,10 +25,10 @@ def ItemFactory(session, entity):
 
 
 class Item(object):
-    '''Represent ftrack entity with consistent interface.'''
+    """Represent ftrack entity with consistent interface."""
 
     def __init__(self, session, entity):
-        '''Initialise item with *entity*.'''
+        """Initialise item with *entity*."""
         super(Item, self).__init__()
         self.entity = entity
         self._session = session
@@ -38,61 +38,63 @@ class Item(object):
         self._fetched = False
 
     def __repr__(self):
-        '''Return representation.'''
-        return '<{0} {1}>'.format(self.__class__.__name__, self.entity)
+        """Return representation."""
+        return "<{0} {1}>".format(self.__class__.__name__, self.entity)
 
     @property
     def session(self):
-        '''Return session of item.'''
+        """Return session of item."""
         return self._session
 
     @property
     def connect_theme(self):
-        '''Return connect theme of the session.'''
+        """Return connect theme of the session."""
         if self.session:
-            if hasattr(self.session, 'connect_theme'):
+            if hasattr(self.session, "connect_theme"):
                 return self._session.connect_theme
-        return 'default'
+        return "default"
 
     @property
     def id(self):
-        '''Return id of item.'''
-        return self.entity.get('id')
+        """Return id of item."""
+        return self.entity.get("id")
 
     @property
     def name(self):
-        '''Return name of item.'''
-        return self.entity.get('name')
+        """Return name of item."""
+        return self.entity.get("name")
 
     @property
     def type(self):
-        '''Return type of item as string.'''
-        return ''
+        """Return type of item as string."""
+        return ""
 
     @property
     def icon(self):
-        '''Return icon.'''
+        """Return icon."""
         return QtGui.QIcon(
-            ':/ftrack/image/{}/ftrackLogoGreyDark'.format(self.connect_theme)
+            ":/ftrack/connect/image/{}/ftrackLogoGreyDark".format(
+                self.connect_theme
+            )
         )
 
     @property
     def row(self):
-        '''Return index of this item in its parent or 0 if no parent.'''
+        """Return index of this item in its parent or 0 if no parent."""
         if self.parent:
             return self.parent.children.index(self)
 
         return 0
 
     def addChild(self, item):
-        '''Add *item* as child of this item.
+        """Add *item* as child of this item.
 
         .. note::
 
             If *item* is already a child of this item then return without
             making any modifications.
 
-        '''
+        """
         if item.parent:
             if item.parent == self:
                 return
@@ -103,12 +105,12 @@ class Item(object):
         item.parent = self
 
     def removeChild(self, item):
-        '''Remove *item* from children.'''
+        """Remove *item* from children."""
         item.parent = None
         self.children.remove(item)
 
     def canFetchMore(self):
-        '''Return whether more items can be fetched under this one.'''
+        """Return whether more items can be fetched under this one."""
         if not self._fetched:
             if self.mayHaveChildren():
                 return True
@@ -116,11 +118,11 @@ class Item(object):
         return False
 
     def mayHaveChildren(self):
-        '''Return whether item may have children.'''
+        """Return whether item may have children."""
         return True
 
     def fetchChildren(self):
-        '''Fetch and return new children.
+        """Fetch and return new children.
 
         Will only fetch children whilst canFetchMore is True.
 
@@ -129,7 +131,7 @@ class Item(object):
             It is the caller's responsibility to add each fetched child to this
             parent if desired using :py:meth:`Item.addChild`.
 
-        '''
+        """
         if not self.canFetchMore():
             return []
 
@@ -139,16 +141,16 @@ class Item(object):
         return children
 
     def _fetchChildren(self):
-        '''Fetch and return new child items.
+        """Fetch and return new child items.
 
         Override in subclasses to fetch actual children and return list of
         *unparented* :py:class:`Item` instances.
 
-        '''
+        """
         return []
 
     def clearChildren(self):
-        '''Remove all children and return to un-fetched state.'''
+        """Remove all children and return to un-fetched state."""
         # Reset children
         for child in self.children[:]:
             self.removeChild(child)
@@ -158,64 +160,64 @@ class Item(object):
 
 
 class Root(Item):
-    '''Represent root.'''
+    """Represent root."""
 
     def __init__(self, session):
-        '''Initialise item.'''
+        """Initialise item."""
         self._session = session
         super(Root, self).__init__(session, None)
 
     @property
     def name(self):
-        '''Return name of item.'''
-        return 'ftrack'
+        """Return name of item."""
+        return "ftrack"
 
     @property
     def type(self):
-        '''Return type of item as string.'''
-        return 'Root'
+        """Return type of item as string."""
+        return "Root"
 
     def _fetchChildren(self):
-        '''Fetch and return new child items.'''
+        """Fetch and return new child items."""
         children = []
-        for entity in self._session.query('Project where status is active'):
+        for entity in self._session.query("Project where status is active"):
             children.append(Project(self._session, entity))
 
         return children
 
 
 class Context(Item):
-    '''Represent context entity.'''
+    """Represent context entity."""
 
     def __init__(self, session, entity):
-        '''Initialise item.'''
+        """Initialise item."""
         self._session = session
         super(Context, self).__init__(session, entity)
 
     @property
     def type(self):
-        '''Return type of item as string.'''
-        return self.entity.get('object_type', {}).get('name')
+        """Return type of item as string."""
+        return self.entity.get("object_type", {}).get("name")
 
     @property
     def icon(self):
-        '''Return icon.'''
-        icon = self.entity.get('object_type', {}).get('icon', 'file-alert')
-        icon = icon.replace('_', '-')
+        """Return icon."""
+        icon = self.entity.get("object_type", {}).get("icon", "file-alert")
+        icon = icon.replace("_", "-")
         try:
-            return qta.icon('ftrack.{}'.format(icon))
-        except:
-            return qta.icon('mdi.{}'.format(icon))
+            return qta.icon("ftrack.{}".format(icon))
+        except Exception:
+            return qta.icon("mdi.{}".format(icon))
 
     def _fetchChildren(self):
-        '''Fetch and return new child items.'''
+        """Fetch and return new child items."""
         children = []
         entities = self._session.query(
             (
-                'select name, object_type_id, object_type.name, '
-                'object_type.is_leaf, object_type.icon from TypedContext '
-                'where parent_id is {0}'
-            ).format(self.entity['id'])
+                "select name, object_type_id, object_type.name, "
+                "object_type.is_leaf, object_type.icon from TypedContext "
+                "where parent_id is {0}"
+            ).format(self.entity["id"])
         )
         for entity in entities:
             children.append(ItemFactory(self._session, entity))
@@ -223,31 +225,31 @@ class Context(Item):
         return children
 
     def mayHaveChildren(self):
-        '''Return whether item may have children.'''
-        return self.entity.get('object_type', {}).get('is_leaf') != True
+        """Return whether item may have children."""
+        return self.entity.get("object_type", {}).get("is_leaf") is not True
 
 
 class Project(Context):
-    '''Represent project entity.'''
+    """Represent project entity."""
 
     @property
     def type(self):
-        '''Return type of item as string.'''
-        return 'Project'
+        """Return type of item as string."""
+        return "Project"
 
     @property
     def icon(self):
-        '''Return icon.'''
-        return qta.icon('ftrack.project')
+        """Return icon."""
+        return qta.icon("ftrack.project")
 
     @property
     def name(self):
-        '''Return name of item.'''
-        return self.entity.get('full_name')
+        """Return name of item."""
+        return self.entity.get("full_name")
 
 
 class EntityTreeModel(QtCore.QAbstractItemModel):
-    '''Model representing entity tree.'''
+    """Model representing entity tree."""
 
     #: Role referring to :class:`Item` instance.
     ITEM_ROLE = QtCore.Qt.ItemDataRole.UserRole + 1
@@ -262,14 +264,14 @@ class EntityTreeModel(QtCore.QAbstractItemModel):
     loadEnded = QtCore.Signal()
 
     def __init__(self, root=None, parent=None):
-        '''Initialise with *root* entity and optional *parent*.'''
+        """Initialise with *root* entity and optional *parent*."""
         super(EntityTreeModel, self).__init__(parent=parent)
         self.root = root
-        self.columns = ['Name', 'Type']
+        self.columns = ["Name", "Type"]
         self._worker = None
 
     def rowCount(self, parent):
-        '''Return number of children *parent* index has.'''
+        """Return number of children *parent* index has."""
         if parent.column() > 0:
             return 0
 
@@ -281,11 +283,11 @@ class EntityTreeModel(QtCore.QAbstractItemModel):
         return len(item.children)
 
     def columnCount(self, parent):
-        '''Return amount of data *parent* index has.'''
+        """Return amount of data *parent* index has."""
         return len(self.columns)
 
     def flags(self, index):
-        '''Return flags for *index*.'''
+        """Return flags for *index*."""
         if not index.isValid():
             return QtCore.Qt.ItemFlag.NoItemFlags
 
@@ -295,7 +297,7 @@ class EntityTreeModel(QtCore.QAbstractItemModel):
         )
 
     def index(self, row, column, parent=None):
-        '''Return index for *row* and *column* under *parent*.'''
+        """Return index for *row* and *column* under *parent*."""
         if parent is None:
             parent = QtCore.QModelIndex()
 
@@ -315,7 +317,7 @@ class EntityTreeModel(QtCore.QAbstractItemModel):
             return self.createIndex(row, column, child)
 
     def parent(self, index):
-        '''Return parent of *index*.'''
+        """Return parent of *index*."""
         if not index.isValid():
             return QtCore.QModelIndex()
 
@@ -333,15 +335,15 @@ class EntityTreeModel(QtCore.QAbstractItemModel):
         return super(EntityTreeModel, self).match(*args, **kwargs)
 
     def item(self, index):
-        '''Return item at *index*.'''
+        """Return item at *index*."""
         return self.data(index, role=self.ITEM_ROLE)
 
     def icon(self, index):
-        '''Return icon for index.'''
+        """Return icon for index."""
         return self.data(index, role=QtCore.Qt.ItemDataRole.DecorationRole)
 
     def data(self, index, role):
-        '''Return data for *index* according to *role*.'''
+        """Return data for *index* according to *role*."""
         if not index.isValid():
             return None
 
@@ -357,9 +359,9 @@ class EntityTreeModel(QtCore.QAbstractItemModel):
         elif role == QtCore.Qt.ItemDataRole.DisplayRole:
             column_name = self.columns[column]
 
-            if column_name == 'Name':
+            if column_name == "Name":
                 return item.name
-            elif column_name == 'Type':
+            elif column_name == "Type":
                 return item.type
 
         elif role == QtCore.Qt.ItemDataRole.DecorationRole:
@@ -369,7 +371,7 @@ class EntityTreeModel(QtCore.QAbstractItemModel):
         return None
 
     def headerData(self, section, orientation, role):
-        '''Return label for *section* according to *orientation* and *role*.'''
+        """Return label for *section* according to *orientation* and *role*."""
         if orientation == QtCore.Qt.Orientation.Horizontal:
             if section < len(self.columns):
                 column = self.columns[section]
@@ -379,11 +381,11 @@ class EntityTreeModel(QtCore.QAbstractItemModel):
         return None
 
     def hasChildren(self, index):
-        '''Return if *index* has children.
+        """Return if *index* has children.
 
         Optimised to avoid loading children at this stage.
 
-        '''
+        """
         if not index.isValid():
             item = self.root
         else:
@@ -394,7 +396,7 @@ class EntityTreeModel(QtCore.QAbstractItemModel):
         return item.mayHaveChildren()
 
     def canFetchMore(self, index):
-        '''Return if more data available for *index*.'''
+        """Return if more data available for *index*."""
         if not index.isValid():
             item = self.root
         else:
@@ -403,7 +405,7 @@ class EntityTreeModel(QtCore.QAbstractItemModel):
         return item.canFetchMore()
 
     def fetchMore(self, index):
-        '''Fetch additional data under *index*.
+        """Fetch additional data under *index*.
 
         Loading is done in a background thread with UI events continually
         processed to maintain a responsive interface.
@@ -411,7 +413,7 @@ class EntityTreeModel(QtCore.QAbstractItemModel):
         :attr:`EntityTreeModel.loadStarted` is emitted at start of load with
         :attr:`EntityTreeModel.loadEnded` emitted when load completes.
 
-        '''
+        """
         if not index.isValid():
             item = self.root
         else:
@@ -445,7 +447,7 @@ class EntityTreeModel(QtCore.QAbstractItemModel):
             self.loadEnded.emit()
 
     def reloadChildren(self, index):
-        '''Reload the children of parent *index*.'''
+        """Reload the children of parent *index*."""
         if not self.hasChildren(index):
             return
 
@@ -459,17 +461,17 @@ class EntityTreeModel(QtCore.QAbstractItemModel):
         self.endRemoveRows()
 
     def reset(self):
-        '''Reset model'''
+        """Reset model"""
         self.beginResetModel()
         self.root.clearChildren()
         self.endResetModel()
 
 
 class EntityTreeProxyModel(QtCore.QSortFilterProxyModel):
-    '''Sort contexts before tasks.'''
+    """Sort contexts before tasks."""
 
     def lessThan(self, left, right):
-        '''Return ordering of *left* vs *right*.'''
+        """Return ordering of *left* vs *right*."""
         sourceModel = self.sourceModel()
         if sourceModel:
             leftItem = sourceModel.item(left)
@@ -489,7 +491,7 @@ class EntityTreeProxyModel(QtCore.QSortFilterProxyModel):
 
     @property
     def root(self):
-        '''Return root of model.'''
+        """Return root of model."""
         sourceModel = self.sourceModel()
         if not sourceModel:
             return None
@@ -497,7 +499,7 @@ class EntityTreeProxyModel(QtCore.QSortFilterProxyModel):
         return sourceModel.root
 
     def hasChildren(self, index):
-        '''Return if *index* has children.'''
+        """Return if *index* has children."""
         sourceModel = self.sourceModel()
 
         if not sourceModel:
@@ -506,7 +508,7 @@ class EntityTreeProxyModel(QtCore.QSortFilterProxyModel):
         return sourceModel.hasChildren(self.mapToSource(index))
 
     def reloadChildren(self, index):
-        '''Reload the children of parent *index*.'''
+        """Reload the children of parent *index*."""
         sourceModel = self.sourceModel()
 
         if not sourceModel:
@@ -524,7 +526,7 @@ class EntityTreeProxyModel(QtCore.QSortFilterProxyModel):
         return map(self.mapFromSource, matches)
 
     def item(self, index):
-        '''Return item at *index*.'''
+        """Return item at *index*."""
         sourceModel = self.sourceModel()
 
         if not sourceModel:
@@ -533,7 +535,7 @@ class EntityTreeProxyModel(QtCore.QSortFilterProxyModel):
         return sourceModel.item(self.mapToSource(index))
 
     def icon(self, index):
-        '''Return icon for index.'''
+        """Return icon for index."""
         sourceModel = self.sourceModel()
         if not sourceModel:
             return None

@@ -1,7 +1,12 @@
+default_language_version:
+  python: python3.13
+
+exclude: ^tools/cookiecutter-framework-project/
+
 repos:
--   repo: https://github.com/psf/black
-    rev: 23.1.0
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.4
     hooks:
-    - id: black
-      language_version: python3.13
-      exclude: tools/cookiecutter*
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format

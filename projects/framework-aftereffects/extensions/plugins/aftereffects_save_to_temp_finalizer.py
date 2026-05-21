@@ -32,7 +32,9 @@ class AfterEffectsSaveToTempFinalizerPlugin(BasePlugin):
             )
         except Exception as e:
             self.logger.exception(e)
-            raise PluginExecutionError(f"Exception saving project to temp: {e}")
+            raise PluginExecutionError(
+                f"Exception saving project to temp: {e}"
+            )
 
         self.logger.debug(f"After Effects save result: {save_result}")
 

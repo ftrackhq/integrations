@@ -7,38 +7,26 @@ Community owned Photoshop integration for ftrack.
 ### Preparations
 
 
-1. Install Poetry
+1. Install uv.
 
-2. Create a Python 3.10 virtual environment. 
+2. Create and activate a project-local virtual environment:
 
-3. Activate the virtual environment. 
+```bash
+cd projects/framework-photoshop
+uv venv .venv
+source .venv/bin/activate
+```
 
 4. If any dependent libraries updated, make sure to release them to PyPi prior to building the plugin.
 
 5. Update release notes.
 
-6. Set or bump version in pyproject.toml:
+6. Set version in `pyproject.toml` (use semantic versioning, for example `MAJOR.MINOR.PATCH` or prerelease `MAJOR.MINOR.PATCHrcN`).
+
+7. If dependencies updated, update the uv lock file. Remember to properly validate/test the change of dependencies.
 
 ```bash
-    $ poetry version prerelease
-```
-or:
-```bash
-    $ poetry version patch
-```
-or:
-```bash
-    $ poetry version minor
-```
-or:
-```bash
-    $ poetry version major
-```
-
-7. If dependencies updated, update the Poetry lock file. Remember to properly validate/test the change of dependencies.
-
-```bash
-    $ poetry update
+    uv lock
 ```
 
 8. Tag and push to SCM
@@ -51,17 +39,24 @@ See Monorepo build CI
 
 ### Manual build
 
-1. Build with Poetry
+Run all commands below from `projects/framework-photoshop`.
+
+1. Build with uv
 
 ```bash
-    $ poetry build
+uv build
 ```
 
-2. Build Connect plugin from wheel and the locked dependencies using Monorepo custom toolset:
+2. Build the UXP artifact:
 
 ```bash
-    cd integrations
-    python tools/build.py build_connect_plugin projects/framework-photoshop
+uv run python ../../tools/build.py --remove_intermediate_folder build_uxp .
+```
+
+3. Build Connect plugin from wheel and locked dependencies:
+
+```bash
+uv run python ../../tools/build.py --remove_intermediate_folder --include_assets dist/*.ccx build_connect_plugin .
 ```
 
 If the build fails and Photoshop is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 
@@ -73,65 +68,29 @@ To build from source, not involving PyPi, use the `--from_source` flag.
 # Development
 
 
-## CEP plugin
-
-To enable live development, first allow unsigned extensions:
-
-```bash
-    defaults write com.adobe.CSXS.8 PlayerDebugMode 1
-```
-
-Build and install CEP extension and then open up permissions on folder:
-
-```bash
-    sudo chmod -R 777 "/library/application support/adobe/cep/extensions/com.ftrack.framework.photoshop.panel"
-```
-
-You are now ready to do live changes to extension, remember to sync back changes to
-source folder before committing.
-
-
-### CEP plugin build
-
-Install Adobe ZXPSignCmd:
-
-- Download and install ZXPSignCmd from: https://github.com/Adobe-CEP/CEP-Resources/tree/master/ZXPSignCMD
-- If you are in MacOs, you can follow the instructions below:
-  - Copy ZXPSignCmd-64bit to your Documents folder
-  ```bash
-    cd ~/Documents
-    chmod +x ZXPSignCmd-64bit
-    ln ZXPSignCmd-64bit /usr/local/bin/ZXPSignCmd
-  ```
-
-Set variables:
-
-```bash
-  export ADOBE_CERTIFICATE_PASSWORD=<Adobe exchange vault entry>
-```
-
-Build Ftrack Qt Style:
-
-```bash
-    cd integrations
-    pip install -r tools/requirements.txt
-    python tools/build.py build_qt_resources --css_only libs/qt-style
-```
-
-Create Adobe extension:
-
-```bash
-    cd integrations 
-    python tools/build.py build_cep projects/framework-photoshop
-```
-
 ## Installing
 
 ### Connect plugin
 Copy the resulting dist/ftrack-framework-photoshop-<version> folder to your connect plugin folder.
 
-### CEP plugin
 
-Use "Extension Manager" tool provided here: https://install.anastasiy.com/ to install 
-the built xzp plugin. Remember to remove previous ftrack extensions.
+## UXP plugin
 
+Build UXP artifact:
+
+```bash
+uv run python ../../tools/build.py --remove_intermediate_folder build_uxp .
+```
+
+The output artifact is placed in `projects/framework-photoshop/dist/` as:
+
+- `ftrack-framework-photoshop-<version>.ccx`
+
+### UXP local testing
+
+1. Build the UXP artifact.
+2. Unzip it locally.
+3. Open Adobe UXP Developer Tool.
+4. Add plugin from the unzipped folder that contains `manifest.json`.
+5. Launch Photoshop from ftrack Connect so bootstrap files are generated.
+6. Open panel `ftrack` in Photoshop and validate connection.

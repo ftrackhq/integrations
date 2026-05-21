@@ -33,7 +33,7 @@ class AfterEffectsProjectSavedValidatorPlugin(BasePlugin):
         # Will return a boolean containing the result.
         if not save_result or isinstance(save_result, str):
             raise PluginExecutionError(
-                f"An error occurred while saving the" f" project: {save_result}"
+                f"An error occurred while saving the project: {save_result}"
             )
         elif save_result:
             self.logger.info("Project saved successfully.")

@@ -20,7 +20,9 @@ function error(message, show_alert=true) {
     showElement("connecting", false);
     document.getElementById("error").innerHTML = message;
     showElement("error", true);
-    if (show_alert) {
+    if (show_alert && typeof alert === "function") {
         alert(message);
+    } else {
+        console.error(message);
     }
 }

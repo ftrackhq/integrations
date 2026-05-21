@@ -9,33 +9,21 @@ Community owned Harmony integration for ftrack.
 ### Preparations
 
 
-1. Install Poetry
+1. Install uv
 
-2. Create a Python 3.10 virtual environment. 
+2. Create and activate a project-local virtual environment:
 
-3. Activate the virtual environment. 
+```bash
+cd projects/framework-harmony
+uv venv .venv
+source .venv/bin/activate
+```
 
 4. If any dependent libraries updated, make sure to release them to PyPi prior to building the plugin.
 
 5. Update release notes.
 
-6. Set or bump version in pyproject.toml:
-
-```bash
-    poetry version prerelease
-```
-or:
-```bash
-    poetry version patch
-```
-or:
-```bash
-    poetry version minor
-```
-or:
-```bash
-    poetry version major
-```
+6. Set version in `pyproject.toml` (use semantic versioning, for example `MAJOR.MINOR.PATCH` or prerelease `MAJOR.MINOR.PATCHrcN`).
 
 7. Tag and push to SCM
 
@@ -47,17 +35,17 @@ See Monorepo build CI
 
 ### Manual build
 
-Build with Poetry:
+Build with uv:
 
 ```bash
-    poetry build
+    uv build
 ```
 
 Build Connect plugin:
 
 ```bash
-    cd integrations
-    python tools/build.py  --include_resources resource/bootstrap build_connect_plugin projects/framework-harmony
+    cd projects/framework-harmony
+    uv run python ../../tools/build.py --include_resources resource/bootstrap build_connect_plugin .
 ```
 
 If the build fails and Harmony is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 
