@@ -1,0 +1,45 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2024 ftrack
+
+# Simple standalone loader configuration for testing
+name: standalone_loader_test
+config_type: loader
+
+engine:
+  name: loader_engine
+  type: loader
+
+# Context stage - validate/prepare context
+context:
+  - plugin: common.passthrough_loader_context
+    options: {}
+
+# Component definitions
+components:
+  - name: main
+    file_formats: []
+    optional: false
+    selected: true
+    plugins:
+      # Collector stage - collect component paths
+      - stage: collector
+        name: common.context_loader_collector
+        options: {}
+
+      # Importer stage - create tracking nodes and/or load content
+      # Note: This is a placeholder - DCC-specific plugins needed for actual import
+      - stage: importer
+        name: common.passthrough_loader_importer
+        options:
+          load_mode: import
+
+      # Post importer stage
+      - stage: post_importer
+        name: common.passthrough_loader_post_importer
+        options: {}
+
+# Finalizer stages
+finalizers:
+  - name: finalizer
+    plugin: common.passthrough_loader_finalizer
+    options: {}

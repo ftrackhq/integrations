@@ -1,0 +1,61 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2024 ftrack
+
+# Nuke geometry loader configuration
+name: nuke_geometry_loader
+config_type: loader
+asset_type: geo
+
+engine:
+  name: nuke_loader_engine
+  type: loader
+
+# Context stage
+context:
+  - plugin: common.passthrough_loader_context
+    options: {}
+
+# Component definitions
+components:
+  # Cache component - Alembic geometry
+  - name: cache
+    file_formats: [".abc"]
+    optional: false
+    selected: true
+    plugins:
+      - stage: collector
+        name: common.context_loader_collector
+        options:
+          file_formats: [".abc"]
+      - stage: importer
+        name: nuke.abc_loader_importer
+        options:
+          node_settings: {}
+      - stage: post_importer
+        name: common.passthrough_loader_post_importer
+        options: {}
+
+  # Model component - geometry files
+  - name: model
+    file_formats: [".abc", ".obj", ".fbx"]
+    optional: true
+    selected: false
+    plugins:
+      - stage: collector
+        name: common.context_loader_collector
+        options:
+          file_formats: [".abc", ".obj", ".fbx"]
+      - stage: importer
+        name: nuke.native_loader_importer
+        options:
+          node_type: ReadGeo2
+          node_settings: {}
+      - stage: post_importer
+        name: common.passthrough_loader_post_importer
+        options: {}
+
+# Finalizer stages
+finalizers:
+  - name: finalizer
+    plugin: common.passthrough_loader_finalizer
+    options: {}

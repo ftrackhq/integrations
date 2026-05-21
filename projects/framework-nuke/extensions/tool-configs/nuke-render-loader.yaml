@@ -1,0 +1,67 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2024 ftrack
+
+# Nuke render/plate loader configuration
+name: nuke_render_loader
+config_type: loader
+asset_type: img
+
+engine:
+  name: nuke_loader_engine
+  type: loader
+
+# Context stage
+context:
+  - plugin: common.passthrough_loader_context
+    options: {}
+
+# Component definitions
+components:
+  # Main render component - image sequences
+  - name: main
+    file_formats: [".exr", ".dpx", ".jpg", ".png", ".tif"]
+    optional: false
+    selected: true
+    plugins:
+      - stage: collector
+        name: common.context_loader_collector
+        options:
+          file_formats: [".exr", ".dpx", ".jpg", ".png", ".tif"]
+      - stage: importer
+        name: nuke.native_loader_importer
+        options:
+          node_type: Read
+          node_settings:
+            before: hold
+            after: hold
+            colorspace: scene_linear
+      - stage: post_importer
+        name: common.passthrough_loader_post_importer
+        options: {}
+
+  # Preview component - lower res preview
+  - name: preview
+    file_formats: [".jpg", ".png", ".mov", ".mp4"]
+    optional: true
+    selected: false
+    plugins:
+      - stage: collector
+        name: common.context_loader_collector
+        options:
+          file_formats: [".jpg", ".png", ".mov", ".mp4"]
+      - stage: importer
+        name: nuke.native_loader_importer
+        options:
+          node_type: Read
+          node_settings:
+            before: hold
+            after: hold
+      - stage: post_importer
+        name: common.passthrough_loader_post_importer
+        options: {}
+
+# Finalizer stages
+finalizers:
+  - name: finalizer
+    plugin: common.passthrough_loader_finalizer
+    options: {}
