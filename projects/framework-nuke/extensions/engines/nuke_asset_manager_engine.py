@@ -17,7 +17,8 @@ from ftrack_framework_nuke.asset.dcc_object import NukeDccObject
 
 
 class NukeAssetManagerEngine(AssetManagerEngine):
-    engine_type = 'asset_manager'
+    name = 'nuke_asset_manager_engine'
+    engine_types = ['asset_manager']
 
     FtrackObjectManager = NukeFtrackObjectManager
     '''FtrackObjectManager class to use'''

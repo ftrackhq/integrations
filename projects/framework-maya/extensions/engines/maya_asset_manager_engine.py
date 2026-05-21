@@ -18,7 +18,8 @@ from ftrack_framework_maya import utils as maya_utils
 
 
 class MayaAssetManagerEngine(AssetManagerEngine):
-    engine_type = 'asset_manager'
+    name = 'maya_asset_manager_engine'
+    engine_types = ['asset_manager']
 
     FtrackObjectManager = MayaFtrackObjectManager
     '''FtrackObjectManager class to use'''

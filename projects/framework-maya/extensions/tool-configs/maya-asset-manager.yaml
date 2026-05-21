@@ -1,6 +1,7 @@
 type: tool_config
 name: maya-asset-manager
 config_type: asset_manager
+engine_name: maya_asset_manager_engine
 engine:
   - type: plugin
     plugin: am_test_discover

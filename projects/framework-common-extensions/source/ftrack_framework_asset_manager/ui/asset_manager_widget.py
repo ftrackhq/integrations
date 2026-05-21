@@ -36,6 +36,8 @@ try:
 except ImportError:
     from ftrack_qt.widgets.base import AccordionBaseWidget
 
+from ftrack_qt.widgets.overlay import BusyIndicator
+
 try:
     from ftrack_qt.widgets.search import Search
 except ImportError:
@@ -197,9 +199,10 @@ class AssetManagerWidget(AssetManagerBaseWidget):
 
     def pre_build(self):
         """Pre-build setup."""
-        self._layout = QtWidgets.QVBoxLayout(self)
-        self._layout.setContentsMargins(0, 0, 0, 0)
-        self._layout.setSpacing(0)
+        # Layout already created by AssetManagerBaseWidget.__init__;
+        # creating another QVBoxLayout(self) here would leave _layout
+        # pointing to an orphaned layout, so children added in build()
+        # would never render.
 
     def build_header(self, layout):
         """Build the header layout.
@@ -226,7 +229,8 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         header_layout.addWidget(rebuild_button)
 
         # Busy indicator
-        self._busy_indicator = QtWidgets.QProgressIndicator(self)
+        self._busy_indicator = BusyIndicator(start=False, parent=self)
+        self._busy_indicator.setFixedSize(20, 20)
         self._busy_indicator.setVisible(False)
         header_layout.addWidget(self._busy_indicator)
 
@@ -278,8 +282,8 @@ class AssetManagerWidget(AssetManagerBaseWidget):
             asset_entities_list: List of asset entities.
         """
         self._asset_list_model.reset()
-        for asset_entity in asset_entities_list:
-            self._asset_list_model.insertRow(asset_entity)
+        if asset_entities_list:
+            self._asset_list_model.insertRows(0, list(asset_entities_list))
 
     def set_busy(self, busy):
         """Show or hide the busy indicator.
@@ -289,6 +293,10 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         """
         if self._busy_indicator:
             self._busy_indicator.setVisible(busy)
+            if busy:
+                self._busy_indicator.start()
+            else:
+                self._busy_indicator.stop()
 
     def create_actions(self):
         """Create context menu actions."""

@@ -67,6 +67,44 @@ class AssetManagerDialog(BaseContextDialog):
 
     def build_ui(self):
         '''Build the Asset Manager specific UI content'''
+        # Select the desired tool_config
+        tool_config_message = None
+        if self.filtered_tool_configs.get('asset_manager'):
+            if len(self.tool_config_names or []) != 1:
+                tool_config_message = (
+                    'One(1) tool config name must be supplied to '
+                    'asset manager!'
+                )
+            else:
+                tool_config_name = self.tool_config_names[0]
+                for tool_config in self.filtered_tool_configs['asset_manager']:
+                    if (
+                        tool_config.get('name', '').lower()
+                        == tool_config_name.lower()
+                    ):
+                        self.logger.debug(
+                            f'Using tool config {tool_config_name}'
+                        )
+                        if self.tool_config != tool_config:
+                            self.tool_config = tool_config
+                        break
+                if not self.tool_config and not tool_config_message:
+                    tool_config_message = (
+                        f'Could not find tool config: "{tool_config_name}"'
+                    )
+        else:
+            tool_config_message = 'No asset_manager tool configs available!'
+
+        if not self.tool_config:
+            self.logger.warning(tool_config_message)
+            label_widget = QtWidgets.QLabel(f'{tool_config_message}')
+            label_widget.setStyleSheet(
+                "font-style: italic; font-weight: bold;"
+            )
+            self.tool_widget.layout().addWidget(label_widget)
+            self.run_button.setEnabled(False)
+            return
+
         # Create the AssetListModel
         self._asset_list_model = AssetListModel(self.event_manager)
 
@@ -156,8 +194,30 @@ class AssetManagerDialog(BaseContextDialog):
         '''(Override) Trigger asset discovery when run button is clicked'''
         self._on_rebuild()
 
+    def plugin_run_callback(self, log_item):
+        '''Receive plugin execution callbacks; populate the asset list
+        when the resolver finishes.'''
+        if log_item.status != 'success_status':
+            # Status constants are 'success_status' / 'error_status' / etc.
+            # but be lenient and check the raw value too.
+            if not (
+                isinstance(log_item.status, str)
+                and log_item.status.lower().startswith('success')
+            ):
+                return
+        store = log_item.store or {}
+        # The resolver puts resolved AssetVersion entities in store['versions'].
+        if (
+            log_item.name == 'am_default_resolver'
+            and self._asset_manager_widget
+        ):
+            versions = store.get('versions') or []
+            self._asset_manager_widget.set_asset_list(versions)
+
     def closeEvent(self, event):
         '''(Override) Clean up widget subscriptions on close'''
-        if self._asset_manager_widget:
+        if self._asset_manager_widget and hasattr(
+            self._asset_manager_widget, 'cleanup'
+        ):
             self._asset_manager_widget.cleanup()
         super(AssetManagerDialog, self).closeEvent(event)

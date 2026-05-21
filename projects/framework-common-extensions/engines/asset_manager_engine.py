@@ -66,6 +66,7 @@ class AssetManagerEngine(BaseEngine):
 
     def get_store(self):
         return {
+            'context_id': self.context_id,
             'asset_entities_list': [],
             'statuses': {},
             'results': {},
