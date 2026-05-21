@@ -446,6 +446,27 @@ def build_package(invokation_path, pkg_path, args, command=None):
                 logging.info('Copying {}'.format(dependency_path))
                 filename = os.path.basename(dependency_path)
 
+                # 'source' folders contain importable Python packages
+                # (e.g. ftrack_framework_asset_manager) that need to be on
+                # PYTHONPATH. Deploy their child packages into the
+                # dependencies folder rather than under extensions/. Merge
+                # into existing destinations so we don't clobber subpackages
+                # already created by the common-extension mirror below.
+                if filename == 'source':
+                    for child in os.listdir(dependency_path):
+                        child_src = os.path.join(dependency_path, child)
+                        child_dest = os.path.join(dependencies_path, child)
+                        if os.path.isdir(child_src):
+                            shutil.copytree(
+                                child_src, child_dest, dirs_exist_ok=True
+                            )
+                        else:
+                            if not os.path.exists(dependencies_path):
+                                os.makedirs(dependencies_path)
+                            if not os.path.exists(child_dest):
+                                shutil.copy(child_src, child_dest)
+                    continue
+
                 dest_path = os.path.join(
                     extensions_destination_path, target_folder, filename
                 )
@@ -457,6 +478,35 @@ def build_package(invokation_path, pkg_path, args, command=None):
                     dependency_path,
                     dest_path,
                 )
+
+                # Mirror common-extension subfolders into the
+                # ftrack_framework_asset_manager source package so DCC
+                # subclasses can import them via the package path
+                # (e.g. ftrack_framework_asset_manager.engines.*).
+                if target_folder == 'common' and filename in (
+                    'engines',
+                    'plugins',
+                    'widgets',
+                    'dialogs',
+                ):
+                    am_pkg_dir = os.path.join(
+                        dependencies_path,
+                        'ftrack_framework_asset_manager',
+                        filename,
+                    )
+                    if not os.path.exists(am_pkg_dir):
+                        os.makedirs(am_pkg_dir)
+                        init_path = os.path.join(am_pkg_dir, '__init__.py')
+                        with open(init_path, 'w') as f:
+                            f.write('')
+                    for child in os.listdir(dependency_path):
+                        if not child.endswith('.py'):
+                            continue
+                        child_src = os.path.join(dependency_path, child)
+                        child_dest = os.path.join(am_pkg_dir, child)
+                        if os.path.exists(child_dest):
+                            continue
+                        shutil.copy(child_src, child_dest)
 
             # Copy DCC config
             dcc_config_path = os.path.join(
