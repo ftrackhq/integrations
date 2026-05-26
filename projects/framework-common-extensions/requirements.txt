@@ -1,6 +1,0 @@
-ftrack_framework_core == "^3.0.0"
-ftrack_utils == "^3.0.0"
-ftrack_qt == "^3.0.0"
-ftrack-constants == "^3.0.0"
-ftrack_framework_qt == "^3.0.0"
-clique == "1.6.1"

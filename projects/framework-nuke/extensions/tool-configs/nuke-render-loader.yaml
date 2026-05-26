@@ -2,66 +2,80 @@
 # :copyright: Copyright (c) 2024 ftrack
 
 # Nuke render/plate loader configuration
-name: nuke_render_loader
+type: tool_config
+name: nuke-render-loader
 config_type: loader
 asset_type: img
+engine_name: nuke_loader_engine
 
 engine:
-  name: nuke_loader_engine
-  type: loader
+  # Context stage
+  - type: plugin
+    tags:
+      - context
+    plugin: common.passthrough_loader_context
 
-# Context stage
-context:
-  - plugin: common.passthrough_loader_context
-    options: {}
-
-# Component definitions
-components:
   # Main render component - image sequences
-  - name: main
+  - type: group
+    tags:
+      - component
+    options:
+      component: main
     file_formats: [".exr", ".dpx", ".jpg", ".png", ".tif"]
-    optional: false
-    selected: true
     plugins:
-      - stage: collector
-        name: common.context_loader_collector
+      - type: plugin
+        tags:
+          - collector
+        plugin: common.context_loader_collector
         options:
           file_formats: [".exr", ".dpx", ".jpg", ".png", ".tif"]
-      - stage: importer
-        name: nuke.native_loader_importer
+      - type: plugin
+        tags:
+          - importer
+        plugin: nuke.native_loader_importer
         options:
           node_type: Read
           node_settings:
             before: hold
             after: hold
             colorspace: scene_linear
-      - stage: post_importer
-        name: common.passthrough_loader_post_importer
-        options: {}
+      - type: plugin
+        tags:
+          - post_importer
+        plugin: common.passthrough_loader_post_importer
 
   # Preview component - lower res preview
-  - name: preview
+  - type: group
+    tags:
+      - component
+    options:
+      component: preview
     file_formats: [".jpg", ".png", ".mov", ".mp4"]
-    optional: true
-    selected: false
+    optional: True
+    enabled: False
     plugins:
-      - stage: collector
-        name: common.context_loader_collector
+      - type: plugin
+        tags:
+          - collector
+        plugin: common.context_loader_collector
         options:
           file_formats: [".jpg", ".png", ".mov", ".mp4"]
-      - stage: importer
-        name: nuke.native_loader_importer
+      - type: plugin
+        tags:
+          - importer
+        plugin: nuke.native_loader_importer
         options:
           node_type: Read
           node_settings:
             before: hold
             after: hold
-      - stage: post_importer
-        name: common.passthrough_loader_post_importer
-        options: {}
+      - type: plugin
+        tags:
+          - post_importer
+        plugin: common.passthrough_loader_post_importer
 
-# Finalizer stages
-finalizers:
-  - name: finalizer
+  # Finalizer stage
+  - type: plugin
+    tags:
+      - finalizer
     plugin: common.passthrough_loader_finalizer
-    options: {}

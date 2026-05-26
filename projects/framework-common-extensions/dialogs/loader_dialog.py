@@ -1,11 +1,14 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
+from functools import partial
+
 try:
     from PySide6 import QtWidgets
 except ImportError:
     from PySide2 import QtWidgets
 
+from ftrack_utils.framework.config.tool import get_groups
 from ftrack_framework_qt.dialogs import BaseContextDialog
 from ftrack_qt.widgets.progress import ProgressWidget
 from ftrack_qt.utils.widget import build_progress_data
@@ -98,9 +101,22 @@ class LoaderDialog(BaseContextDialog):
                             self.overlay_layout.addWidget(
                                 self._progress_widget.overlay_widget
                             )
+                        break
+                if not self.tool_config and not tool_config_message:
+                    tool_config_message = (
+                        f'Could not find tool config: "{tool_config_name}"'
+                    )
+        else:
+            tool_config_message = "No loader tool configs available!"
 
         if tool_config_message:
-            self.show_config_error(tool_config_message)
+            self.logger.warning(tool_config_message)
+            label_widget = QtWidgets.QLabel(f"{tool_config_message}")
+            label_widget.setStyleSheet(
+                "font-style: italic; font-weight: bold;"
+            )
+            self.tool_widget.layout().addWidget(label_widget)
+            self.run_button.setEnabled(False)
             return
 
         # Build component selector widget
@@ -111,46 +127,48 @@ class LoaderDialog(BaseContextDialog):
 
     def _build_component_selector(self):
         """Build widget for selecting components to load"""
-        components = self.tool_config.get("components", [])
-
-        if not components:
+        component_groups = get_groups(
+            self.tool_config, filters={"tags": ["component"]}
+        )
+        if not component_groups:
             return
 
-        # Create group box for components
         group_box = QtWidgets.QGroupBox("Components")
         layout = QtWidgets.QVBoxLayout()
 
-        self._component_checkboxes = {}
+        for _group in component_groups:
+            group_options = _group.get("options") or {}
+            component_name = group_options.get("component", "")
+            file_formats = _group.get("file_formats", [])
+            optional = _group.get("optional", False)
+            enabled = _group.get("enabled", True)
 
-        for component_config in components:
-            component_name = component_config.get("name")
-            file_formats = component_config.get("file_formats", [])
-            optional = component_config.get("optional", False)
-            selected = component_config.get("selected", True)
-
-            # Create checkbox
             checkbox = QtWidgets.QCheckBox(component_name)
-            checkbox.setChecked(selected)
+            checkbox.setChecked(enabled)
+            checkbox.toggled.connect(
+                partial(self._on_component_toggled, _group)
+            )
 
-            # Add description
             formats_str = ", ".join(file_formats) if file_formats else "any"
             description = f"  ({formats_str})"
             if optional:
                 description += " - optional"
-
             label = QtWidgets.QLabel(description)
             label.setStyleSheet("color: gray; margin-left: 20px;")
 
-            # Add to layout
             layout.addWidget(checkbox)
             layout.addWidget(label)
 
-            self._component_checkboxes[component_name] = checkbox
-
         layout.addStretch()
         group_box.setLayout(layout)
+        self.tool_widget.layout().addWidget(group_box)
 
-        self.content_layout.addWidget(group_box)
+    def _on_component_toggled(self, group_config, checked):
+        """Persist component enabled state so execute_engine skips it."""
+        self.set_tool_config_option(
+            {"enabled": checked}, group_config["reference"]
+        )
+        group_config["enabled"] = checked
 
     def _build_load_options_widget(self):
         """Build widget for load options"""
@@ -165,81 +183,7 @@ class LoaderDialog(BaseContextDialog):
         layout.addRow("Load Mode:", self._load_mode_input)
 
         group_box.setLayout(layout)
-        self.content_layout.addWidget(group_box)
+        self.tool_widget.layout().addWidget(group_box)
 
     def post_build_ui(self):
         pass
-
-    def run(self):
-        """Execute loader pipeline"""
-        # Get selected components
-        selected_components = []
-        if hasattr(self, "_component_checkboxes"):
-            selected_components = [
-                name
-                for name, checkbox in self._component_checkboxes.items()
-                if checkbox.isChecked()
-            ]
-
-        if not selected_components:
-            self.logger.warning("No components selected!")
-            return
-
-        # Get load mode
-        load_mode = None
-        if hasattr(self, "_load_mode_input"):
-            load_mode = self._load_mode_input.text().strip()
-
-        # Build options
-        options = {}
-        if load_mode:
-            options["load_mode"] = load_mode
-
-        # Get context from context selector
-        context_data = {}
-        if self.context_id:
-            # Query ftrack for context to get version_id
-            # For now, assume context_id IS the version_id
-            # (This should be enhanced to query properly)
-            context_data["version_id"] = self.context_id
-
-        self.logger.info(
-            f"Running loader with components: {selected_components}, "
-            f"context: {self.context_id}, options: {options}"
-        )
-
-        # Call run method callback
-        result = self._run_method(
-            "run",
-            {
-                "method": "init_and_load",
-                "tool_config": self.tool_config,
-                "context_data": context_data,
-                "selected_components": selected_components,
-                "options": options,
-            },
-        )
-
-        # Update progress
-        if self._progress_widget and result:
-            # Update progress based on results
-            for component_name, component_result in result.get(
-                "component_results", {}
-            ).items():
-                status = component_result.get("status", "unknown")
-                self.logger.info(
-                    f"Component {component_name} status: {status}"
-                )
-
-        return result
-
-    def on_run_plugin_callback(self, plugin_run_result):
-        """Callback when plugin is executed"""
-        if self._progress_widget:
-            self._progress_widget.update(plugin_run_result)
-
-
-def register(api_object, **kw):
-    """Register dialog to framework"""
-    # Auto-registration handled by framework dialog discovery
-    pass

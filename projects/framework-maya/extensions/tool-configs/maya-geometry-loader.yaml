@@ -2,106 +2,135 @@
 # :copyright: Copyright (c) 2024 ftrack
 
 # Maya geometry loader configuration
-name: maya_geometry_loader
+type: tool_config
+name: maya-geometry-loader
 config_type: loader
 asset_type: geo
+engine_name: maya_loader_engine
 
 engine:
-  name: maya_loader_engine
-  type: loader
+  # Context stage
+  - type: plugin
+    tags:
+      - context
+    plugin: common.passthrough_loader_context
 
-# Context stage
-context:
-  - plugin: common.passthrough_loader_context
-    options: {}
-
-# Component definitions
-components:
   # Snapshot component - full scene import
-  - name: snapshot
+  - type: group
+    tags:
+      - component
+    options:
+      component: snapshot
     file_formats: [".mb", ".ma"]
-    optional: false
-    selected: true
     plugins:
-      - stage: collector
-        name: common.context_loader_collector
+      - type: plugin
+        tags:
+          - collector
+        plugin: common.context_loader_collector
         options:
           file_formats: [".mb", ".ma"]
-      - stage: importer
-        name: maya.native_loader_importer
+      - type: plugin
+        tags:
+          - importer
+        plugin: maya.native_loader_importer
         options:
           load_mode: import
           load_options:
             preserve_references: true
             add_namespace: true
             namespace_option: file_name
-      - stage: post_importer
-        name: common.passthrough_loader_post_importer
-        options: {}
+      - type: plugin
+        tags:
+          - post_importer
+        plugin: common.passthrough_loader_post_importer
 
   # Model component - referenced geometry
-  - name: model
+  - type: group
+    tags:
+      - component
+    options:
+      component: model
     file_formats: [".mb", ".ma"]
-    optional: false
-    selected: true
     plugins:
-      - stage: collector
-        name: common.context_loader_collector
+      - type: plugin
+        tags:
+          - collector
+        plugin: common.context_loader_collector
         options:
           file_formats: [".mb", ".ma"]
-      - stage: importer
-        name: maya.native_loader_importer
+      - type: plugin
+        tags:
+          - importer
+        plugin: maya.native_loader_importer
         options:
           load_mode: reference
           load_options:
             preserve_references: true
             add_namespace: true
             namespace_option: file_name
-      - stage: post_importer
-        name: common.passthrough_loader_post_importer
-        options: {}
+      - type: plugin
+        tags:
+          - post_importer
+        plugin: common.passthrough_loader_post_importer
 
   # Cache component - Alembic
-  - name: cache
+  - type: group
+    tags:
+      - component
+    options:
+      component: cache
     file_formats: [".abc"]
-    optional: true
-    selected: false
+    optional: True
+    enabled: False
     plugins:
-      - stage: collector
-        name: common.context_loader_collector
+      - type: plugin
+        tags:
+          - collector
+        plugin: common.context_loader_collector
         options:
           file_formats: [".abc"]
-      - stage: importer
-        name: maya.abc_loader_importer
-        options: {}
-      - stage: post_importer
-        name: common.passthrough_loader_post_importer
-        options: {}
+      - type: plugin
+        tags:
+          - importer
+        plugin: maya.abc_loader_importer
+      - type: plugin
+        tags:
+          - post_importer
+        plugin: common.passthrough_loader_post_importer
 
   # Game component - FBX for game export
-  - name: game
+  - type: group
+    tags:
+      - component
+    options:
+      component: game
     file_formats: [".fbx"]
-    optional: true
-    selected: false
+    optional: True
+    enabled: False
     plugins:
-      - stage: collector
-        name: common.context_loader_collector
+      - type: plugin
+        tags:
+          - collector
+        plugin: common.context_loader_collector
         options:
           file_formats: [".fbx"]
-      - stage: importer
-        name: maya.native_loader_importer
+      - type: plugin
+        tags:
+          - importer
+        plugin: maya.native_loader_importer
         options:
           load_mode: import
           load_options:
             preserve_references: true
             add_namespace: true
             namespace_option: file_name
-      - stage: post_importer
-        name: common.passthrough_loader_post_importer
-        options: {}
+      - type: plugin
+        tags:
+          - post_importer
+        plugin: common.passthrough_loader_post_importer
 
-# Finalizer stages
-finalizers:
-  - name: finalizer
+  # Finalizer stage
+  - type: plugin
+    tags:
+      - finalizer
     plugin: common.passthrough_loader_finalizer
-    options: {}

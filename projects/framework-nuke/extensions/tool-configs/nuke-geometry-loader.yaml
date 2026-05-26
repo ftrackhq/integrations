@@ -2,60 +2,74 @@
 # :copyright: Copyright (c) 2024 ftrack
 
 # Nuke geometry loader configuration
-name: nuke_geometry_loader
+type: tool_config
+name: nuke-geometry-loader
 config_type: loader
 asset_type: geo
+engine_name: nuke_loader_engine
 
 engine:
-  name: nuke_loader_engine
-  type: loader
+  # Context stage
+  - type: plugin
+    tags:
+      - context
+    plugin: common.passthrough_loader_context
 
-# Context stage
-context:
-  - plugin: common.passthrough_loader_context
-    options: {}
-
-# Component definitions
-components:
   # Cache component - Alembic geometry
-  - name: cache
+  - type: group
+    tags:
+      - component
+    options:
+      component: cache
     file_formats: [".abc"]
-    optional: false
-    selected: true
     plugins:
-      - stage: collector
-        name: common.context_loader_collector
+      - type: plugin
+        tags:
+          - collector
+        plugin: common.context_loader_collector
         options:
           file_formats: [".abc"]
-      - stage: importer
-        name: nuke.abc_loader_importer
+      - type: plugin
+        tags:
+          - importer
+        plugin: nuke.abc_loader_importer
         options:
           node_settings: {}
-      - stage: post_importer
-        name: common.passthrough_loader_post_importer
-        options: {}
+      - type: plugin
+        tags:
+          - post_importer
+        plugin: common.passthrough_loader_post_importer
 
   # Model component - geometry files
-  - name: model
+  - type: group
+    tags:
+      - component
+    options:
+      component: model
     file_formats: [".abc", ".obj", ".fbx"]
-    optional: true
-    selected: false
+    optional: True
+    enabled: False
     plugins:
-      - stage: collector
-        name: common.context_loader_collector
+      - type: plugin
+        tags:
+          - collector
+        plugin: common.context_loader_collector
         options:
           file_formats: [".abc", ".obj", ".fbx"]
-      - stage: importer
-        name: nuke.native_loader_importer
+      - type: plugin
+        tags:
+          - importer
+        plugin: nuke.native_loader_importer
         options:
           node_type: ReadGeo2
           node_settings: {}
-      - stage: post_importer
-        name: common.passthrough_loader_post_importer
-        options: {}
+      - type: plugin
+        tags:
+          - post_importer
+        plugin: common.passthrough_loader_post_importer
 
-# Finalizer stages
-finalizers:
-  - name: finalizer
+  # Finalizer stage
+  - type: plugin
+    tags:
+      - finalizer
     plugin: common.passthrough_loader_finalizer
-    options: {}
