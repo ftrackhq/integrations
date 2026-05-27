@@ -38,6 +38,4 @@ search_path:
       - Applications
     expression:
       - Nuke.*
-      - NukeStudio\d[\w.]+.app
-    launch_arguments:
-      - "--hiero"
+      - Hiero\d[\w.]+.app
