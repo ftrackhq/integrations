@@ -1,0 +1,80 @@
+/* Asset Manager */
+
+/* Asset row */
+AssetWidget {
+    border: 1px solid $border-color;
+    border-radius: 4px;
+    padding: 8px;
+    margin-bottom: 4px;
+    background-color: transparent;
+}
+
+AssetWidget[selected='true'] {
+    background-color: $background-selected;
+    border-color: $color-primary;
+}
+
+AssetWidget:hover {
+    background-color: $background-selected;
+}
+
+/* Path label sits before the asset name; tone it down */
+AssetWidget QLabel[asset_path='true'] {
+    color: $text-color-inactive;
+}
+
+/* Asset name label, bold */
+AssetWidget QLabel[asset_name='true'] {
+    color: $text-color-light;
+    font-weight: bold;
+}
+
+/* Component filename labels: green when this is the latest version, muted otherwise */
+ComponentAndVersionWidget QLabel {
+    color: $text-color;
+}
+
+ComponentAndVersionWidget QLabel[latest_version='true'] {
+    color: $color-green;
+}
+
+/* Asset version selector inherits QComboBox styles automatically */
+
+/* Status badge */
+AssetVersionStatusWidget {
+    border-radius: 8px;
+    padding: 2px 8px;
+    color: $text-color-light;
+}
+
+AssetVersionStatusWidget QLabel {
+    color: $text-color-light;
+    background-color: transparent;
+}
+
+AssetVersionStatusWidget[status='loaded'] {
+    background-color: $color-green;
+}
+
+AssetVersionStatusWidget[status='updated'] {
+    background-color: $color-blue;
+}
+
+AssetVersionStatusWidget[status='unloaded'] {
+    background-color: $gray-dark;
+}
+
+AssetVersionStatusWidget[status='unknown'] {
+    background-color: $color-orange;
+}
+
+/* Asset manager header title */
+AssetManagerWidget QLabel[h2='true'] {
+    /* picked up via the existing QLabel[h2='true'] rule */
+}
+
+/* Expanded asset content sub-labels */
+AssetWidget QLabel[section_title='true'] {
+    color: $text-color-light;
+    font-weight: bold;
+}

@@ -112,9 +112,7 @@ class LoaderDialog(BaseContextDialog):
         if tool_config_message:
             self.logger.warning(tool_config_message)
             label_widget = QtWidgets.QLabel(f"{tool_config_message}")
-            label_widget.setStyleSheet(
-                "font-style: italic; font-weight: bold;"
-            )
+            label_widget.setProperty("warning", True)
             self.tool_widget.layout().addWidget(label_widget)
             self.run_button.setEnabled(False)
             return
@@ -154,7 +152,8 @@ class LoaderDialog(BaseContextDialog):
             if optional:
                 description += " - optional"
             label = QtWidgets.QLabel(description)
-            label.setStyleSheet("color: gray; margin-left: 20px;")
+            # QLabel[secondary='true'] is styled by the theme as muted gray.
+            label.setProperty("secondary", True)
 
             layout.addWidget(checkbox)
             layout.addWidget(label)

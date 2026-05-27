@@ -4,13 +4,12 @@
 """Asset manager widgets for ftrack."""
 
 import json
-import platform
 from functools import partial
 
 try:
-    from PySide6 import QtWidgets, QtCore, QtGui
+    from PySide6 import QtWidgets, QtCore
 except ImportError:
-    from PySide2 import QtWidgets, QtCore, QtGui
+    from PySide2 import QtWidgets, QtCore
 
 try:
     from shiboken2 import isValid
@@ -20,16 +19,6 @@ except ImportError:
         """Fallback for shiboken2.isValid."""
         return True
 
-
-from ftrack_framework_asset_manager.asset.constants import (
-    ASSET_INFO_OPTIONS,
-)
-from ftrack_framework_asset_manager.asset.ftrack_asset_info import (
-    FtrackAssetInfo,
-)
-from ftrack_framework_asset_manager.asset.asset_list_model import (
-    AssetListModel,
-)
 
 try:
     from ftrack_qt.widgets.accordion import AccordionBaseWidget
@@ -170,11 +159,11 @@ class AssetManagerWidget(AssetManagerBaseWidget):
     stopBusyIndicator = QtCore.Signal()
 
     DEFAULT_ACTIONS = {
-        'select': 'Select',
-        'load': 'Load',
-        'update': 'Update',
-        'unload': 'Unload',
-        'remove': 'Remove',
+        "select": "Select",
+        "load": "Load",
+        "update": "Update",
+        "unload": "Unload",
+        "remove": "Remove",
     }
 
     def __init__(self, event_manager, asset_list_model, parent=None):
@@ -214,9 +203,9 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         header_layout.setContentsMargins(6, 6, 6, 6)
         header_layout.setSpacing(6)
 
-        # Title label
+        # Title label - QLabel[h2='true'] is styled by the theme
         title_label = QtWidgets.QLabel("Asset Manager")
-        title_label.setStyleSheet("font-weight: bold; font-size: 14px;")
+        title_label.setProperty("h2", True)
         header_layout.addWidget(title_label)
 
         # Stretch to push buttons to the right
@@ -331,15 +320,15 @@ class AssetManagerWidget(AssetManagerBaseWidget):
             action: The triggered action.
         """
         action_id = action.data()
-        if action_id == 'select':
+        if action_id == "select":
             self.ctx_select()
-        elif action_id == 'load':
+        elif action_id == "load":
             self.ctx_load()
-        elif action_id == 'update':
+        elif action_id == "update":
             self.ctx_update()
-        elif action_id == 'unload':
+        elif action_id == "unload":
             self.ctx_unload()
-        elif action_id == 'remove':
+        elif action_id == "remove":
             self.ctx_remove()
 
     def ctx_select(self):
@@ -490,8 +479,8 @@ class AssetManagerListWidget(QtWidgets.QWidget):
         if search_text is None:
             search_text = (
                 self._search_widget.text()
-                if hasattr(self, '_search_widget')
-                else ''
+                if hasattr(self, "_search_widget")
+                else ""
             )
 
         for asset_widget in self._assets:
@@ -606,34 +595,20 @@ class AssetWidget(AccordionBaseWidget):
         self._asset_info = None
         self._selected = False
 
-        self.setStyleSheet(
-            """
-            AssetWidget {
-                border: 1px solid #333;
-                border-radius: 4px;
-                padding: 8px;
-                margin-bottom: 4px;
-            }
-            AssetWidget[selected="true"] {
-                background-color: #444;
-            }
-        """
-        )
-
     def init_header_content(self):
         """Initialize the header content."""
         header_layout = QtWidgets.QHBoxLayout()
         header_layout.setContentsMargins(0, 0, 0, 0)
         header_layout.setSpacing(6)
 
-        # Path label
+        # Path label - styled via AssetWidget QLabel[asset_path='true']
         self._path_label = QtWidgets.QLabel()
-        self._path_label.setStyleSheet("color: #999;")
+        self._path_label.setProperty("asset_path", True)
         header_layout.addWidget(self._path_label)
 
-        # Asset name label
+        # Asset name label - styled via AssetWidget QLabel[asset_name='true']
         self._asset_name_label = QtWidgets.QLabel()
-        self._asset_name_label.setStyleSheet("font-weight: bold;")
+        self._asset_name_label.setProperty("asset_name", True)
         header_layout.addWidget(self._asset_name_label)
 
         # Component and version widget
@@ -661,19 +636,19 @@ class AssetWidget(AccordionBaseWidget):
             return
 
         # Set header content
-        self._path_label.setText(asset_info.get('path', ''))
-        self._asset_name_label.setText(asset_info.get('asset_name', ''))
+        self._path_label.setText(asset_info.get("path", ""))
+        self._asset_name_label.setText(asset_info.get("asset_name", ""))
 
         # Set component and version
-        component_path = asset_info.get('component_path', '')
-        version_nr = asset_info.get('version_nr', 0)
-        versions = asset_info.get('versions', [])
+        component_path = asset_info.get("component_path", "")
+        version_nr = asset_info.get("version_nr", 0)
+        versions = asset_info.get("versions", [])
 
         self._component_version_widget.set_component_filename(component_path)
         self._component_version_widget.set_version(version_nr, versions)
 
         # Set status
-        status = asset_info.get('status', 'unknown')
+        status = asset_info.get("status", "unknown")
         self._status_widget.set_status(status)
 
     def matches(self, search_text):
@@ -695,10 +670,10 @@ class AssetWidget(AccordionBaseWidget):
 
         # Check all relevant fields
         fields_to_check = [
-            self._asset_info.get('path', ''),
-            self._asset_info.get('asset_name', ''),
-            self._asset_info.get('component_path', ''),
-            self._asset_info.get('status', ''),
+            self._asset_info.get("path", ""),
+            self._asset_info.get("asset_name", ""),
+            self._asset_info.get("component_path", ""),
+            self._asset_info.get("status", ""),
         ]
 
         for field in fields_to_check:
@@ -735,19 +710,19 @@ class AssetWidget(AccordionBaseWidget):
         # Entity info
         entity_info = EntityInfo(self)
         entity_info.setText(
-            "Entity: {}".format(self._asset_info.get('entity_type', 'Unknown'))
+            "Entity: {}".format(self._asset_info.get("entity_type", "Unknown"))
         )
         content_layout.addWidget(entity_info)
 
-        # Dependencies
+        # Dependencies - styled via AssetWidget QLabel[section_title='true']
         dependencies_label = QtWidgets.QLabel("Dependencies:")
-        dependencies_label.setStyleSheet("font-weight: bold;")
+        dependencies_label.setProperty("section_title", True)
         content_layout.addWidget(dependencies_label)
 
         dependencies_text = QtWidgets.QTextEdit()
         dependencies_text.setReadOnly(True)
         dependencies_text.setPlainText(
-            json.dumps(self._asset_info.get('dependencies', {}), indent=2)
+            json.dumps(self._asset_info.get("dependencies", {}), indent=2)
         )
         content_layout.addWidget(dependencies_text)
 
@@ -760,7 +735,7 @@ class AssetWidget(AccordionBaseWidget):
             selected: Whether the widget is selected.
         """
         self._selected = selected
-        self.setProperty('selected', selected)
+        self.setProperty("selected", selected)
         self.style().unpolish(self)
         self.style().polish(self)
 
@@ -796,14 +771,9 @@ class AssetVersionStatusWidget(QtWidgets.QFrame):
         layout.setContentsMargins(2, 2, 2, 2)
         layout.addWidget(self._status_label)
 
-        self.setStyleSheet(
-            """
-            AssetVersionStatusWidget {
-                border-radius: 8px;
-                padding: 2px 8px;
-            }
-        """
-        )
+        # All visual styling lives in widget/_asset_manager.scss,
+        # keyed off the 'status' property below.
+        self.setProperty("status", "unknown")
 
     def set_status(self, status):
         """Set the status.
@@ -812,52 +782,11 @@ class AssetVersionStatusWidget(QtWidgets.QFrame):
             status: The status to display.
         """
         self._status_label.setText(status)
-
-        # Set color based on status
-        if status == 'loaded':
-            self.setStyleSheet(
-                """
-                AssetVersionStatusWidget {
-                    background-color: #4CAF50;
-                    color: white;
-                    border-radius: 8px;
-                    padding: 2px 8px;
-                }
-            """
-            )
-        elif status == 'updated':
-            self.setStyleSheet(
-                """
-                AssetVersionStatusWidget {
-                    background-color: #2196F3;
-                    color: white;
-                    border-radius: 8px;
-                    padding: 2px 8px;
-                }
-            """
-            )
-        elif status == 'unloaded':
-            self.setStyleSheet(
-                """
-                AssetVersionStatusWidget {
-                    background-color: #9E9E9E;
-                    color: white;
-                    border-radius: 8px;
-                    padding: 2px 8px;
-                }
-            """
-            )
-        else:
-            self.setStyleSheet(
-                """
-                AssetVersionStatusWidget {
-                    background-color: #FF9800;
-                    color: white;
-                    border-radius: 8px;
-                    padding: 2px 8px;
-                }
-            """
-            )
+        # Map status to one of the values targeted by SCSS.
+        known = ("loaded", "updated", "unloaded")
+        self.setProperty("status", status if status in known else "unknown")
+        self.style().unpolish(self)
+        self.style().polish(self)
 
 
 class AssetVersionSelector(QtWidgets.QComboBox):
@@ -871,18 +800,9 @@ class AssetVersionSelector(QtWidgets.QComboBox):
         """
         super(AssetVersionSelector, self).__init__(parent=parent)
 
+        # AssetVersionSelector is a QComboBox - the theme styles
+        # QComboBox (border, padding, drop-down, etc.) automatically.
         self.setFixedWidth(100)
-        self.setStyleSheet(
-            """
-            AssetVersionSelector {
-                padding: 2px 8px;
-                border: 1px solid #555;
-                border-radius: 4px;
-                background-color: #333;
-                color: white;
-            }
-        """
-        )
 
 
 class ComponentAndVersionWidget(QtWidgets.QWidget):
@@ -900,9 +820,10 @@ class ComponentAndVersionWidget(QtWidgets.QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(4)
 
-        # Component filename label
+        # Component filename label - color driven by 'latest_version' property
+        # via ComponentAndVersionWidget QLabel[latest_version='true'] in SCSS.
         self._component_label = QtWidgets.QLabel(self)
-        self._component_label.setStyleSheet("color: #CCC;")
+        self._component_label.setProperty("latest_version", False)
         layout.addWidget(self._component_label)
 
         # Version selector
@@ -918,10 +839,11 @@ class ComponentAndVersionWidget(QtWidgets.QWidget):
         Args:
             is_latest_version: Whether this is the latest version.
         """
-        if is_latest_version:
-            self._component_label.setStyleSheet("color: #8BC34A;")
-        else:
-            self._component_label.setStyleSheet("color: #CCC;")
+        self._component_label.setProperty(
+            "latest_version", bool(is_latest_version)
+        )
+        self._component_label.style().unpolish(self._component_label)
+        self._component_label.style().polish(self._component_label)
 
     def set_component_filename(self, component_path):
         """Set the component filename.
@@ -930,7 +852,7 @@ class ComponentAndVersionWidget(QtWidgets.QWidget):
             component_path: The component path.
         """
         # Extract just the filename
-        filename = component_path.split('/')[-1] if component_path else ''
+        filename = component_path.split("/")[-1] if component_path else ""
         self._component_label.setText(filename)
 
     def set_version(self, version_nr, versions=None):
@@ -964,5 +886,5 @@ class ComponentAndVersionWidget(QtWidgets.QWidget):
         version_id = self._version_selector.itemData(index)
         # Emit signal through parent widget if it has changeAssetVersion
         parent = self.parent()
-        if hasattr(parent, 'changeAssetVersion'):
+        if hasattr(parent, "changeAssetVersion"):
             parent.changeAssetVersion.emit(parent.asset_info, version_id)

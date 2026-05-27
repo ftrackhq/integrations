@@ -2,9 +2,9 @@
 # :copyright: Copyright (c) 2024 ftrack
 
 try:
-    from PySide6 import QtWidgets, QtCore
+    from PySide6 import QtWidgets
 except ImportError:
-    from PySide2 import QtWidgets, QtCore
+    from PySide2 import QtWidgets
 
 from ftrack_framework_qt.dialogs import BaseContextDialog
 from ftrack_framework_asset_manager.ui.asset_manager_widget import (
@@ -16,12 +16,12 @@ from ftrack_framework_asset_manager.asset.asset_list_model import (
 
 
 class AssetManagerDialog(BaseContextDialog):
-    '''Default Framework Asset Manager dialog'''
+    """Default Framework Asset Manager dialog"""
 
-    name = 'framework_asset_manager_dialog'
-    tool_config_type_filter = ['asset_manager']
-    run_button_title = 'DISCOVER'
-    ui_type = 'qt'
+    name = "framework_asset_manager_dialog"
+    tool_config_type_filter = ["asset_manager"]
+    run_button_title = "DISCOVER"
+    ui_type = "qt"
 
     def __init__(
         self,
@@ -33,7 +33,7 @@ class AssetManagerDialog(BaseContextDialog):
         dialog_options,
         parent=None,
     ):
-        '''
+        """
         Initialize Asset Manager dialog.
         *event_manager*: instance of
         :class:`~ftrack_framework_core.event.EventManager`
@@ -46,7 +46,7 @@ class AssetManagerDialog(BaseContextDialog):
         the dialog to be able to write client properties.
         *dialog_options*: Dictionary of arguments passed to configure the
         current dialog.
-        '''
+        """
         self._asset_list_model = None
         self._asset_manager_widget = None
 
@@ -59,31 +59,31 @@ class AssetManagerDialog(BaseContextDialog):
             dialog_options,
             parent=parent,
         )
-        self.setWindowTitle('ftrack Asset Manager')
+        self.setWindowTitle("ftrack Asset Manager")
 
     def pre_build_ui(self):
-        '''Prepare the UI before building the main content'''
+        """Prepare the UI before building the main content"""
         pass
 
     def build_ui(self):
-        '''Build the Asset Manager specific UI content'''
+        """Build the Asset Manager specific UI content"""
         # Select the desired tool_config
         tool_config_message = None
-        if self.filtered_tool_configs.get('asset_manager'):
+        if self.filtered_tool_configs.get("asset_manager"):
             if len(self.tool_config_names or []) != 1:
                 tool_config_message = (
-                    'One(1) tool config name must be supplied to '
-                    'asset manager!'
+                    "One(1) tool config name must be supplied to "
+                    "asset manager!"
                 )
             else:
                 tool_config_name = self.tool_config_names[0]
-                for tool_config in self.filtered_tool_configs['asset_manager']:
+                for tool_config in self.filtered_tool_configs["asset_manager"]:
                     if (
-                        tool_config.get('name', '').lower()
+                        tool_config.get("name", "").lower()
                         == tool_config_name.lower()
                     ):
                         self.logger.debug(
-                            f'Using tool config {tool_config_name}'
+                            f"Using tool config {tool_config_name}"
                         )
                         if self.tool_config != tool_config:
                             self.tool_config = tool_config
@@ -93,14 +93,12 @@ class AssetManagerDialog(BaseContextDialog):
                         f'Could not find tool config: "{tool_config_name}"'
                     )
         else:
-            tool_config_message = 'No asset_manager tool configs available!'
+            tool_config_message = "No asset_manager tool configs available!"
 
         if not self.tool_config:
             self.logger.warning(tool_config_message)
-            label_widget = QtWidgets.QLabel(f'{tool_config_message}')
-            label_widget.setStyleSheet(
-                "font-style: italic; font-weight: bold;"
-            )
+            label_widget = QtWidgets.QLabel(f"{tool_config_message}")
+            label_widget.setProperty("warning", True)
             self.tool_widget.layout().addWidget(label_widget)
             self.run_button.setEnabled(False)
             return
@@ -129,95 +127,95 @@ class AssetManagerDialog(BaseContextDialog):
         )
 
     def post_build_ui(self):
-        '''Finalize the UI after building the main content'''
+        """Finalize the UI after building the main content"""
         pass
 
     def _on_refresh(self):
-        '''Refresh the asset list from the model data'''
+        """Refresh the asset list from the model data"""
         self._asset_manager_widget._asset_list.rebuild()
 
     def _on_rebuild(self):
-        '''Query DCC for scene assets and update the model'''
-        self.run_tool_config(self.tool_config['reference'])
+        """Query DCC for scene assets and update the model"""
+        self.run_tool_config(self.tool_config["reference"])
 
     def _on_select_assets(self, asset_info_list, plugin):
-        '''Select assets in DCC'''
+        """Select assets in DCC"""
         self.run_tool_config(
-            self.tool_config['reference'],
-            method='select_assets',
+            self.tool_config["reference"],
+            method="select_assets",
             assets=asset_info_list,
         )
 
     def _on_remove_assets(self, asset_info_list, plugin):
-        '''Remove assets from DCC'''
+        """Remove assets from DCC"""
         self.run_tool_config(
-            self.tool_config['reference'],
-            method='remove_assets',
+            self.tool_config["reference"],
+            method="remove_assets",
             assets=asset_info_list,
         )
 
     def _on_load_assets(self, asset_info_list, plugin):
-        '''Load assets into DCC'''
+        """Load assets into DCC"""
         self.run_tool_config(
-            self.tool_config['reference'],
-            method='load_assets',
+            self.tool_config["reference"],
+            method="load_assets",
             assets=asset_info_list,
         )
 
     def _on_unload_assets(self, asset_info_list, plugin):
-        '''Unload assets from DCC'''
+        """Unload assets from DCC"""
         self.run_tool_config(
-            self.tool_config['reference'],
-            method='unload_assets',
+            self.tool_config["reference"],
+            method="unload_assets",
             assets=asset_info_list,
         )
 
     def _on_update_assets(self, asset_info_list, plugin):
-        '''Update DCC assets to latest version'''
+        """Update DCC assets to latest version"""
         self.run_tool_config(
-            self.tool_config['reference'],
-            method='update_assets',
+            self.tool_config["reference"],
+            method="update_assets",
             assets=asset_info_list,
             plugin=plugin,
         )
 
     def _on_change_asset_version(self, asset_info, version_entity):
-        '''Change the version of an asset'''
+        """Change the version of an asset"""
         self.run_tool_config(
-            self.tool_config['reference'],
-            method='change_version',
+            self.tool_config["reference"],
+            method="change_version",
             assets=asset_info,
-            options={'new_version_id': version_entity['id']},
+            options={"new_version_id": version_entity["id"]},
         )
 
     def _on_run_button_clicked(self):
-        '''(Override) Trigger asset discovery when run button is clicked'''
+        """(Override) Trigger asset discovery when run button is clicked"""
         self._on_rebuild()
 
     def plugin_run_callback(self, log_item):
-        '''Receive plugin execution callbacks; populate the asset list
-        when the resolver finishes.'''
-        if log_item.status != 'success_status':
+        """Receive plugin execution callbacks; populate the asset list
+        when the resolver finishes."""
+        if log_item.status != "success_status":
             # Status constants are 'success_status' / 'error_status' / etc.
             # but be lenient and check the raw value too.
             if not (
                 isinstance(log_item.status, str)
-                and log_item.status.lower().startswith('success')
+                and log_item.status.lower().startswith("success")
             ):
                 return
         store = log_item.store or {}
         # The resolver puts resolved AssetVersion entities in store['versions'].
         if (
-            log_item.name == 'am_default_resolver'
+            log_item.name == "am_default_resolver"
             and self._asset_manager_widget
         ):
-            versions = store.get('versions') or []
+            versions = store.get("versions") or []
             self._asset_manager_widget.set_asset_list(versions)
 
     def closeEvent(self, event):
-        '''(Override) Clean up widget subscriptions on close'''
+        """(Override) Clean up widget subscriptions on close"""
         if self._asset_manager_widget and hasattr(
-            self._asset_manager_widget, 'cleanup'
+            self._asset_manager_widget, "cleanup"
         ):
             self._asset_manager_widget.cleanup()
         super(AssetManagerDialog, self).closeEvent(event)
