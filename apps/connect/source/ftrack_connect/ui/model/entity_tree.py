@@ -180,7 +180,11 @@ class Root(Item):
     def _fetchChildren(self):
         """Fetch and return new child items."""
         children = []
-        for entity in self._session.query("Project where status is active"):
+        # Include full_name in projection to avoid N+1 query problem
+        # where each Project.name property triggers a separate API call
+        for entity in self._session.query(
+            "select id, name, full_name from Project where status is active"
+        ):
             children.append(Project(self._session, entity))
 
         return children
