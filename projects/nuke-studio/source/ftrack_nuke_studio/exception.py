@@ -6,19 +6,19 @@ import traceback
 
 
 class Error(Exception):
-    '''ftrack specific error.'''
+    """ftrack specific error."""
 
-    default_message = 'Unspecified error occurred.'
+    default_message = "Unspecified error occurred."
 
     def __init__(self, message=None, details=None):
-        '''Initialise exception with *message*.
+        """Initialise exception with *message*.
 
         If *message* is None, the class 'default_message' will be used.
 
         *details* should be a mapping of extra information that can be used in
         the message and also to provide more context.
 
-        '''
+        """
         if message is None:
             message = self.default_message
 
@@ -30,29 +30,29 @@ class Error(Exception):
         self.traceback = traceback.format_exc()
 
     def __str__(self):
-        '''Return string representation.'''
+        """Return string representation."""
         keys = {}
-        for key, value in self.details.iteritems():
-            if isinstance(value, unicode):
-                value = value.encode(sys.getfilesystemencoding())
+        for key, value in self.details.items():
+            if isinstance(value, bytes):
+                value = value.decode(sys.getfilesystemencoding())
             keys[key] = value
 
         return str(self.message.format(**keys))
 
 
 class ValidationError(Error):
-    '''Raise when an validation error occurs.'''
+    """Raise when an validation error occurs."""
 
-    default_message = 'Validation error.'
+    default_message = "Validation error."
 
 
 class PermissionDeniedError(Error):
-    '''Raise when permission is denied.'''
+    """Raise when permission is denied."""
 
-    default_message = 'Permission denied.'
+    default_message = "Permission denied."
 
 
 class TemplateError(Error):
-    '''Raise when an template error occurs.'''
+    """Raise when an template error occurs."""
 
-    default_message = 'Template error'
+    default_message = "Template error"
