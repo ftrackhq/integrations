@@ -38,4 +38,4 @@ search_path:
       - Applications
     expression:
       - Nuke.*
-      - NukeStudio\d[\w.]+.app
+      - Hiero\d[\w.]+.app
