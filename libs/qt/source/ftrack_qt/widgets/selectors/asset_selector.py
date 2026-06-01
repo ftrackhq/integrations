@@ -21,30 +21,30 @@ from ftrack_qt.widgets.lists import AssetList
 
 
 class AssetSelectorBase(QtWidgets.QWidget):
-    '''This widget allows the user to select an existing asset and asset version.'''
+    """This widget allows the user to select an existing asset and asset version."""
 
     assets_added = QtCore.Signal(object)
-    '''This signal is emitted when assets are added. It sends a list of assets 
-    dictionaries as an argument'''
+    """This signal is emitted when assets are added. It sends a list of assets 
+    dictionaries as an argument"""
 
     version_changed = QtCore.Signal(object)
-    '''This signal is emitted when the version is changed. It sends the version 
-    number as an argument '''
+    """This signal is emitted when the version is changed. It sends the version 
+    number as an argument """
 
     selected_item_changed = QtCore.Signal(object, object)
-    '''This signal is emitted when an item is selected. It sends the version 
-    dictionary as an argument and the asset id'''
+    """This signal is emitted when an item is selected. It sends the version 
+    dictionary as an argument and the asset id"""
 
     def __init__(
         self,
         parent=None,
     ):
-        '''
+        """
         This method initialises the asset selector widget.
-        '''
+        """
         super(AssetSelectorBase, self).__init__(parent=parent)
         self.logger = logging.getLogger(
-            __name__ + '.' + self.__class__.__name__
+            __name__ + "." + self.__class__.__name__
         )
 
         self._asset_list = None
@@ -56,20 +56,20 @@ class AssetSelectorBase(QtWidgets.QWidget):
         self.post_build()
 
     def pre_build(self):
-        '''This method sets up the main layout for the widget.'''
+        """This method sets up the main layout for the widget."""
         main_layout = QtWidgets.QVBoxLayout()
         main_layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(main_layout)
 
     def build(self):
-        '''This method builds the asset list and adds it to the layout.'''
+        """This method builds the asset list and adds it to the layout."""
 
         self._asset_list = AssetList(AssetVersionSelection)
 
         self.layout().addWidget(self._asset_list)
 
     def post_build(self):
-        '''This method connects signals to slots after building the widget.'''
+        """This method connects signals to slots after building the widget."""
         self._asset_list.assets_added.connect(self._on_assets_added)
         self._asset_list.version_changed.connect(self._on_version_changed)
         self._asset_list.selected_item_changed.connect(
@@ -77,50 +77,58 @@ class AssetSelectorBase(QtWidgets.QWidget):
         )
 
     def _on_assets_added(self, assets):
-        '''This method emits the assets_added signal with the given assets.'''
+        """This method emits the assets_added signal with the given assets."""
         self.assets_added.emit(assets)
 
     def set_assets(self, assets):
-        '''This method sets the assets in the asset list and shows or hides it
-        based on the presence of assets.'''
+        """This method sets the assets in the asset list and shows or hides it
+        based on the presence of assets."""
         self._asset_list.set_assets(assets)
 
     def _on_version_changed(self, version):
-        '''This method emits the version_changed signal with the given version.'''
+        """This method emits the version_changed signal with the given version."""
         self.version_changed.emit(version)
 
     def _on_selected_item_changed_callback(self, index, version, asset_id):
-        '''This method updates the selected index and emits the
-        selected_item_changed signal with the given version.'''
+        """This method updates the selected index and emits the
+        selected_item_changed signal with the given version."""
         self.selected_index = index
         self.selected_item_changed.emit(version, asset_id)
 
 
 class OpenAssetSelector(AssetSelectorBase):
-    '''Asset selector tailored for open.'''
+    """Asset selector tailored for open."""
 
     def __init__(self):
-        '''This method initialises the open asset selector widget.'''
+        """This method initialises the open asset selector widget."""
         super(OpenAssetSelector, self).__init__()
+
+    def build(self):
+        """Build the asset list with auto-preselection disabled so the Loader
+        opens with no row selected."""
+        self._asset_list = AssetList(
+            AssetVersionSelection, auto_select_latest=False
+        )
+        self.layout().addWidget(self._asset_list)
 
 
 class PublishAssetSelector(AssetSelectorBase):
-    '''Asset selector tailored for publish, allows user to select and existing
-    asset or input an asset name for creating a new asset.'''
+    """Asset selector tailored for publish, allows user to select and existing
+    asset or input an asset name for creating a new asset."""
 
-    VALID_ASSET_NAME = QRegularExpression('[A-Za-z0-9_]+')
+    VALID_ASSET_NAME = QRegularExpression("[A-Za-z0-9_]+")
 
     new_asset = QtCore.Signal(object)
-    '''This signal is emitted when a new asset is selected. It sends the
-    new asset_name as argument.'''
+    """This signal is emitted when a new asset is selected. It sends the
+    new asset_name as argument."""
 
     def __init__(
         self,
         parent=None,
     ):
-        '''
+        """
         This method initialises the publish asset selector widget.
-        '''
+        """
         self._list_and_input = None
         self._new_asset_input = None
         self.validator = QRegularExpressionValidator(self.VALID_ASSET_NAME)
@@ -129,8 +137,8 @@ class PublishAssetSelector(AssetSelectorBase):
         super(PublishAssetSelector, self).__init__(parent=parent)
 
     def build(self):
-        '''This method builds the asset list and new asset input and adds them
-        to the layout.'''
+        """This method builds the asset list and new asset input and adds them
+        to the layout."""
         self._list_and_input = AssetListAndInput()
 
         self._asset_list = AssetList(AssetVersionCreation)
@@ -146,7 +154,7 @@ class PublishAssetSelector(AssetSelectorBase):
         self.layout().addWidget(self._list_and_input)
 
     def post_build(self):
-        '''This method connects signals to slots after building the widget.'''
+        """This method connects signals to slots after building the widget."""
         super(PublishAssetSelector, self).post_build()
         self._asset_list.active_changed.connect(
             self._on_asset_list_active_changed_callback
@@ -164,7 +172,7 @@ class PublishAssetSelector(AssetSelectorBase):
             self._new_asset_input.active = False
 
     def _on_new_asset_active_changed_callback(self, active):
-        '''This method handles changes to the new asset name input.'''
+        """This method handles changes to the new asset name input."""
         if active:
             # Deactivate list
             self._asset_list.active = False
@@ -179,12 +187,12 @@ class PublishAssetSelector(AssetSelectorBase):
             self.new_asset.emit(None)
 
     def validate_name(self, asset_name):
-        '''This method validates the given asset name and updates the input style.'''
+        """This method validates the given asset name and updates the input style."""
         is_valid_bool = True
         # Already an asset by that name
         if self._asset_list.assets:
             for asset_id, asset_dict in self._asset_list.assets.items():
-                if asset_dict['name'].lower() == asset_name.lower():
+                if asset_dict["name"].lower() == asset_name.lower():
                     is_valid_bool = False
                     break
         if is_valid_bool and self.validator:
@@ -197,7 +205,7 @@ class PublishAssetSelector(AssetSelectorBase):
         return is_valid_bool
 
     def set_default_new_asset_name(self, name):
-        '''This method sets the default name for the new asset input.'''
+        """This method sets the default name for the new asset input."""
         self._new_asset_input.set_default_name(name)
 
     def set_assets(self, assets):
@@ -213,10 +221,10 @@ class PublishAssetSelector(AssetSelectorBase):
 
 
 class AssetListAndInput(QtWidgets.QWidget):
-    '''This is a compound widget containing an asset list and a new asset input'''
+    """This is a compound widget containing an asset list and a new asset input"""
 
     def __init__(self, parent=None):
-        '''This method initializes the widget with a vertical layout.'''
+        """This method initializes the widget with a vertical layout."""
         super(AssetListAndInput, self).__init__(parent=parent)
         self.setLayout(QtWidgets.QVBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
@@ -225,22 +233,22 @@ class AssetListAndInput(QtWidgets.QWidget):
         self._asset_input = None
 
     def add_asset_list(self, asset_list):
-        '''This method adds the given asset list to the widget.'''
+        """This method adds the given asset list to the widget."""
         self._asset_list = asset_list
         self.layout().addWidget(asset_list)
 
     def add_asset_input(self, asset_input):
-        '''This method adds the given asset input to the widget.'''
+        """This method adds the given asset input to the widget."""
         self._asset_input = asset_input
         self.layout().addWidget(asset_input)
 
     def resizeEvent(self, event):
-        '''This method overrides the resize event to handle size changes.'''
+        """This method overrides the resize event to handle size changes."""
         self.size_changed()
 
     def size_changed(self):
-        '''This method resizes the asset list to fit the widget, preventing
-        unnecessary scrolling.'''
+        """This method resizes the asset list to fit the widget, preventing
+        unnecessary scrolling."""
         height = self.size().height()
         optimal_height = (
             self._asset_list.sizeHintForRow(0) * self._asset_list.count()
