@@ -272,6 +272,26 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         self._selected_assets = selected_assets
 
 
+class _NoOpItemDelegate(QtWidgets.QStyledItemDelegate):
+    """Item delegate that paints nothing. ``AssetManagerListWidget``
+    uses ``setItemWidget`` to attach an ``AssetWidget`` for each row,
+    and the AssetWidget handles all of its own rendering. The default
+    delegate would still draw a selection background behind it — fine
+    while the list has focus (covered by the SCSS ``::item:selected``
+    rule), but in the inactive state the band bleeds through the row's
+    transparent background as a thick yellow halo. Bypassing item
+    painting entirely is simpler than wrestling with stylesheet
+    pseudo-states and palette color groups."""
+
+    def paint(self, painter, option, index):
+        return
+
+    def sizeHint(self, option, index):
+        # Defer to the item's own size hint set by
+        # ``AssetManagerListWidget.rebuild`` from ``AssetWidget.sizeHint``.
+        return index.data(QtCore.Qt.SizeHintRole) or option.rect.size()
+
+
 class AssetManagerListWidget(QtWidgets.QListWidget):
     """Asset list: one ``AssetWidget`` per scene asset, hung off a
     ``QListWidget`` via ``setItemWidget``. Selection (single, Ctrl, Shift)
@@ -320,21 +340,15 @@ class AssetManagerListWidget(QtWidgets.QListWidget):
 
         self.itemSelectionChanged.connect(self._on_item_selection_changed)
 
-        # Qt's inactive-selection pseudo-state (``:!active``) only fires
-        # when focus leaves the list — e.g. clicking the "edit context"
-        # pencil at the top of the dialog. Without an override, Qt
-        # paints a default highlight band on top of the AssetWidget,
-        # visible as a thicker yellow border. libsass rejects the ``!``
-        # syntax and the CSS-spec ``:not(:active)`` equivalent bleeds
-        # across widget types in Qt's stylesheet engine, so this rule
-        # lives inline on the widget where it's tightly scoped.
-        self.setStyleSheet(
-            "AssetManagerListWidget::item:selected:!active {"
-            "  background: transparent;"
-            "  border: none;"
-            "  outline: 0;"
-            "}"
-        )
+        # The actual row visuals are drawn by the ``AssetWidget`` attached
+        # via ``setItemWidget``. Qt's default item delegate would also
+        # paint a selection background behind that widget — invisible
+        # while the AssetWidget is on top, except in the inactive state
+        # (focus elsewhere) where the band bleeds through the row's
+        # transparent background as a thick yellow halo. Replacing the
+        # delegate with a no-op stops *all* item painting; SCSS already
+        # covers everything we actually want drawn.
+        self.setItemDelegate(_NoOpItemDelegate(self))
 
         # Model -> view auto-rebuild on any data mutation.
         self._model.rowsInserted.connect(self.rebuild)
