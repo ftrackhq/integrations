@@ -56,9 +56,24 @@ class CommonContextLoaderCollectorPlugin(LoaderCollectorPlugin):
             f"{asset_version_id}, file_types: {file_types}"
         )
 
-        asset_version_entity = self.session.query(
-            'AssetVersion where id is "{}"'.format(asset_version_id)
-        ).one()
+        # session.get + populate instead of `AssetVersion where id is
+        # "{}"`.format(): same family as the Aikido-B608 fixes elsewhere
+        # in this PR (B608 itself doesn't fire here because the format
+        # string lacks the `from` keyword, but the structural fix
+        # removes the interpolation entirely). populate eagerly loads
+        # everything the component loop below reads, so we don't fall
+        # back to N+1 lazy auto-population.
+        asset_version_entity = self.session.get(
+            "AssetVersion", asset_version_id
+        )
+        if asset_version_entity is None:
+            raise RuntimeError(f'AssetVersion "{asset_version_id}" not found')
+        self.session.populate(
+            asset_version_entity,
+            "asset_id, "
+            "components.name, "
+            "components.component_locations.location.name",
+        )
 
         component_path = None
         component_id = None

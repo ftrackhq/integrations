@@ -303,11 +303,26 @@ class AssetManagerEngine(BaseEngine):
             return remove_status, {}
 
         try:
-            asset_version_entity = self.session.query(
-                'select version from AssetVersion where id is "{}"'.format(
-                    new_version_id
+            # session.get + populate, not `select … from AssetVersion
+            # where id is "{}"`.format(): ftrack-api has no parametric
+            # queries, and Aikido's Bandit-B608 SAST rule fires on any
+            # `.format()` whose format string contains `from`. populate
+            # preserves the eager-loading the original `select` provided
+            # — required so the components/locations loop below doesn't
+            # devolve into an N+1 of lazy auto-population queries.
+            asset_version_entity = self.session.get(
+                "AssetVersion", new_version_id
+            )
+            if asset_version_entity is None:
+                raise Exception(
+                    "AssetVersion {} not found".format(new_version_id)
                 )
-            ).one()
+            self.session.populate(
+                asset_version_entity,
+                "version, "
+                "components.name, "
+                "components.component_locations.location.name",
+            )
 
             version_number = int(asset_version_entity["version"])
             version_id = asset_version_entity["id"]

@@ -140,11 +140,25 @@ class LoaderImporterPlugin(BasePlugin):
         if not version_id:
             raise ValueError("version_id required in context_data")
 
-        asset_version_entity = self.session.query(
-            'select version from AssetVersion where id is "{}"'.format(
-                version_id
-            )
-        ).one()
+        # session.get + populate, not `select … from AssetVersion where
+        # id is "{}"`.format(): ftrack-api has no parametric queries, and
+        # Aikido's Bandit-B608 SAST rule fires on any `.format()` whose
+        # format string contains `from`. The populate projection mirrors
+        # every attribute FtrackAssetInfo.create reads downstream, so the
+        # asset/components/locations traversal it performs doesn't fall
+        # back to lazy auto-population (N+1 round-trips).
+        asset_version_entity = self.session.get("AssetVersion", version_id)
+        if asset_version_entity is None:
+            raise ValueError("AssetVersion {} not found".format(version_id))
+        self.session.populate(
+            asset_version_entity,
+            "version, is_latest_version, "
+            "asset.name, asset.type.name, "
+            "asset.ancestors.name, asset.parent.project.name, "
+            "uses_versions.id, "
+            "components.name, "
+            "components.component_locations.location.name",
+        )
 
         # Get component info from collector result
         component_name = collector_result.get("component_name")

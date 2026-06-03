@@ -69,18 +69,26 @@ class NukeAmChangeVersionPlugin(BasePlugin):
             )
             return False
 
-        new_version = self.session.query(
-            "select id, version, is_latest_version, components.id, "
-            "components.name, components.component_locations.location.name "
-            'from AssetVersion where id is "{}"'.format(new_version_id)
-        ).first()
-        if not new_version:
+        # session.get + populate, not `select … from AssetVersion where
+        # id is "{}"`.format(): ftrack-api has no parametric queries, and
+        # Aikido's Bandit-B608 SAST rule fires on any `.format()` whose
+        # format string contains `from`. populate keeps the eager-load
+        # contract the original `select` clause provided so the component
+        # iteration below doesn't trigger per-attr lazy queries.
+        new_version = self.session.get("AssetVersion", new_version_id)
+        if new_version is None:
             self.logger.warning(
                 "nuke.am_change_version: AssetVersion {} not found".format(
                     new_version_id
                 )
             )
             return False
+        self.session.populate(
+            new_version,
+            "version, is_latest_version, "
+            "components.name, "
+            "components.component_locations.location.name",
+        )
 
         new_component = None
         for component in new_version["components"]:
