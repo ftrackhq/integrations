@@ -24,6 +24,8 @@ from ftrack_framework_core.configure_logging import configure_logging
 from ftrack_utils.usage import set_usage_tracker, UsageTracker
 from ftrack_utils.session import create_api_session
 
+from ftrack_qt.utils.shutdown import connect_event_manager_shutdown
+
 from ftrack_framework_nuke.utils import (
     dock_nuke_right,
     find_nodegraph_viewer,
@@ -99,6 +101,12 @@ def bootstrap_integration(framework_extensions_path):
     event_manager = EventManager(
         session=session, mode=constants.event.LOCAL_EVENT_MODE
     )
+
+    # Close the event manager (disconnect event hub + close session)
+    # when Nuke quits, so the EventHubThread's blocking
+    # event_hub.wait() returns and the process can exit cleanly. See
+    # ftrack_qt.utils.shutdown for the bounded-join detail.
+    connect_event_manager_shutdown(event_manager)
 
     registry_instance = registry.Registry()
     registry_instance.scan_extensions(paths=framework_extensions_path)
