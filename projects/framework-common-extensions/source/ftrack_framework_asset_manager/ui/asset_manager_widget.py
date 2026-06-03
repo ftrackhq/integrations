@@ -7,82 +7,56 @@ import json
 from functools import partial
 
 try:
-    from PySide6 import QtWidgets, QtCore
+    from PySide6 import QtWidgets, QtCore, QtGui
 except ImportError:
-    from PySide2 import QtWidgets, QtCore
+    from PySide2 import QtWidgets, QtCore, QtGui
 
 try:
     from shiboken2 import isValid
 except ImportError:
 
     def isValid(obj):
-        """Fallback for shiboken2.isValid."""
         return True
 
 
-try:
-    from ftrack_qt.widgets.accordion import AccordionBaseWidget
-except ImportError:
-    from ftrack_qt.widgets.base import AccordionBaseWidget
+import ftrack_constants as constants
 
+from ftrack_qt.widgets.accordion import AccordionBaseWidget
 from ftrack_qt.widgets.overlay import BusyIndicator
+from ftrack_qt.widgets.icons import MaterialIcon
+from ftrack_qt.widgets.lines import LineWidget
+from ftrack_qt.widgets.selectors.version_selector import VersionSelector
+from ftrack_qt.widgets.thumbnails import AssetVersionThumbnail
+
+
+# Qt6 moved ``QAction`` from QtWidgets to QtGui. Use whichever module
+# exposes it so the same code works under PySide2 and PySide6.
+QAction = getattr(QtWidgets, "QAction", None) or QtGui.QAction
+
 
 try:
     from ftrack_qt.widgets.search import Search
 except ImportError:
 
     class Search(QtWidgets.QLineEdit):
-        """Simple search widget fallback."""
-
-        textChanged = QtCore.Signal(str)
+        """Plain-QLineEdit fallback used when ftrack_qt.widgets.search.Search
+        is not packaged in this build."""
 
         def __init__(self, parent=None):
             super(Search, self).__init__(parent)
-            self.textChanged.connect(self._on_text_changed)
             self.setPlaceholderText("Search...")
-
-        def _on_text_changed(self, text):
-            self.textChanged.emit(text)
-
-
-try:
-    from ftrack_qt.widgets.thumb import AssetVersion as AssetVersionThumbnail
-except ImportError:
-
-    class AssetVersionThumbnail(QtWidgets.QLabel):
-        """Simple thumbnail widget fallback."""
-
-        pass
-
-
-try:
-    from ftrack_qt.widgets.entity import EntityInfo
-except ImportError:
-
-    class EntityInfo(QtWidgets.QLabel):
-        """Simple entity info widget fallback."""
-
-        pass
 
 
 class AssetManagerBaseWidget(QtWidgets.QWidget):
     """Base widget for the asset manager."""
 
     def __init__(self, event_manager, asset_list_model, parent=None):
-        """Initialize the base widget.
-
-        Args:
-            event_manager: The event manager instance.
-            asset_list_model: The asset list model instance.
-            parent: The parent widget.
-        """
         super(AssetManagerBaseWidget, self).__init__(parent=parent)
 
         self._event_manager = event_manager
         self._asset_list_model = asset_list_model
         self._engine_type = None
 
-        # Set up layout
         self._layout = QtWidgets.QVBoxLayout(self)
         self._layout.setContentsMargins(0, 0, 0, 0)
         self._layout.setSpacing(0)
@@ -93,69 +67,44 @@ class AssetManagerBaseWidget(QtWidgets.QWidget):
 
     @property
     def event_manager(self):
-        """Return the event manager."""
         return self._event_manager
 
     @property
     def session(self):
-        """Return the session from the event manager."""
         return self._event_manager.session if self._event_manager else None
 
     @property
     def engine_type(self):
-        """Return the engine type."""
         return self._engine_type
 
     @engine_type.setter
     def engine_type(self, value):
-        """Set the engine type."""
         self._engine_type = value
 
     def pre_build(self):
-        """Pre-build setup."""
         pass
 
     def build(self):
-        """Build the widget."""
         pass
 
     def post_build(self):
-        """Post-build setup."""
-        pass
-
-    def build_header(self, layout):
-        """Build the header layout.
-
-        Args:
-            layout: The layout to add the header to.
-        """
-        pass
-
-    def init_search(self):
-        """Initialize the search functionality."""
         pass
 
     def on_search(self, text):
-        """Handle search text changes.
-
-        Args:
-            text: The search text.
-        """
         pass
 
 
 class AssetManagerWidget(AssetManagerBaseWidget):
     """Main asset manager widget."""
 
-    # Signals
-    refresh = QtCore.Signal()
-    rebuild = QtCore.Signal()
     changeAssetVersion = QtCore.Signal(object, object)
     selectAssets = QtCore.Signal(object, object)
     removeAssets = QtCore.Signal(object, object)
     updateAssets = QtCore.Signal(object, object)
     loadAssets = QtCore.Signal(object, object)
     unloadAssets = QtCore.Signal(object, object)
+    selectInScene = QtCore.Signal(object)
+    pendingChanged = QtCore.Signal(int)
     stopBusyIndicator = QtCore.Signal()
 
     DEFAULT_ACTIONS = {
@@ -167,63 +116,33 @@ class AssetManagerWidget(AssetManagerBaseWidget):
     }
 
     def __init__(self, event_manager, asset_list_model, parent=None):
-        """Initialize the asset manager widget.
+        self._busy_indicator = None
+        self._search_widget = None
+        self._asset_list_widget = None
 
-        Args:
-            event_manager: The event manager instance.
-            asset_list_model: The asset list model instance.
-            parent: The parent widget.
-        """
         super(AssetManagerWidget, self).__init__(
             event_manager, asset_list_model, parent=parent
         )
 
-        self._busy_indicator = None
-        self._search_widget = None
-        self._asset_list_widget = None
-        self._scroll_area = None
-
         self._actions = {}
         self._selected_assets = []
 
-    def pre_build(self):
-        """Pre-build setup."""
-        # Layout already created by AssetManagerBaseWidget.__init__;
-        # creating another QVBoxLayout(self) here would leave _layout
-        # pointing to an orphaned layout, so children added in build()
-        # would never render.
-
     def build_header(self, layout):
-        """Build the header layout.
-
-        Args:
-            layout: The layout to add the header to.
-        """
         header_layout = QtWidgets.QHBoxLayout()
         header_layout.setContentsMargins(6, 6, 6, 6)
         header_layout.setSpacing(6)
 
-        # Title label - QLabel[h2='true'] is styled by the theme
-        title_label = QtWidgets.QLabel("Asset Manager")
+        title_label = QtWidgets.QLabel("Assets")
         title_label.setProperty("h2", True)
         header_layout.addWidget(title_label)
 
-        # Stretch to push buttons to the right
         header_layout.addStretch()
 
-        # Rebuild button
-        rebuild_button = QtWidgets.QPushButton("Rebuild")
-        rebuild_button.setToolTip("Rebuild the asset list")
-        rebuild_button.clicked.connect(self._on_rebuild)
-        header_layout.addWidget(rebuild_button)
-
-        # Busy indicator
         self._busy_indicator = BusyIndicator(start=False, parent=self)
         self._busy_indicator.setFixedSize(20, 20)
         self._busy_indicator.setVisible(False)
         header_layout.addWidget(self._busy_indicator)
 
-        # Search widget
         self._search_widget = Search(self)
         self._search_widget.setPlaceholderText("Search assets...")
         self._search_widget.setFixedWidth(200)
@@ -233,17 +152,9 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         layout.addLayout(header_layout)
 
     def build(self):
-        """Build the widget."""
-        # Build header
         self.build_header(self._layout)
 
-        # Scroll area for asset list
-        self._scroll_area = QtWidgets.QScrollArea(self)
-        self._scroll_area.setWidgetResizable(True)
-        self._scroll_area.setFrameShape(QtWidgets.QFrame.NoFrame)
-        self._scroll_area.setContentsMargins(0, 0, 0, 0)
-
-        # Asset list widget
+        # ``QListWidget`` scrolls itself — no outer ``QScrollArea`` needed.
         self._asset_list_widget = AssetManagerListWidget(
             self._asset_list_model, AssetWidget, self
         )
@@ -253,33 +164,20 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         self._asset_list_widget.changeAssetVersion.connect(
             self.changeAssetVersion
         )
+        self._asset_list_widget.selectInScene.connect(self.selectInScene)
+        self._asset_list_widget.pendingChanged.connect(self.pendingChanged)
+        self._asset_list_widget.contextMenuRequested.connect(
+            self.show_context_menu
+        )
 
-        self._scroll_area.setWidget(self._asset_list_widget)
-        self._layout.addWidget(self._scroll_area)
-
-    def post_build(self):
-        """Post-build setup."""
-        # Connect signals
-        self.refresh.connect(self._on_refresh)
-        self.rebuild.connect(self._on_rebuild)
-        self.changeAssetVersion.connect(self._on_change_asset_version)
+        self._layout.addWidget(self._asset_list_widget)
 
     def set_asset_list(self, asset_entities_list):
-        """Set the asset list.
-
-        Args:
-            asset_entities_list: List of asset entities.
-        """
         self._asset_list_model.reset()
         if asset_entities_list:
             self._asset_list_model.insertRows(0, list(asset_entities_list))
 
     def set_busy(self, busy):
-        """Show or hide the busy indicator.
-
-        Args:
-            busy: Whether to show the busy indicator.
-        """
         if self._busy_indicator:
             self._busy_indicator.setVisible(busy)
             if busy:
@@ -287,38 +185,41 @@ class AssetManagerWidget(AssetManagerBaseWidget):
             else:
                 self._busy_indicator.stop()
 
+    def on_search(self, text):
+        if self._asset_list_widget:
+            self._asset_list_widget.on_search(text)
+
+    def pending_changes(self):
+        """List of ``(asset_info, pending_version_dict)`` for staged rows."""
+        if not self._asset_list_widget:
+            return []
+        return self._asset_list_widget.pending_changes()
+
+    def clear_pending_changes(self):
+        if self._asset_list_widget:
+            self._asset_list_widget.clear_pending_changes()
+
     def create_actions(self):
-        """Create context menu actions."""
         self._actions = {}
         for action_id, action_text in self.DEFAULT_ACTIONS.items():
-            action = QtWidgets.QAction(action_text, self)
+            action = QAction(action_text, self)
             action.setData(action_id)
             self._actions[action_id] = action
 
-    def contextMenuEvent(self, event):
-        """Handle context menu events.
-
-        Args:
-            event: The context menu event.
-        """
+    def show_context_menu(self, global_pos):
+        """Build and show the context menu at ``global_pos``. Connected to
+        ``AssetManagerListWidget.contextMenuRequested``, which fires from
+        the list's ``contextMenuEvent`` override."""
         if not self._actions:
             self.create_actions()
-
         menu = QtWidgets.QMenu(self)
         for action in self._actions.values():
             menu.addAction(action)
-
-        # Show menu and connect triggered signal
-        action = menu.exec_(event.globalPos())
+        action = menu.exec_(global_pos)
         if action:
             self.menu_triggered(action)
 
     def menu_triggered(self, action):
-        """Handle menu action triggered.
-
-        Args:
-            action: The triggered action.
-        """
         action_id = action.data()
         if action_id == "select":
             self.ctx_select()
@@ -332,98 +233,110 @@ class AssetManagerWidget(AssetManagerBaseWidget):
             self.ctx_remove()
 
     def ctx_select(self):
-        """Handle select action."""
-        selected_assets = self._asset_list_widget.selection()
-        if selected_assets:
-            self.selectAssets.emit(selected_assets, self._engine_type)
+        # Selection-in-scene is the only context-menu action that runs
+        # immediately; everything else is staged and applied via
+        # APPLY CHANGES so the user gets a single review/commit step.
+        sel = self._asset_list_widget.context_target()
+        if sel:
+            self.selectAssets.emit(sel, self._engine_type)
 
     def ctx_load(self):
-        """Handle load action."""
-        selected_assets = self._asset_list_widget.selection()
-        if selected_assets:
-            self.loadAssets.emit(selected_assets, self._engine_type)
+        for widget in self._asset_list_widget.context_target_widgets():
+            if (
+                widget.asset_info
+                and widget.asset_info.get("objects_loaded") is False
+            ):
+                widget.stage_action("load")
 
     def ctx_update(self):
-        """Handle update action."""
-        selected_assets = self._asset_list_widget.selection()
-        if selected_assets:
-            self.updateAssets.emit(selected_assets, self._engine_type)
+        # Equivalent to picking the latest version in each row's dropdown.
+        for widget in self._asset_list_widget.context_target_widgets():
+            widget.stage_update_to_latest()
 
     def ctx_unload(self):
-        """Handle unload action."""
-        selected_assets = self._asset_list_widget.selection()
-        if selected_assets:
-            self.unloadAssets.emit(selected_assets, self._engine_type)
+        for widget in self._asset_list_widget.context_target_widgets():
+            if (
+                widget.asset_info
+                and widget.asset_info.get("objects_loaded") is not False
+            ):
+                widget.stage_action("unload")
 
     def ctx_remove(self):
-        """Handle remove action."""
-        selected_assets = self._asset_list_widget.selection()
-        if selected_assets:
-            self.removeAssets.emit(selected_assets, self._engine_type)
+        for widget in self._asset_list_widget.context_target_widgets():
+            widget.stage_action("remove")
 
     def check_selection(self):
-        """Check if there is a valid selection.
-
-        Returns:
-            bool: Whether there is a valid selection.
-        """
         return bool(self._asset_list_widget.selection())
 
-    def _on_refresh(self):
-        """Handle refresh signal."""
-        self._asset_list_widget.refresh()
-
-    def _on_rebuild(self):
-        """Handle rebuild signal."""
-        self._asset_list_widget.rebuild()
-
-    def _on_change_asset_version(self, asset_info, version_id):
-        """Handle change asset version signal.
-
-        Args:
-            asset_info: The asset info.
-            version_id: The version ID.
-        """
-        self.changeAssetVersion.emit(asset_info, version_id)
-
     def _on_selection_updated(self, selected_assets):
-        """Handle selection updated signal.
-
-        Args:
-            selected_assets: List of selected assets.
-        """
         self._selected_assets = selected_assets
 
 
-class AssetManagerListWidget(QtWidgets.QWidget):
-    """Asset list container widget."""
+class AssetManagerListWidget(QtWidgets.QListWidget):
+    """Asset list: one ``AssetWidget`` per scene asset, hung off a
+    ``QListWidget`` via ``setItemWidget``. Selection (single, Ctrl, Shift)
+    and right-click context menu are handled by ``QListWidget`` natively;
+    each ``AssetWidget`` is a passive display widget whose ``selected``
+    property is synced from the item's selection state in
+    ``_on_item_selection_changed``."""
 
     selectionUpdated = QtCore.Signal(object)
     refreshed = QtCore.Signal()
     changeAssetVersion = QtCore.Signal(object, object)
+    selectInScene = QtCore.Signal(object)
+    pendingChanged = QtCore.Signal(int)
+    contextMenuRequested = QtCore.Signal(object)
+    """Emitted with the global ``QPoint`` when the user right-clicks a
+    row. The outer ``AssetManagerWidget`` handles menu construction."""
 
     def __init__(self, model, asset_widget_class, parent=None):
-        """Initialize the asset list widget.
-
-        Args:
-            model: The asset list model.
-            asset_widget_class: The asset widget class to use.
-            parent: The parent widget.
-        """
         super(AssetManagerListWidget, self).__init__(parent=parent)
 
         self._model = model
         self._asset_widget_class = asset_widget_class
         self._assets = []
-        self._selected_assets = []
+        self._search_text = ""
+        # Populated by ``_on_context_menu_requested`` with the widgets
+        # the next action should apply to — the persistent selection's
+        # widgets, or just the right-clicked widget when the click landed
+        # outside the selection.
+        self._context_target_widgets = None
+        # Re-entry guard: both ``mousePressEvent`` and ``contextMenuEvent``
+        # can fire for the same right-click (platform-dependent). The
+        # menu blocks on exec_(), so without this we'd open a second
+        # menu when the second event is delivered during the first.
+        self._menu_in_flight = False
 
-        # Set up layout
-        self._layout = QtWidgets.QVBoxLayout(self)
-        self._layout.setContentsMargins(6, 0, 6, 6)
-        self._layout.setSpacing(6)
-        self._layout.setAlignment(QtCore.Qt.AlignTop)
+        self.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
+        self.setFrameShape(QtWidgets.QFrame.NoFrame)
+        self.setSpacing(2)
+        # Smooth pixel-based scrolling. The default is per-item, which
+        # causes a visible jump when rows have very different heights
+        # (e.g. an expanded accordion row next to collapsed ones).
+        self.setVerticalScrollMode(QtWidgets.QAbstractItemView.ScrollPerPixel)
+        self.setHorizontalScrollMode(
+            QtWidgets.QAbstractItemView.ScrollPerPixel
+        )
 
-        # Connect model signals
+        self.itemSelectionChanged.connect(self._on_item_selection_changed)
+
+        # Qt's inactive-selection pseudo-state (``:!active``) only fires
+        # when focus leaves the list — e.g. clicking the "edit context"
+        # pencil at the top of the dialog. Without an override, Qt
+        # paints a default highlight band on top of the AssetWidget,
+        # visible as a thicker yellow border. libsass rejects the ``!``
+        # syntax and the CSS-spec ``:not(:active)`` equivalent bleeds
+        # across widget types in Qt's stylesheet engine, so this rule
+        # lives inline on the widget where it's tightly scoped.
+        self.setStyleSheet(
+            "AssetManagerListWidget::item:selected:!active {"
+            "  background: transparent;"
+            "  border: none;"
+            "  outline: 0;"
+            "}"
+        )
+
+        # Model -> view auto-rebuild on any data mutation.
         self._model.rowsInserted.connect(self.rebuild)
         self._model.modelReset.connect(self.rebuild)
         self._model.rowsRemoved.connect(self.rebuild)
@@ -433,458 +346,669 @@ class AssetManagerListWidget(QtWidgets.QWidget):
 
     @property
     def model(self):
-        """Return the model."""
         return self._model
 
     @property
     def assets(self):
-        """Return the asset widgets."""
         return self._assets
 
     def rebuild(self):
-        """Rebuild the asset list."""
-        # Clear existing assets
-        for asset_widget in self._assets:
-            if isValid(asset_widget):
-                asset_widget.setParent(None)
-                asset_widget.deleteLater()
+        # ``QListWidget.clear()`` removes items and the widgets attached
+        # via setItemWidget.
+        self.clear()
         self._assets = []
+        self._context_target_widgets = None
 
-        # Create new assets
         for row in range(self._model.rowCount()):
             index = self._model.index(row, 0)
-            asset_info = self._model.data(index, QtCore.Qt.UserRole)
+            # AssetListModel.data() only returns the asset_info dict for
+            # DisplayRole; UserRole returns None.
+            asset_info = self._model.data(index, QtCore.Qt.DisplayRole)
 
             asset_widget = self._asset_widget_class(index, self._model, self)
             asset_widget.set_asset_info(asset_info)
             asset_widget.changeAssetVersion.connect(self.changeAssetVersion)
-            asset_widget.clicked.connect(
-                partial(self.asset_clicked, asset_widget)
+            asset_widget.selectInScene.connect(self.selectInScene)
+            asset_widget.pendingChanged.connect(self._on_row_pending_changed)
+
+            list_item = QtWidgets.QListWidgetItem(self)
+            list_item.setSizeHint(asset_widget.sizeHint())
+            self.setItemWidget(list_item, asset_widget)
+
+            # When the accordion expands/collapses, refresh the item size
+            # hint so the row grows/shrinks to fit. Defer to the next
+            # event-loop tick because ``_on_collapse`` fires before
+            # ``AccordionBaseWidget`` toggles the content widget's
+            # visibility — sizeHint isn't accurate until after that.
+            asset_widget.sizeHintChanged.connect(
+                partial(
+                    self._on_row_size_hint_changed, list_item, asset_widget
+                )
             )
 
-            self._layout.addWidget(asset_widget)
             self._assets.append(asset_widget)
 
-        # Add stretch to push assets to the top
-        self._layout.addStretch()
+            if self._search_text:
+                list_item.setHidden(
+                    not asset_widget.matches(self._search_text)
+                )
 
         self.refreshed.emit()
+        self.pendingChanged.emit(self._count_pending())
 
-    def refresh(self, search_text=None):
-        """Refresh the asset list.
+    def _count_pending(self):
+        return sum(
+            1 for w in self._assets if isValid(w) and w.has_pending_change()
+        )
 
-        Args:
-            search_text: Optional search text to filter assets.
-        """
-        if search_text is None:
-            search_text = (
-                self._search_widget.text()
-                if hasattr(self, "_search_widget")
-                else ""
-            )
+    def _on_row_pending_changed(self, _is_pending):
+        self.pendingChanged.emit(self._count_pending())
 
-        for asset_widget in self._assets:
-            if isValid(asset_widget):
-                if search_text:
-                    asset_widget.setVisible(asset_widget.matches(search_text))
-                else:
-                    asset_widget.setVisible(True)
+    def _on_row_size_hint_changed(self, list_item, asset_widget):
+        QtCore.QTimer.singleShot(
+            0,
+            partial(self._apply_row_size_hint, list_item, asset_widget),
+        )
+
+    def _apply_row_size_hint(self, list_item, asset_widget):
+        if list_item is None or not isValid(asset_widget):
+            return
+        list_item.setSizeHint(asset_widget.sizeHint())
+
+    def contextMenuEvent(self, event):
+        """Canonical Qt entry point for right-clicks on the list.
+        Propagates up from the deepest header child through the row
+        widget to the QListWidget. ``QContextMenuEvent.globalPos()`` is
+        the cross-platform-safe coordinate accessor here."""
+        viewport_pos = self.viewport().mapFromGlobal(event.globalPos())
+        self._on_context_menu_requested(viewport_pos)
+        event.accept()
+
+    def pending_changes(self):
+        """Returns ``[(asset_info, action, data), ...]`` for every row
+        that has a staged change. ``action`` is one of ``"version"``,
+        ``"load"``, ``"unload"``, ``"remove"``. ``data`` is the
+        new-version dict for ``"version"``, else ``None``."""
+        result = []
+        for w in self._assets:
+            if not isValid(w) or not w.has_pending_change():
+                continue
+            action = w.pending_action
+            data = w.pending_version if action == "version" else None
+            result.append((w.asset_info, action, data))
+        return result
+
+    def clear_pending_changes(self):
+        for w in self._assets:
+            if isValid(w):
+                w.clear_pending_change()
 
     def on_search(self, text):
-        """Handle search text changes.
-
-        Args:
-            text: The search text.
-        """
-        self.refresh(text)
-
-    def selection(self, as_widgets=False):
-        """Return the selected assets.
-
-        Args:
-            as_widgets: Whether to return widgets or asset infos.
-
-        Returns:
-            List of selected assets.
-        """
-        if as_widgets:
-            return self._selected_assets
-        else:
-            return [
-                asset_widget.asset_info
-                for asset_widget in self._selected_assets
-            ]
-
-    def clear_selection(self):
-        """Clear the selection."""
-        for asset_widget in self._selected_assets:
-            if isValid(asset_widget):
-                asset_widget.set_selected(False)
-        self._selected_assets = []
-        self.selectionUpdated.emit(self._selected_assets)
-
-    def asset_clicked(self, clicked_widget):
-        """Handle asset clicked.
-
-        Args:
-            clicked_widget: The clicked asset widget.
-        """
-        modifiers = QtWidgets.QApplication.keyboardModifiers()
-
-        if modifiers & QtCore.Qt.ControlModifier:
-            # Ctrl+Click: Toggle selection
-            if clicked_widget in self._selected_assets:
-                self._selected_assets.remove(clicked_widget)
-                clicked_widget.set_selected(False)
+        self._search_text = text or ""
+        for i in range(self.count()):
+            item = self.item(i)
+            widget = self.itemWidget(item)
+            if widget is None or not isValid(widget):
+                continue
+            if self._search_text:
+                item.setHidden(not widget.matches(self._search_text))
             else:
-                self._selected_assets.append(clicked_widget)
-                clicked_widget.set_selected(True)
-        elif modifiers & QtCore.Qt.ShiftModifier:
-            # Shift+Click: Range selection
-            if not self._selected_assets:
-                # No existing selection, select only clicked
-                self._selected_assets = [clicked_widget]
-                clicked_widget.set_selected(True)
-            else:
-                # Find range between last selected and clicked
-                last_selected = self._selected_assets[-1]
-                last_index = self._assets.index(last_selected)
-                clicked_index = self._assets.index(clicked_widget)
+                item.setHidden(False)
 
-                start = min(last_index, clicked_index)
-                end = max(last_index, clicked_index)
-
-                # Clear current selection
-                for asset_widget in self._selected_assets:
-                    if isValid(asset_widget):
-                        asset_widget.set_selected(False)
-
-                # Select range
-                self._selected_assets = []
-                for i in range(start, end + 1):
-                    asset_widget = self._assets[i]
-                    if isValid(asset_widget):
-                        asset_widget.set_selected(True)
-                        self._selected_assets.append(asset_widget)
-        else:
-            # Regular click: Select only clicked
-            self.clear_selection()
-            self._selected_assets = [clicked_widget]
-            clicked_widget.set_selected(True)
-
+    def _on_item_selection_changed(self):
+        """Push QListWidget's canonical selection state onto each
+        AssetWidget's ``selected`` property so the SCSS rule
+        ``AssetWidget[selected='true']`` drives the row visual."""
+        for i in range(self.count()):
+            item = self.item(i)
+            widget = self.itemWidget(item)
+            if widget is not None and isValid(widget):
+                widget.set_selected(item.isSelected())
         self.selectionUpdated.emit(self.selection())
+
+    def selection(self):
+        return [
+            self.itemWidget(item).asset_info
+            for item in self.selectedItems()
+            if self.itemWidget(item) is not None
+        ]
+
+    def selection_widgets(self):
+        return [
+            self.itemWidget(item)
+            for item in self.selectedItems()
+            if self.itemWidget(item) is not None
+        ]
+
+    def context_target(self):
+        """Asset infos the next context-menu action should apply to.
+
+        Returns the transient right-clicked row when the click landed
+        outside the persistent selection (populated by
+        ``_on_context_menu_requested``), otherwise the persistent
+        selection itself."""
+        widgets = self.context_target_widgets()
+        return [w.asset_info for w in widgets if isValid(w)]
+
+    def context_target_widgets(self):
+        """Same selection contract as ``context_target`` but returns the
+        ``AssetWidget`` instances. Callers that stage actions on rows
+        (load/unload/remove/update) need widgets, not asset_info dicts."""
+        if self._context_target_widgets is not None:
+            return [w for w in self._context_target_widgets if isValid(w)]
+        return self.selection_widgets()
+
+    def _on_context_menu_requested(self, pos):
+        """Right-click on the list. If the right-clicked row is in the
+        persistent selection, target the full selection. Otherwise target
+        just that row without disturbing the selection, and visually
+        highlight it for the menu's duration. Empty-area right-clicks
+        still open the menu, acting on the persistent selection."""
+        if self._menu_in_flight:
+            return
+
+        item = self.itemAt(pos)
+        widget = self.itemWidget(item) if item is not None else None
+
+        transient_widget = None
+        if widget is not None and isValid(widget):
+            if item.isSelected():
+                self._context_target_widgets = self.selection_widgets()
+            else:
+                self._context_target_widgets = [widget]
+                widget.set_selected(True)
+                transient_widget = widget
+        else:
+            # Empty-area click — act on the persistent selection.
+            self._context_target_widgets = None
+
+        self._menu_in_flight = True
+        try:
+            global_pos = self.viewport().mapToGlobal(pos)
+            self.contextMenuRequested.emit(global_pos)
+        finally:
+            if transient_widget is not None and isValid(transient_widget):
+                transient_widget.set_selected(False)
+            self._context_target_widgets = None
+            self._menu_in_flight = False
+
+
+def _format_user_and_date(asset_info):
+    first = asset_info.get("user_first_name") or ""
+    last = asset_info.get("user_last_name") or ""
+    date = asset_info.get("date") or ""
+    user = "{} {}".format(first, last).strip()
+    if user and date:
+        return "{} @ {}".format(user, date)
+    return user or date or ""
 
 
 class AssetWidget(AccordionBaseWidget):
-    """Individual asset display widget."""
+    """Single asset row: thumbnail, name, version dropdown, user @ date,
+    component.file_type, select-in-scene button, status icon and expand arrow.
+    """
 
     changeAssetVersion = QtCore.Signal(object, object)
+    selectInScene = QtCore.Signal(object)
+    pendingChanged = QtCore.Signal(bool)
+    sizeHintChanged = QtCore.Signal()
+    """Emitted when the row's expand state toggles, so the enclosing
+    ``QListWidget`` can refresh its item size hint."""
 
     def __init__(self, index, model, parent=None):
-        """Initialize the asset widget.
-
-        Args:
-            index: The model index.
-            model: The asset list model.
-            parent: The parent widget.
-        """
-        super(AssetWidget, self).__init__(parent=parent)
-
         self._index = index
         self._model = model
         self._asset_info = None
-        self._selected = False
+        self._is_selected = False
+        self._original_version_id = None
+        self._pending_version = None
+        self._pending_action = None  # "load" | "unload" | "remove" | None
+        self._handling_dropdown_signal = False
 
-    def init_header_content(self):
-        """Initialize the header content."""
-        header_layout = QtWidgets.QHBoxLayout()
-        header_layout.setContentsMargins(0, 0, 0, 0)
-        header_layout.setSpacing(6)
+        self._thumbnail_widget = None
+        self._asset_name_label = None
+        self._version_selector = None
+        self._user_date_label = None
+        self._component_label = None
+        self._select_button = None
 
-        # Path label - styled via AssetWidget QLabel[asset_path='true']
-        self._path_label = QtWidgets.QLabel()
-        self._path_label.setProperty("asset_path", True)
-        header_layout.addWidget(self._path_label)
+        self._content_built = False
+        self._content_container = None
 
-        # Asset name label - styled via AssetWidget QLabel[asset_name='true']
+        super(AssetWidget, self).__init__(
+            selectable=True,
+            show_checkbox=False,
+            checkable=False,
+            collapsable=True,
+            collapsed=True,
+            parent=parent,
+        )
+
+    # -- AccordionBaseWidget lifecycle -----------------------------------
+
+    def post_build(self):
+        super(AssetWidget, self).post_build()
+        # Hide the built-in gear (OptionsButton). The accordion always
+        # constructs one inside AccordionHeaderWidget; the AM uses the
+        # expanded panel for advanced metadata instead.
+        if (
+            self._header_widget is not None
+            and self._header_widget._options_button is not None
+        ):
+            self._header_widget._options_button.hide()
+        self._init_header_content()
+
+    def _init_header_content(self):
+        header_content = self._header_widget._header_content_widget
+        layout = header_content.layout()
+
+        # Wipe the default placeholder (status_label + stretch + LineWidget).
+        while layout.count():
+            item = layout.takeAt(0)
+            w = item.widget()
+            if w is not None:
+                w.setParent(None)
+                w.deleteLater()
+
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(8)
+
+        self._thumbnail_widget = AssetVersionThumbnail()
+        self._thumbnail_widget.setScaledContents(True)
+        self._thumbnail_widget.setMinimumSize(57, 31)
+        self._thumbnail_widget.setMaximumSize(57, 31)
+        layout.addWidget(self._thumbnail_widget)
+
         self._asset_name_label = QtWidgets.QLabel()
         self._asset_name_label.setProperty("asset_name", True)
-        header_layout.addWidget(self._asset_name_label)
+        layout.addWidget(self._asset_name_label)
 
-        # Component and version widget
-        self._component_version_widget = ComponentAndVersionWidget(self)
-        header_layout.addWidget(self._component_version_widget)
+        self._version_selector = VersionSelector()
+        self._version_selector.setMaximumHeight(20)
+        layout.addWidget(self._version_selector)
 
-        # Status widget
-        self._status_widget = AssetVersionStatusWidget(self)
-        header_layout.addWidget(self._status_widget)
+        self._user_date_label = QtWidgets.QLabel()
+        self._user_date_label.setProperty("secondary", True)
+        layout.addWidget(self._user_date_label)
 
-        # Stretch to push status to the right
-        header_layout.addStretch()
+        self._component_label = QtWidgets.QLabel()
+        self._component_label.setProperty("asset_path", True)
+        layout.addWidget(self._component_label)
 
-        self.set_header_layout(header_layout)
+        layout.addStretch()
+
+        self._select_button = QtWidgets.QToolButton()
+        self._select_button.setIcon(MaterialIcon("my_location", color="gray"))
+        self._select_button.setFixedSize(24, 24)
+        self._select_button.setAutoRaise(True)
+        self._select_button.setCheckable(False)
+        self._select_button.setFocusPolicy(QtCore.Qt.NoFocus)
+        self._select_button.setProperty("borderless", True)
+        self._select_button.setToolTip("Select asset in scene")
+        self._select_button.clicked.connect(self._on_select_in_scene_clicked)
+        layout.addWidget(self._select_button)
+
+        self._version_selector.currentIndexChanged.connect(
+            self._on_version_selector_changed
+        )
+
+    def _on_collapse(self, collapsed):
+        if not collapsed and self._asset_info and not self._content_built:
+            self._populate_expanded_content()
+            self._content_built = True
+        # ``AccordionBaseWidget.toggle_collapsed`` calls this *before*
+        # toggling the content widget's visibility, so the new
+        # ``sizeHint()`` won't be valid until the next event-loop tick.
+        # The list widget updates the item size hint then.
+        self.sizeHintChanged.emit()
+
+    # -- data binding ----------------------------------------------------
 
     def set_asset_info(self, asset_info):
-        """Set the asset info.
-
-        Args:
-            asset_info: The asset info dictionary.
-        """
         self._asset_info = asset_info
-
         if not asset_info:
             return
 
-        # Set header content
-        self._path_label.setText(asset_info.get("path", ""))
-        self._asset_name_label.setText(asset_info.get("asset_name", ""))
+        self._original_version_id = asset_info.get("version_id")
+        self._pending_version = None
+        self._pending_action = None
 
-        # Set component and version
-        component_path = asset_info.get("component_path", "")
-        version_nr = asset_info.get("version_nr", 0)
-        versions = asset_info.get("versions", [])
+        self._asset_name_label.setText(asset_info.get("asset_name") or "")
 
-        self._component_version_widget.set_component_filename(component_path)
-        self._component_version_widget.set_version(version_nr, versions)
+        # Pre-populate the version dropdown — suppress the staging callback
+        # while the initial selection is being applied.
+        self._handling_dropdown_signal = True
+        try:
+            available = asset_info.get("available_versions") or []
+            if available:
+                self._version_selector.setEnabled(True)
+                self._version_selector.set_versions(available)
+                for i in range(self._version_selector.count()):
+                    item_data = self._version_selector.itemData(i)
+                    if (
+                        item_data
+                        and item_data.get("id") == self._original_version_id
+                    ):
+                        self._version_selector.setCurrentIndex(i)
+                        break
+            else:
+                # No version list available — show only the current vnum.
+                self._version_selector.clear()
+                version_number = asset_info.get("version_number")
+                label = (
+                    "v{}".format(version_number)
+                    if version_number is not None
+                    else "v?"
+                )
+                self._version_selector.addItem(label, None)
+                self._version_selector.setEnabled(False)
+        finally:
+            self._handling_dropdown_signal = False
 
-        # Set status
-        status = asset_info.get("status", "unknown")
-        self._status_widget.set_status(status)
+        self._user_date_label.setText(_format_user_and_date(asset_info))
 
-    def matches(self, search_text):
-        """Check if the asset matches the search text.
+        # Show just the component name (e.g. "image"); file_type is part of
+        # the path/options and not interesting in the row header.
+        self._component_label.setText(asset_info.get("component_name") or "")
 
-        Args:
-            search_text: The search text.
+        server_url = asset_info.get("server_url")
+        if server_url:
+            self._thumbnail_widget.set_server_url(server_url)
+            thumbnail_url = asset_info.get("thumbnail_url")
+            if thumbnail_url:
+                self._thumbnail_widget.load(thumbnail_url)
 
-        Returns:
-            bool: Whether the asset matches the search text.
-        """
-        if not search_text:
-            return True
-
-        if not self._asset_info:
-            return False
-
-        search_lower = search_text.lower()
-
-        # Check all relevant fields
-        fields_to_check = [
-            self._asset_info.get("path", ""),
-            self._asset_info.get("asset_name", ""),
-            self._asset_info.get("component_path", ""),
-            self._asset_info.get("status", ""),
-        ]
-
-        for field in fields_to_check:
-            if search_lower in field.lower():
-                return True
-
-        return False
-
-    def on_collapse(self, collapsed):
-        """Handle collapse state changes.
-
-        Args:
-            collapsed: Whether the widget is collapsed.
-        """
-        if collapsed:
-            # Clear expanded content
-            self.clear_content()
+        is_latest = asset_info.get("is_latest_version")
+        if is_latest is True:
+            self.set_status(constants.status.SUCCESS_STATUS, "Latest version")
+        elif is_latest is False:
+            self.set_status(
+                constants.status.WARNING_STATUS,
+                "A newer version is available",
+            )
         else:
-            # Populate expanded content
-            if self._asset_info:
-                self._populate_expanded_content()
+            self.set_status(constants.status.UNKNOWN_STATUS, "")
+
+        # Pending state was reset above; reflect that on the row.
+        self._refresh_pending_style()
+
+        # Reflect ``objects_loaded`` on the row so the SCSS rule can mute
+        # the asset name + secondary labels when the asset is a
+        # placeholder. Use ``is False`` so a missing key defaults to
+        # "loaded".
+        unloaded = asset_info.get("objects_loaded") is False
+        self.setProperty("unloaded", unloaded)
+        self.style().unpolish(self)
+        self.style().polish(self)
+        # The thumbnail is dimmed via QGraphicsOpacityEffect — Qt
+        # stylesheets don't support ``opacity`` on QWidgets, so the
+        # SCSS-side rule alone is a no-op for the thumbnail.
+        self._apply_unloaded_thumbnail_effect(unloaded)
+
+    def _apply_unloaded_thumbnail_effect(self, unloaded):
+        if self._thumbnail_widget is None:
+            return
+        if unloaded:
+            effect = QtWidgets.QGraphicsOpacityEffect(self._thumbnail_widget)
+            effect.setOpacity(0.25)
+            self._thumbnail_widget.setGraphicsEffect(effect)
+        else:
+            # ``setGraphicsEffect(None)`` removes any previous effect
+            # without leaking — Qt re-parents the old one for deletion.
+            self._thumbnail_widget.setGraphicsEffect(None)
+
+        # Force expanded content to rebuild next time it's opened.
+        self._content_built = False
+        if self._content_container is not None and isValid(
+            self._content_container
+        ):
+            self._content_container.setParent(None)
+            self._content_container.deleteLater()
+        self._content_container = None
+
+    # -- staging logic ---------------------------------------------------
+
+    def has_pending_change(self):
+        return (
+            self._pending_version is not None
+            or self._pending_action is not None
+        )
+
+    @property
+    def pending_version(self):
+        return self._pending_version
+
+    @property
+    def pending_action(self):
+        """Returns ``"version"`` | ``"load"`` | ``"unload"`` | ``"remove"``
+        | ``None``. ``"version"`` is set implicitly when a non-original
+        version is in the dropdown; the others are set explicitly via
+        ``stage_action``."""
+        if self._pending_action is not None:
+            return self._pending_action
+        if self._pending_version is not None:
+            return "version"
+        return None
+
+    def stage_action(self, action):
+        """Stage a context-menu action (``"load"`` | ``"unload"`` |
+        ``"remove"``) on this row. Mutually exclusive with a staged
+        version change — staging an action reverts any dropdown change
+        back to the original version."""
+        if action not in ("load", "unload", "remove"):
+            return
+        # If the user previously staged a version change, snap the
+        # dropdown back to the original version silently.
+        if self._pending_version is not None:
+            self._handling_dropdown_signal = True
+            try:
+                self._reset_dropdown_to_original()
+            finally:
+                self._handling_dropdown_signal = False
+            self._pending_version = None
+        was_pending = self._pending_action is not None
+        self._pending_action = action
+        self._refresh_pending_style()
+        if not was_pending:
+            self.pendingChanged.emit(True)
+
+    def stage_update_to_latest(self):
+        """Set the dropdown to this row's latest version. Triggers the
+        existing version-staging logic via ``_on_version_selector_changed``
+        — if the row is already on the latest version this is a no-op."""
+        if not self._asset_info or self._version_selector is None:
+            return
+        available = self._asset_info.get("available_versions") or []
+        latest_id = None
+        for v in available:
+            if v.get("is_latest_version"):
+                latest_id = v.get("id")
+                break
+        if not latest_id:
+            return
+        for i in range(self._version_selector.count()):
+            item_data = self._version_selector.itemData(i)
+            if item_data and item_data.get("id") == latest_id:
+                self._version_selector.setCurrentIndex(i)
+                return
+
+    def _reset_dropdown_to_original(self):
+        if not self._version_selector or not self._original_version_id:
+            return
+        for i in range(self._version_selector.count()):
+            item_data = self._version_selector.itemData(i)
+            if item_data and item_data.get("id") == self._original_version_id:
+                self._version_selector.setCurrentIndex(i)
+                return
+
+    def clear_pending_change(self):
+        had = self.has_pending_change()
+        self._pending_version = None
+        self._pending_action = None
+        if self._version_selector and self._original_version_id:
+            self._handling_dropdown_signal = True
+            try:
+                self._reset_dropdown_to_original()
+            finally:
+                self._handling_dropdown_signal = False
+        if had:
+            self._refresh_pending_style()
+            self.pendingChanged.emit(False)
+
+    def _on_version_selector_changed(self, _index):
+        if self._handling_dropdown_signal:
+            return
+        version_dict = self._version_selector.version
+        if not version_dict:
+            return
+        new_id = version_dict.get("id")
+        was_pending = self.has_pending_change()
+        # User picked a version from the dropdown — mutually exclusive
+        # with any staged context-menu action.
+        self._pending_action = None
+        if new_id == self._original_version_id:
+            self._pending_version = None
+            if was_pending:
+                self._refresh_pending_style()
+                self.pendingChanged.emit(False)
+        else:
+            self._pending_version = version_dict
+            self._refresh_pending_style()
+            if not was_pending:
+                self.pendingChanged.emit(True)
+
+    def _refresh_pending_style(self):
+        """Push the current pending action onto the ``pending`` Qt
+        property as a string value (or empty). SCSS reads it via
+        ``AssetWidget[pending='version']`` etc."""
+        self.setProperty("pending", self.pending_action or "")
+        self.style().unpolish(self)
+        self.style().polish(self)
+
+    def _on_select_in_scene_clicked(self):
+        if self._asset_info:
+            self.selectInScene.emit(self._asset_info)
+
+    # -- expanded content ------------------------------------------------
 
     def _populate_expanded_content(self):
-        """Populate the expanded content."""
-        content_layout = QtWidgets.QVBoxLayout()
-        content_layout.setContentsMargins(0, 0, 0, 0)
-        content_layout.setSpacing(6)
+        container = QtWidgets.QWidget()
+        layout = QtWidgets.QVBoxLayout(container)
+        layout.setContentsMargins(8, 6, 8, 6)
+        layout.setSpacing(6)
 
-        # Thumbnail
-        thumbnail_widget = AssetVersionThumbnail(self)
-        thumbnail_widget.setFixedSize(128, 128)
-        content_layout.addWidget(thumbnail_widget)
+        info = self._asset_info or {}
 
-        # Entity info
-        entity_info = EntityInfo(self)
-        entity_info.setText(
-            "Entity: {}".format(self._asset_info.get("entity_type", "Unknown"))
+        self._add_section(
+            layout,
+            "Asset info",
+            [
+                ("Context path", info.get("context_path") or ""),
+                ("Asset type", info.get("asset_type_name") or ""),
+                ("Asset id", info.get("asset_id") or ""),
+                ("Version id", info.get("version_id") or ""),
+                ("Component id", info.get("component_id") or ""),
+                ("Component name", info.get("component_name") or ""),
+            ],
         )
-        content_layout.addWidget(entity_info)
 
-        # Dependencies - styled via AssetWidget QLabel[section_title='true']
-        dependencies_label = QtWidgets.QLabel("Dependencies:")
-        dependencies_label.setProperty("section_title", True)
-        content_layout.addWidget(dependencies_label)
-
-        dependencies_text = QtWidgets.QTextEdit()
-        dependencies_text.setReadOnly(True)
-        dependencies_text.setPlainText(
-            json.dumps(self._asset_info.get("dependencies", {}), indent=2)
+        self._add_section(
+            layout,
+            "Load info",
+            [
+                ("Load mode", str(info.get("load_mode") or "")),
+                ("Reference", str(info.get("reference_object") or "")),
+                ("Objects loaded", str(info.get("objects_loaded"))),
+                ("Is latest", str(info.get("is_latest_version"))),
+            ],
         )
-        content_layout.addWidget(dependencies_text)
 
-        self.set_content_layout(content_layout)
+        layout.addWidget(LineWidget())
+        dep_title = QtWidgets.QLabel("Dependencies")
+        dep_title.setProperty("section_title", True)
+        layout.addWidget(dep_title)
+        deps = info.get("dependency_ids") or []
+        if deps:
+            for dep in deps:
+                lbl = QtWidgets.QLabel("•  {}".format(dep))
+                lbl.setProperty("secondary", True)
+                lbl.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
+                layout.addWidget(lbl)
+        else:
+            lbl = QtWidgets.QLabel("No dependencies")
+            lbl.setProperty("secondary", True)
+            layout.addWidget(lbl)
+
+        layout.addWidget(LineWidget())
+        opt_title = QtWidgets.QLabel("Raw options")
+        opt_title.setProperty("section_title", True)
+        layout.addWidget(opt_title)
+        try:
+            # FtrackAssetInfo.__getitem__ decodes the base64-encoded options
+            # dict for us; .get() bypasses that hook, so use [] here.
+            raw_options = (
+                info["asset_info_options"]
+                if info.get("asset_info_options")
+                else {}
+            )
+            raw_text = json.dumps(raw_options, indent=2, sort_keys=True)
+        except (TypeError, ValueError, KeyError):
+            raw_text = str(info.get("asset_info_options") or "")
+        raw_edit = QtWidgets.QTextEdit()
+        raw_edit.setReadOnly(True)
+        raw_edit.setPlainText(raw_text)
+        raw_edit.setMaximumHeight(120)
+        layout.addWidget(raw_edit)
+
+        self.add_widget(container)
+        self._content_container = container
+
+    def _add_section(self, layout, title, rows):
+        layout.addWidget(LineWidget())
+        title_label = QtWidgets.QLabel(title)
+        title_label.setProperty("section_title", True)
+        layout.addWidget(title_label)
+
+        form = QtWidgets.QFormLayout()
+        form.setContentsMargins(8, 0, 0, 0)
+        form.setHorizontalSpacing(12)
+        form.setVerticalSpacing(2)
+        for label_text, value in rows:
+            label = QtWidgets.QLabel("{}:".format(label_text))
+            label.setProperty("secondary", True)
+            value_label = QtWidgets.QLabel(value)
+            value_label.setTextInteractionFlags(
+                QtCore.Qt.TextSelectableByMouse
+            )
+            form.addRow(label, value_label)
+        layout.addLayout(form)
+
+    # -- selection / search ----------------------------------------------
+
+    def matches(self, search_text):
+        if not search_text:
+            return True
+        if not self._asset_info:
+            return False
+        search_lower = search_text.lower()
+        fields = [
+            self._asset_info.get("context_path") or "",
+            self._asset_info.get("asset_name") or "",
+            self._asset_info.get("component_name") or "",
+            self._asset_info.get("file_type") or "",
+            self._asset_info.get("component_path") or "",
+        ]
+        return any(search_lower in (f or "").lower() for f in fields)
 
     def set_selected(self, selected):
-        """Set the selected state.
-
-        Args:
-            selected: Whether the widget is selected.
-        """
-        self._selected = selected
-        self.setProperty("selected", selected)
+        self._is_selected = selected
+        self.setProperty("selected", bool(selected))
         self.style().unpolish(self)
         self.style().polish(self)
 
     def is_selected(self):
-        """Return whether the widget is selected.
-
-        Returns:
-            bool: Whether the widget is selected.
-        """
-        return self._selected
+        return self._is_selected
 
     @property
     def asset_info(self):
-        """Return the asset info."""
         return self._asset_info
-
-
-class AssetVersionStatusWidget(QtWidgets.QFrame):
-    """Asset version status badge widget."""
-
-    def __init__(self, parent=None):
-        """Initialize the status widget.
-
-        Args:
-            parent: The parent widget.
-        """
-        super(AssetVersionStatusWidget, self).__init__(parent=parent)
-
-        self._status_label = QtWidgets.QLabel(self)
-        self._status_label.setAlignment(QtCore.Qt.AlignCenter)
-
-        layout = QtWidgets.QHBoxLayout(self)
-        layout.setContentsMargins(2, 2, 2, 2)
-        layout.addWidget(self._status_label)
-
-        # All visual styling lives in widget/_asset_manager.scss,
-        # keyed off the 'status' property below.
-        self.setProperty("status", "unknown")
-
-    def set_status(self, status):
-        """Set the status.
-
-        Args:
-            status: The status to display.
-        """
-        self._status_label.setText(status)
-        # Map status to one of the values targeted by SCSS.
-        known = ("loaded", "updated", "unloaded")
-        self.setProperty("status", status if status in known else "unknown")
-        self.style().unpolish(self)
-        self.style().polish(self)
-
-
-class AssetVersionSelector(QtWidgets.QComboBox):
-    """Asset version selector widget."""
-
-    def __init__(self, parent=None):
-        """Initialize the version selector.
-
-        Args:
-            parent: The parent widget.
-        """
-        super(AssetVersionSelector, self).__init__(parent=parent)
-
-        # AssetVersionSelector is a QComboBox - the theme styles
-        # QComboBox (border, padding, drop-down, etc.) automatically.
-        self.setFixedWidth(100)
-
-
-class ComponentAndVersionWidget(QtWidgets.QWidget):
-    """Component filename and version widget."""
-
-    def __init__(self, parent=None):
-        """Initialize the component and version widget.
-
-        Args:
-            parent: The parent widget.
-        """
-        super(ComponentAndVersionWidget, self).__init__(parent=parent)
-
-        layout = QtWidgets.QHBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(4)
-
-        # Component filename label - color driven by 'latest_version' property
-        # via ComponentAndVersionWidget QLabel[latest_version='true'] in SCSS.
-        self._component_label = QtWidgets.QLabel(self)
-        self._component_label.setProperty("latest_version", False)
-        layout.addWidget(self._component_label)
-
-        # Version selector
-        self._version_selector = AssetVersionSelector(self)
-        self._version_selector.currentIndexChanged.connect(
-            self._on_version_changed
-        )
-        layout.addWidget(self._version_selector)
-
-    def set_latest_version(self, is_latest_version):
-        """Set the latest version indicator.
-
-        Args:
-            is_latest_version: Whether this is the latest version.
-        """
-        self._component_label.setProperty(
-            "latest_version", bool(is_latest_version)
-        )
-        self._component_label.style().unpolish(self._component_label)
-        self._component_label.style().polish(self._component_label)
-
-    def set_component_filename(self, component_path):
-        """Set the component filename.
-
-        Args:
-            component_path: The component path.
-        """
-        # Extract just the filename
-        filename = component_path.split("/")[-1] if component_path else ""
-        self._component_label.setText(filename)
-
-    def set_version(self, version_nr, versions=None):
-        """Set the version.
-
-        Args:
-            version_nr: The version number.
-            versions: Optional list of available versions.
-        """
-        if versions:
-            # Populate selector with versions
-            self._version_selector.clear()
-            for version in versions:
-                self._version_selector.addItem(str(version), version)
-
-            # Set current version
-            current_index = self._version_selector.findData(version_nr)
-            if current_index >= 0:
-                self._version_selector.setCurrentIndex(current_index)
-        else:
-            # Just display the version number
-            self._version_selector.clear()
-            self._version_selector.addItem(str(version_nr), version_nr)
-
-    def _on_version_changed(self, index):
-        """Handle version changed.
-
-        Args:
-            index: The new index.
-        """
-        version_id = self._version_selector.itemData(index)
-        # Emit signal through parent widget if it has changeAssetVersion
-        parent = self.parent()
-        if hasattr(parent, "changeAssetVersion"):
-            parent.changeAssetVersion.emit(parent.asset_info, version_id)

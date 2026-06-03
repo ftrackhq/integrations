@@ -1,0 +1,14 @@
+type: tool_config
+name: nuke-asset-manager-update
+config_type: asset_manager
+engine_name: nuke_asset_manager_engine
+engine:
+  # For each asset, query ftrack for the latest version + matching
+  # component, rewrite the contained Read node's file knob, and update
+  # the FtrackAssetInfo knobs on the Backdrop.
+  - type: plugin
+    plugin: nuke.am_update_assets
+
+  # Re-scan the scene so the dialog list reflects the new version state.
+  - type: plugin
+    plugin: nuke.am_scene_discover

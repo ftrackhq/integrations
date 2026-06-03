@@ -1,0 +1,12 @@
+type: tool_config
+name: nuke-asset-manager-remove
+config_type: asset_manager
+engine_name: nuke_asset_manager_engine
+engine:
+  # Deletes both the Backdrop and its contained content nodes.
+  - type: plugin
+    plugin: nuke.am_remove_assets
+
+  # Re-scan the scene so the dialog list reflects the removal.
+  - type: plugin
+    plugin: nuke.am_scene_discover

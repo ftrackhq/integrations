@@ -7,7 +7,8 @@ import traceback
 from functools import partial
 import platform
 
-import nuke, nukescripts
+import nuke
+import nukescripts  # noqa: F401 — imported for side-effects (Nuke panel registration)
 
 from ftrack_constants import framework as constants
 from ftrack_utils.extensions.environment import (
@@ -26,6 +27,7 @@ from ftrack_utils.session import create_api_session
 from ftrack_framework_nuke.utils import (
     dock_nuke_right,
     find_nodegraph_viewer,
+    register_asset_link_sync,
     run_in_main_thread,
 )
 
@@ -38,20 +40,20 @@ try:
         os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
     )
 except Exception:
-    __version__ = '0.0.0'
+    __version__ = "0.0.0"
 
 configure_logging(
-    'ftrack_framework_nuke',
-    extra_modules=['ftrack_qt'],
+    "ftrack_framework_nuke",
+    extra_modules=["ftrack_qt"],
     propagate=False,
 )
 
 logger = logging.getLogger(__name__)
-logger.debug(f'v{__version__}')
+logger.debug(f"v{__version__}")
 
 
-def get_ftrack_menu(menu_name='ftrack', submenu_name=None):
-    '''Get the current ftrack menu, create it if does not exists.'''
+def get_ftrack_menu(menu_name="ftrack", submenu_name=None):
+    """Get the current ftrack menu, create it if does not exists."""
 
     nuke_menu = nuke.menu("Nuke")
     ftrack_menu = nuke_menu.findItem(menu_name)
@@ -88,8 +90,8 @@ def bootstrap_integration(framework_extensions_path):
     global client_instance
 
     logger.debug(
-        'Nuke integration initialising, extensions path:'
-        f' {framework_extensions_path}'
+        "Nuke integration initialising, extensions path:"
+        f" {framework_extensions_path}"
     )
 
     session = create_api_session(auto_connect_event_hub=True)
@@ -105,29 +107,29 @@ def bootstrap_integration(framework_extensions_path):
     #  the registry.
     # Create a registry dictionary with all extension names to pass to the mix panel event
     registry_info_dict = {
-        'tool_configs': [
-            item['name'] for item in registry_instance.tool_configs
+        "tool_configs": [
+            item["name"] for item in registry_instance.tool_configs
         ]
         if registry_instance.tool_configs
         else [],
-        'plugins': [item['name'] for item in registry_instance.plugins]
+        "plugins": [item["name"] for item in registry_instance.plugins]
         if registry_instance.plugins
         else [],
-        'engines': [item['name'] for item in registry_instance.engines]
+        "engines": [item["name"] for item in registry_instance.engines]
         if registry_instance.engines
         else [],
-        'widgets': [item['name'] for item in registry_instance.widgets]
+        "widgets": [item["name"] for item in registry_instance.widgets]
         if registry_instance.widgets
         else [],
-        'dialogs': [item['name'] for item in registry_instance.dialogs]
+        "dialogs": [item["name"] for item in registry_instance.dialogs]
         if registry_instance.dialogs
         else [],
-        'launch_configs': [
-            item['name'] for item in registry_instance.launch_configs
+        "launch_configs": [
+            item["name"] for item in registry_instance.launch_configs
         ]
         if registry_instance.launch_configs
         else [],
-        'dcc_configs': [item['name'] for item in registry_instance.dcc_configs]
+        "dcc_configs": [item["name"] for item in registry_instance.dcc_configs]
         if registry_instance.dcc_configs
         else [],
     }
@@ -159,29 +161,33 @@ def bootstrap_integration(framework_extensions_path):
 
     # Init tools
     dcc_config = registry_instance.get_one(
-        name='framework-nuke', extension_type='dcc_config'
-    )['extension']
+        name="framework-nuke", extension_type="dcc_config"
+    )["extension"]
 
-    logger.debug(f'Read DCC config: {dcc_config}')
+    logger.debug(f"Read DCC config: {dcc_config}")
 
-    globals()['onRunToolCallback'] = on_run_tool_callback
+    globals()["onRunToolCallback"] = on_run_tool_callback
+
+    # Keep ftrack Backdrops' asset_link knobs in sync when the wrapped
+    # Read / ReadGeo2 / AudioRead / Camera2 nodes are renamed.
+    register_asset_link_sync()
 
     ftrack_menu = get_ftrack_menu(submenu_name=None)
 
-    for tool in dcc_config['tools']:
+    for tool in dcc_config["tools"]:
         run_on = tool.get("run_on")
         on_menu = tool.get("menu", True)
-        name = tool['name']
-        dialog_name = tool.get('dialog_name')
-        options = tool.get('options', {})
+        name = tool["name"]
+        dialog_name = tool.get("dialog_name")
+        options = tool.get("options", {})
         # TODO: In the future, we should probably emit an event so plugins can
         #  subscribe to it. and run_on specific event.
         if on_menu:
-            if tool['name'] == 'separator':
+            if tool["name"] == "separator":
                 ftrack_menu.addSeparator()
             else:
                 ftrack_menu.addCommand(
-                    tool['label'],
+                    tool["label"],
                     f'{__name__}.onRunToolCallback("{name}","{dialog_name}", {options})',
                 )
 

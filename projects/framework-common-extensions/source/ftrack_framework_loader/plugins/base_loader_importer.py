@@ -273,8 +273,13 @@ class LoaderImporterPlugin(BasePlugin):
         # Step 1: Create tracking nodes
         init_result = self.init_nodes(store)
 
-        # Update store with init result so load_asset can find it
-        store["result"] = init_result
+        # Merge init result into store["result"] so load_asset can find
+        # asset_info / dcc_object without losing the collector's
+        # component_path / component_name / component_id — run_custom
+        # reads those keys to do the actual DCC import.
+        merged = dict(store.get("result") or {})
+        merged.update(init_result)
+        store["result"] = merged
 
         # Step 2: Load content
         load_result = self.load_asset(store)

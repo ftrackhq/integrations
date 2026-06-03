@@ -8,27 +8,39 @@ config_type: loader
 asset_type: geo
 engine_name: nuke_loader_engine
 
+# Optional per-(asset_type, component) filetype hints. Used by the dialog
+# to seed a row's filetype dropdown when ftrack's component.file_type is
+# not set. Never overrides explicit user picks or ftrack data.
+component_filetype_defaults:
+  - asset_type: geo
+    component: cache
+    file_type: .abc
+  - asset_type: geo
+    component: model
+    file_type: .abc
+
 engine:
-  # Context stage
+  # Context / asset-version picker. UI shows a single shared
+  # asset_version_selector at the dialog level. No asset_type_name filter:
+  # the picker returns all AssetVersions for the context; the dialog
+  # filters per-component by filetype against the groups below.
   - type: plugin
     tags:
       - context
-    plugin: common.passthrough_loader_context
+    plugin: common.loader_asset_picker
+    ui: asset_version_selector
 
-  # Cache component - Alembic geometry
+  # Alembic — dedicated importer
   - type: group
     tags:
       - component
     options:
-      component: cache
-    file_formats: [".abc"]
+      file_types: [.abc]
     plugins:
       - type: plugin
         tags:
           - collector
         plugin: common.context_loader_collector
-        options:
-          file_formats: [".abc"]
       - type: plugin
         tags:
           - importer
@@ -40,22 +52,17 @@ engine:
           - post_importer
         plugin: common.passthrough_loader_post_importer
 
-  # Model component - geometry files
+  # Other geo formats — ReadGeo2 via the generic native importer
   - type: group
     tags:
       - component
     options:
-      component: model
-    file_formats: [".abc", ".obj", ".fbx"]
-    optional: True
-    enabled: False
+      file_types: [.obj, .fbx]
     plugins:
       - type: plugin
         tags:
           - collector
         plugin: common.context_loader_collector
-        options:
-          file_formats: [".abc", ".obj", ".fbx"]
       - type: plugin
         tags:
           - importer

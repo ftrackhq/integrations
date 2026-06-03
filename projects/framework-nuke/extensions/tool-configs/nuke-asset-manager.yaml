@@ -35,3 +35,9 @@ engine:
                 task_names_exclude: [".^"]
                 asset_names_include: [".*"]
                 asset_names_exclude: [".^"]
+
+  # Scene-side discovery: walks the Nuke script for ftrack-tagged
+  # Backdrops and replaces store['versions'] with FtrackAssetInfo per
+  # loaded asset. Runs last so it has the final word on the dialog list.
+  - type: plugin
+    plugin: nuke.am_scene_discover

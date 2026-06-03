@@ -1,34 +1,68 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
-# Nuke render/plate loader configuration
+# Nuke render/plate/edit loader configuration. Handles image sequences,
+# stills, movies, and audio coming out of plate/render/review/edit
+# workflows. Used for any non-geo asset coming into Nuke.
 type: tool_config
 name: nuke-render-loader
 config_type: loader
 asset_type: img
 engine_name: nuke_loader_engine
 
+# Optional per-(asset_type, component) filetype hints. Used by the dialog
+# to seed a row's filetype dropdown when ftrack's component.file_type is
+# not set. Never overrides explicit user picks or ftrack data.
+component_filetype_defaults:
+  - asset_type: img
+    component: main
+    file_type: .exr
+  - asset_type: img
+    component: preview
+    file_type: .mp4
+  - asset_type: edit
+    component: plate
+    file_type: .exr
+  - asset_type: edit
+    component: audio
+    file_type: .wav
+  - asset_type: edit
+    component: ftrackreview-mp4
+    file_type: .mp4
+  - asset_type: edit
+    component: ftrackreview-mp4-1080
+    file_type: .mp4
+  - asset_type: edit
+    component: thumbnail
+    file_type: .jpg
+  - asset_type: edit
+    component: reviewable
+    file_type: .mp4
+
 engine:
-  # Context stage
+  # Context / asset-version picker. UI shows a single shared
+  # asset_version_selector at the dialog level. No asset_type_name filter:
+  # the picker returns all AssetVersions for the context; the dialog
+  # filters per-component by filetype against the groups below.
   - type: plugin
     tags:
       - context
-    plugin: common.passthrough_loader_context
+    plugin: common.loader_asset_picker
+    ui: asset_version_selector
 
-  # Main render component - image sequences
+  # Image sequences and stills — Read node, project default colorspace.
+  # Colorspace is left to Nuke's OCIO file-rule default; format is set by
+  # the importer to root.format to match a manual createNode('Read').
   - type: group
     tags:
       - component
     options:
-      component: main
-    file_formats: [".exr", ".dpx", ".jpg", ".png", ".tif"]
+      file_types: [.exr, .dpx, .jpg, .jpeg, .png, .tif, .tiff]
     plugins:
       - type: plugin
         tags:
           - collector
         plugin: common.context_loader_collector
-        options:
-          file_formats: [".exr", ".dpx", ".jpg", ".png", ".tif"]
       - type: plugin
         tags:
           - importer
@@ -38,28 +72,22 @@ engine:
           node_settings:
             before: hold
             after: hold
-            colorspace: scene_linear
       - type: plugin
         tags:
           - post_importer
         plugin: common.passthrough_loader_post_importer
 
-  # Preview component - lower res preview
+  # Movies — Read node, default colorspace
   - type: group
     tags:
       - component
     options:
-      component: preview
-    file_formats: [".jpg", ".png", ".mov", ".mp4"]
-    optional: True
-    enabled: False
+      file_types: [.mov, .mp4]
     plugins:
       - type: plugin
         tags:
           - collector
         plugin: common.context_loader_collector
-        options:
-          file_formats: [".jpg", ".png", ".mov", ".mp4"]
       - type: plugin
         tags:
           - importer
@@ -69,6 +97,31 @@ engine:
           node_settings:
             before: hold
             after: hold
+      - type: plugin
+        tags:
+          - post_importer
+        plugin: common.passthrough_loader_post_importer
+
+  # Audio — AudioRead node (Nuke's audio reader). node_settings empty;
+  # the generic path in nuke.native_loader_importer will create the node
+  # and set its `file` knob.
+  - type: group
+    tags:
+      - component
+    options:
+      file_types: [.wav, .aiff, .aif]
+    plugins:
+      - type: plugin
+        tags:
+          - collector
+        plugin: common.context_loader_collector
+      - type: plugin
+        tags:
+          - importer
+        plugin: nuke.native_loader_importer
+        options:
+          node_type: AudioRead
+          node_settings: {}
       - type: plugin
         tags:
           - post_importer

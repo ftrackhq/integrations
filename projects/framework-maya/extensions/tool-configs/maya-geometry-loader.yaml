@@ -8,33 +8,59 @@ config_type: loader
 asset_type: geo
 engine_name: maya_loader_engine
 
+# Top-level load-mode options surfaced as the dialog's "Load Mode"
+# dropdown. First entry is the default. Merged into every plugin's
+# ``self.options`` by the engine as ``load_mode`` (no item_reference
+# write), so importers must not declare a static ``load_mode`` of their
+# own — it would shadow the user's pick.
+load_modes: [reference, import]
+
+# Optional per-(asset_type, component) filetype hints. Used by the dialog
+# to seed a row's filetype dropdown when ftrack's component.file_type is
+# not set. Never overrides explicit user picks or ftrack data.
+component_filetype_defaults:
+  - asset_type: geo
+    component: snapshot
+    file_type: .mb
+  - asset_type: geo
+    component: model
+    file_type: .mb
+  - asset_type: geo
+    component: cache
+    file_type: .abc
+  - asset_type: geo
+    component: game
+    file_type: .fbx
+
 engine:
-  # Context stage
+  # Context / asset-version picker. UI shows a single shared
+  # asset_version_selector at the dialog level. No asset_type_name filter:
+  # the picker returns all AssetVersions for the context; the dialog
+  # filters per-component by filetype against the groups below.
   - type: plugin
     tags:
       - context
-    plugin: common.passthrough_loader_context
+    plugin: common.loader_asset_picker
+    ui: asset_version_selector
 
-  # Snapshot component - full scene import
+  # Maya scene files. The top-level ``load_modes`` drives the dialog's
+  # Load Mode dropdown (defaulting to ``reference``); the importer reads
+  # the merged value as ``self.options['load_mode']``.
   - type: group
     tags:
       - component
     options:
-      component: snapshot
-    file_formats: [".mb", ".ma"]
+      file_types: [.mb, .ma]
     plugins:
       - type: plugin
         tags:
           - collector
         plugin: common.context_loader_collector
-        options:
-          file_formats: [".mb", ".ma"]
       - type: plugin
         tags:
           - importer
         plugin: maya.native_loader_importer
         options:
-          load_mode: import
           load_options:
             preserve_references: true
             add_namespace: true
@@ -44,51 +70,17 @@ engine:
           - post_importer
         plugin: common.passthrough_loader_post_importer
 
-  # Model component - referenced geometry
+  # Alembic — dedicated importer
   - type: group
     tags:
       - component
     options:
-      component: model
-    file_formats: [".mb", ".ma"]
+      file_types: [.abc]
     plugins:
       - type: plugin
         tags:
           - collector
         plugin: common.context_loader_collector
-        options:
-          file_formats: [".mb", ".ma"]
-      - type: plugin
-        tags:
-          - importer
-        plugin: maya.native_loader_importer
-        options:
-          load_mode: reference
-          load_options:
-            preserve_references: true
-            add_namespace: true
-            namespace_option: file_name
-      - type: plugin
-        tags:
-          - post_importer
-        plugin: common.passthrough_loader_post_importer
-
-  # Cache component - Alembic
-  - type: group
-    tags:
-      - component
-    options:
-      component: cache
-    file_formats: [".abc"]
-    optional: True
-    enabled: False
-    plugins:
-      - type: plugin
-        tags:
-          - collector
-        plugin: common.context_loader_collector
-        options:
-          file_formats: [".abc"]
       - type: plugin
         tags:
           - importer
@@ -98,28 +90,22 @@ engine:
           - post_importer
         plugin: common.passthrough_loader_post_importer
 
-  # Game component - FBX for game export
+  # FBX — uses the same dialog-driven load_mode as the other groups.
   - type: group
     tags:
       - component
     options:
-      component: game
-    file_formats: [".fbx"]
-    optional: True
-    enabled: False
+      file_types: [.fbx]
     plugins:
       - type: plugin
         tags:
           - collector
         plugin: common.context_loader_collector
-        options:
-          file_formats: [".fbx"]
       - type: plugin
         tags:
           - importer
         plugin: maya.native_loader_importer
         options:
-          load_mode: import
           load_options:
             preserve_references: true
             add_namespace: true

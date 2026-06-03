@@ -96,6 +96,18 @@ class NukeNativeLoaderImporterPlugin(LoaderImporterPlugin):
         read_node = nuke.createNode("Read")
         read_node["file"].setValue(component_path)
 
+        # Default Read.format to root.format (matches a manually-created
+        # Read) unless the YAML node_settings explicitly overrides it.
+        if "format" not in node_settings:
+            try:
+                root_format = nuke.root()["format"].value()
+                if root_format:
+                    read_node["format"].setValue(root_format)
+            except Exception as e:
+                self.logger.debug(
+                    f"Could not default Read.format to root format: {e}"
+                )
+
         # Auto-detect sequence/movie settings if not provided
         if "before" not in node_settings:
             read_node["before"].setValue("hold")

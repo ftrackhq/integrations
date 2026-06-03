@@ -13,83 +13,92 @@ class CommonContextLoaderCollectorPlugin(LoaderCollectorPlugin):
     """
     Common loader collector plugin.
 
-    Collects component paths from ftrack AssetVersion based on:
-    - version_id from context_data
-    - component_name from component_data
-    - file_formats from options (optional filter)
+    Reads (from ``self.options``):
+    - ``asset_version_id``: written by the dialog after the user picks a
+      version on the top-level ``common.loader_asset_picker``.
+    - ``component``: written by the dialog when the user enables a row;
+      the specific component name to load from the AssetVersion.
+    - ``file_types``: optional list of extensions the parent group knows how
+      to import (flattened in by the engine from the group's
+      ``options.file_types``). Used to validate that the resolved component's
+      extension is one this group is configured for. ``file_formats`` is
+      still read as a legacy fallback.
+
+    Stores the resolved component path, name, and id in ``store['result']``.
+    Also populates ``store['context_data']`` and ``store['component_data']``
+    with the keys the base importer's ``init_nodes()`` reads when building
+    its ``FtrackAssetInfo`` and DCC tracking node.
     """
 
     name = "common.context_loader_collector"
 
     def run(self, store):
-        """
-        Collect component paths from ftrack.
+        """Collect the component path from ftrack."""
+        asset_version_id = self.options.get("asset_version_id")
+        if not asset_version_id:
+            raise ValueError("asset_version_id required in plugin options")
 
-        *store* should contain:
-        - context_data: Dict with version_id
-        - component_data: Dict with component_name, file_formats
-
-        Stores result in store['result'] as dict:
-        - component_path: File path
-        - component_name: Component name
-        - component_id: Component ID
-        """
-        context_data = store.get("context_data", {})
-        component_data = store.get("component_data", {})
-
-        # Get version_id from context
-        version_id = context_data.get("version_id")
-        if not version_id:
-            raise ValueError("version_id required in context_data")
-
-        # Get component name
-        component_name = component_data.get("component_name")
+        component_name = self.options.get("component")
         if not component_name:
-            raise ValueError("component_name required in component_data")
+            raise ValueError("component required in plugin options")
 
-        # Get optional file format filter from options or component_data
-        file_formats = self.options.get(
-            "file_formats", component_data.get("file_formats", [])
+        # Accept either the new ``file_types`` key or the legacy
+        # ``file_formats``; both are list-of-extension semantics.
+        file_types = (
+            self.options.get("file_types")
+            or self.options.get("file_formats")
+            or []
         )
+        file_types = [self._normalize_extension(ft) for ft in file_types]
 
         self.logger.debug(
-            f"Collecting component: {component_name} for version: {version_id}, "
-            f"file_formats: {file_formats}"
+            f"Collecting component: {component_name} for version: "
+            f"{asset_version_id}, file_types: {file_types}"
         )
 
-        # Query ftrack for AssetVersion
         asset_version_entity = self.session.query(
-            'AssetVersion where id is "{}"'.format(version_id)
+            'AssetVersion where id is "{}"'.format(asset_version_id)
         ).one()
 
-        # Find matching component
-        location = self.session.pick_location()
         component_path = None
         component_id = None
 
         for component in asset_version_entity["components"]:
-            if component["name"] == component_name:
-                # Get filesystem path
-                path = location.get_filesystem_path(component)
+            if component["name"] != component_name:
+                continue
 
-                # Check file format filter
-                if file_formats:
-                    file_ext = os.path.splitext(path)[-1]
-                    if file_ext not in file_formats:
-                        self.logger.warning(
-                            f"Component path {path} has extension {file_ext} "
-                            f"not in accepted formats {file_formats}"
-                        )
-                        continue
+            # pick_location(component) returns the highest-priority location
+            # that actually holds this component; the dialog has already
+            # filtered out components whose only location is ftrack.server,
+            # but check defensively here too.
+            location = self.session.pick_location(component)
+            if not location or location["name"] == "ftrack.server":
+                raise RuntimeError(
+                    f'Component "{component_name}" on version '
+                    f"{asset_version_id} is not available in a local "
+                    f"location."
+                )
+            path = location.get_filesystem_path(component)
 
-                component_path = path
-                component_id = component["id"]
-                break
+            if file_types:
+                file_ext = self._normalize_extension(
+                    os.path.splitext(path)[-1]
+                )
+                if file_ext not in file_types:
+                    self.logger.warning(
+                        f"Component path {path} has extension {file_ext} "
+                        f"not in accepted file_types {file_types}"
+                    )
+                    continue
+
+            component_path = path
+            component_id = component["id"]
+            break
 
         if not component_path:
             raise RuntimeError(
                 f'No component found with name "{component_name}" '
-                f"for version {version_id}"
+                f"for version {asset_version_id}"
             )
 
         self.logger.info(f"Collected component path: {component_path}")
@@ -100,8 +109,30 @@ class CommonContextLoaderCollectorPlugin(LoaderCollectorPlugin):
             asset_const.COMPONENT_ID: component_id,
         }
 
+        store["context_data"] = {
+            asset_const.VERSION_ID: asset_version_id,
+            "asset_version_id": asset_version_id,
+            asset_const.ASSET_ID: asset_version_entity["asset_id"],
+            "context_id": self.context_id,
+        }
+        store["component_data"] = {
+            asset_const.COMPONENT_NAME: component_name,
+            asset_const.COMPONENT_ID: component_id,
+        }
+
         store["result"] = result
         return result
+
+    @staticmethod
+    def _normalize_extension(value):
+        """Normalize a filetype string to a lowercased leading-dot form so
+        ``.ABC``, ``abc``, and ``.abc`` all compare equal."""
+        if not value:
+            return ""
+        value = value.lower()
+        if not value.startswith("."):
+            value = "." + value
+        return value
 
 
 def register(api_object, **kw):
