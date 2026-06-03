@@ -1,6 +1,8 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
+import uuid
+
 try:
     from PySide6 import QtWidgets, QtCore
 except ImportError:
@@ -13,6 +15,24 @@ from ftrack_framework_asset_manager.ui.asset_manager_widget import (
 from ftrack_framework_asset_manager.asset.asset_list_model import (
     AssetListModel,
 )
+
+
+def _safe_uuid(value):
+    """Return ``value`` unchanged if it parses as a UUID, else ``None``.
+
+    Every ID we interpolate into an ftrack query string (``version_id``,
+    ``asset_id``, …) must be a valid UUID; ftrack's API has no
+    parameterized-query mechanism, so the only defense against query
+    injection from tampered Nuke Backdrop knob values is whitelist
+    validation at the boundary.
+    """
+    if not isinstance(value, str):
+        return None
+    try:
+        uuid.UUID(value)
+    except (ValueError, AttributeError):
+        return None
+    return value
 
 
 class AssetManagerDialog(BaseContextDialog):
@@ -354,15 +374,27 @@ class AssetManagerDialog(BaseContextDialog):
             return
         session = self.event_manager.session
 
+        # Whitelist-validate every ID before it reaches a query string —
+        # the values come from Nuke Backdrop knobs and aren't trustworthy.
+        # ``_safe_uuid`` returns ``None`` for anything that isn't a UUID,
+        # which the set comprehension then drops.
         version_ids = sorted(
             {
-                ai.get("version_id")
-                for ai in asset_infos
-                if ai.get("version_id")
+                vid
+                for vid in (
+                    _safe_uuid(ai.get("version_id")) for ai in asset_infos
+                )
+                if vid is not None
             }
         )
         asset_ids = sorted(
-            {ai.get("asset_id") for ai in asset_infos if ai.get("asset_id")}
+            {
+                aid
+                for aid in (
+                    _safe_uuid(ai.get("asset_id")) for ai in asset_infos
+                )
+                if aid is not None
+            }
         )
 
         loaded_by_version = {}
