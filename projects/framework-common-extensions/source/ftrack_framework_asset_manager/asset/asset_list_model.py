@@ -21,7 +21,7 @@ class AssetListModel(QtCore.QAbstractTableModel):
         :param event_manager: :class:`~ftrack_framework_asset_manager.event.EventManager` instance
         """
         self.logger = logging.getLogger(
-            __name__ + '.' + self.__class__.__name__
+            __name__ + "." + self.__class__.__name__
         )
         super(AssetListModel, self).__init__()
         self._event_manager = event_manager
@@ -66,7 +66,7 @@ class AssetListModel(QtCore.QAbstractTableModel):
         """Insert *data* at *index* (or *row* if no index defined)"""
         count = len(data)
         self.beginInsertRows(
-            index or self.createIndex(row, 0), row, row + count - 1
+            index or QtCore.QModelIndex(), row, row + count - 1
         )
         for n in range(count):
             if row + n < len(self._asset_entities_list):
@@ -84,7 +84,7 @@ class AssetListModel(QtCore.QAbstractTableModel):
                 break
         if row == -1:
             self.logger.warning(
-                'No asset info found for id {}'.format(asset_info_id)
+                "No asset info found for id {}".format(asset_info_id)
             )
             return None
         return self.createIndex(row, 0)
@@ -95,7 +95,7 @@ class AssetListModel(QtCore.QAbstractTableModel):
             if asset_info[asset_const.ASSET_INFO_ID] == asset_info_id:
                 return asset_info
         self.logger.warning(
-            'No asset info found for id {}'.format(asset_info_id)
+            "No asset info found for id {}".format(asset_info_id)
         )
         return None
 
@@ -107,7 +107,9 @@ class AssetListModel(QtCore.QAbstractTableModel):
 
     def removeRows(self, index, count=1):
         """Remove *count* rows starting at *index*"""
-        self.beginRemoveRows(index, index.row(), count)
+        self.beginRemoveRows(
+            QtCore.QModelIndex(), index.row(), index.row() + count - 1
+        )
         for n in range(count):
             self._asset_entities_list.pop(index.row())
         self.endRemoveRows()
@@ -117,6 +119,6 @@ class AssetListModel(QtCore.QAbstractTableModel):
         if not index.isValid():
             return QtCore.Qt.ItemIsEnabled
         return (
-            QtCore.Qt.ItemFlags(QtCore.QAbstractTableModel.flags(self, index))
+            QtCore.QAbstractTableModel.flags(self, index)
             | QtCore.Qt.ItemIsEditable
         )

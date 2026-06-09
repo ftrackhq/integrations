@@ -69,6 +69,12 @@ class AssetManagerDialog(BaseContextDialog):
         self._asset_manager_widget = None
         self._apply_button = None
         self._action_configs = {}
+        # Allow each DCC to supply its own action->config-name mapping via
+        # dialog_options; fall back to the class default (Nuke names) so this
+        # shared dialog isn't hardwired to a single integration.
+        self.action_config_names = (dialog_options or {}).get(
+            "action_config_names"
+        ) or self.ACTION_CONFIG_NAMES
 
         super(AssetManagerDialog, self).__init__(
             event_manager,
@@ -194,7 +200,7 @@ class AssetManagerDialog(BaseContextDialog):
         passing ``assets`` (a list of FtrackAssetInfo dicts) and any
         ``extra_options`` via top-level tool-config options. The action
         plugin reads them from ``self.options['assets']``."""
-        config_name = self.ACTION_CONFIG_NAMES.get(action_key)
+        config_name = self.action_config_names.get(action_key)
         if not config_name:
             self.logger.warning(
                 "AssetManagerDialog: no action config name for '{}'".format(

@@ -12,11 +12,14 @@ except ImportError:
     from PySide2 import QtWidgets, QtCore, QtGui
 
 try:
-    from shiboken2 import isValid
+    from shiboken6 import isValid
 except ImportError:
+    try:
+        from shiboken2 import isValid
+    except ImportError:
 
-    def isValid(obj):
-        return True
+        def isValid(obj):
+            return obj is not None
 
 
 import ftrack_constants as constants

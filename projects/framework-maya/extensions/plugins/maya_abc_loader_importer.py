@@ -45,11 +45,14 @@ class MayaAbcLoaderImporterPlugin(LoaderImporterPlugin):
 
         self.logger.info(f"Loading Alembic: {component_path}")
 
-        # Ensure Alembic plugin is loaded
+        # Ensure Alembic plugin is loaded; without it AbcImport is unavailable.
         try:
-            cmds.loadPlugin("AbcImport.so", qt=1)
+            cmds.loadPlugin("AbcImport", quiet=True)
         except Exception as e:
-            self.logger.warning(f"Could not load AbcImport plugin: {e}")
+            self.logger.warning(
+                f"Could not load AbcImport plugin 'AbcImport': {e}"
+            )
+            raise
 
         # Import Alembic
         import_result = cmds.AbcImport(component_path)

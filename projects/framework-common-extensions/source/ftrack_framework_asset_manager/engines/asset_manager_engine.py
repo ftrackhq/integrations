@@ -135,6 +135,7 @@ class AssetManagerEngine(BaseEngine):
         statuses = {}
         results = {}
         for i, asset_info in enumerate(assets):
+            result = None
             if i == 0:
                 options = options or {}
                 options["clear_selection"] = True
@@ -165,6 +166,7 @@ class AssetManagerEngine(BaseEngine):
         statuses = {}
         results = {}
         for asset_info in assets:
+            result = None
             try:
                 status, result = self.update_asset(asset_info, options, plugin)
             except Exception as e:
@@ -221,6 +223,7 @@ class AssetManagerEngine(BaseEngine):
         statuses = {}
         results = {}
         for asset_info in assets:
+            result = None
             try:
                 status, result = self.load_asset(asset_info, options, plugin)
             except Exception as e:
@@ -391,6 +394,7 @@ class AssetManagerEngine(BaseEngine):
         statuses = {}
         results = {}
         for asset_info in assets:
+            result = None
             try:
                 status, result = self.unload_asset(asset_info, options, plugin)
             except Exception as e:
@@ -415,6 +419,7 @@ class AssetManagerEngine(BaseEngine):
         statuses = {}
         results = {}
         for asset_info in assets:
+            result = None
             try:
                 status, result = self.remove_asset(asset_info, options, plugin)
             except Exception as e:

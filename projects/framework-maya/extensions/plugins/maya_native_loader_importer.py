@@ -71,9 +71,11 @@ class MayaNativeLoaderImporterPlugin(LoaderImporterPlugin):
         # Load FBX plugin if needed
         if component_path.lower().endswith(".fbx"):
             try:
-                cmds.loadPlugin("fbxmaya.so", qt=1)
+                cmds.loadPlugin("fbxmaya", quiet=True)
             except Exception as e:
-                self.logger.warning(f"Could not load FBX plugin: {e}")
+                self.logger.warning(
+                    f"Could not load FBX plugin 'fbxmaya': {e}"
+                )
 
         # Execute load based on mode
         result_nodes = None

@@ -83,8 +83,12 @@ class MayaAssetManagerEngine(AssetManagerEngine):
         """
         status = "unknown"
         result = {}
+        message = ""
 
-        new_version_id = options["new_version_id"]
+        new_version_id = options.get("new_version_id")
+        if not new_version_id:
+            status = "error"
+            return status, result
 
         self.asset_info = asset_info
         dcc_object = self.DccObject(
@@ -124,7 +128,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
         reference_node = None
         for obj in unload_result:
             if cmds.nodeType(obj) == "reference":
-                reference_node = unload_result[0]
+                reference_node = obj
                 break
         if not reference_node:
             return super(MayaAssetManagerEngine, self).change_version(
@@ -294,8 +298,11 @@ class MayaAssetManagerEngine(AssetManagerEngine):
         if options and options.get("clear_selection"):
             cmds.select(cl=True)
 
-        nodes = cmds.listConnections(
-            "{}.{}".format(self.dcc_object.name, asset_const.ASSET_LINK)
+        nodes = (
+            cmds.listConnections(
+                "{}.{}".format(self.dcc_object.name, asset_const.ASSET_LINK)
+            )
+            or []
         )
         for node in nodes:
             try:

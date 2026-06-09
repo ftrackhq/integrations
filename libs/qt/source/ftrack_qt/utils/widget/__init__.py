@@ -127,7 +127,7 @@ def build_progress_data(tool_config):
             "id": plugin_config["reference"],
             "label": plugin_config["plugin"].replace("_", " ").title(),
         }
-        tags = plugin_config.get("tags") or []
+        tags = list(plugin_config.get("tags") or [])
         for group in plugin_config.get("parents") or []:
             if group.get("enabled") is False:
                 enabled = False
