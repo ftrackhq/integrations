@@ -1,5 +1,30 @@
 # ftrack Connect release Notes
 
+## v26.6.0rc1
+2026-06-10
+
+* [changed] Performance; Add query projections to startup queries (project tree, recent actions, storage scenario check), eliminating per-entity N+1 server requests.
+* [fix] Plugin manager; Populate the plugin list on the main Qt thread and fetch GitHub releases through a background worker, preventing instability; plugins incompatible with the current platform are now flagged with a warning.
+* [fix] Session; Close the previous API session before creating a new one when the storage scenario is configured, preventing double session initialization.
+* [fix] Plugin manager; Compare plugin versions using PEP 440 parsing instead of string comparison when resolving duplicate plugins.
+* [fix] Fix crash on restart when Connect is launched with --allow-multiple.
+* [fix] About; Widget plugin debug information is correctly included again.
+* [fix] Hooks; Open component directory hook updated to use new event source.host for discovery and launch.
+* [changed] Build; Migrate build system from Poetry to uv and code formatting from black to ruff.
+* [changed] Build; Update Python runtime to 3.13.
+* [changed] Dependencies; ftrack-python-api updated to 3.x, ftrack-utils, ftrack-framework-core and ftrack-constants to 4.x, certifi and urllib3 updated.
+
+## v25.11.0rc1
+2025-11-27
+
+* [fix] Publisher; Improve image sequence padding detection (clique).
+* [changed] Build; macOS builds now produced on macOS 15 runners; Linux build steps locked to Ubuntu 22.04.
+
+## v24.11.1
+2024-12-12
+
+* [fix] Provide proper fallback when icon is not found.
+
 ## v24.11.0
 2024-11-21
 
