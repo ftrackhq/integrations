@@ -152,7 +152,7 @@ class NukeNodegraphImageExporterPlugin(BasePlugin):
                 'macOS screencapture failed: '
                 f'{result.stderr.decode(errors="replace").strip()}'
             )
-        if not os.path.getsize(filename):
+        if not os.path.exists(filename) or not os.path.getsize(filename):
             raise PluginExecutionError(
                 "macOS screencapture produced an empty image. Make sure "
                 "Nuke has Screen Recording permission and the node graph "

@@ -85,6 +85,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
         result = {}
         message = ""
 
+        options = options or {}
         new_version_id = options.get("new_version_id")
         if not new_version_id:
             status = "error"

@@ -1,7 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2024 ftrack
 
-import time
 import nuke
 
 from ftrack_framework_asset_manager.engines.asset_manager_engine import (
@@ -46,10 +45,8 @@ class NukeAssetManagerEngine(AssetManagerEngine):
         Discover all the assets in the scene:
         Returns status and result
         """
-        start_time = time.time()
         status = "unknown"
         result = []
-        message = None
 
         ftrack_asset_node_names = [
             node.name() for node in nuke_utils.get_nodes_with_ftrack_tab()
@@ -76,9 +73,6 @@ class NukeAssetManagerEngine(AssetManagerEngine):
 
         result = ftrack_asset_info_list
 
-        end_time = time.time()
-        total_time = end_time - start_time
-
         return status, result
 
     @nuke_utils.run_in_main_thread
@@ -89,7 +83,6 @@ class NukeAssetManagerEngine(AssetManagerEngine):
         select the given *asset_info*.
         Returns status and result
         """
-        start_time = time.time()
         status = "unknown"
         result = []
         message = None
@@ -123,6 +116,11 @@ class NukeAssetManagerEngine(AssetManagerEngine):
         for node_name in nodes_to_select:
             try:
                 node_to_select = nuke.toNode(node_name)
+                if not node_to_select:
+                    self.logger.warning(
+                        "Can't select non existing node: {}".format(node_name)
+                    )
+                    continue
                 node_to_select["selected"].setValue(True)
                 result.append(str(node_name))
                 status = "success"
@@ -137,8 +135,6 @@ class NukeAssetManagerEngine(AssetManagerEngine):
 
             bool_status = status == "success"
             if not bool_status:
-                end_time = time.time()
-                total_time = end_time - start_time
                 return status, result
 
         try:
@@ -151,9 +147,6 @@ class NukeAssetManagerEngine(AssetManagerEngine):
             )
             self.logger.error(message)
             status = "error"
-
-        end_time = time.time()
-        total_time = end_time - start_time
 
         return status, result
 
@@ -177,7 +170,6 @@ class NukeAssetManagerEngine(AssetManagerEngine):
         Removes the given *asset_info* from the scene.
         Returns status and result
         """
-        start_time = time.time()
         status = "unknown"
         result = []
         message = None
@@ -233,20 +225,26 @@ class NukeAssetManagerEngine(AssetManagerEngine):
 
                 bool_status = status == "success"
                 if not bool_status:
-                    end_time = time.time()
-                    total_time = end_time - start_time
                     return status, result
+        else:
+            # Unload only knows how to empty a Backdrop tracking node; a
+            # non-backdrop node carrying the ftrack tab (legacy/corrupt
+            # scene) has no separable content to unload, so fail loudly
+            # instead of dead-ending with an opaque "unknown" status.
+            message = str(
+                "Unload is not supported for non-backdrop tracking node "
+                "{} (class {})".format(
+                    self.dcc_object.name, ftrack_node.Class()
+                )
+            )
+            self.logger.warning(message)
+            status = "error"
 
         bool_status = status == "success"
         if not bool_status:
-            end_time = time.time()
-            total_time = end_time - start_time
             return status, result
 
         self.ftrack_object_manager.objects_loaded = False
-
-        end_time = time.time()
-        total_time = end_time - start_time
 
         return status, result
 
@@ -256,7 +254,6 @@ class NukeAssetManagerEngine(AssetManagerEngine):
         Removes the given *asset_info* from the scene.
         Returns status and result
         """
-        start_time = time.time()
         status = "unknown"
         result = []
         message = None
@@ -314,8 +311,6 @@ class NukeAssetManagerEngine(AssetManagerEngine):
 
                 bool_status = status == "success"
                 if not bool_status:
-                    end_time = time.time()
-                    total_time = end_time - start_time
                     return status, result
 
         try:
@@ -333,11 +328,6 @@ class NukeAssetManagerEngine(AssetManagerEngine):
 
         bool_status = status == "success"
         if not bool_status:
-            end_time = time.time()
-            total_time = end_time - start_time
             return status, result
-
-        end_time = time.time()
-        total_time = end_time - start_time
 
         return status, result
