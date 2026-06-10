@@ -61,12 +61,16 @@ class GithubReleaseFetcher(QtCore.QRunnable):
             )
             self.signals.finished.emit(releases)
         except Exception as e:
-            logger.error(f"Failed to fetch GitHub releases: {e}")
+            logger.exception(f"Failed to fetch GitHub releases: {e}")
             self.signals.error.emit(str(e))
 
 
 class DndPluginList(QtWidgets.QFrame):
     """Plugin list widget"""
+
+    # Emitted when population of downloadable plugins has finished and
+    # downloadable_plugin_count is final.
+    download_plugins_populated = QtCore.Signal()
 
     @property
     def proxy_model(self):
@@ -103,6 +107,7 @@ class DndPluginList(QtWidgets.QFrame):
         self._proxy_model = None
         self._installed_plugin_count = 0
         self._downloadable_plugin_count = 0
+        self._release_fetcher = None
 
         self.setAcceptDrops(True)
 
@@ -146,7 +151,7 @@ class DndPluginList(QtWidgets.QFrame):
                     QtWidgets.QMessageBox.Icon.Warning,
                     "Warning",
                     "This plugin is not compatible with your platform:"
-                    f":\n\n{destination_filename}\n\nProceed install anyway?",
+                    f"\n\n{destination_filename}\n\nProceed install anyway?",
                     buttons=QtWidgets.QMessageBox.StandardButton.Yes
                     | QtWidgets.QMessageBox.StandardButton.No
                     | QtWidgets.QMessageBox.StandardButton.Cancel,
@@ -319,6 +324,7 @@ class DndPluginList(QtWidgets.QFrame):
             for link in response_json["integrations"]:
                 self._add_plugin(get_plugin_data(link), STATUSES.DOWNLOAD)
                 self._downloadable_plugin_count += 1
+            self.download_plugins_populated.emit()
         else:
             url = os.environ.get(
                 "FTRACK_CONNECT_GITHUB_RELEASES_URL",
@@ -329,6 +335,7 @@ class DndPluginList(QtWidgets.QFrame):
                     "Not attempting to fetch releases from Github, "
                     "disabled by environment variable."
                 )
+                self.download_plugins_populated.emit()
                 return
 
             # Fetch releases asynchronously to avoid blocking the UI
@@ -336,26 +343,49 @@ class DndPluginList(QtWidgets.QFrame):
             worker = GithubReleaseFetcher(url, prereleases=prereleases)
             worker.signals.finished.connect(self._on_github_releases_fetched)
             worker.signals.error.connect(self._on_github_fetch_error)
+            # Keep a reference so worker and its signals are not garbage
+            # collected before the queued signals are delivered, and to be
+            # able to identify results from superseded fetches.
+            self._release_fetcher = worker
             QtCore.QThreadPool.globalInstance().start(worker)
 
     def _on_github_releases_fetched(self, releases):
         """Handle GitHub releases fetched in background thread."""
+        if (
+            self._release_fetcher is None
+            or self.sender() is not self._release_fetcher.signals
+        ):
+            # Result from a superseded fetch, discard
+            return
+        self._release_fetcher = None
         logger.info(
             f"Successfully fetched {len(releases)} releases from GitHub"
         )
-        for release in releases:
-            self._add_plugin(
-                get_plugin_data(release["url"]), STATUSES.DOWNLOAD
+        try:
+            for release in releases:
+                self._add_plugin(
+                    get_plugin_data(release["url"]), STATUSES.DOWNLOAD
+                )
+                self._downloadable_plugin_count += 1
+            logger.debug(
+                f"Added {self._downloadable_plugin_count} downloadable"
+                " plugins"
             )
-            self._downloadable_plugin_count += 1
-        logger.debug(
-            f"Added {self._downloadable_plugin_count} downloadable plugins"
-        )
+        finally:
+            self.download_plugins_populated.emit()
 
     def _on_github_fetch_error(self, error_message):
         """Handle error during GitHub release fetch."""
+        if (
+            self._release_fetcher is None
+            or self.sender() is not self._release_fetcher.signals
+        ):
+            # Error from a superseded fetch, discard
+            return
+        self._release_fetcher = None
         logger.error(f"GitHub release fetch failed: {error_message}")
         # UI continues to work, just without downloadable plugins
+        self.download_plugins_populated.emit()
 
     def archive_legacy_plugin(self, plugin_name):
         """Move legacy plugin identified by *plugin_name* to archive folder"""
