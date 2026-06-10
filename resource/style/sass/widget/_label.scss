@@ -39,3 +39,10 @@ QLabel[secondary_inactive='true'] {
 QLabel[highlighted='true'] {
     color: $color-primary;
 }
+
+/* Inline warning / "no config found" placeholders used by dialogs */
+QLabel[warning='true'] {
+    color: $color-primary;
+    font-style: italic;
+    font-weight: bold;
+}

@@ -19,6 +19,24 @@ tools:
       tool_configs:
         - nuke-script-opener
       docked: false
+  - name: asset_manager
+    menu: true
+    label: "Asset Manager"
+    dialog_name: framework_asset_manager_dialog
+    icon: asset_manager
+    options:
+      tool_configs:
+        - nuke-asset-manager
+      docked: false
+  - name: loader
+    menu: true
+    label: "Loader"
+    dialog_name: framework_loader_dialog
+    icon: import
+    options:
+      tool_configs:
+        - nuke-render-loader
+      docked: false
   # Execute tool config without UI
   - name: set_up_scene
     run_on: startup

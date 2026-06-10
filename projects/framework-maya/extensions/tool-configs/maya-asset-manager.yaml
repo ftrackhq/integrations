@@ -1,0 +1,187 @@
+type: tool_config
+name: maya-asset-manager
+config_type: asset_manager
+engine_name: maya_asset_manager_engine
+engine:
+  - type: plugin
+    plugin: am_test_discover
+    options:
+      filter:
+        asset_name: "*"
+        asset_type_name: "*"
+
+  - type: plugin
+    plugin: am_update_latest_action
+
+  - type: plugin
+    plugin: am_default_resolver
+    options:
+      linked_only: true
+      max_link_depth: 1
+      status_names_include: [".*"]
+      status_names_exclude: ["(?i)(\\W|^)(Omitted)(\\W|$)"]
+      task_types:
+        rendering:
+          asset_types:
+            - asset_type: lgt
+              filters:
+                task_names_include: [".*"]
+                task_names_exclude: [".^"]
+                asset_names_include: [".*"]
+                asset_names_exclude: [".^"]
+        animation:
+          asset_types:
+            - asset_type: rig
+              filters:
+                task_names_include: [".*"]
+                task_names_exclude: [".^"]
+                asset_names_include: [".*"]
+                asset_names_exclude: [".^"]
+            - asset_type: geo
+              filters:
+                task_names_include: [".*"]
+                task_names_exclude: [".^"]
+                asset_names_include: [".*"]
+                asset_names_exclude: [".^"]
+            - asset_type: lgt
+              filters:
+                task_names_include: [".*"]
+                task_names_exclude: [".^"]
+                asset_names_include: [".*"]
+                asset_names_exclude: [".^"]
+            - asset_type: cam
+              filters:
+                task_names_include: [".*"]
+                task_names_exclude: [".^"]
+                asset_names_include: [".*"]
+                asset_names_exclude: [".^"]
+        modeling:
+          asset_types:
+            - asset_type: geo
+              filters:
+                task_names_include: [".*"]
+                task_names_exclude: [".^"]
+                asset_names_include: [".*"]
+                asset_names_exclude: [".^"]
+            - asset_type: rig
+              filters:
+                task_names_include: [".*"]
+                task_names_exclude: [".^"]
+                asset_names_include: [".*"]
+                asset_names_exclude: [".^"]
+        fx:
+          asset_types:
+            - asset_type: cam
+              filters:
+                task_names_include: [".*"]
+                task_names_exclude: [".^"]
+                asset_names_include: [".*"]
+                asset_names_exclude: [".^"]
+            - asset_type: geo
+              filters:
+                task_names_include: [".*"]
+                task_names_exclude: [".^"]
+                asset_names_include: [".*"]
+                asset_names_exclude: [".^"]
+        lighting:
+          asset_types:
+            - asset_type: geo
+              filters:
+                task_names_include: [".*"]
+                task_names_exclude: [".^"]
+                asset_names_include: [".*"]
+                asset_names_exclude: [".^"]
+            - asset_type: animation
+              filters:
+                task_names_include: [".*"]
+                task_names_exclude: [".^"]
+                asset_names_include: [".*"]
+                asset_names_exclude: [".^"]
+            - asset_type: cam
+              filters:
+                task_names_include: [".*"]
+                task_names_exclude: [".^"]
+                asset_names_include: [".*"]
+                asset_names_exclude: [".^"]
+            - asset_type: fx
+              filters:
+                task_names_include: [".*"]
+                task_names_exclude: [".^"]
+                asset_names_include: [".*"]
+                asset_names_exclude: [".^"]
+            - asset_type: lgt
+              filters:
+                task_names_include: [".*"]
+                task_names_exclude: [".^"]
+                asset_names_include: [".*"]
+                asset_names_exclude: [".^"]
+        layout:
+          asset_types:
+            - asset_type: geo
+              filters:
+                task_names_include: [".*"]
+                task_names_exclude: [".^"]
+                asset_names_include: [".*"]
+                asset_names_exclude: [".^"]
+            - asset_type: rig
+              filters:
+                task_names_include: [".*"]
+                task_names_exclude: [".^"]
+                asset_names_include: [".*"]
+                asset_names_exclude: [".^"]
+            - asset_type: cam
+              filters:
+                task_names_include: [".*"]
+                task_names_exclude: [".^"]
+                asset_names_include: [".*"]
+                asset_names_exclude: [".^"]
+            - asset_type: lgt
+              filters:
+                task_names_include: [".*"]
+                task_names_exclude: [".^"]
+                asset_names_include: [".*"]
+                asset_names_exclude: [".^"]
+        rigging:
+          asset_types:
+            - asset_type: geo
+              filters:
+                task_names_include: [".*"]
+                task_names_exclude: [".^"]
+                asset_names_include: [".*"]
+                asset_names_exclude: [".^"]
+            - asset_type: rig
+              filters:
+                task_names_include: [".*"]
+                task_names_exclude: [".^"]
+                asset_names_include: [".*"]
+                asset_names_exclude: [".^"]
+        conform:
+          asset_types:
+            - asset_type: geo
+              filters:
+                task_names_include: [".*"]
+                task_names_exclude: [".^"]
+                asset_names_include: [".*"]
+                asset_names_exclude: [".^"]
+            - asset_type: rig
+              filters:
+                task_names_include: [".*"]
+                task_names_exclude: [".^"]
+                asset_names_include: [".*"]
+                asset_names_exclude: [".^"]
+        tracking:
+          asset_types:
+            - asset_type: edit
+              filters:
+                task_names_include: [".*"]
+                task_names_exclude: [".^"]
+                asset_names_include: [".*"]
+                asset_names_exclude: [".^"]
+        "*":
+          asset_types:
+            - asset_type: "*"
+              filters:
+                task_names_include: [".*"]
+                task_names_exclude: [".^"]
+                asset_names_include: [".*"]
+                asset_names_exclude: [".^"]

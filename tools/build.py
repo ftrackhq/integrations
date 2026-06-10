@@ -363,44 +363,28 @@ def build_package(invokation_path, pkg_path, args, command=None):
                     )
 
             for target_folder, dependency_path in framework_extensions:
-                requirements_path = os.path.join(
-                    dependency_path, "requirements.txt"
-                )
-                if os.path.exists(requirements_path):
-                    logging.info(
-                        'Building Python extension dependencies @ "{}"'.format(
-                            requirements_path
-                        )
-                    )
-                    os.chdir(dependency_path)
-
-                    commands = [
-                        "uv",
-                        "pip",
-                        "install",
-                        "-r",
-                        requirements_path,
-                    ]
-                    if extras:
-                        commands.extend(
-                            [
-                                "-e",
-                                f".[{','.join(extras)}]",
-                            ]
-                        )
-                    commands.extend(
-                        [
-                            "--target",
-                            dependencies_path,
-                            "--refresh",
-                            "--reinstall",
-                        ]
-                    )
-                    subprocess.check_call(commands)
-
                 # Copy the extension
                 logging.info("Copying {}".format(dependency_path))
                 filename = os.path.basename(dependency_path)
+
+                # 'source' folders contain importable Python packages
+                # (e.g. ftrack_framework_asset_manager) that need to be on
+                # PYTHONPATH. Deploy their child packages into the
+                # dependencies folder rather than under extensions/.
+                if filename == "source":
+                    for child in os.listdir(dependency_path):
+                        child_src = os.path.join(dependency_path, child)
+                        child_dest = os.path.join(dependencies_path, child)
+                        if os.path.isdir(child_src):
+                            shutil.copytree(
+                                child_src, child_dest, dirs_exist_ok=True
+                            )
+                        else:
+                            if not os.path.exists(dependencies_path):
+                                os.makedirs(dependencies_path)
+                            if not os.path.exists(child_dest):
+                                shutil.copy(child_src, child_dest)
+                    continue
 
                 dest_path = os.path.join(
                     extensions_destination_path, target_folder, filename
@@ -413,6 +397,35 @@ def build_package(invokation_path, pkg_path, args, command=None):
                     dependency_path,
                     dest_path,
                 )
+
+            # Mirror engine base classes from source/<pkg>/engines/ into
+            # extensions/common/engines/ so the framework registry can
+            # discover them by name (e.g. ``loader_engine`` referenced by
+            # standalone-loader-test.yaml). uv pip install ships them into
+            # dependencies/ separately for Python imports.
+            common_ext_path = os.path.join(
+                MONOREPO_PATH, "projects", "framework-common-extensions"
+            )
+            common_engines_dest = os.path.join(
+                extensions_destination_path, "common", "engines"
+            )
+            for source_pkg in (
+                "ftrack_framework_loader",
+                "ftrack_framework_asset_manager",
+            ):
+                source_engines_dir = os.path.join(
+                    common_ext_path, "source", source_pkg, "engines"
+                )
+                if not os.path.isdir(source_engines_dir):
+                    continue
+                os.makedirs(common_engines_dest, exist_ok=True)
+                for child in os.listdir(source_engines_dir):
+                    if not child.endswith(".py") or child == "__init__.py":
+                        continue
+                    shutil.copy(
+                        os.path.join(source_engines_dir, child),
+                        os.path.join(common_engines_dest, child),
+                    )
 
             # Copy DCC config
             dcc_config_path = os.path.join(

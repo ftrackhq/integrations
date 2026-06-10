@@ -13,9 +13,9 @@ from ftrack_utils.framework.config.tool import get_plugins
 
 
 def check_framework_dialog_bases(cls):
-    '''Recursively check the base classes for FrameworkDialog.'''
+    """Recursively check the base classes for FrameworkDialog."""
     for base in cls.__bases__:
-        if base.__name__ == 'FrameworkDialog':
+        if base.__name__ == "FrameworkDialog":
             return base
         if check_framework_dialog_bases(base):
             return base
@@ -23,12 +23,12 @@ def check_framework_dialog_bases(cls):
 
 
 def get_main_window_from_widget(widget):
-    '''Return the main window from the given widget.'''
+    """Return the main window from the given widget."""
     return widget.window()
 
 
 def get_framework_main_dialog(widget):
-    '''Return the main Framework dialog from the given widget.'''
+    """Return the main Framework dialog from the given widget."""
     main_dialog = None
     while not main_dialog:
         widget = widget.parentWidget()
@@ -41,7 +41,7 @@ def get_framework_main_dialog(widget):
 
 
 def set_property(widget, name, value):
-    '''Update property *name* to *value* for *widget*, and polish afterwards.'''
+    """Update property *name* to *value* for *widget*, and polish afterwards."""
     widget.setProperty(name, value)
     if widget.style() is not None and shiboken.isValid(
         widget.style()
@@ -70,7 +70,7 @@ def set_properties(widget, properties):
 
 
 def center_widget(widget, width=None, height=None):
-    '''Returns a widget that is *widget* centered horizontally and vertically'''
+    """Returns a widget that is *widget* centered horizontally and vertically"""
     v_container = QtWidgets.QWidget()
     v_container.setLayout(QtWidgets.QVBoxLayout())
     v_container.layout().addWidget(QtWidgets.QLabel(""), 100)
@@ -79,7 +79,7 @@ def center_widget(widget, width=None, height=None):
     h_container.setLayout(QtWidgets.QHBoxLayout())
     h_container.layout().addWidget(QtWidgets.QLabel(), 100)
     h_container.layout().addWidget(widget)
-    if not width is None and not height is None:
+    if width is not None and height is not None:
         widget.setMaximumSize(QtCore.QSize(width, height))
         widget.setMinimumSize(QtCore.QSize(width, height))
     h_container.layout().addWidget(QtWidgets.QLabel(), 100)
@@ -90,15 +90,15 @@ def center_widget(widget, width=None, height=None):
 
 
 class InputEventBlockingWidget(QtWidgets.QWidget):
-    '''Conditional input event blocking widget'''
+    """Conditional input event blocking widget"""
 
     def __init__(self, blocker, parent=None):
-        '''
+        """
         Initialize InputEventBlockingWidget
 
         :param blocker: Blocker function that should return true if event should be blocked
         :param parent: The parent dialog or frame
-        '''
+        """
         super(InputEventBlockingWidget, self).__init__(parent=parent)
         self._blocker = blocker
         self._filtered_widget = QtCore.QCoreApplication.instance()
@@ -108,7 +108,7 @@ class InputEventBlockingWidget(QtWidgets.QWidget):
         self._filtered_widget.removeEventFilter(self)
 
     def eventFilter(self, obj, event):
-        '''Block *event* on *obj* while if blocker returns True'''
+        """Block *event* on *obj* while if blocker returns True"""
         retval = False
         if self._blocker() and (isinstance(event, QtGui.QInputEvent)):
             retval = True
@@ -116,27 +116,31 @@ class InputEventBlockingWidget(QtWidgets.QWidget):
 
 
 def build_progress_data(tool_config):
-    '''Build progress data from *tool_config*'''
+    """Build progress data from *tool_config*"""
     progress_data = []
     for plugin_config in get_plugins(tool_config, with_parents=True):
         enabled = True
-        if plugin_config.get('enabled') == False:
+        if plugin_config.get("enabled") is False:
             enabled = False
             continue
         phase_data = {
-            'id': plugin_config['reference'],
-            'label': plugin_config['plugin'].replace('_', ' ').title(),
+            "id": plugin_config["reference"],
+            "label": plugin_config["plugin"].replace("_", " ").title(),
         }
-        tags = plugin_config.get('tags') or []
-        for group in plugin_config.get('parents') or []:
-            if group.get('enabled') == False:
+        tags = list(plugin_config.get("tags") or [])
+        for group in plugin_config.get("parents") or []:
+            if group.get("enabled") is False:
                 enabled = False
                 continue
-            if 'options' in group:
-                tags.extend(list(group['options'].values()))
-            if 'tags' in group:
-                tags.extend(group['tags'])
+            if "options" in group:
+                for option_value in (group["options"] or {}).values():
+                    if isinstance(option_value, (list, tuple)):
+                        tags.extend(str(item) for item in option_value)
+                    elif option_value is not None:
+                        tags.append(str(option_value))
+            if "tags" in group:
+                tags.extend(group["tags"])
         if enabled:
-            phase_data['tags'] = reversed(tags)
+            phase_data["tags"] = reversed(tags)
             progress_data.append(phase_data)
     return progress_data

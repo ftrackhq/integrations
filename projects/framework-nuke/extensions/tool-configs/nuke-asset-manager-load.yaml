@@ -1,0 +1,12 @@
+type: tool_config
+name: nuke-asset-manager-load
+config_type: asset_manager
+engine_name: nuke_asset_manager_engine
+engine:
+  # Stub — logs a warning. See nuke_am_load_assets.py for the TODO.
+  - type: plugin
+    plugin: nuke.am_load_assets
+
+  # Re-scan so the dialog list still refreshes after the (no-op) load.
+  - type: plugin
+    plugin: nuke.am_scene_discover

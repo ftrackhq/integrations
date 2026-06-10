@@ -3,6 +3,7 @@
 
 @import 'module/_app';
 
+@import 'widget/_asset_manager';
 @import 'widget/_button';
 @import 'widget/_checkbox';
 @import 'widget/_combobox';
@@ -11,9 +12,11 @@
 @import 'widget/_ftrack_framework_base_widget';
 @import 'widget/_ftrack_line_widget';
 @import 'widget/_ftrack_progress_widget';
+@import 'widget/_groupbox';
 @import 'widget/_label';
 @import 'widget/_lineedit';
 @import 'widget/_list';
+@import 'widget/_menu';
 @import 'widget/_messagebox';
 @import 'widget/_progressbar';
 @import 'widget/_radiobutton';

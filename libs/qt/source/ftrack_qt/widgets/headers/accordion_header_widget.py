@@ -16,8 +16,8 @@ from ftrack_qt.widgets.buttons import OptionsButton
 
 
 class AccordionHeaderWidget(QtWidgets.QFrame):
-    '''Container for accordion header - holding checkbox, title, user content
-    and expander button.'''
+    """Container for accordion header - holding checkbox, title, user content
+    and expander button."""
 
     clicked = QtCore.Signal(object)  # User header click
     arrow_clicked = QtCore.Signal(object)  # User header click
@@ -63,12 +63,12 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
         collapsed=True,
         parent=None,
     ):
-        '''
+        """
         Initialize header widget
 
         :param title: The default title to give header
         :param parent: The parent dialog or frame
-        '''
+        """
         super(AccordionHeaderWidget, self).__init__(parent=parent)
 
         self._title = title
@@ -104,7 +104,7 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
         self._checkbox.setVisible(self.show_checkbox)
 
         # Create title
-        self._title_label = QtWidgets.QLabel(self.title or '')
+        self._title_label = QtWidgets.QLabel(self.title or "")
         if not self.title:
             self._title_label.hide()
 
@@ -122,12 +122,12 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
         content_layout.addWidget(LineWidget(horizontal=True))
         # add options widget
         self._options_button = OptionsButton(
-            self.title, MaterialIcon('settings', color='gray')
+            self.title, MaterialIcon("settings", color="gray")
         )
-        self._options_button.setProperty('borderless', True)
+        self._options_button.setProperty("borderless", True)
         content_layout.addWidget(LineWidget(horizontal=True))
         # add status icon
-        self._status_icon = StatusMaterialIconWidget('check')
+        self._status_icon = StatusMaterialIconWidget("check")
 
         # Create Arrow
         self._arrow = ArrowMaterialIconWidget(None)
@@ -170,24 +170,33 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
         self.arrow_clicked.emit(event)
 
     def update_arrow_icon(self, collapsed):
-        '''Update the arrow icon based on collapse state'''
+        """Update the arrow icon based on collapse state"""
         if collapsed:
-            icon_name = 'keyboard_arrow_down'
+            icon_name = "keyboard_arrow_down"
         else:
-            icon_name = 'keyboard_arrow_up'
+            icon_name = "keyboard_arrow_up"
         self._arrow.set_icon(name=icon_name)
         self._collapsed = collapsed
 
     def mousePressEvent(self, event):
-        '''(Override)'''
+        """(Override)"""
         self.clicked.emit(event)
         return super(AccordionHeaderWidget, self).mousePressEvent(event)
 
-    def set_status(self, status, message):
-        '''Set status message within header, to be implemented by child'''
-        pass
+    def set_status(self, status, message=None):
+        """Set the header status icon based on the pipeline *status*.
+
+        *status* should be a value from ``ftrack_constants.status``
+        (e.g. ``SUCCESS_STATUS``, ``WARNING_STATUS``). *message* is currently
+        passed through for future tooltip use; the visual is the Material
+        icon rendered by :class:`StatusMaterialIconWidget`.
+        """
+        if self._status_icon is not None:
+            self._status_icon.set_status(status)
+            if message:
+                self._status_icon.setToolTip(message)
 
     def teardown(self):
-        '''Teardown the options button - properly cleanup the options overlay'''
+        """Teardown the options button - properly cleanup the options overlay"""
         self._options_button.teardown()
         self._options_button.deleteLater()

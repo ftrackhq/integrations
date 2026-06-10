@@ -26,8 +26,9 @@ pip-log.txt
 .tox
 test-reports/*
 
-# Ignore build files (e.g. CSS resources)
-/resource/*.css
+# Generated Qt stylesheet outputs (compiled from SCSS by tools/build.py build_qt_resources)
+/resource/style/style_*.css
+/apps/connect/resource/style_*.css
 
 # Ignore cache files
 .sass-cache/
@@ -56,5 +57,4 @@ Thumbs.db
 .vscode/settings.json
 
 # Ignore specific resource files
-#**/ftrack_qt_style/resource.py
 libs/resource

@@ -27,6 +27,7 @@ ftrack-libs = [
 framework-libs = [
   "ftrack-framework-core>=4.0.0, <5.0.0",
   "ftrack-framework-qt>=4.0.0, <5.0.0",
+  "ftrack-framework-common-extensions>=4.0.0, <5.0.0",
 ]
 documentation = [
   "markdown<=3.2.2",
@@ -41,6 +42,7 @@ packages = ["source/ftrack_framework_nuke"]
 
 [tool.uv.sources]
 ftrack-constants = { path = "../../libs/constants" }
+ftrack-framework-common-extensions = { path = "../framework-common-extensions" }
 ftrack-framework-core = { path = "../../libs/framework-core" }
 ftrack-framework-qt = { path = "../../libs/framework-qt" }
 ftrack-qt = { path = "../../libs/qt" }

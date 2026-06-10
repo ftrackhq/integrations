@@ -1,0 +1,51 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2024 ftrack
+
+# Simple standalone loader configuration for testing. Uses passthrough
+# importers — no DCC node creation — to exercise the picker and dialog
+# logic in isolation.
+type: tool_config
+name: standalone-loader-test
+config_type: loader
+engine_name: loader_engine
+
+engine:
+  # Context / asset-version picker. No asset_type_name filter — returns all
+  # AssetVersions for the context; the dialog filters per-component by
+  # filetype against the groups below.
+  - type: plugin
+    tags:
+      - context
+    plugin: common.loader_asset_picker
+    ui: asset_version_selector
+
+  # Catch-all group that matches any non-empty filetype. Real tool-configs
+  # (nuke-* / maya-*) declare per-filetype groups; this standalone test
+  # accepts everything via a wildcard pattern so any selected component
+  # routes through the passthrough chain.
+  - type: group
+    tags:
+      - component
+    options:
+      file_types: ["*"]
+    plugins:
+      - type: plugin
+        tags:
+          - collector
+        plugin: common.context_loader_collector
+      - type: plugin
+        tags:
+          - importer
+        plugin: common.passthrough_loader_importer
+        options:
+          load_mode: import
+      - type: plugin
+        tags:
+          - post_importer
+        plugin: common.passthrough_loader_post_importer
+
+  # Finalizer stage
+  - type: plugin
+    tags:
+      - finalizer
+    plugin: common.passthrough_loader_finalizer

@@ -1,0 +1,24 @@
+/* Group Box */
+
+QGroupBox {
+    color: $text-color;
+    border: 1px solid $border-color;
+    border-radius: 2px;
+    margin-top: 12px;
+    padding: 8px 6px 6px 6px;
+    font-weight: bold;
+    background-color: transparent;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    subcontrol-position: top left;
+    left: 8px;
+    padding: 0 4px;
+    color: $text-color-light;
+    background-color: $background;
+}
+
+QGroupBox::title:disabled {
+    color: $text-color-inactive;
+}

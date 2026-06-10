@@ -1,0 +1,9 @@
+type: tool_config
+name: nuke-asset-manager-select
+config_type: asset_manager
+engine_name: nuke_asset_manager_engine
+engine:
+  # Selects the Backdrop tracking node(s) and their contained content nodes
+  # for each asset in ``options['assets']``. Scene-only; no list refresh.
+  - type: plugin
+    plugin: nuke.am_select_assets

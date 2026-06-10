@@ -1,0 +1,13 @@
+type: tool_config
+name: nuke-asset-manager-unload
+config_type: asset_manager
+engine_name: nuke_asset_manager_engine
+engine:
+  # Deletes the parented content nodes of each Backdrop, keeps the
+  # Backdrop tagged as un-loaded.
+  - type: plugin
+    plugin: nuke.am_unload_assets
+
+  # Re-scan the scene so the dialog list reflects the updated state.
+  - type: plugin
+    plugin: nuke.am_scene_discover

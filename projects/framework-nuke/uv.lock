@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = "==3.13.*"
 
 [[package]]
@@ -103,6 +103,29 @@ requires-dist = [{ name = "ftrack-utils", marker = "extra == 'ftrack-libs'", dir
 provides-extras = ["ftrack-libs"]
 
 [[package]]
+name = "ftrack-framework-common-extensions"
+version = "4.0.0"
+source = { directory = "../framework-common-extensions" }
+dependencies = [
+    { name = "clique" },
+    { name = "ftrack-constants" },
+    { name = "ftrack-framework-core" },
+    { name = "ftrack-framework-qt" },
+    { name = "ftrack-qt" },
+    { name = "ftrack-utils" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "clique", specifier = "==1.6.1" },
+    { name = "ftrack-constants", directory = "../../libs/constants" },
+    { name = "ftrack-framework-core", directory = "../../libs/framework-core" },
+    { name = "ftrack-framework-qt", directory = "../../libs/framework-qt" },
+    { name = "ftrack-qt", directory = "../../libs/qt" },
+    { name = "ftrack-utils", directory = "../../libs/utils" },
+]
+
+[[package]]
 name = "ftrack-framework-core"
 version = "4.0.0"
 source = { directory = "../../libs/framework-core" }
@@ -138,6 +161,7 @@ documentation = [
     { name = "markdown" },
 ]
 framework-libs = [
+    { name = "ftrack-framework-common-extensions" },
     { name = "ftrack-framework-core" },
     { name = "ftrack-framework-qt" },
 ]
@@ -151,6 +175,7 @@ ftrack-libs = [
 [package.metadata]
 requires-dist = [
     { name = "ftrack-constants", marker = "extra == 'ftrack-libs'", directory = "../../libs/constants" },
+    { name = "ftrack-framework-common-extensions", marker = "extra == 'framework-libs'", directory = "../framework-common-extensions" },
     { name = "ftrack-framework-core", marker = "extra == 'framework-libs'", directory = "../../libs/framework-core" },
     { name = "ftrack-framework-qt", marker = "extra == 'framework-libs'", directory = "../../libs/framework-qt" },
     { name = "ftrack-python-api", specifier = ">=3.1.0,<4.0.0" },

@@ -1,0 +1,111 @@
+/* Asset Manager */
+
+/* List container. ``AssetManagerListWidget`` is a ``QListWidget`` whose
+   selection is canonical, but the row visual is driven by
+   ``AssetWidget[selected='true']`` below. Hide QListWidget's default
+   item-selection band, focus rect, and item padding so only the
+   AssetWidget's own 1px border shows. */
+AssetManagerListWidget {
+    background-color: transparent;
+    border: none;
+    outline: 0;
+    selection-background-color: transparent;
+    selection-color: palette(text);
+}
+
+AssetManagerListWidget::item,
+AssetManagerListWidget::item:selected,
+AssetManagerListWidget::item:hover,
+AssetManagerListWidget::item:focus,
+AssetManagerListWidget::item:selected:focus,
+AssetManagerListWidget::item:selected:hover,
+AssetManagerListWidget::item:selected:active {
+    background: transparent;
+    border: none;
+    outline: 0;
+    padding: 0;
+    margin: 0;
+}
+
+/* Asset row */
+AssetWidget {
+    border: 1px solid $border-color;
+    border-radius: 4px;
+    padding: 8px;
+    margin-bottom: 4px;
+    background-color: transparent;
+}
+
+AssetWidget:hover {
+    background-color: $background-selected;
+}
+
+AssetWidget[selected='true'] {
+    /* Explicit border shorthand to pin width / style / color in one
+       rule — overriding just ``border-color`` in some Qt styles
+       re-renders the border-box at a wider effective width. Background
+       stays transparent so the visible selection is just the 1px
+       yellow line, not a filled 8px padding band. */
+    border: 1px solid $color-primary;
+}
+
+/* Staged version change / load / unload — non-destructive pending
+   actions. ftrack purple at 50% so the dark theme bleeds through.
+   Declared after :hover and [selected='true'] so pending wins by
+   cascade — a pending+selected row reads as purple (staged), not
+   yellow (selected). */
+AssetWidget[pending='version'],
+AssetWidget[pending='load'],
+AssetWidget[pending='unload'],
+AssetWidget[pending='version']:hover,
+AssetWidget[pending='load']:hover,
+AssetWidget[pending='unload']:hover,
+AssetWidget[pending='version'][selected='true'],
+AssetWidget[pending='load'][selected='true'],
+AssetWidget[pending='unload'][selected='true'] {
+    background-color: rgba(191, 154, 201, 0.5);
+    border: 1px solid rgba(191, 154, 201, 0.9);
+}
+
+/* Staged removal — destructive, so red instead of purple. Same cascade
+   precedence as the non-destructive pending state above; declared last
+   so a pending=remove row reads as red even when also selected. */
+AssetWidget[pending='remove'],
+AssetWidget[pending='remove']:hover,
+AssetWidget[pending='remove'][selected='true'] {
+    background-color: rgba(220, 80, 80, 0.35);
+    border: 1px solid rgba(220, 80, 80, 0.9);
+}
+
+/* Unloaded asset — content nodes have been removed from the scene
+   while the Backdrop tracking node is still present. Stack several
+   visual cues so the row clearly reads as "placeholder, not live"
+   without overriding ``selected`` / ``pending`` border colors.
+   Thumbnail dimming is done from Python via QGraphicsOpacityEffect
+   because Qt stylesheets don't support ``opacity`` on QWidgets. */
+AssetWidget[unloaded='true'] QLabel[asset_name='true'] {
+    color: $text-color-inactive;
+    font-style: italic;
+    text-decoration: line-through;
+}
+AssetWidget[unloaded='true'] QLabel[secondary='true'],
+AssetWidget[unloaded='true'] QLabel[asset_path='true'] {
+    color: $gray-dark;
+}
+
+/* Path label / component name — muted next to the bold asset name. */
+AssetWidget QLabel[asset_path='true'] {
+    color: $text-color-inactive;
+}
+
+/* Asset name label, bold */
+AssetWidget QLabel[asset_name='true'] {
+    color: $text-color-light;
+    font-weight: bold;
+}
+
+/* Section titles inside the expanded panel */
+AssetWidget QLabel[section_title='true'] {
+    color: $text-color-light;
+    font-weight: bold;
+}

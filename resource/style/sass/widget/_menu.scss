@@ -1,0 +1,32 @@
+/* QMenu — used for the AssetWidget right-click context menu (and any
+   other QMenu spawned by framework dialogs). Qt's default dark-theme
+   ``QMenu::item:selected`` sets a highlight background without a
+   matching text-color override, so hovered items read as dark text on
+   dark highlight → unreadable. Pin both. */
+
+QMenu {
+    background-color: $background;
+    border: 1px solid $border-color;
+    padding: 4px 0;
+}
+
+QMenu::item {
+    padding: 4px 16px;
+    color: $text-color-light;
+    background-color: transparent;
+}
+
+QMenu::item:selected {
+    background-color: $color-primary;
+    color: $background;
+}
+
+QMenu::item:disabled {
+    color: $text-color-inactive;
+}
+
+QMenu::separator {
+    height: 1px;
+    background-color: $border-color;
+    margin: 4px 0;
+}
