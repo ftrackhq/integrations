@@ -13,6 +13,8 @@ from operator import itemgetter
 import time
 import qtawesome as qta
 
+from packaging.version import parse as parse_version, InvalidVersion
+
 import ftrack_api
 import ftrack_api._centralized_storage_scenario
 import ftrack_api.event.base
@@ -218,10 +220,12 @@ class Application(QtWidgets.QMainWindow):
         """restart connect application"""
         self.logger.info("Connect restarting....")
         QtWidgets.QApplication.quit()
-        self._instance.__del__()
+        if self._instance is not None:
+            self._instance.__del__()
 
         # Give enough time to ensure the lockfile has been removed
-        while os.path.exists(self._instance.lockfile):
+        lockfile = getattr(self._instance, "lockfile", None)
+        while lockfile and os.path.exists(lockfile):
             time.sleep(0.1)
         process = QtCore.QProcess()
 
@@ -447,7 +451,7 @@ class Application(QtWidgets.QMainWindow):
     def _show_login_widget(self):
         """Show the login widget."""
         self._login_overlay = ftrack_connect.ui.widget.overlay.CancelOverlay(
-            self._login_widget, message="<h2>Signing in<h2/>"
+            self._login_widget, message="<h2>Signing in</h2>"
         )
 
         self._login_overlay.hide()
@@ -651,7 +655,7 @@ class Application(QtWidgets.QMainWindow):
                 self.logger.exception("Failed to disconnect from event hub.")
                 pass
 
-        # NEW: Properly close the existing session before creating a new one
+        # Close the existing session before creating a new one.
         if self._session is not None:
             try:
                 self.logger.debug(
@@ -794,10 +798,18 @@ class Application(QtWidgets.QMainWindow):
                             not plugin["incompatible"]
                             and not plugin["deprecated"]
                         ):
-                            if (
-                                current_dir_plugin["version"]
-                                < plugin["version"]
-                            ):
+                            try:
+                                is_newer = parse_version(
+                                    current_dir_plugin["version"]
+                                ) < parse_version(plugin["version"])
+                            except InvalidVersion:
+                                # Non PEP 440 versions can't be parsed,
+                                # fall back to lexical comparison.
+                                is_newer = (
+                                    current_dir_plugin["version"]
+                                    < plugin["version"]
+                                )
+                            if is_newer:
                                 current_dir_plugins.remove(current_dir_plugin)
                                 break
                         found = True
@@ -1072,7 +1084,7 @@ class Application(QtWidgets.QMainWindow):
             )
 
         # Provide information from builtin widget plugins.
-        for plugin in self._widget_plugin_instances:
+        for plugin in self._widget_plugin_instances.values():
             if isinstance(plugin, ConnectWidget):
                 debug_information["widgets"].append(
                     plugin.get_debug_information()
