@@ -9,7 +9,6 @@ import plistlib
 import requests.certs
 
 import PyInstaller.__main__
-import dmgbuild
 
 
 VERSION_TEMPLATE = """
@@ -256,6 +255,10 @@ class MacOSAppInstaller(AppInstaller):
 
     def generate_installer_package(self, codesign=True):
         """Create DMG on MacOS with checksum. Returns the resulting path."""
+        # dmgbuild can only be imported on macOS (it reads platform.mac_ver()
+        # at import time), so import it here instead of at module level.
+        import dmgbuild
+
         assert os.path.isdir(self.bundle_path), "No bundle output where found!"
 
         if codesign:

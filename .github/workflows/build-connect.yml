@@ -161,8 +161,6 @@ jobs:
           python-version: '3.13'
       - name: install uv
         uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86  # v5
-      - name: Install npm dependencies
-        run: npm install -g appdmg
       - name: Set CPPFLAGS LDFLAGS
         shell: bash
         run: |
@@ -233,6 +231,7 @@ jobs:
     needs: [ set-variables, connect-build ]
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         rocky-version: [ '8', '9' ]
     container:
@@ -255,7 +254,10 @@ jobs:
       - name: install uv
         shell: bash
         run: |
-          curl -LsSf https://astral.sh/uv/install.sh | sh
+          # UV_NO_MODIFY_PATH stops the installer from writing to GITHUB_PATH;
+          # in container jobs the runner rebuilds PATH from it for later steps
+          # and loses the system dirs, making bash unresolvable.
+          curl -LsSf https://astral.sh/uv/install.sh | env UV_NO_MODIFY_PATH=1 sh
           export PATH="$HOME/.local/bin:$PATH"
           uv --version
       - name: Install Python 3.13 with uv
