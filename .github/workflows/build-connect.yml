@@ -269,12 +269,10 @@ jobs:
         shell: bash
         run: |
           export PATH="$HOME/.local/bin:$PATH"
-          uv run --python 3.13 python --version
-      - name: Install patchelf
-        shell: bash
-        run: |
-          export PATH="$HOME/.local/bin:$PATH"
-          uv run --python 3.13 python -m pip install patchelf
+          uv run --no-project --python 3.13 python --version
+      # NOTE: patchelf is intentionally not installed. It was a requirement of
+      # the old cx_Freeze based installer (removed in #489); the PyInstaller
+      # based ftrack-app-installer does not use it.
       - name: Build Qt resources
         shell: bash
         run: |
