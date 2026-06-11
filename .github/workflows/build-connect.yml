@@ -288,6 +288,10 @@ jobs:
       - name: Upload Connect tar.gz and md5 to GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # The checkout in this container is a REST tarball without .git
+          # (git is only installed after checkout runs), so gh cannot resolve
+          # the repository from git - point it at the repo explicitly.
+          GH_REPO: ${{ github.repository }}
         shell: bash
         run: |
           echo "Listing contents of apps/connect/dist:"
