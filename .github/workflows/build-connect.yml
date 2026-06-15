@@ -156,7 +156,7 @@ jobs:
       fail-fast: false # an Intel failure must not cancel the Apple Silicon build (and vice versa)
       matrix:
         include:
-          - { arch: x86_64, runner: macos-13 } # Intel
+          - { arch: x86_64, runner: macos-15-intel } # Intel (macos-13 retired 2025-12-04)
           - { arch: arm64, runner: macos-15 } # Apple Silicon
     env:
       CODESIGN: 'True' # A not codesigned dmg will always show damaged app. Please build locally if don't want to codesign and generate a ZIP instead of a dmg.
