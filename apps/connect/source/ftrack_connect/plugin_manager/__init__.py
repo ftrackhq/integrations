@@ -236,9 +236,9 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
         """Callback on fetching installed plugins from Connect"""
         self._installed_plugins = plugins
         self._plugin_list_widget.populate_installed_plugins(plugins)
-        disable_startup_widget = bool(
-            os.getenv("FTRACK_CONNECT_DISABLE_STARTUP_WIDGET", False)
-        )
+        disable_startup_widget = (
+            os.getenv("FTRACK_CONNECT_DISABLE_STARTUP_WIDGET") or ""
+        ).lower() in ["true", "1"]
         # Decide now if the welcome dialog should be shown; the downloadable
         # plugin count is not known until download_plugins_populated arrives.
         self._show_welcome_pending = (

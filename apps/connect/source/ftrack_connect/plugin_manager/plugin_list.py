@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2024 ftrack
 import os
-from packaging.version import parse as parse_version
+from packaging.version import parse as parse_version, InvalidVersion
 from urllib.request import urlopen
 import json
 import shutil
@@ -186,7 +186,11 @@ class DndPluginList(QtWidgets.QFrame):
         )
         plugin_item.setData(status, ROLES.PLUGIN_STATUS)
         plugin_item.setData(str(plugin_data["name"]), ROLES.PLUGIN_NAME)
-        new_plugin_version = parse_version(plugin_data["version"])
+        try:
+            new_plugin_version = parse_version(plugin_data["version"])
+        except InvalidVersion:
+            # Non PEP 440 versions can't be parsed, fall back to the raw string.
+            new_plugin_version = plugin_data["version"]
         plugin_item.setData(new_plugin_version, ROLES.PLUGIN_VERSION)
         plugin_item.setData(plugin_id, ROLES.PLUGIN_ID)
         plugin_item.setIcon(STATUS_ICONS[status])
@@ -244,7 +248,14 @@ class DndPluginList(QtWidgets.QFrame):
             STATUSES.DOWNLOAD,
         ] and status in [STATUSES.NEW, STATUSES.DOWNLOAD]:
             stored_plugin_version = stored_item.data(ROLES.PLUGIN_VERSION)
-            should_update = stored_plugin_version < new_plugin_version
+            try:
+                should_update = stored_plugin_version < new_plugin_version
+            except TypeError:
+                # One side failed PEP 440 parsing and is a raw string;
+                # fall back to lexical comparison.
+                should_update = str(stored_plugin_version) < str(
+                    new_plugin_version
+                )
             if not should_update:
                 return
 
@@ -309,7 +320,7 @@ class DndPluginList(QtWidgets.QFrame):
                     "Warning",
                     f"The following plugin failed to load:\n\n{plugin}\n\n{e}",
                 )
-                logger.warning(f"Failed to add plugin {plugin}: ")
+                logger.warning(f"Failed to add plugin {plugin}: {e}")
 
     def populate_download_plugins(self, prereleases=False):
         """Populate model with remotely configured plugins."""
