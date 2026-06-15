@@ -3,6 +3,7 @@
 ## v26.6.0rc1
 2026-06-10
 
+* [new] macOS; Provide separate Intel (x86_64) and Apple Silicon (arm64) installers. DMG filenames now carry an architecture suffix (ftrack_connect-<version>-macOS-x86_64.dmg / -arm64.dmg).
 * [changed] Performance; Add query projections to startup queries (project tree, recent actions, storage scenario check), eliminating per-entity N+1 server requests.
 * [fix] Plugin manager; Populate the plugin list on the main Qt thread and fetch GitHub releases through a background worker, preventing instability; plugins incompatible with the current platform are now flagged with a warning.
 * [fix] Session; Close the previous API session before creating a new one when the storage scenario is configured, preventing double session initialization.

@@ -5,6 +5,7 @@ import subprocess
 import os
 import re
 import logging
+import platform
 import plistlib
 import requests.certs
 
@@ -264,8 +265,12 @@ class MacOSAppInstaller(AppInstaller):
         if codesign:
             self.codesign(self.bundle_path)
 
-        dmg_name = "{0}-{1}-macOS.dmg".format(
-            self.bundle_name.replace(" ", "_").lower(), self.version
+        # Include the machine architecture (x86_64 / arm64) so the Intel and
+        # Apple Silicon builds produce distinct, self-describing artifacts.
+        dmg_name = "{0}-{1}-macOS-{2}.dmg".format(
+            self.bundle_name.replace(" ", "_").lower(),
+            self.version,
+            platform.machine(),
         )
         dmg_path = os.path.join(self.dist_path, dmg_name)
         if not os.path.exists(self.dist_path):
