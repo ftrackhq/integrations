@@ -58,3 +58,5 @@ Thumbs.db
 # Ignore specific resource files
 #**/ftrack_qt_style/resource.py
 libs/resource
+
+.venv/
