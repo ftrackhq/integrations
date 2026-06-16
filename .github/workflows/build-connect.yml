@@ -149,15 +149,17 @@ jobs:
           gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack_connect-${clean_package_version}-win64.exe" --clobber
 
   installer-macos:
-    name: Build Connect Installer on MacOs (${{ matrix.arch }})
+    name: Build Connect Installer on MacOs
     needs: [ set-variables, connect-build ]
-    runs-on: ${{ matrix.runner }}
+    # Single-key matrix so GitHub auto-appends a clean (x86_64)/(arm64) suffix to
+    # the job name, matching the Rocky job's (8)/(9) style. The runner is derived
+    # from the arch: x86_64 -> macos-15-intel (macos-13 retired 2025-12-04),
+    # arm64 -> macos-15 (Apple Silicon).
+    runs-on: ${{ matrix.arch == 'x86_64' && 'macos-15-intel' || 'macos-15' }}
     strategy:
       fail-fast: false # an Intel failure must not cancel the Apple Silicon build (and vice versa)
       matrix:
-        include:
-          - { arch: x86_64, runner: macos-15-intel } # Intel (macos-13 retired 2025-12-04)
-          - { arch: arm64, runner: macos-15 } # Apple Silicon
+        arch: [ x86_64, arm64 ]
     env:
       CODESIGN: 'True' # A not codesigned dmg will always show damaged app. Please build locally if don't want to codesign and generate a ZIP instead of a dmg.
     steps:
