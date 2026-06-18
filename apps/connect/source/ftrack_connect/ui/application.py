@@ -521,18 +521,24 @@ class Application(QtWidgets.QMainWindow):
             session
         )
 
-        # Initialize UsageTracker for connect
-        set_usage_tracker(
-            UsageTracker(
-                session=session,
-                default_data=dict(
-                    app="Connect",
-                    version=ftrack_connect.__version__,
-                    os=platform.platform(),
-                    python_version=platform.python_version(),
-                ),
+        # Initialize or update UsageTracker for connect
+        usage_tracker = get_usage_tracker()
+        if usage_tracker is None:
+            # First time - create the singleton
+            set_usage_tracker(
+                UsageTracker(
+                    session=session,
+                    default_data=dict(
+                        app="Connect",
+                        version=ftrack_connect.__version__,
+                        os=platform.platform(),
+                        python_version=platform.python_version(),
+                    ),
+                )
             )
-        )
+        else:
+            # Session has been recreated - update the reference
+            usage_tracker.update_session(session)
 
         return session
 
