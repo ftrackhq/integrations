@@ -702,6 +702,9 @@ class Application(QtWidgets.QMainWindow):
     def _configure_connect_and_discover_plugins(self):
         """Configure connect and load plugins."""
 
+        # Clear widget plugin instances to ensure they're recreated with new session
+        self._widget_plugin_instances.clear()
+
         self.tabPanel = _tab_widget.TabWidget()
         self.tabPanel.tabBar().setObjectName("application-tab-bar")
         self.setCentralWidget(self.tabPanel)

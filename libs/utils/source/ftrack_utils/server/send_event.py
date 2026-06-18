@@ -33,14 +33,13 @@ def send_event(session, action, event_name, metadata=None):
 
     except Exception as exc:
         # Log but don't raise - usage tracking should never break the application
-        logger.debug(
-            'Failed to send event "{}" ({}): {}'.format(
-                event_name, exc.__class__.__name__, exc
-            )
+        logger.warning(
+            'Failed to send event "{}": {}'.format(event_name, exc),
+            exc_info=True,
         )
 
 
 @asynchronous
 def send_async_event(session, action, event_name, metadata=None):
-    """Call __send_event in a new thread."""
+    """Call send_event in a new thread."""
     send_event(session, action, event_name, metadata)
