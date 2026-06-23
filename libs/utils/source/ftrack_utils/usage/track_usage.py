@@ -6,7 +6,7 @@ import copy
 
 from ftrack_utils.server.track_usage import send_usage_event
 
-logger = logging.getLogger('ftrack_utils:usage')
+logger = logging.getLogger("ftrack_utils:usage")
 
 # Singleton instance placeholder
 usage_tracker_singleton = None
@@ -54,6 +54,15 @@ class UsageTracker:
             cls._instance._session = session
             cls._instance._default_data = default_data
         return cls._instance
+
+    def update_session(self, session):
+        """
+        Update the session reference when it has been recreated.
+
+        *session*: The new ftrack_api.Session instance to use.
+        """
+        self._session = session
+        logger.debug("Updated UsageTracker session reference")
 
     def track(self, event_name, metadata):
         """
