@@ -20,11 +20,11 @@ from ftrack_connect.utils.plugin import PLUGIN_DIRECTORIES
 
 
 class AboutDialog(QtWidgets.QDialog):
-    '''About widget.'''
+    """About widget."""
 
-    def __init__(self, parent, icon=':ftrack/connect/logo/dark2x'):
+    def __init__(self, parent, icon=":ftrack/connect/logo/dark2x"):
         super(AboutDialog, self).__init__(parent)
-        self.setWindowTitle('About connect')
+        self.setWindowTitle("About connect")
         layout = QtWidgets.QVBoxLayout()
         layout.setContentsMargins(20, 20, 20, 20)
         layout.setSizeConstraint(QtWidgets.QLayout.SizeConstraint.SetFixedSize)
@@ -48,19 +48,19 @@ class AboutDialog(QtWidgets.QDialog):
 
         layout.addSpacing(25)
 
-        self.debugButton = QtWidgets.QPushButton('More info')
+        self.debugButton = QtWidgets.QPushButton("More info")
         self.debugButton.clicked.connect(self._onDebugButtonClicked)
 
         layout.addWidget(self.debugButton)
 
-        self.loggingButton = QtWidgets.QPushButton('Open log directory')
+        self.loggingButton = QtWidgets.QPushButton("Open log directory")
         self.loggingButton.clicked.connect(self._onLoggingButtonClicked)
 
         layout.addWidget(self.loggingButton)
 
-        if 'linux' in sys.platform:
+        if "linux" in sys.platform:
             self.createApplicationShortcutButton = QtWidgets.QPushButton(
-                'Create application shortcut'
+                "Create application shortcut"
             )
             self.createApplicationShortcutButton.clicked.connect(
                 self._onCreateApplicationShortcutClicked
@@ -74,19 +74,19 @@ class AboutDialog(QtWidgets.QDialog):
         layout.addWidget(self.debugTextEdit)
 
     def _onDebugButtonClicked(self):
-        '''Handle debug button clicked.'''
+        """Handle debug button clicked."""
         self.debugButton.hide()
         self.debugTextEdit.show()
         self.adjustSize()
 
     def _onWidgetButtonClicked(self):
-        '''Handle debug button clicked.'''
+        """Handle debug button clicked."""
         self.debugButton.hide()
         self.debugTextEdit.show()
         self.adjustSize()
 
     def _onLoggingButtonClicked(self):
-        '''Handle logging button clicked.'''
+        """Handle logging button clicked."""
         directory = get_log_directory()
 
         if not os.path.exists(directory):
@@ -97,8 +97,8 @@ class AboutDialog(QtWidgets.QDialog):
                 messageBox = QtWidgets.QMessageBox(parent=self)
                 messageBox.setIcon(QtWidgets.QMessageBox.Icon.Warning)
                 messageBox.setText(
-                    u'Could not open or create logging '
-                    u'directory: {0}.'.format(directory)
+                    "Could not open or create logging "
+                    "directory: {0}.".format(directory)
                 )
                 messageBox.exec_()
                 return
@@ -106,21 +106,21 @@ class AboutDialog(QtWidgets.QDialog):
         open_directory(directory)
 
     def _onCreateApplicationShortcutClicked(self):
-        '''Create a desktop entry for Connect.'''
-        if 'linux' not in sys.platform:
+        """Create a desktop entry for Connect."""
+        if "linux" not in sys.platform:
             return
 
-        if os.path.realpath(__file__).startswith(os.path.expanduser('~')):
-            directory = os.path.expanduser('~/.local/share/applications')
+        if os.path.realpath(__file__).startswith(os.path.expanduser("~")):
+            directory = os.path.expanduser("~/.local/share/applications")
         else:
-            directory = '/usr/share/applications'
-        filepath = os.path.join(directory, 'ftrack-connect-package.desktop')
+            directory = "/usr/share/applications"
+        filepath = os.path.join(directory, "ftrack-connect-package.desktop")
 
         if os.path.exists(filepath):
             msgBox = QtWidgets.QMessageBox()
-            msgBox.setWindowTitle('Overwrite file')
-            msgBox.setText('{0} already exists.'.format(filepath))
-            msgBox.setInformativeText('Do you want to overwrite it?')
+            msgBox.setWindowTitle("Overwrite file")
+            msgBox.setText("{0} already exists.".format(filepath))
+            msgBox.setInformativeText("Do you want to overwrite it?")
             msgBox.setStandardButtons(
                 QtWidgets.QMessageBox.StandardButton.Yes
                 | QtWidgets.QMessageBox.StandardButton.No
@@ -133,14 +133,14 @@ class AboutDialog(QtWidgets.QDialog):
         application_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
 
         # ensure name is set correctly if the connect is packaged or from sources.
-        is_frozen = getattr(sys, 'frozen', False)
-        print(f'app is frozen {is_frozen}')
-        app_name = 'ftrack-connect'
+        is_frozen = getattr(sys, "frozen", False)
+        print(f"app is frozen {is_frozen}")
+        app_name = "ftrack-connect"
         if is_frozen:
-            app_name = 'ftrack_connect'
+            app_name = "ftrack_connect"
 
         content = textwrap.dedent(
-            '''\
+            """\
         #!/usr/bin/env xdg-open
         [Desktop Entry]
         Type=Application
@@ -151,28 +151,26 @@ class AboutDialog(QtWidgets.QDialog):
         Exec="{0}/{1}"
         StartupNotify=true
         Terminal=false
-        '''.format(
-                application_dir, app_name
-            )
+        """.format(application_dir, app_name)
         )
 
-        with open(filepath, 'w+') as f:
+        with open(filepath, "w+") as f:
             f.write(content)
 
         messageBox = QtWidgets.QMessageBox(parent=self)
-        messageBox.setText(u'Wrote shortcut file to: {0}.'.format(filepath))
+        messageBox.setText("Wrote shortcut file to: {0}.".format(filepath))
         messageBox.exec_()
 
     def setInformation(self, versionData, user, server, widget_plugins):
-        '''Set displayed *versionData*, *user*, *server*.'''
-        core = [plugin for plugin in versionData if plugin.get('core')]
+        """Set displayed *versionData*, *user*, *server*."""
+        core = [plugin for plugin in versionData if plugin.get("core")]
         plugins = [
             plugin
             for plugin in versionData
-            if 'path' in plugin and plugin.get('core') is not True
+            if "path" in plugin and plugin.get("core") is not True
         ]
 
-        coreTemplate = '''
+        coreTemplate = """
             <p><b>Connect: </b>{core_versions}</p>
             <hr>
             <p><b>Python API: </b>{api_versions}</p>
@@ -184,17 +182,17 @@ class AboutDialog(QtWidgets.QDialog):
             <hr>  
             <p><b>Server: </b>{server}</p>
             <p><b>User: </b>{user}</p>
-        '''
-        core_item_template = '{name}: {version}<br>'
+        """
+        core_item_template = "{name}: {version}<br>"
 
-        plugin_item_template = '{name}: {version} {tags}<br>'
+        plugin_item_template = "{name}: {version} {tags}<br>"
 
-        sources_item_template = '{name} ( {index} )<br>'
+        sources_item_template = "{name} ( {index} )<br>"
 
-        coreVersions = ''
+        coreVersions = ""
         for _core in core:
             coreVersions += core_item_template.format(
-                name=_core['name'], version=_core['version']
+                name=_core["name"], version=_core["version"]
             )
 
         content = coreTemplate.format(
@@ -212,12 +210,12 @@ class AboutDialog(QtWidgets.QDialog):
         source_dirs = ""
         for index, plugin_directory in enumerate(PLUGIN_DIRECTORIES):
             if index == 0:
-                index = 'Target'
+                index = "Target"
             source_dirs += sources_item_template.format(
                 name=plugin_directory, index=index
             )
 
-        content += f'<h4>Sources:</h4>{source_dirs}'
+        content += f"<h4>Sources:</h4>{source_dirs}"
 
         if plugins:
             # deduplicate list of dictionary.
@@ -226,7 +224,7 @@ class AboutDialog(QtWidgets.QDialog):
             # Group plugins by index
             grouped_plugins = {}
             for _plugin in plugins:
-                source_index = _plugin.get('source_index', 0)
+                source_index = _plugin.get("source_index", 0)
                 if source_index in grouped_plugins:
                     grouped_plugins[source_index].append(_plugin)
                 else:
@@ -236,28 +234,28 @@ class AboutDialog(QtWidgets.QDialog):
                 # Prioritize by incompatible, deprecated and ignored values
                 # False values are considered "smaller" so they will come first with this setup
                 return (
-                    d.get('incompatible'),
-                    d.get('deprecated'),
-                    not d.get('ignored'),
+                    d.get("incompatible"),
+                    d.get("deprecated"),
+                    not d.get("ignored"),
                 )
 
             for group, _group_plugins in sorted(grouped_plugins.items()):
-                plugin_versions = ''
+                plugin_versions = ""
                 if group == 0:
-                    group = 'Target'
+                    group = "Target"
                 for _plugin in sorted(_group_plugins, key=_sort_keys):
-                    formatted_tags = ''
-                    if _plugin.get('tags'):
-                        formatted_tags = ' '.join(
-                            f"[{tag}]" for tag in _plugin['tags'].split(",")
+                    formatted_tags = ""
+                    if _plugin.get("tags"):
+                        formatted_tags = " ".join(
+                            f"[{tag}]" for tag in _plugin["tags"].split(",")
                         )
                     plugin_versions += plugin_item_template.format(
-                        name=_plugin['name'],
-                        version=_plugin['version'],
+                        name=_plugin["name"],
+                        version=_plugin["version"],
                         tags=formatted_tags,
                     )
                 content += (
-                    f'<h4>Plugins from source {group} :</h4>{plugin_versions}'
+                    f"<h4>Plugins from source {group} :</h4>{plugin_versions}"
                 )
 
         if widget_plugins:

@@ -3,12 +3,11 @@
 #             Copyright (c) 2014 Martin Pengelly-Phillips
 # :notice: Derived from Riffle (https://github.com/4degrees/riffle)
 
-import os
 
 try:
-    from PySide6 import QtWidgets, QtCore, QtGui
+    from PySide6 import QtWidgets, QtCore
 except ImportError:
-    from PySide2 import QtWidgets, QtCore, QtGui
+    from PySide2 import QtWidgets, QtCore
 
 import qtawesome as qta
 
@@ -17,7 +16,7 @@ import ftrack_connect.ui.widget.overlay
 
 
 class EntityBrowser(QtWidgets.QDialog):
-    '''Entity browser.'''
+    """Entity browser."""
 
     #: Signal when location changed.
     locationChanged = QtCore.Signal()
@@ -26,13 +25,13 @@ class EntityBrowser(QtWidgets.QDialog):
     selectionChanged = QtCore.Signal(object)
 
     def __init__(self, session, root=None, parent=None):
-        '''Initialise browser with *root* entity.
+        """Initialise browser with *root* entity.
 
         Use an empty *root* to start with list of projects.
 
         *parent* is the optional owner of this UI element.
 
-        '''
+        """
         super(EntityBrowser, self).__init__(parent=parent)
         self._root = root
         self._selected = []
@@ -44,7 +43,7 @@ class EntityBrowser(QtWidgets.QDialog):
         self._postConstruction()
 
     def _construct(self):
-        '''Construct widget.'''
+        """Construct widget."""
         self.setLayout(QtWidgets.QVBoxLayout())
 
         self.headerLayout = QtWidgets.QHBoxLayout()
@@ -55,19 +54,19 @@ class EntityBrowser(QtWidgets.QDialog):
         self.navigationBar.setDrawBase(False)
         self.headerLayout.addWidget(self.navigationBar, stretch=1)
 
-        up_button = qta.icon('mdi.chevron-up')
+        up_button = qta.icon("mdi.chevron-up")
         self.navigateUpButton = QtWidgets.QToolButton()
         self.navigateUpButton.setIcon(up_button)
 
-        self.navigateUpButton.setObjectName('entity-browser-up-button')
-        self.navigateUpButton.setToolTip('Navigate up a level.')
+        self.navigateUpButton.setObjectName("entity-browser-up-button")
+        self.navigateUpButton.setToolTip("Navigate up a level.")
         self.headerLayout.addWidget(self.navigateUpButton)
 
-        reload_button = qta.icon('mdi6.sync')
+        reload_button = qta.icon("mdi6.sync")
         self.reloadButton = QtWidgets.QToolButton()
         self.reloadButton.setIcon(reload_button)
-        self.reloadButton.setObjectName('entity-browser-reload-button')
-        self.reloadButton.setToolTip('Reload listing from server.')
+        self.reloadButton.setObjectName("entity-browser-reload-button")
+        self.reloadButton.setToolTip("Reload listing from server.")
         self.headerLayout.addWidget(self.reloadButton)
 
         self.layout().addLayout(self.headerLayout)
@@ -103,21 +102,21 @@ class EntityBrowser(QtWidgets.QDialog):
         self.footerLayout = QtWidgets.QHBoxLayout()
         self.footerLayout.addStretch(1)
 
-        self.cancelButton = QtWidgets.QPushButton('Cancel')
+        self.cancelButton = QtWidgets.QPushButton("Cancel")
         self.footerLayout.addWidget(self.cancelButton)
 
-        self.acceptButton = QtWidgets.QPushButton('Choose')
+        self.acceptButton = QtWidgets.QPushButton("Choose")
         self.footerLayout.addWidget(self.acceptButton)
 
         self.layout().addLayout(self.footerLayout)
 
         self.overlay = ftrack_connect.ui.widget.overlay.BusyOverlay(
-            self.view, message='Loading'
+            self.view, message="Loading"
         )
 
     def _postConstruction(self):
-        '''Perform post-construction operations.'''
-        self.setWindowTitle('ftrack browser')
+        """Perform post-construction operations."""
+        self.setWindowTitle("ftrack browser")
         self.view.sortByColumn(0, QtCore.Qt.SortOrder.AscendingOrder)
 
         # TODO: Remove once bookmarks widget implemented.
@@ -153,22 +152,22 @@ class EntityBrowser(QtWidgets.QDialog):
 
     @property
     def model(self):
-        '''Return current model.'''
+        """Return current model."""
         return self.view.model()
 
     def selected(self):
-        '''Return selected entities.'''
+        """Return selected entities."""
         return self._selected[:]
 
     def setLocation(self, location):
-        '''Set location to *location*.
+        """Set location to *location*.
 
         *location* should be a list of entries representing the 'path' from the
         root of the model to the desired location.
 
         Each entry in the list should be an entity id.
 
-        '''
+        """
         # Ensure root children loaded in order to begin search.
         rootIndex = self.model.index(-1, -1)
         if self.model.hasChildren(rootIndex) and self.model.canFetchMore(
@@ -198,10 +197,10 @@ class EntityBrowser(QtWidgets.QDialog):
             self.setLocationFromIndex(matchingIndex)
             return
 
-        raise ValueError('Could not match location {0!r}'.format(location))
+        raise ValueError("Could not match location {0!r}".format(location))
 
     def getLocation(self):
-        '''Return current location as list of entity ids from root.'''
+        """Return current location as list of entity ids from root."""
         location = []
         item = self.model.item(self.view.rootIndex())
         while item is not None and item.entity != self._root:
@@ -212,7 +211,7 @@ class EntityBrowser(QtWidgets.QDialog):
         return location
 
     def setLocationFromIndex(self, index):
-        '''Set location to *index*.'''
+        """Set location to *index*."""
         if index is None:
             index = QtCore.QModelIndex()
 
@@ -229,17 +228,17 @@ class EntityBrowser(QtWidgets.QDialog):
         self.locationChanged.emit()
 
     def _onLoadStarted(self):
-        '''Handle load started.'''
+        """Handle load started."""
         self.reloadButton.setEnabled(False)
         self.overlay.show()
 
     def _onLoadEnded(self):
-        '''Handle load ended.'''
+        """Handle load ended."""
         self.overlay.hide()
         self.reloadButton.setEnabled(True)
 
     def _updateNavigationBar(self):
-        '''Update navigation bar.'''
+        """Update navigation bar."""
         if self._updatingNavigationBar:
             return
 
@@ -262,14 +261,14 @@ class EntityBrowser(QtWidgets.QDialog):
 
         entries.reverse()
         for entry in entries:
-            tabIndex = self.navigationBar.addTab(entry['icon'], entry['label'])
-            self.navigationBar.setTabData(tabIndex, entry['index'])
+            tabIndex = self.navigationBar.addTab(entry["icon"], entry["label"])
+            self.navigationBar.setTabData(tabIndex, entry["index"])
             self.navigationBar.setCurrentIndex(tabIndex)
 
         self._updatingNavigationBar = False
 
     def _onSelectNavigationBarItem(self, index):
-        '''Handle selection of navigation bar item.'''
+        """Handle selection of navigation bar item."""
         if index < 0:
             return
 
@@ -280,12 +279,12 @@ class EntityBrowser(QtWidgets.QDialog):
         self.setLocationFromIndex(modelIndex)
 
     def _onActivateItem(self, index):
-        '''Handle activation of item in listing.'''
+        """Handle activation of item in listing."""
         if self.model.hasChildren(index):
             self.setLocationFromIndex(index)
 
     def _onSelectionChanged(self, selected, deselected):
-        '''Handle change of *selection*.'''
+        """Handle change of *selection*."""
         del self._selected[:]
         seen = set()
 
@@ -309,12 +308,12 @@ class EntityBrowser(QtWidgets.QDialog):
         self.selectionChanged.emit(self.selected())
 
     def _onNavigateUpButtonClicked(self):
-        '''Navigate up on button click.'''
+        """Navigate up on button click."""
         currentRootIndex = self.view.rootIndex()
         parent = self.model.parent(currentRootIndex)
         self.setLocationFromIndex(parent)
 
     def _onReloadButtonClicked(self):
-        '''Reload current index on button click.'''
+        """Reload current index on button click."""
         currentRootIndex = self.view.rootIndex()
         self.model.reloadChildren(currentRootIndex)
