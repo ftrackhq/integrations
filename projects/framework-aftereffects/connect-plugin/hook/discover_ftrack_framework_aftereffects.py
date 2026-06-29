@@ -44,7 +44,11 @@ def on_launch_integration(session, event):
     for key in discover_data["integration"]:
         launch_data["integration"][key] = discover_data["integration"][key]
 
-    integration_version = event["data"]["application"]["version"].version[0]
+    application_version = event["data"]["application"]["version"]
+    if hasattr(application_version, "version"):
+        integration_version = application_version.version[0]
+    else:
+        integration_version = int(str(application_version).split(".")[0])
 
     logger.info(
         f"Launching integration v{integration_version} assuming CEP plugin has "

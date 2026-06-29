@@ -22,6 +22,7 @@ import ftrack_api
 from ftrack_action_handler.action import BaseAction
 from ftrack_utils.usage import get_usage_tracker
 from ftrack_utils.version import (
+    CompatVersionString,
     DEFAULT_VERSION_EXPRESSION,
     parse_application_version,
     resolve_marketing_version,
@@ -477,7 +478,9 @@ class ApplicationLauncher(object):
         # serialized version field in the event payload.
         event_application = dict(application)
         if "version" in event_application:
-            event_application["version"] = str(event_application["version"])
+            event_application["version"] = CompatVersionString(
+                str(event_application["version"])
+            )
 
         results = self.session.event_hub.publish(
             ftrack_api.event.base.Event(
@@ -583,8 +586,8 @@ class ApplicationLauncher(object):
 
             event_application = dict(application)
             if "version" in event_application:
-                event_application["version"] = str(
-                    event_application["version"]
+                event_application["version"] = CompatVersionString(
+                    str(event_application["version"])
                 )
 
             launchData = dict(
