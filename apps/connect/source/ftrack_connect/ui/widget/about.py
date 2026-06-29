@@ -24,7 +24,7 @@ class AboutDialog(QtWidgets.QDialog):
 
     def __init__(self, parent, icon=":ftrack/connect/logo/dark2x"):
         super(AboutDialog, self).__init__(parent)
-        self.setWindowTitle("About connect")
+        self.setWindowTitle("About Connect")
         layout = QtWidgets.QVBoxLayout()
         layout.setContentsMargins(20, 20, 20, 20)
         layout.setSizeConstraint(QtWidgets.QLayout.SizeConstraint.SetFixedSize)
@@ -146,8 +146,8 @@ class AboutDialog(QtWidgets.QDialog):
         Type=Application
         Version=1.0
         Icon={0}/logo.svg
-        Name=ftrack Connect
-        Comment=ftrack Connect
+        Name=Ftrack Connect
+        Comment=Ftrack Connect
         Exec="{0}/{1}"
         StartupNotify=true
         Terminal=false

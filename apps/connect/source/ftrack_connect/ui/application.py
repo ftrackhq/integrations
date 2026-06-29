@@ -206,7 +206,7 @@ class Application(QtWidgets.QMainWindow):
         self._application_launcher = None
 
         self.setObjectName("ftrack-connect-window")
-        self.setWindowTitle("ftrack Connect")
+        self.setWindowTitle("Ftrack Connect")
         self.resize(450, 700)
         self.move(50, 50)
 
@@ -587,7 +587,7 @@ class Application(QtWidgets.QMainWindow):
 
         if result.status_code != 200 or "FTRACK_VERSION" not in result.headers:
             self.loginError.emit(
-                "The server URL you provided is not a valid ftrack server."
+                "The server URL you provided is not a valid Ftrack server."
             )
             return
 

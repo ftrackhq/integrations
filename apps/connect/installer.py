@@ -66,7 +66,7 @@ def main():
 
     args = parser.parse_args(arguments)
 
-    bundle_name = "ftrack Connect"
+    bundle_name = "Ftrack Connect"
 
     # Find the ftrack_connect package location
     spec = importlib.util.find_spec("ftrack_connect")

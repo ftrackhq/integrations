@@ -167,7 +167,7 @@ class DataDropZone(QtWidgets.QFrame):
                         message = (
                             "Folders not supported.\n\nIn the current version, "
                             "folders are not supported. This will be enabled in a "
-                            "later release of ftrack connect."
+                            "later release of Ftrack Connect."
                         )
 
                     QtWidgets.QMessageBox.warning(

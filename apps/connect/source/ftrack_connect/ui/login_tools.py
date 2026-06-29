@@ -58,7 +58,7 @@ class LoginServerHandler(BaseHTTPRequestHandler):
                             }}
                         </style>
                     <body>
-                        <h1>Sign in to ftrack connect was successful</h1>
+                        <h1>Sign in to Ftrack Connect was successful</h1>
                         <p>
                             You signed in with username <em>{0}</em> and can now
                             close this window.

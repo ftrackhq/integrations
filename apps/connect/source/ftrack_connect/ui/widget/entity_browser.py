@@ -116,7 +116,7 @@ class EntityBrowser(QtWidgets.QDialog):
 
     def _postConstruction(self):
         """Perform post-construction operations."""
-        self.setWindowTitle("ftrack browser")
+        self.setWindowTitle("Ftrack browser")
         self.view.sortByColumn(0, QtCore.Qt.SortOrder.AscendingOrder)
 
         # TODO: Remove once bookmarks widget implemented.

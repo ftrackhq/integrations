@@ -65,7 +65,7 @@ class ConfigureScenario(QtWidgets.QWidget):
         label = QtWidgets.QLabel()
         label.setObjectName("regular-label")
         text = (
-            "Hi there, Connect needs to be configured so that ftrack can "
+            "Hi there, Connect needs to be configured so that Ftrack can "
             "store and track your files for you."
         )
 
@@ -114,7 +114,7 @@ class ConfigureScenario(QtWidgets.QWidget):
         label.setObjectName("lead-label")
         label.setText(
             "If you decide to do this later, some of the functionality in "
-            "ftrack connect and applications started from connect may not "
+            "Ftrack Connect and applications started from Connect may not "
             "work as expected until configured."
         )
         label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
