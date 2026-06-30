@@ -147,7 +147,7 @@ class EntityBrowser(ModalDialog):
         self.mode = mode or EntityBrowser.MODE_TASK
 
         super(EntityBrowser, self).__init__(
-            parent, question=True, title=title or 'ftrack Entity Browser'
+            parent, question=True, title=title or 'Ftrack Entity Browser'
         )
 
         if entity:

@@ -64,7 +64,7 @@ class StandardPublisherDialog(BaseContextDialog):
             dialog_options,
             parent=parent,
         )
-        self.setWindowTitle('ftrack Publisher')
+        self.setWindowTitle('Ftrack Publisher')
 
     def pre_build_ui(self):
         # Make sure to remove self._scroll_area in case of reload

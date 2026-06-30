@@ -42,7 +42,7 @@ class ModalDialog(StyledDialog):
         self.setParent(parent)
 
         self._message = message
-        self._title = title or 'ftrack'
+        self._title = title or 'Ftrack'
         self._question = question
 
         self._approve_button = None

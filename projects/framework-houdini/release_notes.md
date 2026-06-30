@@ -1,5 +1,14 @@
 # ftrack Framework Houdini integration release Notes
 
+## v26.7.0rc1
+2026-06-29
+
+* [changed] Branding; capitalized user-facing "ftrack" labels and dialog/window titles to "Ftrack", including the Houdini main menu.
+* [fix] Menu; Refresh the Houdini startup search-path cache after writing the menu file so the ftrack menu appears on Houdini 21+. Houdini 21 caches search paths early in startup and otherwise never discovers the dynamically generated MainMenuCommon.xml.
+* [changed] Python panel; Docked Python panel left disabled (publisher floats, consistent with the other DCC integrations); embedding the dialog into a Houdini Python Panel crashes on Qt6 / Houdini 21.
+* [fix] Styling; ftrack dialogs are now styled on Houdini < 21 (PySide2/Qt5). The bundled ftrack-qt-style resource imported PySide6 unconditionally, which failed on PySide2 Houdini and left dialogs with Houdini's default style; the import now falls back to PySide2.
+* [changed] Build; migrated the build system and formatting to uv/ruff.
+
 ## v24.11.0
 2024-11-21
 
