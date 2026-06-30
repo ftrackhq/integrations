@@ -81,4 +81,4 @@ class StyledDialog(QtWidgets.QDialog):
         self.setWindowFlags(QtCore.Qt.WindowType.WindowStaysOnTopHint)
 
         # Have a proper title instead of default 'python'
-        self.setWindowTitle('ftrack')
+        self.setWindowTitle('Ftrack')

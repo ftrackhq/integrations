@@ -68,7 +68,7 @@ def get_ftrack_menu():
     menubar = ET.SubElement(root, "menuBar")
     ftrack_menu = ET.SubElement(menubar, "subMenu")
     label = ET.SubElement(ftrack_menu, "label")
-    label.text = "ftrack"
+    label.text = "Ftrack"
     insert_before = ET.SubElement(ftrack_menu, "insertBefore")
     insert_before.text = "help_menu"
     return (root, ftrack_menu)
@@ -201,6 +201,14 @@ def bootstrap_integration(framework_extensions_path):
     with open(xml_path, "w") as xml_file_handle:
         xml_file_handle.write(xml)
         xml_file_handle.close()
+
+    # Houdini 21+ caches search paths at startup, so the MainMenuCommon.xml
+    # written above is not seen when the menu bar is built and the ftrack
+    # menu never appears. Refreshing the directory we wrote to makes it
+    # discoverable in this session. The method is absent on Houdini <= 20.5,
+    # which has no such cache and needs no refresh.
+    if hasattr(hou, "refreshStartupPathCacheDirectory"):
+        hou.refreshStartupPathCacheDirectory(xml_menu_file_folder)
 
     return client_instance
 
