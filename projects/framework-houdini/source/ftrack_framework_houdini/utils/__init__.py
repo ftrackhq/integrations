@@ -2,65 +2,21 @@
 # :copyright: Copyright (c) 2024 ftrack
 
 import threading
-import xml.etree.ElementTree as ET
-from xml.sax.saxutils import unescape
-import os
 
-from ftrack_utils.paths import get_temp_path
-
-import hou
 from hdefereval import executeInMainThreadWithResult
 
-created_widgets = dict()
 
-
-# Dock widget in Houdini
+# Show widget in Houdini
 def dock_houdini_right(widget):
-    '''Dock *widget* to the right side of Houdini.'''
+    '''Show *widget* as a floating window in Houdini.
+
+    Docking into a Houdini Python Panel is intentionally not enabled: no other
+    DCC integration docks (Maya/Nuke float, Blender passes no dock function),
+    and embedding the dialog into a Python Panel segfaults on Qt6 / Houdini 21
+    (the ftrack_qt StyledDialog is a top-level QDialog flagged WA_DeleteOnClose
+    and WindowStaysOnTopHint). Shown floating instead, like the other DCCs.
+    '''
     widget.show()
-    # TODO: To provide docking functionality, comment line above and uncomment code below
-    # class_name = widget.__class__.__name__
-    #
-    # if class_name not in globals():
-    #     globals()[class_name] = lambda *args, **kwargs: widget
-    #
-    # created_widgets[class_name] = widget
-    #
-    # panel_xml = _generate_pypanel_xml(class_name)
-    # xml = unescape(ET.tostring(panel_xml).decode())
-    #
-    # xml_path = get_temp_path('pypanel')
-    #
-    # if not os.path.exists(os.path.dirname(xml_path)):
-    #     os.makedirs(os.path.dirname(xml_path))
-    #
-    # with open(xml_path, "w") as xml_file_handle:
-    #     xml_file_handle.write(xml)
-    #     xml_file_handle.close()
-    #
-    # hou.pypanel.installFile(xml_path)
-    #
-    # panel_interface = None
-    #
-    # try:
-    #     for interface, value in hou.pypanel.interfaces().items():
-    #         if interface == "ftrack Publish panel":
-    #             panel_interface = value
-    #             break
-    # except hou.OperationFailed as e:
-    #     hou.ui.displayMessage("Something wrong with Python Panel")
-    #
-    # main_tab = hou.ui.curDesktop().findPaneTab("Ftrack_ID")
-    # if main_tab:
-    #     panel = main_tab.pane().createTab(hou.paneTabType.PythonPanel)
-    #     panel.showToolbar(True)
-    #     panel.setActiveInterface(panel_interface)
-    # else:
-    #     if panel_interface:
-    #         hou.hscript('pane -S -m pythonpanel -o -n {}'.format("Ftrack_ID"))
-    #         panel = hou.ui.curDesktop().findPaneTab("Ftrack_ID")
-    #         panel.showToolbar(True)
-    #         panel.setActiveInterface(panel_interface)
 
 
 def run_in_main_thread(f):
@@ -73,39 +29,3 @@ def run_in_main_thread(f):
             return f(*args, **kwargs)
 
     return decorated
-
-
-def _generate_pypanel_xml(widget_name):
-    '''Write temporary xml file for pypanel'''
-
-    root = ET.Element("pythonPanelDocument")
-    interface = ET.SubElement(root, "interface")
-    interface.set("name", "ftrack Publish panel")
-    interface.set("label", "ftrack Publish panel")
-    interface.set("icon", "MISC_python")
-    interface.set("help_url", "")
-    script = ET.SubElement(interface, "script")
-    script.text = """
-<![CDATA[
-from PySide2.QtWidgets import QWidget, QVBoxLayout
-import __main__
-layout = QVBoxLayout()
-layout.addWidget(__main__.ftrack_framework_houdini.utils.created_widgets['{}'])
-def get_widget():
-    widget = QWidget()
-    widget.setLayout(layout)
-    return widget
-def onCreateInterface():
-    '''For Houdini >=20'''
-    return get_widget()
-def createInterface():
-    '''For Houdini <20'''
-    return get_widget()
-]]>
-""".format(
-        widget_name
-    )
-    help = ET.SubElement(interface, "help")
-    help.text = "<![CDATA[]]>"
-
-    return root
