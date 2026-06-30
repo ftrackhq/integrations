@@ -60,7 +60,7 @@ class StandardOpenerDialog(BaseContextDialog):
             parent=parent,
         )
         self.resize(400, 450)
-        self.setWindowTitle('ftrack Opener')
+        self.setWindowTitle('Ftrack Opener')
 
     def pre_build_ui(self):
         pass

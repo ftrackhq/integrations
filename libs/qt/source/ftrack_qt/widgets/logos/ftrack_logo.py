@@ -36,4 +36,4 @@ class FtrackLogo(QtWidgets.QLabel):
             )
             self.setPixmap(logoPixmap)
         else:
-            self.setText("ftrack")
+            self.setText("Ftrack")

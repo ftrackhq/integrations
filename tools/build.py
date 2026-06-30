@@ -614,12 +614,15 @@ def build_package(invokation_path, pkg_path, args, command=None):
         for line in fileinput.input(
             resource_target_path, inplace=True, mode="r"
         ):
-            # Check if the line contains an import statement we want to replace
-            if "from PySide2 import QtCore" in line:
-                # Print the new import block instead of the old line
+            # Replace the bare top-level Qt import (PySide2 or PySide6, as
+            # emitted by pyside*-rcc) with a cross-version import block. The
+            # leading-whitespace check keeps this idempotent: the indented
+            # imports inside new_imports are not matched.
+            if line.startswith(
+                ("from PySide2 import QtCore", "from PySide6 import QtCore")
+            ):
                 sys.stdout.write(new_imports)
             else:
-                # Otherwise, print the line unchanged
                 sys.stdout.write(line)
 
     def build_qt_resources(args):
