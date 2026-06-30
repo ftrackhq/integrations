@@ -1,6 +1,6 @@
 # ftrack Framework Houdini integration release Notes
 
-## v26.7.0rc1
+## v26.7.0
 2026-06-29
 
 * [changed] Branding; capitalized user-facing "ftrack" labels and dialog/window titles to "Ftrack", including the Houdini main menu.
