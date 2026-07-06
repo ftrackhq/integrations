@@ -26,7 +26,8 @@ class HarmonySceneExporterPlugin(BasePlugin):
             harmony_connection = TCPRPCClient.instance()
 
             # Persist the scene so the on-disk folder is up to date.
-            save_response = harmony_connection.rpc("saveScene", timeout=120)
+            # RPC timeouts are in milliseconds.
+            save_response = harmony_connection.rpc("saveScene", timeout=120000)
             if "result" not in save_response:
                 raise PluginExecutionError(
                     f"Error saving the scene: "
@@ -34,7 +35,7 @@ class HarmonySceneExporterPlugin(BasePlugin):
                 )
 
             scene_path_response = harmony_connection.rpc(
-                "getScenePath", timeout=30
+                "getScenePath", timeout=30000
             )
         except Exception as e:
             self.logger.exception(e)
