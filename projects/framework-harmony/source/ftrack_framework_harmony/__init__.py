@@ -63,6 +63,14 @@ if not app:
     app = QtWidgets.QApplication(sys.argv)
     app.setAttribute(QtCore.Qt.AA_PluginApplication)
 
+# This is a persistent standalone process that outlives individual
+# dialogs: without this, closing the last dialog (e.g. the publisher)
+# quits the QApplication, the process exits and its TCP connection to
+# Harmony drops - so the ftrack menu would only ever open a dialog once.
+# The process is instead shut down when Harmony disconnects
+# (see TCPRPCClient._on_disconnected).
+app.setQuitOnLastWindowClosed(False)
+
 
 def on_run_tool_callback(tool_name, dialog_name=None, options=None):
     client_instance.run_tool(tool_name, dialog_name, options)

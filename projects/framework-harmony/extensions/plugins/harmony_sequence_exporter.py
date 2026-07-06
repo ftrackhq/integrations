@@ -11,19 +11,22 @@ from ftrack_framework_harmony.utils.tcp_rpc import TCPRPCClient
 
 
 class HarmonySequenceExporterPlugin(BasePlugin):
-    name = 'harmony_sequence_exporter'
+    name = "harmony_sequence_exporter"
 
     def run(self, store):
-        '''
+        """
         Tell Harmony to render the current scene to a temp directory, store the path
         in *store* under the component name.
-        '''
-        component_name = self.options.get('component')
-        extension = self.options.get('export_type') or 'png'
-        export_format = self.options.get('export_format') or ''
+        """
+        component_name = self.options.get("component")
+        extension = self.options.get("export_type") or "png"
+        export_format = self.options.get("export_format") or ""
 
-        temp_folder = get_temp_path()
-        os.makedirs(temp_folder)
+        # A directory to render the image sequence into. get_temp_path
+        # creates it, so it must not be created again (doing so raised
+        # ``[Errno 17] File exists`` - it previously requested a temp
+        # *file* path and then called os.makedirs on it).
+        temp_folder = get_temp_path(is_directory=True)
 
         prefix = "image"
 
@@ -32,15 +35,15 @@ class HarmonySequenceExporterPlugin(BasePlugin):
             harmony_connection = TCPRPCClient.instance()
 
             self.logger.debug(
-                f'Exporting Harmony image sequence to {temp_folder}'
+                f"Exporting Harmony image sequence to {temp_folder}"
             )
 
             render_response = harmony_connection.rpc(
-                'renderSequence',
+                "renderSequence",
                 [
-                    '{}{}'.format(temp_folder.replace('\\', '/'), os.sep),
+                    "{}{}".format(temp_folder.replace("\\", "/"), os.sep),
                     prefix,
-                    extension.replace('.', ''),
+                    extension.replace(".", ""),
                     export_format,
                 ],
                 timeout=-1,  # Wait indefinitely, we don't know how long the render will take
@@ -48,12 +51,12 @@ class HarmonySequenceExporterPlugin(BasePlugin):
         except Exception as e:
             self.logger.exception(e)
             raise PluginExecutionError(
-                f'Exception exporting the image sequence: {e}'
+                f"Exception exporting the image sequence: {e}"
             )
 
-        if 'result' not in render_response:
+        if "result" not in render_response:
             raise PluginExecutionError(
-                f'Error exporting the image sequence: {render_response["error_message"]}'
+                f"Error exporting the image sequence: {render_response['error_message']}"
             )
 
         # Collect the result
@@ -61,7 +64,7 @@ class HarmonySequenceExporterPlugin(BasePlugin):
 
         if not sequence_path:
             raise PluginExecutionError(
-                f'Could not locate rendered image sequence: {temp_folder}'
+                f"Could not locate rendered image sequence: {temp_folder}"
             )
 
-        store['components'][component_name]['exported_path'] = sequence_path
+        store["components"][component_name]["exported_path"] = sequence_path

@@ -206,3 +206,21 @@ def test_full_chain_rpc(standalone_client):
         ")['result']"
     )
     assert UUID_PATTERN.match(result), result
+
+
+def test_process_survives_dialog_close(standalone_client):
+    """The standalone process must outlive individual dialogs.
+
+    ``QApplication.quitOnLastWindowClosed`` must be False - otherwise
+    closing the publisher dialog quits the process, dropping the TCP
+    link to Harmony, and the ftrack menu only opens a dialog once.
+    """
+    result = standalone_client.execute(
+        "try:\n"
+        "    from PySide6 import QtWidgets\n"
+        "except ImportError:\n"
+        "    from PySide2 import QtWidgets\n"
+        "__result__ = "
+        "QtWidgets.QApplication.instance().quitOnLastWindowClosed()"
+    )
+    assert result is False

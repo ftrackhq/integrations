@@ -3,6 +3,8 @@
 
 ## v26.7.0rc1
 
+* [fix] Keep the standalone process alive when a dialog is closed (`setQuitOnLastWindowClosed(False)`); previously closing the publisher quit the process and the ftrack menu only opened a dialog once.
+* [fix] Image sequence export no longer fails with `[Errno 17] File exists`; the sequence exporter now requests a temporary directory instead of a temporary file.
 * [fix] Fix standalone integration crash on Python 3.13 by rebuilding against the current ftrack libraries (`registry.scan_extensions` used the removed `importlib` `find_module` API).
 * [fix] Robust `FTRACK_INTEGRATION_LISTEN_PORT` handling and clean PySide2/PySide6 `exec` fallback in the standalone bootstrap.
 * [fix] Connect hook is importable from the source tree (version fallback) and can deploy the JS package from an explicit bootstrap path.
