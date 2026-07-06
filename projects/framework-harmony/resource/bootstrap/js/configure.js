@@ -270,59 +270,55 @@ function HarmonyIntegration() {
         info("Got context data from standalone integration, building menus.");
         this.launchers = data["launchers"];
 
+        // Group all ftrack tools together: a dedicated "ftrack" toolbar
+        // with one button per tool, plus grouped "ftrack <Tool>" entries
+        // in the Windows menu. Harmony has no scriptable API to create a
+        // custom top-level menu without shipping a full menus.xml (which
+        // overrides the whole menu bar and is version-brittle), so the
+        // toolbar is the reliable single "ftrack" surface.
+        var ftrackToolbar = new ScriptToolbarDef( {
+            id           : "ftrackToolbar",
+            text         : "ftrack",
+            customizable : "false"
+        } );
+
         for (var idx = 0; idx < this.launchers.length; idx++) {
             var launcher = this.launchers[idx];
             var name = launcher["name"];
             var label = launcher["label"];
+            var action = "launch_"+name+" in ./configure.js";
 
-            // Add menu item, and create shortcut if it is the primary publish tool
-            this.addMenuItem(name, label, name == "publish");
+            // Grouped menu entry under the Windows main menu.
+            ScriptManager.addMenuItem( {
+                targetMenuId : "Windows",
+                id           : "ftrackMenu"+name+"ID",
+                icon         : "ftrack.png",
+                text         : "ftrack "+label,
+                action       : action
+            } );
+
+            // Keyboard shortcut for the primary publish tool.
+            if (name == "publish") {
+                ScriptManager.addShortcut( {
+                    id           : "ftrackShortcut",
+                    text         : "ftrack "+label+" ...",
+                    action       : action,
+                    longDesc     : "ftrack integration",
+                    order        : "256",
+                    categoryId   : "ftrack",
+                    categoryText : "Scripts"
+                } );
+            }
+
+            // Toolbar button for the tool.
+            ftrackToolbar.addButton( {
+                text   : label,
+                icon   : "ftrack.png",
+                action : action
+            } );
         }
-    }
 
-    /**
-    * Add a menu item to the Harmony 'Windows' main menu
-    */
-    this.addMenuItem = function(name, label, add_shortcut) {
-        //---------------------------
-        //Create Menu item
-
-        action = "launch_"+name+" in ./configure.js";
-        payload = {
-            targetMenuId : "Windows",
-            id           : "ftrackMenu"+name+"ID",
-            icon         : "ftrack.png",
-            text         : "ftrack "+label,
-            action       : action,
-            shortcut     : "ftrackShortcut"
-        }
-        if (add_shortcut) {
-            payload["shortcut"] = "ftrackShortcut";
-
-            //---------------------------
-            // Create Shortcuts
-            ScriptManager.addShortcut( { id       : "ftrackShortcut",
-                                       text     : "ftrack Menu ...",
-                                       action   : action,
-                                       longDesc : "ftrack integration",
-                                       order    : "256",
-                                       categoryId   : "ftrack",
-                                       categoryText : "Scripts" } );
-
-            //---------------------------
-            // Create Toolbar
-            var ftrackToolbar = new ScriptToolbarDef( { id          : "ftrackToolbar",
-                                                       text        : "ftrack",
-                                                       customizable: "false" } );
-
-            ftrackToolbar.addButton( { text     : "ftrack",
-                                          icon     : "ftrack.png",
-                                          action   : action ,
-                                          shortcut : "ftrackShortcut" } );
-
-            ScriptManager.addToolbar(ftrackToolbar);
-        }
-        ScriptManager.addMenuItem( payload );
+        ScriptManager.addToolbar(ftrackToolbar);
     }
 
     /**
@@ -331,23 +327,26 @@ function HarmonyIntegration() {
     */
     this.createLaunchers = function(this_) {
         for (var idx = 0; idx < this.launchers.length; idx++) {
-            var launcher = this.launchers[idx];
-            var name = launcher["name"];
-            var label = launcher["label"];
-            var dialog_name = launcher["dialog_name"];
-            var options = launcher["options"];
+            // Bind each launcher in its own scope - with a plain `var`
+            // loop every generated launch_<name> would close over the
+            // last launcher, so all menu items would run the same tool.
+            (function(launcher) {
+                var name = launcher["name"];
+                var dialog_name = launcher["dialog_name"];
+                var options = launcher["options"];
 
-            this_["launch_"+name] = function() {
-                var app = QCoreApplication.instance();
-                app.integration.sendEvent(
-                    REMOTE_INTEGRATION_RUN_DIALOG_TOPIC,
-                    {
-                        "name": name,
-                        "dialog_name": dialog_name,
-                        "options": options
-                    }
-                )
-            }
+                this_["launch_"+name] = function() {
+                    var app = QCoreApplication.instance();
+                    app.integration.sendEvent(
+                        REMOTE_INTEGRATION_RUN_DIALOG_TOPIC,
+                        {
+                            "name": name,
+                            "dialog_name": dialog_name,
+                            "options": options
+                        }
+                    )
+                }
+            })(this.launchers[idx]);
         }
     }
 

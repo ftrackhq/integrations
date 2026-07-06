@@ -2,6 +2,7 @@
 # :copyright: Copyright (c) 2024 ftrack
 import logging
 import os
+import subprocess
 import time
 import traceback
 import platform
@@ -26,9 +27,13 @@ from ftrack_utils.extensions.environment import (
 
 from ftrack_utils.usage import set_usage_tracker, UsageTracker
 from ftrack_utils.session import create_api_session
+from ftrack_utils.process import MonitorProcess, terminate_current_process
 from ftrack_qt.utils.decorators import invoke_in_qt_main_thread
 
 from ftrack_framework_harmony.utils import TCPRPCClient
+
+# How often (seconds) to check that Harmony is still running.
+PROCESS_WATCHDOG_INTERVAL_SECONDS = 5
 
 
 # Evaluate version and log package version
@@ -55,6 +60,7 @@ client_instance = None
 harmony_tcp_connection = None
 startup_tools = []
 process_monitor = None
+process_watchdog_timer = None
 
 # Create Qt application
 app = QtWidgets.QApplication.instance()
@@ -92,6 +98,74 @@ def on_connection_failure_callback():
     sys.exit(-1)
 
 
+def probe_harmony_pid():
+    """Return the PID of the Harmony process to monitor, or None.
+
+    Prefers ``FTRACK_APPLICATION_PID`` (Connect sets it to the launched
+    DCC's PID for the standalone helper); falls back to probing by
+    process name.
+    """
+    expected = os.environ.get("FTRACK_APPLICATION_PID")
+    if expected:
+        try:
+            pid = int(expected)
+            os.kill(pid, 0)  # Raises OSError if the process is gone.
+            return pid
+        except (ValueError, OSError):
+            pass
+
+    if sys.platform in ("darwin", "linux"):
+        try:
+            output = subprocess.check_output(
+                ["pgrep", "-f", "[Hh]armony (Premium|Advanced|Essentials)"],
+                text=True,
+            )
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            return None
+        for token in output.split():
+            try:
+                return int(token)
+            except ValueError:
+                continue
+    elif sys.platform == "win32":
+        try:
+            output = subprocess.check_output(
+                [
+                    "tasklist",
+                    "/FI",
+                    "IMAGENAME eq Harmony*",
+                    "/FO",
+                    "CSV",
+                    "/NH",
+                ],
+                text=True,
+            )
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            return None
+        import csv
+        import io
+
+        for row in csv.reader(io.StringIO(output)):
+            if len(row) >= 2:
+                try:
+                    return int(row[1])
+                except ValueError:
+                    continue
+    return None
+
+
+def process_watchdog_callback():
+    """Terminate the standalone process when Harmony is no longer running.
+
+    Safety net for cases where the TCP disconnect signal
+    (``TCPRPCClient._on_disconnected``) does not fire - e.g. a
+    half-open socket after an abrupt Harmony exit.
+    """
+    if process_monitor and not process_monitor.check_running():
+        logger.warning("Harmony process is gone, shutting down.")
+        terminate_current_process()
+
+
 def bootstrap_integration(framework_extensions_path):
     """
     Initialise Harmony Framework integration
@@ -101,7 +175,8 @@ def bootstrap_integration(framework_extensions_path):
         client_instance, \
         harmony_tcp_connection, \
         startup_tools, \
-        process_monitor
+        process_monitor, \
+        process_watchdog_timer
 
     logger.debug(
         "Harmony standalone integration initialising, extensions path:"
@@ -213,6 +288,19 @@ def bootstrap_integration(framework_extensions_path):
     time.sleep(2)  # Give DCC time to launch
 
     harmony_tcp_connection.connect_dcc(on_connection_failure_callback)
+
+    # Monitor the Harmony process and shut down when it exits. This is
+    # the reliable cleanup path - the TCP disconnect handler is the fast
+    # path, this watchdog is the safety net for abrupt exits.
+    process_monitor = MonitorProcess(probe_harmony_pid)
+    process_monitor.check_running()  # Prime PID detection.
+    process_watchdog_timer = QtCore.QTimer()
+    process_watchdog_timer.timeout.connect(process_watchdog_callback)
+    process_watchdog_timer.start(PROCESS_WATCHDOG_INTERVAL_SECONDS * 1000)
+    logger.info(
+        "Harmony process watchdog started (%ss interval).",
+        PROCESS_WATCHDOG_INTERVAL_SECONDS,
+    )
 
     # Set mix panel event
     set_usage_tracker(

@@ -59,6 +59,21 @@ engine:
           - exporter
         plugin: harmony_thumbnail_exporter
 
+  # Export a snapshot of the Harmony scene (openable by the opener).
+  - type: group
+    tags:
+      - component
+    options:
+      component: snapshot
+    optional: true
+    plugins:
+      - type: plugin
+        plugin: store_component
+      - type: plugin
+        tags:
+          - exporter
+        plugin: harmony_scene_exporter
+
   # Common validator check all exported paths exists.
   - type: plugin
     tags:

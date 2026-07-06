@@ -23,7 +23,15 @@ Harmony has no embedded Python interpreter, so the integration runs as
 - A **standalone Python process** (`ftrack_framework_harmony`) runs the
   ftrack framework (Host, Client, Qt UI). It is the TCP **client**: it
   connects to Harmony, sends the tool list so the menu can be built,
-  and shows the publisher dialog.
+  and shows the publisher/opener dialogs. It monitors the Harmony
+  process and shuts itself down when Harmony exits (a watchdog plus the
+  TCP-disconnect signal), so no helper process is left behind.
+
+The tools are grouped on a dedicated **"ftrack" toolbar** (one button
+per tool) and as `ftrack <Tool>` entries in the Windows menu. Harmony
+has no scriptable way to add a custom top-level menu bar entry without
+overriding its whole `menus.xml`, so the toolbar is the reliable
+single "ftrack" surface.
 
 ftrack Connect starts both when Harmony is launched: it runs the DCC
 and, because the launch config declares
@@ -45,9 +53,16 @@ deferred spike.
 
 ## Functionality
 
-Minimally functional: launch, ftrack menu, and a standard publisher that
-exports an image sequence, a reviewable movie and a thumbnail. Opener,
-loader and asset-manager workflows are deferred (see the release notes).
+- **Publish** a standard publisher exporting an image sequence, a
+  reviewable movie, a thumbnail, and a **scene snapshot** (the Harmony
+  scene folder zipped as a `snapshot` component).
+- **Open** a published scene snapshot back into the running Harmony
+  session (`scene.closeSceneAndOpenOffline`).
+
+Loader and asset-manager workflows are deferred (see the release notes).
+Opening a scene closes the current one — it does not prompt to save
+first (a future improvement). The scene snapshot currently zips the
+whole scene folder, including any cached frames.
 
 ## Building
 
@@ -131,9 +146,16 @@ The suite has two tiers:
 - **`tests/test_standalone.py`** additionally spawns the real standalone
   framework process (as Connect does) and asserts, via the harness'
   in-process server, that the ftrack session/Host/Client came up, the
-  extension registry was scanned and the TCP link to Harmony is live.
-  Requires ftrack credentials (`FTRACK_SERVER`/`FTRACK_API_KEY`, or a
-  prior ftrack Connect login); skipped otherwise.
+  extension registry was scanned, the TCP link to Harmony is live, and
+  the scene save/open commands round-trip. Requires ftrack credentials
+  (`FTRACK_SERVER`/`FTRACK_API_KEY`, or a prior ftrack Connect login);
+  skipped otherwise.
+- **`tests/test_process_cleanup.py`** kills Harmony and asserts the
+  standalone helper process exits (the cleanup watchdog). Also requires
+  credentials.
+
+The full publish-to-ftrack and opener-dialog round trip is verified
+manually (it needs real server data).
 
 macOS notes: launching Harmony requires that no other Harmony instance
 is running (a second instance fails its license check). On a trial

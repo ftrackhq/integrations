@@ -24,17 +24,35 @@ tests/test_standalone.py additionally requires ftrack credentials
 Connect login) and is skipped without them.
 """
 
+import os
+import platform
 import shutil
+import ssl
+import tempfile
+import time
+from dataclasses import dataclass
 from pathlib import Path
 
 import pytest
 
+from dcc_test_harness.client import DCCClient
+from dcc_test_harness.connect_launcher import resolve_ftrack_credentials
+from dcc_test_harness.exceptions import DCCConnectionError
 from dcc_test_harness.launcher import LaunchConfig
 
-from _launcher import HarmonyLauncher
+from _launcher import HarmonyLauncher, HarmonyProcess
 from _rpc_client import HarmonyRPCTestClient
 
 PROJECT_DIR = Path(__file__).parent.parent
+
+
+def tail_file(log_path, lines=40):
+    """Return the tail of a log file, for diagnostics."""
+    try:
+        with open(log_path, "r", errors="replace") as f:
+            return "".join(f.readlines()[-lines:])
+    except OSError:
+        return "<no output captured>"
 
 
 @pytest.fixture(scope="module")
@@ -121,3 +139,119 @@ def harmony_connection(request, harmony_process):
     yield client
 
     client.close()
+
+
+@dataclass
+class StandaloneBundle:
+    """A live standalone framework process + a harness client to it."""
+
+    client: DCCClient
+    process: object  # subprocess.Popen
+    harmony_process: HarmonyProcess
+    launcher: HarmonyLauncher
+    log_path: str
+
+
+@pytest.fixture(scope="module")
+def standalone_bundle(request, harmony_launcher, harmony_process):
+    """Spawn the real standalone framework process next to Harmony.
+
+    Mirrors Connect's ``--run-framework-standalone`` helper: same
+    environment as Harmony (incl. ``FTRACK_APPLICATION_PID`` so the
+    watchdog monitors the right process) plus the ftrack credentials
+    Connect injects. Skips when credentials are unavailable. Yields a
+    ``StandaloneBundle`` (harness client + process handle).
+    """
+    credentials = resolve_ftrack_credentials()
+    if credentials is None:
+        pytest.skip("ftrack credentials required")
+
+    port_file = tempfile.mktemp(prefix="harmony_standalone_", suffix=".port")
+    extra_env = {
+        "FTRACK_SERVER": credentials["server"],
+        "FTRACK_API_KEY": credentials["api_key"],
+        "FTRACK_APIKEY": credentials["api_key"],
+        "FTRACK_EVENT_SERVER": credentials["server"],
+        "FTRACK_APPLICATION_PID": str(harmony_process.harmony_pid),
+        "DCC_TEST_PORT_FILE": port_file,
+    }
+    if credentials["api_user"]:
+        extra_env["FTRACK_API_USER"] = credentials["api_user"]
+    if platform.system() != "Windows":
+        cafile = ssl.get_default_verify_paths().cafile
+        if cafile:
+            extra_env["SSL_CERT_FILE"] = cafile
+
+    process, log_path = harmony_launcher.spawn_standalone(
+        harmony_process,
+        Path(__file__).parent / "_standalone_wrapper.py",
+        extra_env=extra_env,
+    )
+
+    client = None
+    startup_timeout = request.config.getoption("dcc_startup_timeout")
+    try:
+        port = harmony_launcher._wait_for_port_file(
+            port_file, startup_timeout, process
+        )
+        client = DCCClient(host="127.0.0.1", port=port, timeout=60.0)
+        deadline = time.monotonic() + 30
+        while True:
+            try:
+                client.connect()
+                break
+            except (DCCConnectionError, ConnectionRefusedError):
+                if time.monotonic() > deadline:
+                    raise
+                time.sleep(0.5)
+
+        # Wait until the integration has connected to Harmony.
+        deadline = time.monotonic() + startup_timeout
+        while True:
+            connected = client.execute(
+                "from ftrack_framework_harmony.utils import TCPRPCClient\n"
+                "__result__ = ("
+                "TCPRPCClient._instance is not None"
+                " and TCPRPCClient._instance.connected)"
+            )
+            if connected:
+                break
+            if time.monotonic() > deadline:
+                pytest.fail(
+                    "Standalone process never connected to Harmony.\n"
+                    f"--- standalone output tail ---\n{tail_file(log_path)}\n"
+                    f"--- Harmony windows ---\n"
+                    f"{harmony_process.describe_windows()}"
+                )
+            time.sleep(1.0)
+    except BaseException:
+        if client is not None:
+            client.disconnect()
+        process.kill()
+        process.wait(timeout=10)
+        raise
+    finally:
+        try:
+            os.unlink(port_file)
+        except OSError:
+            pass
+
+    yield StandaloneBundle(
+        client=client,
+        process=process,
+        harmony_process=harmony_process,
+        launcher=harmony_launcher,
+        log_path=log_path,
+    )
+
+    # Clean shutdown: quit the Qt loop via the harness, then ensure exit.
+    try:
+        client.shutdown_server()
+    except Exception:
+        pass
+    try:
+        process.wait(timeout=15)
+    except Exception:
+        process.kill()
+        process.wait(timeout=10)
+    client.disconnect()

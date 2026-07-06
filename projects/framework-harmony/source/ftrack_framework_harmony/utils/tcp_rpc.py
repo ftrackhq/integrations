@@ -5,7 +5,6 @@ import json
 import time
 import uuid
 import os
-import sys
 
 try:
     from PySide6 import QtCore, QtNetwork
@@ -14,6 +13,7 @@ except ImportError:
 
 import ftrack_constants.framework as constants
 from ftrack_utils.framework.remote import get_remote_integration_session_id
+from ftrack_utils.process import terminate_current_process
 
 
 class TCPRPCClient(QtCore.QObject):
@@ -515,6 +515,10 @@ class TCPRPCClient(QtCore.QObject):
     def _on_disconnected(self):
         """Callback on disconnection from the socket"""
         self.logger.warning(
-            "Connection to Harmony lost, gracefully terminating integration"
+            "Connection to Harmony lost, terminating integration"
         )
-        sys.exit(0)
+        # Hard-terminate rather than sys.exit(0): raising SystemExit
+        # inside a Qt signal handler is swallowed by the event loop and
+        # the process would linger. terminate_current_process sends an
+        # uncatchable OS signal to ourselves.
+        terminate_current_process()

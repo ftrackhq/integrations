@@ -62,4 +62,38 @@ function renderSequence(destination_path, prefix, extension, format_option) {
     return true;
 }
 
+/**
+* Return the current scene folder path.
+*
+* @returns {string} The current project path
+*/
+function getScenePath() {
+    return scene.currentProjectPath();
+}
+
+/**
+* Save the current scene (all modified files) to disk.
+*
+* @returns {boolean} True if the save succeeded
+*/
+function saveScene() {
+    info("Saving Harmony scene");
+    return scene.saveAll();
+}
+
+/**
+* Close the current scene and open the offline scene at *file_path*.
+*
+* @param {string} file_path Path to the .xstage file of the scene to open
+* @returns {boolean} True if the scene was opened
+*/
+function openScene(file_path) {
+    if (file_path === undefined || file_path.length === 0) {
+        warning("Cannot open scene, no file path given!");
+        return false;
+    }
+    info("Opening Harmony scene (offline): " + file_path);
+    return scene.closeSceneAndOpenOffline(file_path);
+}
+
 info("(Harmony Commands) Loaded");

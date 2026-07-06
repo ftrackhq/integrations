@@ -44,7 +44,7 @@ REMOTE_INTEGRATION_CONTEXT_DATA_TOPIC = (
 REMOTE_INTEGRATION_RUN_DIALOG_TOPIC = _BASE + ".remote.integration.run.dialog"
 REMOTE_INTEGRATION_RPC_TOPIC = _BASE + ".remote.integration.rpc"
 
-#: Launcher payload matching the publish tool in extensions/harmony.yaml,
+#: Launcher payloads matching the tools in extensions/harmony.yaml,
 #: sent with the context-data handshake so Harmony builds the real menu.
 PUBLISH_LAUNCHER = {
     "name": "publish",
@@ -55,6 +55,16 @@ PUBLISH_LAUNCHER = {
         "docked": False,
     },
 }
+OPEN_LAUNCHER = {
+    "name": "open",
+    "label": "Open",
+    "dialog_name": "framework_standard_opener_dialog",
+    "options": {
+        "tool_configs": ["harmony-scene-opener"],
+        "docked": False,
+    },
+}
+DEFAULT_LAUNCHERS = [PUBLISH_LAUNCHER, OPEN_LAUNCHER]
 
 
 class HarmonyRPCError(RuntimeError):
@@ -209,7 +219,7 @@ class HarmonyRPCTestClient:
             {
                 "context_id": None,
                 "launchers": (
-                    launchers if launchers is not None else [PUBLISH_LAUNCHER]
+                    launchers if launchers is not None else DEFAULT_LAUNCHERS
                 ),
             },
         )
