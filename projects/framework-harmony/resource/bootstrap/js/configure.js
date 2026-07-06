@@ -270,12 +270,14 @@ function HarmonyIntegration() {
         info("Got context data from standalone integration, building menus.");
         this.launchers = data["launchers"];
 
-        // Group all ftrack tools together: a dedicated "ftrack" toolbar
-        // with one button per tool, plus grouped "ftrack <Tool>" entries
-        // in the Windows menu. Harmony has no scriptable API to create a
-        // custom top-level menu without shipping a full menus.xml (which
-        // overrides the whole menu bar and is version-brittle), so the
-        // toolbar is the reliable single "ftrack" surface.
+        // Group all ftrack tools together. Harmony's ScriptManager can
+        // only add items to existing menus; a real "ftrack" submenu or a
+        // custom top-level menu needs overriding the whole menus.xml,
+        // which is version-brittle (a hierarchical targetMenuId like
+        // "File/ftrack" does not render on Harmony 27). So the reliable
+        // grouped surface is a dedicated "ftrack" toolbar with one button
+        // per tool; the menu entries are labelled "ftrack <Tool>" and
+        // live in the Windows main menu.
         var ftrackToolbar = new ScriptToolbarDef( {
             id           : "ftrackToolbar",
             text         : "ftrack",
@@ -288,7 +290,7 @@ function HarmonyIntegration() {
             var label = launcher["label"];
             var action = "launch_"+name+" in ./configure.js";
 
-            // Grouped menu entry under the Windows main menu.
+            // Labelled menu entry in the Windows main menu.
             ScriptManager.addMenuItem( {
                 targetMenuId : "Windows",
                 id           : "ftrackMenu"+name+"ID",
