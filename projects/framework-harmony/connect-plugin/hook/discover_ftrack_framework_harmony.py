@@ -25,7 +25,12 @@ cwd = os.path.dirname(__file__)
 connect_plugin_path = os.path.abspath(os.path.join(cwd, ".."))
 
 # Read version number from __version__.py
-__version__ = get_connect_plugin_version(connect_plugin_path)
+try:
+    __version__ = get_connect_plugin_version(connect_plugin_path)
+except FileNotFoundError:
+    # __version__.py is generated at build time; fall back when the hook
+    # is imported from the source tree (e.g. by the tests).
+    __version__ = "0.0.0"
 
 python_dependencies = os.path.join(connect_plugin_path, "dependencies")
 
@@ -60,12 +65,18 @@ def check_port(port, host="localhost"):
         return True
 
 
-def sync_js_plugin(app_path, framework_extensions_paths):
+def sync_js_plugin(app_path, framework_extensions_paths, bootstrap_path=None):
     """
     Sync the JS plugin to the user's Harmony scripts folder, removing any existing files.
 
     :param app_path: The full path to DCC executable.
     :param framework_extensions_paths: List of paths to scan for extensions.
+        Currently unused, kept for backwards compatibility (JS extensions
+        support was removed in #568).
+    :param bootstrap_path: Path to the bootstrap resource folder to deploy,
+        defaults to the resource/bootstrap folder within the built Connect
+        plugin. The tests pass this explicitly when run against the source
+        tree.
     :return:
     """
     version_nr = None
@@ -132,7 +143,7 @@ def sync_js_plugin(app_path, framework_extensions_paths):
             except Exception as e:
                 logger.error(f"Failed to delete {file_path}. Reason: {e}")
 
-    bootstrap_folder = os.path.join(
+    bootstrap_folder = bootstrap_path or os.path.join(
         connect_plugin_path, "resource", "bootstrap"
     )
 

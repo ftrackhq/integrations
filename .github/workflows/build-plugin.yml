@@ -82,7 +82,6 @@ jobs:
     if: ${{
         needs.set-variables.outputs.package != 'framework-photoshop' &&
         needs.set-variables.outputs.package != 'framework-premiere' &&
-        needs.set-variables.outputs.package != 'framework-harmony' &&
         needs.set-variables.outputs.package != 'framework-blender' &&
         needs.set-variables.outputs.package != 'framework-aftereffects'
       }}

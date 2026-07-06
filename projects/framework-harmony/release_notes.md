@@ -1,6 +1,17 @@
 # ftrack Framework Harmony integration release Notes
 
 
+## v26.7.0rc1
+
+* [fix] Fix standalone integration crash on Python 3.13 by rebuilding against the current ftrack libraries (`registry.scan_extensions` used the removed `importlib` `find_module` API).
+* [fix] Robust `FTRACK_INTEGRATION_LISTEN_PORT` handling and clean PySide2/PySide6 `exec` fallback in the standalone bootstrap.
+* [fix] Connect hook is importable from the source tree (version fallback) and can deploy the JS package from an explicit bootstrap path.
+* [feat] Automated launch/bootstrap tests via the `dcc-test-harness` library, hooking into the Connect launcher 1:1 (tier 1: JS package + menu + RPC; tier 2: full standalone-process bootstrap).
+* [doc] README aligned with the other projects and documents the two-process architecture, supported Harmony versions (22–27) and Toon Boom API validity.
+* [ci] Enable the Connect-plugin CI build for framework-harmony.
+* Note: opener/loader/asset-manager workflows remain deferred. A migration of the DCC command surface from JS-eval RPC to Toon Boom's external Python API (Harmony 24+) is tracked as a future spike; the current JS/TCP interaction model is unchanged.
+
+
 ## v24.6.0rc1
 
 * [feat] Initial release. Not building on CI; still needs an update of all libraries.
