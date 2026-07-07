@@ -274,10 +274,12 @@ function HarmonyIntegration() {
         // only add items to existing menus; a real "ftrack" submenu or a
         // custom top-level menu needs overriding the whole menus.xml,
         // which is version-brittle (a hierarchical targetMenuId like
-        // "File/ftrack" does not render on Harmony 27). So the reliable
-        // grouped surface is a dedicated "ftrack" toolbar with one button
-        // per tool; the menu entries are labelled "ftrack <Tool>" and
-        // live in the Windows main menu.
+        // "File/ftrack" does not render on Harmony 27). The entries go
+        // at the end of the File menu, where they appear adjacent after
+        // a separator (the Windows menu scatters script items: the
+        // first lands at the top of its view list, the rest at the
+        // bottom). A dedicated "ftrack" toolbar carries one button per
+        // tool as the grouped surface.
         var ftrackToolbar = new ScriptToolbarDef( {
             id           : "ftrackToolbar",
             text         : "ftrack",
@@ -288,16 +290,21 @@ function HarmonyIntegration() {
             var launcher = this.launchers[idx];
             var name = launcher["name"];
             var label = launcher["label"];
-            var action = "launch_"+name+" in ./configure.js";
 
-            // Labelled menu entry in the Windows main menu.
             ScriptManager.addMenuItem( {
-                targetMenuId : "Windows",
+                targetMenuId : "File",
                 id           : "ftrackMenu"+name+"ID",
                 icon         : "ftrack.png",
                 text         : "ftrack "+label,
-                action       : action
+                action       : "launch_"+name+" in ./configure.js"
             } );
+        }
+
+        for (var idx = 0; idx < this.launchers.length; idx++) {
+            var launcher = this.launchers[idx];
+            var name = launcher["name"];
+            var label = launcher["label"];
+            var action = "launch_"+name+" in ./configure.js";
 
             // Keyboard shortcut for the primary publish tool.
             if (name == "publish") {

@@ -64,7 +64,8 @@ OPEN_LAUNCHER = {
         "docked": False,
     },
 }
-DEFAULT_LAUNCHERS = [PUBLISH_LAUNCHER, OPEN_LAUNCHER]
+# Mirrors the tool order in extensions/harmony.yaml (menu/toolbar order).
+DEFAULT_LAUNCHERS = [OPEN_LAUNCHER, PUBLISH_LAUNCHER]
 
 
 class HarmonyRPCError(RuntimeError):

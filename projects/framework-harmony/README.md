@@ -27,13 +27,15 @@ Harmony has no embedded Python interpreter, so the integration runs as
   process and shuts itself down when Harmony exits (a watchdog plus the
   TCP-disconnect signal), so no helper process is left behind.
 
-The tools are grouped on a dedicated **"ftrack" toolbar** (one button
-per tool) and as `ftrack <Tool>` entries in the Windows menu. Harmony's
-`ScriptManager` can only add items to existing menus; a custom top-level
-menu or a nested submenu needs overriding Harmony's whole `menus.xml`
-(version-brittle, and a hierarchical `targetMenuId` such as `File/ftrack`
-does not render on Harmony 27). So the toolbar is the reliable single
-"ftrack" surface.
+The tools are grouped as adjacent `ftrack <Tool>` entries at the end of
+the **File menu** (below Import/Export) and on a dedicated **"ftrack"
+toolbar** (one button per tool). Harmony's `ScriptManager` can only add
+items to existing menus; a custom top-level menu or a nested submenu
+needs overriding Harmony's whole `menus.xml` (version-brittle, and a
+hierarchical `targetMenuId` such as `File/ftrack` does not render on
+Harmony 27). The Windows menu scatters script items (first at the top
+of its view list, the rest at the bottom), so the File menu is used —
+script items append there adjacently.
 
 ftrack Connect starts both when Harmony is launched: it runs the DCC
 and, because the launch config declares

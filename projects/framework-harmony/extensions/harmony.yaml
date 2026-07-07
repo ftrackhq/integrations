@@ -1,14 +1,7 @@
 type: dcc_config
 name: framework-harmony
 tools:
-  - name: publish
-    label: "Publish"
-    dialog_name: framework_standard_publisher_dialog
-    icon: publish
-    options:
-      tool_configs:
-        - harmony-image-sequence-publisher
-      docked: false
+  # Order defines the menu and toolbar order.
   - name: open
     label: "Open"
     dialog_name: framework_standard_opener_dialog
@@ -16,4 +9,12 @@ tools:
     options:
       tool_configs:
         - harmony-scene-opener
+      docked: false
+  - name: publish
+    label: "Publish"
+    dialog_name: framework_standard_publisher_dialog
+    icon: publish
+    options:
+      tool_configs:
+        - harmony-image-sequence-publisher
       docked: false
