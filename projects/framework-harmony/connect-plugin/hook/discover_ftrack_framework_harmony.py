@@ -160,6 +160,29 @@ def sync_js_plugin(app_path, framework_extensions_paths, bootstrap_path=None):
     shutil.copytree(src, dst)
     logger.debug("Copied: icons")
 
+    # Deploy the scene-opened hook to the user scripts root (one level
+    # above packages/): Harmony rebuilds the menu bar on every scene
+    # open and drops script-added items, so this hook re-registers the
+    # ftrack menu entries. Never overwrite a studio's own
+    # TB_sceneOpened.js (ours carries an "[ftrack]" marker).
+    scripts_root = os.path.dirname(os.path.dirname(path_scripts))
+    src = os.path.join(bootstrap_folder, "js", "TB_sceneOpened.js")
+    dst = os.path.join(scripts_root, "TB_sceneOpened.js")
+    deploy_hook = True
+    if os.path.isfile(dst):
+        with open(dst, "r", errors="replace") as existing:
+            if "[ftrack]" not in existing.read():
+                logger.warning(
+                    "Not deploying TB_sceneOpened.js - a non-ftrack "
+                    f"script already exists at {dst}. ftrack menu "
+                    "entries will disappear after a scene switch; add "
+                    "a call to the ftrack re-registration there."
+                )
+                deploy_hook = False
+    if deploy_hook:
+        shutil.copy(src, dst)
+        logger.debug("Copied: TB_sceneOpened.js")
+
 
 def on_launch_integration(session, event):
     """Handle application launch and add environment to *event*."""

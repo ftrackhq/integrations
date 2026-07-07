@@ -3,7 +3,9 @@
 
 ## v26.7.0rc1
 
+* [feat] Re-register the ftrack menu entries after a scene is opened (via a deployed TB_sceneOpened hook), so they persist across File > Open, close-and-reopen and the ftrack Open tool. Creating a brand-new scene (File > New) does not re-register them; open any scene to restore them.
 * [feat] Publish a scene snapshot (the Harmony scene folder, zipped) as a `snapshot` component alongside the render.
+* [feat] The scene snapshot zip is named after the scene (`<SceneName>.zip`).
 * [feat] Add a scene opener that opens a published snapshot in the running session via `scene.closeSceneAndOpenOffline`.
 * [feat] Group the ftrack tools as adjacent entries at the end of the File menu (Open, then Publish) plus a dedicated "ftrack" toolbar with one button per tool.
 * [fix] The standalone process now waits indefinitely for Harmony to open a scene (package scripts only start with the scene UI); previously it gave up after 2 minutes, leaving the ftrack menu missing for the session. The process watchdog still terminates it when Harmony quits.

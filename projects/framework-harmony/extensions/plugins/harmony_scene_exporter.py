@@ -55,11 +55,14 @@ class HarmonySceneExporterPlugin(BasePlugin):
                 f"Harmony scene folder does not exist: {scene_folder}"
             )
 
-        # Package the whole scene folder into a zip archive.
-        # get_temp_path returns a unique .zip path; make_archive appends
-        # the extension to the base name, so strip it first.
-        zip_path = get_temp_path(filename_extension="zip")
-        archive_base = zip_path[: -len(".zip")]
+        # Package the whole scene folder into a zip archive named after
+        # the scene (<SceneName>.zip), inside a unique temp directory so
+        # the published component keeps the original scene name.
+        scene_name = os.path.basename(os.path.normpath(scene_folder))
+        archive_base = os.path.join(
+            get_temp_path(is_directory=True), scene_name
+        )
+        zip_path = archive_base + ".zip"
 
         self.logger.debug(
             f"Packaging Harmony scene {scene_folder} into {zip_path}"

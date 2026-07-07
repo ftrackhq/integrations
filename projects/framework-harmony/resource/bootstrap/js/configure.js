@@ -270,35 +270,22 @@ function HarmonyIntegration() {
         info("Got context data from standalone integration, building menus.");
         this.launchers = data["launchers"];
 
-        // Group all ftrack tools together. Harmony's ScriptManager can
-        // only add items to existing menus; a real "ftrack" submenu or a
-        // custom top-level menu needs overriding the whole menus.xml,
-        // which is version-brittle (a hierarchical targetMenuId like
-        // "File/ftrack" does not render on Harmony 27). The entries go
-        // at the end of the File menu, where they appear adjacent after
-        // a separator (the Windows menu scatters script items: the
-        // first lands at the top of its view list, the rest at the
-        // bottom). A dedicated "ftrack" toolbar carries one button per
-        // tool as the grouped surface.
+        // Persist the launcher list as a plain JSON string on the
+        // application: strings survive property round-trips across
+        // script engines (objects come back as lossy copies), and the
+        // scene-watch rebuild depends on it.
+        QCoreApplication.instance().ftrack_launchers_json =
+            JSON.stringify(this.launchers);
+
+        ftrackRebuildMenus();
+
+        // Shortcut and toolbar are registered once - unlike menu
+        // items they survive scene switches.
         var ftrackToolbar = new ScriptToolbarDef( {
             id           : "ftrackToolbar",
             text         : "ftrack",
             customizable : "false"
         } );
-
-        for (var idx = 0; idx < this.launchers.length; idx++) {
-            var launcher = this.launchers[idx];
-            var name = launcher["name"];
-            var label = launcher["label"];
-
-            ScriptManager.addMenuItem( {
-                targetMenuId : "File",
-                id           : "ftrackMenu"+name+"ID",
-                icon         : "ftrack.png",
-                text         : "ftrack "+label,
-                action       : "launch_"+name+" in ./configure.js"
-            } );
-        }
 
         for (var idx = 0; idx < this.launchers.length; idx++) {
             var launcher = this.launchers[idx];
@@ -335,7 +322,21 @@ function HarmonyIntegration() {
     * script this context to facilitate menu callbacks.
     */
     this.createLaunchers = function(this_) {
-        for (var idx = 0; idx < this.launchers.length; idx++) {
+        var launchers = this.launchers;
+        if (!launchers || launchers.length === 0) {
+            // Script-object properties read back through
+            // QCoreApplication.instance() can be lossy copies across
+            // script engines - fall back to the JSON string.
+            try {
+                launchers = JSON.parse(
+                    QCoreApplication.instance().ftrack_launchers_json
+                    || "[]"
+                );
+            } catch (err) {
+                launchers = [];
+            }
+        }
+        for (var idx = 0; idx < launchers.length; idx++) {
             // Bind each launcher in its own scope - with a plain `var`
             // loop every generated launch_<name> would close over the
             // last launcher, so all menu items would run the same tool.
@@ -355,7 +356,7 @@ function HarmonyIntegration() {
                         }
                     )
                 }
-            })(this.launchers[idx]);
+            })(launchers[idx]);
         }
     }
 
@@ -439,6 +440,48 @@ function HarmonyIntegration() {
         // terminate tcp server
         this.tcp_server.close();
     }
+}
+
+/**
+* (Re-)register the ftrack menu entries, e.g. after a scene switch
+* rebuilt the menu bar. Reads the launcher list from the JSON string
+* stored on the application by the context-data handshake, so it works
+* from any script engine. Also callable through RPC.
+*
+* Grouping: Harmony's ScriptManager can only add items to existing
+* menus; a real "ftrack" submenu or a custom top-level menu needs
+* overriding the whole menus.xml, which is version-brittle (a
+* hierarchical targetMenuId like "File/ftrack" does not render on
+* Harmony 27). The entries go at the end of the File menu, where they
+* appear adjacent after a separator (the Windows menu scatters script
+* items).
+*
+* @returns {boolean} True if menu entries were registered
+*/
+function ftrackRebuildMenus() {
+    var launchers = [];
+    try {
+        launchers = JSON.parse(
+            QCoreApplication.instance().ftrack_launchers_json || "[]"
+        );
+    } catch (err) {
+        warning("Could not read ftrack launchers: " + err);
+        return false;
+    }
+    for (var idx = 0; idx < launchers.length; idx++) {
+        var launcher = launchers[idx];
+        var name = launcher["name"];
+        var label = launcher["label"];
+
+        ScriptManager.addMenuItem( {
+            targetMenuId : "File",
+            id           : "ftrackMenu"+name+"ID",
+            icon         : "ftrack.png",
+            text         : "ftrack "+label,
+            action       : "launch_"+name+" in ./configure.js"
+        } );
+    }
+    return launchers.length > 0;
 }
 
 function configure(packageFolder, packageName)

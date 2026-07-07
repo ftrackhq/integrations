@@ -37,6 +37,14 @@ Harmony 27). The Windows menu scatters script items (first at the top
 of its view list, the rest at the bottom), so the File menu is used —
 script items append there adjacently.
 
+Harmony rebuilds the menu bar on every scene switch, dropping
+script-added items. A `TB_sceneOpened` hook (deployed to the user
+scripts root next to the ftrack package) re-registers the entries after
+each scene open, so they persist across File > Open, close-and-reopen
+and the ftrack Open tool. Creating a brand-new scene (File > New) does
+not re-register them — open any scene to restore them (overriding
+`TB_sceneCreated` would clobber Harmony's default new-scene setup).
+
 ftrack Connect starts both when Harmony is launched: it runs the DCC
 and, because the launch config declares
 `standalone_module: ftrack_framework_harmony`, also spawns the
