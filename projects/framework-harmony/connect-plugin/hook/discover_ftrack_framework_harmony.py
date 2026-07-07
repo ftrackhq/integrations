@@ -160,28 +160,28 @@ def sync_js_plugin(app_path, framework_extensions_paths, bootstrap_path=None):
     shutil.copytree(src, dst)
     logger.debug("Copied: icons")
 
-    # Deploy the scene-opened hook to the user scripts root (one level
-    # above packages/): Harmony rebuilds the menu bar on every scene
-    # open and drops script-added items, so this hook re-registers the
-    # ftrack menu entries. Never overwrite a studio's own
-    # TB_sceneOpened.js (ours carries an "[ftrack]" marker).
+    # Deploy the scene-event hooks to the user scripts root (one level
+    # above packages/): Harmony rebuilds the menu bar whenever a scene is
+    # opened or created and drops script-added items, so these hooks
+    # re-register the ftrack menu entries. Each hook chains Harmony's
+    # default callback of the same name (never clobbers it). Never
+    # overwrite a studio's own hook (ours carry an "[ftrack]" marker).
     scripts_root = os.path.dirname(os.path.dirname(path_scripts))
-    src = os.path.join(bootstrap_folder, "js", "TB_sceneOpened.js")
-    dst = os.path.join(scripts_root, "TB_sceneOpened.js")
-    deploy_hook = True
-    if os.path.isfile(dst):
-        with open(dst, "r", errors="replace") as existing:
-            if "[ftrack]" not in existing.read():
-                logger.warning(
-                    "Not deploying TB_sceneOpened.js - a non-ftrack "
-                    f"script already exists at {dst}. ftrack menu "
-                    "entries will disappear after a scene switch; add "
-                    "a call to the ftrack re-registration there."
-                )
-                deploy_hook = False
-    if deploy_hook:
+    for hook_name in ["TB_sceneOpened.js", "TB_sceneCreated.js"]:
+        src = os.path.join(bootstrap_folder, "js", hook_name)
+        dst = os.path.join(scripts_root, hook_name)
+        if os.path.isfile(dst):
+            with open(dst, "r", errors="replace") as existing:
+                if "[ftrack]" not in existing.read():
+                    logger.warning(
+                        f"Not deploying {hook_name} - a non-ftrack "
+                        f"script already exists at {dst}. ftrack menu "
+                        f"entries will disappear after a scene switch; "
+                        f"add a call to the ftrack re-registration there."
+                    )
+                    continue
         shutil.copy(src, dst)
-        logger.debug("Copied: TB_sceneOpened.js")
+        logger.debug(f"Copied: {hook_name}")
 
 
 def on_launch_integration(session, event):

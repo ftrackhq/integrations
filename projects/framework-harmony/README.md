@@ -38,12 +38,17 @@ of its view list, the rest at the bottom), so the File menu is used —
 script items append there adjacently.
 
 Harmony rebuilds the menu bar on every scene switch, dropping
-script-added items. A `TB_sceneOpened` hook (deployed to the user
-scripts root next to the ftrack package) re-registers the entries after
-each scene open, so they persist across File > Open, close-and-reopen
-and the ftrack Open tool. Creating a brand-new scene (File > New) does
-not re-register them — open any scene to restore them (overriding
-`TB_sceneCreated` would clobber Harmony's default new-scene setup).
+script-added items. `TB_sceneOpened` and `TB_sceneCreated` hooks
+(deployed to the user scripts root next to the ftrack package)
+re-register the entries after each scene open and create, so they
+persist across File > Open, File > New, close-and-reopen and the ftrack
+Open tool. Each hook **chains** Harmony's default callback of the same
+name — it `include`s the default from
+`specialFolders.resource/scripts/`, keeps a reference and calls it
+first, so Harmony's standard behaviour (e.g. the default
+`TB_sceneCreated` builds the new scene's nodes and frame range) is
+preserved. The deploy never overwrites a studio's own hook of the same
+name (ours carry an `[ftrack]` marker).
 
 ftrack Connect starts both when Harmony is launched: it runs the DCC
 and, because the launch config declares
