@@ -5,7 +5,8 @@
 
 * [feat] Publish a scene snapshot (the Harmony scene folder, zipped) as a `snapshot` component alongside the render.
 * [feat] Add a scene opener that opens a published snapshot in the running session via `scene.closeSceneAndOpenOffline`.
-* [feat] Group the ftrack tools on a dedicated "ftrack" toolbar (one button per tool) plus grouped Windows-menu entries.
+* [feat] Group the ftrack tools as adjacent entries at the end of the File menu (Open, then Publish) plus a dedicated "ftrack" toolbar with one button per tool.
+* [fix] The standalone process now waits indefinitely for Harmony to open a scene (package scripts only start with the scene UI); previously it gave up after 2 minutes, leaving the ftrack menu missing for the session. The process watchdog still terminates it when Harmony quits.
 * [fix] Shut the standalone process down when Harmony exits: a process watchdog plus a hard-terminate on TCP disconnect (the previous `sys.exit` was swallowed by the Qt event loop, leaving the helper process running).
 * [fix] Keep the standalone process alive when a dialog is closed (`setQuitOnLastWindowClosed(False)`); previously closing the publisher quit the process and the ftrack menu only opened a dialog once.
 * [fix] Image sequence export no longer fails with `[Errno 17] File exists`; the sequence exporter now requests a temporary directory instead of a temporary file.

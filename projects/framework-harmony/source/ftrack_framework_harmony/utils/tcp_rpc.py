@@ -238,7 +238,12 @@ class TCPRPCClient(QtCore.QObject):
             self.socket.abort()
 
         self._failure_callback = failure_callback
-        self._connection_attempts = 60  # Wait 2mins for DCC to start
+        # Retry indefinitely: Harmony only starts its package scripts
+        # (and thereby the ftrack TCP server) once a scene is open, and
+        # the user may sit at the no-scene launch screen for a while.
+        # The process watchdog terminates this process if Harmony quits,
+        # so an unlimited retry cannot leak.
+        self._connection_attempts = -1
 
         self.logger.info(
             f"Connecting to DCC event hub @ {self.address}:{self.port} "
