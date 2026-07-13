@@ -183,6 +183,13 @@ def sync_js_plugin(app_path, framework_extensions_paths, bootstrap_path=None):
         shutil.copy(src, dst)
         logger.debug(f"Copied: {hook_name}")
 
+    # Return the deployed package folder (the one holding configure.js) so
+    # the launcher can expose it to the JS side. The TB_scene* hooks need
+    # this absolute path to re-include configure.js and re-stand-up the
+    # TCP server after Harmony tears down the script engine on a scene
+    # switch (Harmony does not re-invoke the package configure()).
+    return path_scripts
+
 
 def on_launch_integration(session, event):
     """Handle application launch and add environment to *event*."""
@@ -221,11 +228,18 @@ def on_launch_integration(session, event):
             )
 
     # Re-create the Harmony plugin taking extension into account
-    sync_js_plugin(
+    package_ftrack_path = sync_js_plugin(
         event["data"]["application"]["path"],
         event["data"]["application"]["environment_variables"][
             "FTRACK_FRAMEWORK_EXTENSIONS_PATH"
         ].split(os.pathsep),
+    )
+
+    # Expose the package root (parent of the "ftrack" folder, i.e. the
+    # Harmony "packages" dir) so the TB_scene* hooks can re-include
+    # configure.js and rebuild the TCP server after a scene switch.
+    launch_data["integration"]["env"]["FTRACK_HARMONY_PACKAGE_PATH.set"] = (
+        os.path.dirname(package_ftrack_path)
     )
 
     launch_data["integration"]["env"]["FTRACK_INTEGRATION_LISTEN_PORT.set"] = (

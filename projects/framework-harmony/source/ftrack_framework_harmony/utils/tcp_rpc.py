@@ -13,7 +13,6 @@ except ImportError:
 
 import ftrack_constants.framework as constants
 from ftrack_utils.framework.remote import get_remote_integration_session_id
-from ftrack_utils.process import terminate_current_process
 
 
 class TCPRPCClient(QtCore.QObject):
@@ -128,6 +127,13 @@ class TCPRPCClient(QtCore.QObject):
         self._on_run_tool_callback = on_run_tool_callback
         self._process_events_callback = process_events_callback
         self._connected = False
+        # The per-connection socket signals are wired once; on a
+        # reconnect (scene switch) the same socket is reused, so this
+        # guards against stacking duplicate handlers.
+        self._signals_connected = False
+        # Startup tools must run only on the first connection, never on a
+        # reconnect after a scene switch.
+        self._ever_connected = False
 
         self._failure_callback = None
         self._connection_attempts = None
@@ -201,7 +207,11 @@ class TCPRPCClient(QtCore.QObject):
             )
 
             self._timer.stop()
-            self.on_connected_callback()
+            # Startup tools run only on the first connection - a reconnect
+            # after a scene switch must not relaunch them.
+            if not self._ever_connected:
+                self._ever_connected = True
+                self.on_connected_callback()
         elif (
             self.connection_status
             != QtNetwork.QAbstractSocket.SocketState.ConnectingState
@@ -214,8 +224,12 @@ class TCPRPCClient(QtCore.QObject):
             else:
                 self.logger.warning("DCC not up yet, reconnecting in 2s")
                 self._timer.stop()
-                time.sleep(2)
-                self._connect_to_host()
+                # Non-blocking retry: a main-thread time.sleep() here
+                # stalls the Qt event loop and starves the process
+                # watchdog, so the standalone would not shut down when
+                # Harmony quits (and would linger). Schedule the next
+                # attempt on the event loop instead.
+                QtCore.QTimer.singleShot(2000, self._connect_to_host)
         else:
             if elapsed > 60:
                 self.logger.error(
@@ -279,10 +293,17 @@ class TCPRPCClient(QtCore.QObject):
             QtNetwork.QTcpSocket.SocketOption.KeepAliveOption, 1
         )
 
+        # Wire the per-connection signals once. The same socket is reused
+        # across reconnects (scene switches); re-connecting these would
+        # stack duplicate handlers and fire _on_disconnected/_on_ready_read
+        # multiple times per event.
+        if self._signals_connected:
+            return
         self.socket.readyRead.connect(self._on_ready_read)
         self.socket.bytesWritten.connect(self._on_bytes_written)
         self.socket.stateChanged.connect(self._on_state_changed)
         self.socket.disconnected.connect(self._on_disconnected)
+        self._signals_connected = True
 
     def _send(self, data):
         """Send *data* to the DCC as string."""
@@ -518,12 +539,27 @@ class TCPRPCClient(QtCore.QObject):
         self.socket.abort()
 
     def _on_disconnected(self):
-        """Callback on disconnection from the socket"""
+        """Callback on disconnection from the socket.
+
+        Harmony drops the TCP connection whenever it rebuilds its Qt
+        Script engine on a scene open/create/close, even though the
+        application keeps running. Terminating here would kill the
+        integration on the first scene switch (dead menu, vanished
+        toolbar), so instead reset and reconnect: the TB_scene* hooks
+        stand the JS TCP server back up, and reconnecting re-sends the
+        launcher context data so the JS side rebuilds the ftrack menu and
+        toolbar.
+
+        A genuine Harmony quit is handled by the process watchdog
+        (process_watchdog_callback in __init__.py), which terminates this
+        process once the Harmony PID is gone. The reconnect loop is
+        non-blocking (see _check_connection), so the watchdog fires
+        reliably and the helper no longer lingers after Harmony exits.
+        """
         self.logger.warning(
-            "Connection to Harmony lost, terminating integration"
+            "Connection to Harmony lost (scene switch or quit); reconnecting."
+            " The process watchdog terminates this process if Harmony exited."
         )
-        # Hard-terminate rather than sys.exit(0): raising SystemExit
-        # inside a Qt signal handler is swallowed by the event loop and
-        # the process would linger. terminate_current_process sends an
-        # uncatchable OS signal to ourselves.
-        terminate_current_process()
+        self.connected = False
+        # Re-run the same indefinite-retry connect loop used at startup.
+        self.connect_dcc(self._failure_callback)

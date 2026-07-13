@@ -53,7 +53,45 @@ TB_sceneCreated = function() {
         );
     }
     ftrackReregisterMenuHook();
+    ftrackReregisterServerHook();
 };
+
+/**
+ * Re-stand-up the ftrack TCP server after Harmony tore down the Qt Script
+ * engine (and the server) on this scene creation. Harmony does NOT
+ * re-invoke the package configure(), so we re-include configure.js from
+ * the package folder (absolute path supplied by the Connect launch hook
+ * via FTRACK_HARMONY_PACKAGE_PATH) and call its ftrackEnsureIntegration().
+ * Setting __packageFolder__ first makes configure.js pull in its own
+ * utilities (utils.js/harmony_commands.js). Once the server is back the
+ * standalone process reconnects and rebuilds the menu and toolbar.
+ */
+function ftrackReregisterServerHook() {
+    try {
+        var packageRoot = System.getenv("FTRACK_HARMONY_PACKAGE_PATH");
+        if (!packageRoot) {
+            MessageLog.trace(
+                "[ftrack] FTRACK_HARMONY_PACKAGE_PATH not set - cannot "
+                + "re-establish TCP server after scene create."
+            );
+            return;
+        }
+        __packageFolder__ = packageRoot;
+        include(packageRoot + "/ftrack/configure.js");
+        if (typeof ftrackEnsureIntegration === "function") {
+            ftrackEnsureIntegration();
+            MessageLog.trace(
+                "[ftrack] Re-established TCP server after scene create."
+            );
+        } else {
+            MessageLog.trace(
+                "[ftrack] ftrackEnsureIntegration undefined after include."
+            );
+        }
+    } catch (err) {
+        MessageLog.trace("[ftrack] server re-registration failed: " + err);
+    }
+}
 
 /**
  * Re-register the ftrack menu entries from the persisted launcher list.

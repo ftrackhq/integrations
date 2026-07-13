@@ -29,8 +29,13 @@ if (this['__packageFolder__']) {
     include(__packageFolder__+"/ftrack/harmony_commands.js");
 
 } else {
-    // Menu launch, create launchers
-    QCoreApplication.instance().integration.createLaunchers(this);
+    // Menu/toolbar launch: (re)define the launch_<name> callbacks in
+    // this evaluation's scope. app.integration can be absent right after
+    // a scene switch (Harmony tore down the engine that created it);
+    // guard so a stray evaluation no-ops instead of throwing.
+    if (QCoreApplication.instance().integration) {
+        QCoreApplication.instance().integration.createLaunchers(this);
+    }
 }
 
 /*
@@ -484,15 +489,40 @@ function ftrackRebuildMenus() {
     return launchers.length > 0;
 }
 
+/**
+* (Re-)stand up the ftrack integration and its TCP server. Harmony
+* destroys the Qt Script engine - and with it the TCP server - on every
+* scene open/create/close, and does NOT re-invoke configure(). The
+* TB_scene* hooks call this (after re-including this file) to bring the
+* server back so the standalone process, which retries the connection
+* indefinitely, can reconnect and rebuild the ftrack menu and toolbar.
+* The listen port and session id come from the process environment,
+* which persists for Harmony's whole lifetime.
+*/
+function ftrackEnsureIntegration() {
+    var app = QCoreApplication.instance();
+
+    // Best-effort close of any previous server so its listen port is
+    // free to bind again. The old integration object may be a lossy
+    // cross-engine copy after a scene switch, so guard defensively.
+    try {
+        if (app.integration && app.integration.tcp_server) {
+            app.integration.tcp_server.close();
+        }
+    } catch (err) {
+        MessageLog.trace("[ftrack] Could not close previous TCP server: " + err);
+    }
+
+    app.integration = new HarmonyIntegration();
+    app.integration.initializeIntegration();
+}
+
 function configure(packageFolder, packageName)
 {
     if (about.isPaintMode())
         return;
 
-    var app = QCoreApplication.instance();
-
-    app.integration = new HarmonyIntegration();
-    app.integration.initializeIntegration();
+    ftrackEnsureIntegration();
 }
 
 function init()
@@ -500,5 +530,11 @@ function init()
     info("ftrack Framework Harmony integration INIT");
 }
 
-exports.configure = configure;
-exports.init = init;
+// `exports` only exists when Harmony loads this file as a package. The
+// TB_scene* hooks re-include this file from a plain script scope (no
+// module system) to reuse ftrackEnsureIntegration(), so guard the
+// assignments or the include would throw a ReferenceError.
+if (typeof exports !== "undefined") {
+    exports.configure = configure;
+    exports.init = init;
+}
