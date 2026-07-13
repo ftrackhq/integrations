@@ -38,7 +38,7 @@ search_path:
       - Applications
     expression:
       - Toon Boom Harmony*
-      - Harmony \d[\w.] Premium.app
+      - Harmony \d[\w.]+ Premium.app
 standalone_module: ftrack_framework_harmony
 extensions_path:
   - extensions/common
