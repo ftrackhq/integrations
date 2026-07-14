@@ -3,7 +3,6 @@
 import logging
 import os
 import subprocess
-import time
 import traceback
 import platform
 import sys
@@ -71,10 +70,12 @@ if not app:
 
 # This is a persistent standalone process that outlives individual
 # dialogs: without this, closing the last dialog (e.g. the publisher)
-# quits the QApplication, the process exits and its TCP connection to
+# quits the QApplication, the process exits and its RPC server to
 # Harmony drops - so the ftrack menu would only ever open a dialog once.
-# The process is instead shut down when Harmony disconnects
-# (see TCPRPCClient._on_disconnected).
+# The process is instead shut down by the process watchdog when Harmony
+# quits (see process_watchdog_callback). A TCP disconnect no longer
+# terminates it: Harmony drops the socket on every scene switch and
+# simply reconnects to the still-listening server.
 app.setQuitOnLastWindowClosed(False)
 
 
@@ -93,8 +94,11 @@ def on_connected_callback():
         on_run_tool_callback(*tool)
 
 
-def on_connection_failure_callback():
-    logger.error("Could not establish connection to Harmony, exiting.")
+def on_listen_failure_callback():
+    logger.error(
+        "Could not bind the ftrack RPC server port (already in use?), "
+        "exiting."
+    )
     sys.exit(-1)
 
 
@@ -285,9 +289,11 @@ def bootstrap_integration(framework_extensions_path):
         rpc_process_events_callback,
     )
 
-    time.sleep(2)  # Give DCC time to launch
-
-    harmony_tcp_connection.connect_dcc(on_connection_failure_callback)
+    # Bind and start listening immediately - the server must be up before
+    # Harmony dials out. No sleep/race: Harmony retries the connection
+    # (it dials on every scene include), and the server outlives every
+    # scene switch.
+    harmony_tcp_connection.listen(on_listen_failure_callback)
 
     # Monitor the Harmony process and shut down when it exits. This is
     # the reliable cleanup path - the TCP disconnect handler is the fast

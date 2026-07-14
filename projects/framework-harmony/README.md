@@ -15,17 +15,23 @@ editions) on macOS and Windows. The Connect launcher discovers Harmony
 Harmony has no embedded Python interpreter, so the integration runs as
 **two processes bridged over TCP**:
 
-- A **JavaScript package** (`resource/bootstrap/js/`) is deployed into
-  Harmony's scripts folder and loaded at startup. It runs a small TCP
-  **server** inside Harmony's Qt Script environment, builds the ftrack
-  menu, and executes DCC commands (e.g. rendering an image sequence)
-  on request.
 - A **standalone Python process** (`ftrack_framework_harmony`) runs the
-  ftrack framework (Host, Client, Qt UI). It is the TCP **client**: it
-  connects to Harmony, sends the tool list so the menu can be built,
-  and shows the publisher/opener dialogs. It monitors the Harmony
-  process and shuts itself down when Harmony exits (a watchdog plus the
-  TCP-disconnect signal), so no helper process is left behind.
+  ftrack framework (Host, Client, Qt UI). It is the TCP **server**: it
+  binds a loopback port and listens for Harmony's whole lifetime, sends
+  the tool list so the menu can be built, and shows the publisher/opener
+  dialogs. It monitors the Harmony process and shuts itself down when
+  Harmony exits (a process watchdog), so no helper process is left
+  behind.
+- A **JavaScript package** (`resource/bootstrap/js/`) is deployed into
+  Harmony's scripts folder and loaded at startup. It is the TCP
+  **client**: it dials out to the standalone server from Harmony's Qt
+  Script environment, builds the ftrack menu, and executes DCC commands
+  (e.g. rendering an image sequence) on request.
+
+Harmony tears down its Qt Script engine — and the client socket with it
+— on every scene switch, but the external server outlives every switch,
+so Harmony simply reconnects each time and the RPC channel never dies
+with the engine.
 
 The tools are grouped as adjacent `ftrack <Tool>` entries at the end of
 the **File menu** (below Import/Export) and on a dedicated **"ftrack"
@@ -38,12 +44,19 @@ of its view list, the rest at the bottom), so the File menu is used —
 script items append there adjacently.
 
 Harmony rebuilds the menu bar on every scene switch, dropping
-script-added items. `TB_sceneOpened` and `TB_sceneCreated` hooks
-(deployed to the user scripts root next to the ftrack package)
-re-register the entries after each scene open and create, so they
-persist across File > Open, File > New, close-and-reopen and the ftrack
-Open tool. Each hook **chains** Harmony's default callback of the same
-name — it `include`s the default from
+script-added items, and destroys the Qt Script engine (and the client
+socket). `TB_sceneOpened` and `TB_sceneCreated` hooks (deployed to the
+user scripts root next to the ftrack package) re-include `configure.js`
+after each scene open and create, then **(1)** re-register the ftrack
+menu entries synchronously from the persisted tool list (so the menu is
+back immediately, not gated on the network) and **(2)** **reconnect** to
+the standalone server, which restores the RPC channel (so the menu
+actions work) and re-sends its tool list to rebuild the menu once more.
+The toolbar and shortcut persist across scene switches, so the whole
+surface stays present and clickable across File > Open, File > New,
+close-and-reopen and the ftrack Open tool. Each hook **chains** Harmony's
+default
+callback of the same name — it `include`s the default from
 `specialFolders.resource/scripts/`, keeps a reference and calls it
 first, so Harmony's standard behaviour (e.g. the default
 `TB_sceneCreated` builds the new scene's nodes and frame range) is

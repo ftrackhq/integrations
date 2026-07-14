@@ -16,8 +16,19 @@ from ftrack_utils.framework.remote import get_remote_integration_session_id
 
 
 class TCPRPCClient(QtCore.QObject):
-    """TCP client facilitating communication with DCC:s not able
-    to import or use any ftrack API (Javascript)"""
+    """Role-agnostic RPC channel to a DCC that cannot import the ftrack
+    API (Harmony/Javascript).
+
+    This standalone process is the TCP *server*: it binds the port and
+    keeps listening for Harmony's whole lifetime. Harmony is the client
+    that dials out - at first launch and again after every scene
+    open/create/close, because it tears down its Qt Script engine (and
+    the dialed-out socket) on each scene switch. An external server
+    outlives every scene switch, so the RPC channel never dies with the
+    engine. The class name is kept (callers do
+    ``TCPRPCClient.instance().rpc(...)``); only the socket lifecycle
+    moved from dialing out to listening.
+    """
 
     MAX_WRITE_RESPONSE_TIME = 10000
     INT32_SIZE = 4
@@ -84,8 +95,10 @@ class TCPRPCClient(QtCore.QObject):
 
     @property
     def connection_status(self):
-        """Return the connection status of the socket"""
-        return self.socket.state()
+        """Return the state of the current DCC connection socket."""
+        if self._connection is None:
+            return QtNetwork.QAbstractSocket.SocketState.UnconnectedState
+        return self._connection.state()
 
     def __init__(
         self,
@@ -100,11 +113,11 @@ class TCPRPCClient(QtCore.QObject):
         parent=None,
     ):
         """
-        Initialise the TCP RPC client
+        Initialise the TCP RPC channel
 
         :param dcc_name: The name of the DCC; 'harmony', etc.
-        :param address: The hostname or IP to connect to
-        :param port: The port to connect to
+        :param address: The hostname or IP to bind (loopback)
+        :param port: The port to listen on (Harmony dials this)
         :param client: Framework client
         :param launchers: The launchers to send be created in the DCC menus
         :param on_connected_callback: The callback to run when DCC is connected
@@ -127,16 +140,11 @@ class TCPRPCClient(QtCore.QObject):
         self._on_run_tool_callback = on_run_tool_callback
         self._process_events_callback = process_events_callback
         self._connected = False
-        # The per-connection socket signals are wired once; on a
-        # reconnect (scene switch) the same socket is reused, so this
-        # guards against stacking duplicate handlers.
-        self._signals_connected = False
         # Startup tools must run only on the first connection, never on a
         # reconnect after a scene switch.
         self._ever_connected = False
 
-        self._failure_callback = None
-        self._connection_attempts = None
+        self._on_listen_failure = None
         self._handle_reply_event_callback = None
         self._blocksize = 0
         self._reply_event_data = None
@@ -152,7 +160,7 @@ class TCPRPCClient(QtCore.QObject):
         return TCPRPCClient._instance
 
     def _initialise(self):
-        """Initialise the TCP client, create socket."""
+        """Initialise the TCP RPC server."""
         env_name = f"FTRACK_{self.dcc_name.upper()}_VERSION"
         self._dcc_version = os.environ.get(env_name)
         assert self.dcc_version, (
@@ -168,35 +176,98 @@ class TCPRPCClient(QtCore.QObject):
             " passed as environment variable!"
         )
 
-        self.socket = QtNetwork.QTcpSocket(self)
-        self.socket.connected.connect(self._on_connected)
+        # This process is the TCP server; Harmony dials in. The server
+        # outlives Harmony's Qt Script engine, so it survives every scene
+        # switch (see class docstring).
+        self._server = QtNetwork.QTcpServer(self)
+        self._connection = None
         self._buffer = None
         self._receiving = False
-        self._timer = QtCore.QTimer()
-        self._timer.timeout.connect(self._check_connection)
 
         self.logger = logging.getLogger(__name__)
 
-        self.logger.info("Initialized TCP client")
+        self.logger.info("Initialized TCP RPC server")
 
-    def _check_connection(self):
-        """Check connection status and try to reconnect if necessary."""
-        end_time = time.time()
-        elapsed = end_time - self._start_time
-        self.logger.debug(f"Connection status: {self.connection_status}")
-        if (
-            self.connection_status
-            == QtNetwork.QAbstractSocket.SocketState.ConnectedState
-        ):
-            result = self.connection_status
-            self.logger.debug(
-                f"Connect took ({self._start_time - end_time} s), status: {result}"
+    def listen(self, on_listen_failure):
+        """Start the RPC server and await the DCC connection.
+
+        Binds loopback (127.0.0.1) only: macOS does not raise a firewall
+        prompt for loopback binds (never bind 0.0.0.0/Any). The server
+        keeps listening for Harmony's whole lifetime, so each new Qt
+        Script engine that dials in after a scene switch is accepted in
+        :meth:`_on_new_connection`.
+
+        :param on_listen_failure: Called if the port cannot be bound
+            (e.g. already in use); the standalone then exits.
+        """
+        self._on_listen_failure = on_listen_failure
+
+        # Loopback bind is load-bearing - see method docstring.
+        address = QtNetwork.QHostAddress("127.0.0.1")
+        if not self._server.listen(address, self.port):
+            self.logger.error(
+                f"Could not listen on 127.0.0.1:{self.port}: "
+                f"{self._server.errorString()}"
             )
+            self._on_listen_failure()
+            return
 
-            self.connected = True
+        self._server.newConnection.connect(self._on_new_connection)
+        self.logger.info(
+            f"RPC server listening on 127.0.0.1:{self.port}, awaiting "
+            f"{self.dcc_name} connection."
+        )
 
-            # Send launchers for DCC to create menus, expect reply back as an
-            # acknowledgment that DCC is ready
+    def _on_new_connection(self):
+        """Accept a DCC connection.
+
+        Harmony dials out every time it (re-)includes configure.js: at
+        first launch and after every scene open/create/close (it tears
+        down the Qt Script engine, and the old socket, on each scene
+        switch). The server keeps listening across all of them, so each
+        new engine simply reconnects here.
+
+        The CONTEXT_DATA handshake rebuilds the ftrack menu on every
+        (re)connection - Harmony drops script-added menu items on a scene
+        switch - but the startup tools run only on the very first accept.
+        """
+        connection = self._server.nextPendingConnection()
+        if connection is None:
+            return
+
+        # A scene switch leaves the previous socket half-dead; abort it so
+        # only the freshest connection is used.
+        if self._connection is not None:
+            self._connection.abort()
+
+        self._connection = connection
+        self._blocksize = 0
+
+        self.logger.info("Setting up connection options...")
+        self._connection.setSocketOption(
+            QtNetwork.QTcpSocket.SocketOption.LowDelayOption, 1
+        )
+        self._connection.setSocketOption(
+            QtNetwork.QTcpSocket.SocketOption.KeepAliveOption, 1
+        )
+
+        # A fresh socket each time - wire per-connection signals directly.
+        # The old socket is discarded, so no de-dup guard is needed.
+        self._connection.readyRead.connect(self._on_ready_read)
+        self._connection.bytesWritten.connect(self._on_bytes_written)
+        self._connection.stateChanged.connect(self._on_state_changed)
+        self._connection.disconnected.connect(self._on_disconnected)
+        self._connection.errorOccurred.connect(self.error)
+
+        self.connected = True
+
+        # Send launchers so the DCC (re)builds its menus; expect a reply
+        # back as an acknowledgment that the DCC is ready. Guard the whole
+        # handshake: if the DCC drops mid-handshake (a fast scene switch),
+        # send() fails fast rather than spinning - the server keeps
+        # listening for the next reconnect, so swallow it here (this is a
+        # Qt slot).
+        try:
             self.send(
                 constants.event.REMOTE_INTEGRATION_CONTEXT_DATA_TOPIC,
                 {
@@ -205,70 +276,18 @@ class TCPRPCClient(QtCore.QObject):
                 },
                 synchronous=True,
             )
-
-            self._timer.stop()
-            # Startup tools run only on the first connection - a reconnect
-            # after a scene switch must not relaunch them.
-            if not self._ever_connected:
-                self._ever_connected = True
-                self.on_connected_callback()
-        elif (
-            self.connection_status
-            != QtNetwork.QAbstractSocket.SocketState.ConnectingState
-        ):
-            # Connection refused, DCC not up yet
-            self._connection_attempts -= 1
-            if self._connection_attempts == 0:
-                self.logger.error("DCC never launched, giving up.")
-                self._failure_callback()
-            else:
-                self.logger.warning("DCC not up yet, reconnecting in 2s")
-                self._timer.stop()
-                # Non-blocking retry: a main-thread time.sleep() here
-                # stalls the Qt event loop and starves the process
-                # watchdog, so the standalone would not shut down when
-                # Harmony quits (and would linger). Schedule the next
-                # attempt on the event loop instead.
-                QtCore.QTimer.singleShot(2000, self._connect_to_host)
-        else:
-            if elapsed > 60:
-                self.logger.error(
-                    f"Error connecting to the DCC event hub (waited: {elapsed}s)"
-                    f" Details: {self.socket.error()}"
-                )
-                self._failure_callback()
-            else:
-                self.logger.warning(
-                    f"Could not connect to the DCC event hub (waited: {elapsed}s), "
-                    f"retrying. Details: {self.socket.error()}"
-                )
-
-    def connect_dcc(self, failure_callback):
-        """Connect to the DCC event hub."""
-        if self.connected:
+        except Exception as error:
             self.logger.warning(
-                f"Connection already existed , removing connection to {self.address} {self.port} "
+                f"Context-data handshake did not complete (DCC likely "
+                f"dropped the connection): {error}. Awaiting reconnect."
             )
-            self.socket.abort()
+            return
 
-        self._failure_callback = failure_callback
-        # Retry indefinitely: Harmony only starts its package scripts
-        # (and thereby the ftrack TCP server) once a scene is open, and
-        # the user may sit at the no-scene launch screen for a while.
-        # The process watchdog terminates this process if Harmony quits,
-        # so an unlimited retry cannot leak.
-        self._connection_attempts = -1
-
-        self.logger.info(
-            f"Connecting to DCC event hub @ {self.address}:{self.port} "
-        )
-
-        self._connect_to_host()
-
-    def _connect_to_host(self):
-        self._start_time = time.time()
-        self.socket.connectToHost(self.address, self.port)
-        self._timer.start(1000)
+        # Startup tools run only on the first connection - a reconnect
+        # after a scene switch must not relaunch them.
+        if not self._ever_connected:
+            self._ever_connected = True
+            self.on_connected_callback()
 
     def _on_bytes_written(self, bytes):
         """Callback on *bytes* written to the socket"""
@@ -280,35 +299,15 @@ class TCPRPCClient(QtCore.QObject):
 
     def _on_ready_read(self):
         """Callback on ready read from the socket"""
+        if self._connection is None:
+            return
         if not self._receiving:
             self._receive()
-
-    def _on_connected(self):
-        """Callback on successful connection to the socket"""
-        self.logger.info("Setting up connection options...")
-        self.socket.setSocketOption(
-            QtNetwork.QTcpSocket.SocketOption.LowDelayOption, 1
-        )
-        self.socket.setSocketOption(
-            QtNetwork.QTcpSocket.SocketOption.KeepAliveOption, 1
-        )
-
-        # Wire the per-connection signals once. The same socket is reused
-        # across reconnects (scene switches); re-connecting these would
-        # stack duplicate handlers and fire _on_disconnected/_on_ready_read
-        # multiple times per event.
-        if self._signals_connected:
-            return
-        self.socket.readyRead.connect(self._on_ready_read)
-        self.socket.bytesWritten.connect(self._on_bytes_written)
-        self.socket.stateChanged.connect(self._on_state_changed)
-        self.socket.disconnected.connect(self._on_disconnected)
-        self._signals_connected = True
 
     def _send(self, data):
         """Send *data* to the DCC as string."""
         # make sure we are connected
-        if self.socket.state() in (
+        if self._connection is None or self._connection.state() in (
             QtNetwork.QAbstractSocket.SocketState.UnconnectedState,
         ):
             raise Exception("Not connected to Harmony")
@@ -322,30 +321,32 @@ class TCPRPCClient(QtCore.QObject):
 
         outstr.writeString(str(data))
 
-        self.socket.write(block)
+        self._connection.write(block)
 
-        if not self.socket.waitForBytesWritten(self.MAX_WRITE_RESPONSE_TIME):
+        if not self._connection.waitForBytesWritten(
+            self.MAX_WRITE_RESPONSE_TIME
+        ):
             self.logger.error(
-                f"Could not write to socket: {self.socket.errorString()}"
+                f"Could not write to socket: {self._connection.errorString()}"
             )
         else:
-            self.logger.debug(f"Sent data ok. {self.socket.state()}")
+            self.logger.debug(f"Sent data ok. {self._connection.state()}")
 
     def _receive(self):
         """Receive data from the DCC"""
         self.logger.debug("Receiving data")
 
-        stream = QtCore.QDataStream(self.socket)
+        stream = QtCore.QDataStream(self._connection)
         stream.setVersion(QtCore.QDataStream.Version.Qt_4_6)
 
         i = 0
-        while self.socket.bytesAvailable() > 0:
+        while self._connection.bytesAvailable() > 0:
             if (
                 self._blocksize == 0
-                and self.socket.bytesAvailable() >= self.INT32_SIZE
-            ) or (0 < self._blocksize <= self.socket.bytesAvailable()):
+                and self._connection.bytesAvailable() >= self.INT32_SIZE
+            ) or (0 < self._blocksize <= self._connection.bytesAvailable()):
                 self._blocksize = stream.readInt32()
-            if 0 < self._blocksize <= self.socket.bytesAvailable():
+            if 0 < self._blocksize <= self._connection.bytesAvailable():
                 data = stream.readRawData(self._blocksize)
                 raw_event = data.decode("utf-8")
                 self._decode_and_process_event(raw_event)
@@ -457,6 +458,15 @@ class TCPRPCClient(QtCore.QObject):
                     time.sleep(0.1)
                     waited += 100
 
+                    # Fail fast if the DCC connection drops mid-wait (e.g.
+                    # a scene switch during a long renderSequence) instead
+                    # of spinning to the full timeout.
+                    if not self.connected:
+                        raise Exception(
+                            f"DCC connection dropped while waiting for "
+                            f"reply for event: {event['id']}"
+                        )
+
                     if -1 < wait <= waited:
                         raise Exception(
                             f"Timeout waiting for reply for event: {event['id']}"
@@ -530,36 +540,40 @@ class TCPRPCClient(QtCore.QObject):
         ):
             self.logger.error("The server is not up and running yet.")
         else:
-            self.logger.error(
-                f"The following error occurred: {self.socket.errorString()}."
+            detail = (
+                self._connection.errorString()
+                if self._connection is not None
+                else socketError
             )
+            self.logger.error(f"The following error occurred: {detail}.")
 
     def close(self):
-        """Close the connection to the DCC."""
-        self.socket.abort()
+        """Stop listening and drop any live DCC connection."""
+        self._server.close()
+        if self._connection is not None:
+            self._connection.abort()
+            self._connection = None
 
     def _on_disconnected(self):
-        """Callback on disconnection from the socket.
+        """Callback on disconnection of the DCC socket.
 
         Harmony drops the TCP connection whenever it rebuilds its Qt
         Script engine on a scene open/create/close, even though the
-        application keeps running. Terminating here would kill the
-        integration on the first scene switch (dead menu, vanished
-        toolbar), so instead reset and reconnect: the TB_scene* hooks
-        stand the JS TCP server back up, and reconnecting re-sends the
-        launcher context data so the JS side rebuilds the ftrack menu and
-        toolbar.
+        application keeps running. We simply reset state: the server
+        keeps listening, and the next Qt Script engine reconnects via
+        :meth:`_on_new_connection`, which re-sends the launcher context
+        data so the JS side rebuilds the ftrack menu and toolbar.
 
-        A genuine Harmony quit is handled by the process watchdog
+        A genuine Harmony quit is handled solely by the process watchdog
         (process_watchdog_callback in __init__.py), which terminates this
-        process once the Harmony PID is gone. The reconnect loop is
-        non-blocking (see _check_connection), so the watchdog fires
-        reliably and the helper no longer lingers after Harmony exits.
+        process once the Harmony PID is gone. This handler never
+        terminates.
         """
         self.logger.warning(
-            "Connection to Harmony lost (scene switch or quit); reconnecting."
-            " The process watchdog terminates this process if Harmony exited."
+            "DCC connection dropped (scene switch or quit); server still "
+            "listening, awaiting reconnect. The process watchdog exits "
+            "this process if Harmony has quit."
         )
         self.connected = False
-        # Re-run the same indefinite-retry connect loop used at startup.
-        self.connect_dcc(self._failure_callback)
+        self._connection = None
+        self._blocksize = 0

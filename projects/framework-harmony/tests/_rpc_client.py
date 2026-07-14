@@ -1,16 +1,19 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2026 ftrack
 
-"""Minimal TCP client speaking the Harmony integration wire protocol.
+"""Minimal TCP server speaking the Harmony integration wire protocol.
 
-The ftrack JS package inside Harmony (resource/bootstrap/js/configure.js)
-runs a TCP server which the standalone framework process connects to.
-This client implements the same protocol using only the standard
-library, so tier-1 tests can play the standalone process' role and
-verify Harmony launched and bootstrapped the integration correctly.
+The standalone framework process (resource/../utils/tcp_rpc.py) runs a
+TCP server; the ftrack JS package inside Harmony
+(resource/bootstrap/js/configure.js) is the client that dials out to it,
+reconnecting after every scene switch. This test double implements the
+same server side using only the standard library, so tier-1 tests can
+play the standalone process' role: listen on the integration port,
+accept Harmony's connection and verify it bootstrapped the integration
+correctly.
 
-Wire framing (asymmetric, see also
-source/ftrack_framework_harmony/utils/tcp_rpc.py):
+Wire framing (asymmetric by direction, unchanged by the client/server
+role flip; see also source/ftrack_framework_harmony/utils/tcp_rpc.py):
 
 - client -> Harmony: big-endian ``uint32(len + 1)`` + UTF-8 JSON +
   trailing NUL byte (``QDataStream.writeString`` semantics - the JS
@@ -73,7 +76,7 @@ class HarmonyRPCError(RuntimeError):
 
 
 class HarmonyRPCTestClient:
-    """Test double for the standalone framework process' TCP client."""
+    """Test double for the standalone framework process' TCP server."""
 
     def __init__(
         self,
@@ -87,55 +90,78 @@ class HarmonyRPCTestClient:
         self.session_id = session_id
         self.timeout = timeout
         self.handshake_reply: Optional[dict] = None
+        self._server: Optional[socket.socket] = None
         self._sock: Optional[socket.socket] = None
 
     # -- Connection --
 
-    def connect_with_retry(
-        self, is_alive=None, timeout: float = 120.0
-    ) -> None:
-        """Connect to the JS TCP server inside Harmony.
+    def listen(self) -> None:
+        """Bind and listen on host:port, as the standalone server does.
 
-        Retries until *timeout*, failing fast if *is_alive* (an
-        optional no-arg callable) reports the DCC has died.
+        Must be called BEFORE Harmony is made to dial out (i.e. before a
+        scene is created/opened), so Harmony's ``connectToHost``
+        succeeds. Loopback bind only, mirroring the real standalone.
         """
+        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        server.bind((self.host, self.port))
+        server.listen(1)
+        self._server = server
+        logger.info("Listening for Harmony @ %s:%s", self.host, self.port)
+
+    def accept(self, is_alive=None, timeout: float = 120.0) -> None:
+        """Accept Harmony's outgoing connection.
+
+        Retries until *timeout*, failing fast if *is_alive* (an optional
+        no-arg callable) reports the DCC has died. Harmony may dial more
+        than once while a scene settles (a fresh Qt Script engine
+        reconnects); any additional connections already queued in the
+        backlog are drained and the newest kept, exactly as the real
+        standalone does in ``_on_new_connection``.
+        """
+        assert self._server is not None, "Call listen() before accept()"
         deadline = time.monotonic() + timeout
-        last_error: Optional[Exception] = None
-        while time.monotonic() < deadline:
+        self._server.settimeout(1.0)
+        conn: Optional[socket.socket] = None
+        while conn is None and time.monotonic() < deadline:
             if is_alive is not None and not is_alive():
                 raise RuntimeError(
-                    "Harmony exited before the ftrack JS TCP server came up."
+                    "Harmony exited before dialing the ftrack RPC server."
                 )
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.settimeout(2.0)
             try:
-                sock.connect((self.host, self.port))
-            except OSError as error:
-                last_error = error
-                sock.close()
-                time.sleep(0.5)
+                conn, _addr = self._server.accept()
+            except socket.timeout:
                 continue
-            sock.settimeout(self.timeout)
-            self._sock = sock
-            logger.info(
-                "Connected to Harmony JS server @ %s:%s",
-                self.host,
-                self.port,
+        if conn is None:
+            raise TimeoutError(
+                f"Harmony never dialed the ftrack RPC server at "
+                f"{self.host}:{self.port} within {timeout}s - the "
+                f"ftrack package probably did not load."
             )
-            return
-        raise TimeoutError(
-            f"Could not connect to Harmony JS TCP server at "
-            f"{self.host}:{self.port} within {timeout}s - the "
-            f"ftrack package probably did not load. "
-            f"Last error: {last_error}"
+        # Drain any further connections already queued (a fresh engine
+        # redialed); keep only the newest.
+        self._server.setblocking(False)
+        while True:
+            try:
+                newer, _addr = self._server.accept()
+            except (BlockingIOError, OSError):
+                break
+            conn.close()
+            conn = newer
+        conn.settimeout(self.timeout)
+        self._sock = conn
+        logger.info(
+            "Accepted Harmony connection @ %s:%s", self.host, self.port
         )
 
     def close(self) -> None:
-        if self._sock is not None:
-            try:
-                self._sock.close()
-            finally:
-                self._sock = None
+        for attr in ("_sock", "_server"):
+            sock = getattr(self, attr)
+            if sock is not None:
+                try:
+                    sock.close()
+                finally:
+                    setattr(self, attr, None)
 
     # -- Framing --
 

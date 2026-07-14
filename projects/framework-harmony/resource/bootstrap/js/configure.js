@@ -39,57 +39,38 @@ if (this['__packageFolder__']) {
 }
 
 /*
-* TCP server implementation acting as a scaled down event hub, that
-* standalone framework process can connect to and communicate with.
+* TCP client that dials out to the standalone framework process' RPC
+* server. The server (the external Python process) outlives Harmony's
+* Qt Script engine, so the RPC channel survives every scene switch:
+* Harmony tears down the engine - and this socket - on each scene
+* open/create/close and simply reconnects here (from configure() at
+* launch and from the TB_scene* hooks afterwards).
 */
-function TCPServer(host, port, integration) {
+function TCPClient(host, port, integration) {
 
-    this.socket = new QTcpServer(this);
-    this.address = host;
-    this.host = new QHostAddress(host);
+    // Parent the socket to the application (not this transient engine)
+    // so the underlying C++ object is not tied to the engine's lifetime.
+    this.socket = new QTcpSocket(QCoreApplication.instance());
+    this.host = host;
     this.port = port;
     this.integration = integration;
-    this.listening = false;
     this.connected = false;
-    this.connection = null;
-    this.blocksize;
+    this.blocksize = 0;
 
-    this.start = function()
+    this.connect = function()
     {
-        this.active = false;
-        this.connection = null;
         this.blocksize = 0;
-
-        if (this.socket.listen(this.host, this.port)) {
-            info("Local event hub server started @ " + this.address + ":" + this.port);
-            this.listening  = true;
-            this.socket.newConnection.connect(this, this.handleIncomingConnection);
-            return true;
-        } else {
-            this.listening = false;
-            warning("Local Server could not start! " + this.host.toString() + ":" + this.port);
-            return false;
-        }
+        this.socket.connected.connect(this, this.onConnected);
+        this.socket.readyRead.connect(this, this.handleEvent);
+        this.socket.disconnected.connect(this, this.onDisconnect);
+        info("Connecting to ftrack RPC server @ " + this.host + ":" + this.port);
+        this.socket.connectToHost(this.host, this.port);
     }
 
-    this.handleIncomingConnection = function() {
-        info("New incoming connection");
-        try {
-            if (this.socket.hasPendingConnections())
-            {
-                this.connection = this.socket.nextPendingConnection();
-                var state = this.connection.state();
-                this.connection.readyRead.connect(this, this.handleEvent);
-                //this.connection.error.connect(this, this.onError);
-                this.connection.disconnected.connect(this, this.onDisconnect);
-                info("Client connected: " + this.connection.toString()+ " (state: "+state+")");
-                this.connected = true;
-            } else {
-                warning("No pending connections! %s" % this.connection.toString());
-            }
-        } catch(err) {
-            warning("Failed to accept new connection! "+err);
-        }
+    this.onConnected = function() {
+        info("Connected to ftrack RPC server @ " + this.host + ":" + this.port);
+        this.blocksize = 0;
+        this.connected = true;
     }
 
     this.prepareEvent = function(topic, event_data, source, in_reply_to_event) {
@@ -124,7 +105,7 @@ function TCPServer(host, port, integration) {
                 out.device().seek(0);
                 out.writeInt(data.size() - 4);
 
-                var written = this.connection.write(data);
+                var written = this.socket.write(data);
                 debug("Sent event "+JSON.stringify(raw_event)+" (length: " + written + ")");
 
                 return true;
@@ -143,21 +124,21 @@ function TCPServer(host, port, integration) {
             info("Receiving event... ");
 
             var stream = new QDataStream();
-            stream.setDevice(this.connection);
+            stream.setDevice(this.socket);
             stream.setVersion(QDataStream.Qt_4_6);
 
-            debug("Available bytes: " + this.connection.bytesAvailable());
+            debug("Available bytes: " + this.socket.bytesAvailable());
             var i = 0;
-            while (this.connection.bytesAvailable() > 0) {
+            while (this.socket.bytesAvailable() > 0) {
                 debug("Receiving event: " + i);
 
-                if ( (this.blocksize == 0 && this.connection.bytesAvailable() >= INT32_SIZE) || (this.blocksize > 0 && this.connection.bytesAvailable() >= this.blocksize) ) {
+                if ( (this.blocksize == 0 && this.socket.bytesAvailable() >= INT32_SIZE) || (this.blocksize > 0 && this.socket.bytesAvailable() >= this.blocksize) ) {
                     this.blocksize = stream.readInt();
                     debug("Event number: " + i + ", block size: " + this.blocksize);
                 }
 
-                if (this.blocksize > 0 && this.connection.bytesAvailable() >= this.blocksize) {
-                    var data = this.connection.read(this.blocksize);
+                if (this.blocksize > 0 && this.socket.bytesAvailable() >= this.blocksize) {
+                    var data = this.socket.read(this.blocksize);
 
                     // create the event
                     var raw_event = "";
@@ -191,18 +172,16 @@ function TCPServer(host, port, integration) {
     }
 
     this.onError = function(socket_error) {
-        warning("An error occurred with the event hub connection: " + socket_error.toString());
+        warning("An error occurred with the RPC server connection: " + socket_error.toString());
     }
 
     this.onDisconnect = function(socket_error) {
-        info("Client disconnected.");
-        this.connection = null;
+        info("Disconnected from ftrack RPC server.");
         this.connected = false;
     }
 
     this.close = function() {
-        this.listening = false;
-        this.socket.close()
+        this.socket.abort();
     }
 }
 
@@ -212,7 +191,7 @@ function HarmonyIntegration() {
 
     this.harmony_session_id = null;
 
-    this.tcp_server = null;
+    this.tcp_client = null;
 
     this.initialized = false;
     this.session = null;
@@ -220,7 +199,8 @@ function HarmonyIntegration() {
     this.launchers = [];
 
     /**
-    * Initialize the integration, start TCP server and listen for incoming events
+    * Initialize the integration, dial out to the standalone framework
+    * process' RPC server and listen for incoming events.
     */
     this.initializeIntegration = function() {
 
@@ -234,13 +214,18 @@ function HarmonyIntegration() {
 
         info('DCC session ID: '+this.harmony_session_id);
 
-        // Spawn TCP server and start listening to events
-
+        // Dial out to the standalone process' RPC server. That server
+        // outlives Harmony's Qt Script engine, so it is up whenever we
+        // (re)connect after a scene switch.
         var port = parseInt(System.getenv("FTRACK_INTEGRATION_LISTEN_PORT"));
-        this.tcp_server = new TCPServer("localhost", port, this);
-        this.tcp_server.start();
+        this.tcp_client = new TCPClient("localhost", port, this);
+        this.tcp_client.connect();
 
         var app = QCoreApplication.instance();
+        // Best-effort only: registered from a transient engine, so this
+        // may not fire. It is not load-bearing - the OS closes loopback
+        // sockets on exit and a Harmony quit is handled by the process
+        // watchdog in the standalone.
         app.aboutToQuit.connect(app, this.shutdown);
 
         this.initialized = true;
@@ -250,7 +235,7 @@ function HarmonyIntegration() {
     * Send event to standalone integration
     */
     this.sendEvent = function(topic, data, in_reply_to_event) {
-        this.tcp_server.send(topic, data, in_reply_to_event);
+        this.tcp_client.send(topic, data, in_reply_to_event);
     }
 
     /**
@@ -282,10 +267,19 @@ function HarmonyIntegration() {
         QCoreApplication.instance().ftrack_launchers_json =
             JSON.stringify(this.launchers);
 
+        // Menu items are dropped on every scene switch, so rebuild them
+        // on every CONTEXT_DATA (i.e. on every (re)connection).
         ftrackRebuildMenus();
 
-        // Shortcut and toolbar are registered once - unlike menu
-        // items they survive scene switches.
+        // The toolbar and shortcut persist across scene switches (unlike
+        // menu items), so build them only once. Guard on a flag stored
+        // on the persistent application so a reconnect after a scene
+        // switch does not stack duplicate toolbars/shortcuts.
+        var app = QCoreApplication.instance();
+        if (app.ftrack_ui_built) {
+            return;
+        }
+
         var ftrackToolbar = new ScriptToolbarDef( {
             id           : "ftrackToolbar",
             text         : "ftrack",
@@ -320,6 +314,8 @@ function HarmonyIntegration() {
         }
 
         ScriptManager.addToolbar(ftrackToolbar);
+
+        app.ftrack_ui_built = true;
     }
 
     /**
@@ -438,12 +434,13 @@ function HarmonyIntegration() {
     }
 
     /**
-    * Run on shutdown - tear down TCP server
+    * Run on shutdown - drop the RPC connection. Best-effort (see
+    * initializeIntegration): the standalone owns real shutdown via its
+    * process watchdog.
     */
     this.shutdown = function() {
         warning("Shutting down ftrack integration.")
-        // terminate tcp server
-        this.tcp_server.close();
+        this.tcp_client.socket.abort();
     }
 }
 
@@ -490,28 +487,27 @@ function ftrackRebuildMenus() {
 }
 
 /**
-* (Re-)stand up the ftrack integration and its TCP server. Harmony
-* destroys the Qt Script engine - and with it the TCP server - on every
-* scene open/create/close, and does NOT re-invoke configure(). The
-* TB_scene* hooks call this (after re-including this file) to bring the
-* server back so the standalone process, which retries the connection
-* indefinitely, can reconnect and rebuild the ftrack menu and toolbar.
-* The listen port and session id come from the process environment,
-* which persists for Harmony's whole lifetime.
+* (Re-)connect the ftrack integration to the standalone process' RPC
+* server. Harmony destroys the Qt Script engine - and with it this
+* engine's socket wrapper - on every scene open/create/close, and does
+* NOT re-invoke configure(). The TB_scene* hooks call this (after
+* re-including this file) to dial the still-listening server again; the
+* server re-sends its launcher context data so the ftrack menu is
+* rebuilt (the toolbar and shortcut persist). The listen port and
+* session id come from the process environment, which persists for
+* Harmony's whole lifetime.
+*
+* Always (re)connects. Harmony tears down the Qt Script engine - and
+* this engine's socket - on every scene switch, so a fresh dial is
+* required each time. We must NOT short-circuit on a previous
+* app.integration: after a scene switch it is a dead cross-engine copy
+* whose `connected` flag reads back stale-true, which would block every
+* reconnect. The standalone server aborts the stale socket when the new
+* one connects, and the menu/toolbar re-registration is idempotent
+* (stable ids), so re-connecting is safe.
 */
-function ftrackEnsureIntegration() {
+function ftrackConnectIntegration() {
     var app = QCoreApplication.instance();
-
-    // Best-effort close of any previous server so its listen port is
-    // free to bind again. The old integration object may be a lossy
-    // cross-engine copy after a scene switch, so guard defensively.
-    try {
-        if (app.integration && app.integration.tcp_server) {
-            app.integration.tcp_server.close();
-        }
-    } catch (err) {
-        MessageLog.trace("[ftrack] Could not close previous TCP server: " + err);
-    }
 
     app.integration = new HarmonyIntegration();
     app.integration.initializeIntegration();
@@ -522,7 +518,7 @@ function configure(packageFolder, packageName)
     if (about.isPaintMode())
         return;
 
-    ftrackEnsureIntegration();
+    ftrackConnectIntegration();
 }
 
 function init()
@@ -532,7 +528,7 @@ function init()
 
 // `exports` only exists when Harmony loads this file as a package. The
 // TB_scene* hooks re-include this file from a plain script scope (no
-// module system) to reuse ftrackEnsureIntegration(), so guard the
+// module system) to reuse ftrackConnectIntegration(), so guard the
 // assignments or the include would throw a ReferenceError.
 if (typeof exports !== "undefined") {
     exports.configure = configure;

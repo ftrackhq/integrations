@@ -182,9 +182,9 @@ def assert_no_running_harmony() -> None:
 class HarmonyProcess(DCCProcess):
     """A running Harmony process with the ftrack JS package loaded.
 
-    ``port`` is the port of the JS TCP server inside Harmony (the
-    port the standalone framework process - or the test playing its
-    role - connects to).
+    ``port`` is the RPC server port (the port the standalone framework
+    process - or the test playing its role - listens on, and Harmony's
+    JS package dials out to).
 
     Launched via macOS ``open`` (LaunchServices) so Harmony resolves
     its license from the app bundle context, exactly as ftrack

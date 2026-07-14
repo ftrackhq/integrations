@@ -25,11 +25,15 @@ from ftrack is a likely first action.
 
 ## What already shipped in F-1087 (not this feature)
 
-- The standalone helper now retries connecting **indefinitely** (was 2
-  min), so if the artist sits at the launch screen and then opens a
-  scene, ftrack still comes up. (`tcp_rpc.py`,
-  `_connection_attempts = -1`; the process watchdog still terminates the
-  helper when Harmony quits.)
+- The scene-switch survival mechanism was reworked: the TCP roles were
+  **inverted** (standalone Python = server, Harmony JS = client that
+  dials out), so the RPC channel outlives Harmony's engine teardown and
+  the standalone no longer retries/reconnects. See
+  `docs/specs/2026-07-14-harmony-menu-survives-scene-switch-design.md`.
+  (This obsoletes the earlier "helper retries connecting indefinitely /
+  `_connection_attempts = -1`" note.) The point below still holds: the
+  ftrack package is inert at the no-scene launch screen regardless of
+  transport, which is why launching straight into a scene is proposed.
 
 ## Proposed approach (deferred): launch straight into a scene
 

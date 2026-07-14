@@ -78,8 +78,13 @@ def harmony_launcher(request):
 def harmony_process(request, harmony_launcher):
     """A running Harmony instance with the ftrack JS package deployed.
 
-    Module-scoped: the JS TCP server holds a single client
-    connection, so each test module gets its own Harmony.
+    Module-scoped: the integration holds a single client connection, so
+    each test module gets its own Harmony.
+
+    No scene is created here: Harmony only dials the RPC server once a
+    scene is open, and the server (the test in tier-1, the real
+    standalone in tier-2) must be listening first. The consuming fixture
+    therefore starts its server and then creates the scene.
     """
     config = LaunchConfig(
         dcc_executable=request.config.getoption("dcc_executable"),
@@ -90,46 +95,41 @@ def harmony_process(request, harmony_launcher):
     except FileNotFoundError as error:
         pytest.skip(f"Harmony not installed: {error}")
 
-    # The ftrack JS package's TCP server only comes up once a scene
-    # is open, so create a temporary one (cleaned up on teardown).
-    scene_dir = None
-    try:
-        scene_dir = harmony_launcher.create_new_scene(process)
-    except Exception as error:
-        process.terminate()
-        pytest.fail(
-            f"Could not create a Harmony scene: {error}\n"
-            f"--- Harmony windows ---\n"
-            f"{process.describe_windows()}"
-        )
-
     yield process
 
     process.terminate()
-    if scene_dir is not None:
-        shutil.rmtree(scene_dir, ignore_errors=True)
 
 
 @pytest.fixture(scope="module")
-def harmony_connection(request, harmony_process):
-    """Connected RPC client, context-data handshake completed.
+def harmony_connection(request, harmony_launcher, harmony_process):
+    """Accepted RPC connection from Harmony, context-data handshake done.
 
-    The test process plays the role of the standalone framework
-    process here.
+    The test process plays the standalone framework process' server
+    role: it listens on the integration port, creates a scene (so
+    Harmony's JS package dials out - it only connects once a scene is
+    open), accepts the connection and completes the context-data
+    handshake.
     """
     client = HarmonyRPCTestClient(
         harmony_process.host,
         harmony_process.port,
         harmony_process.session_id,
     )
+    scene_dir = None
     try:
-        client.connect_with_retry(
+        client.listen()
+        # Now that the server is listening, create a scene so Harmony
+        # dials out to it.
+        scene_dir = harmony_launcher.create_new_scene(harmony_process)
+        client.accept(
             is_alive=harmony_process.is_alive,
             timeout=request.config.getoption("dcc_startup_timeout"),
         )
         client.handshake()
-    except (TimeoutError, RuntimeError, ConnectionError) as error:
+    except (TimeoutError, RuntimeError, ConnectionError, OSError) as error:
         client.close()
+        if scene_dir is not None:
+            shutil.rmtree(scene_dir, ignore_errors=True)
         pytest.fail(
             f"Harmony integration did not come up: {error}\n"
             f"--- Harmony windows (stuck at a dialog?) ---\n"
@@ -139,6 +139,8 @@ def harmony_connection(request, harmony_process):
     yield client
 
     client.close()
+    if scene_dir is not None:
+        shutil.rmtree(scene_dir, ignore_errors=True)
 
 
 @dataclass
@@ -189,6 +191,7 @@ def standalone_bundle(request, harmony_launcher, harmony_process):
     )
 
     client = None
+    scene_dir = None
     startup_timeout = request.config.getoption("dcc_startup_timeout")
     try:
         port = harmony_launcher._wait_for_port_file(
@@ -205,7 +208,17 @@ def standalone_bundle(request, harmony_launcher, harmony_process):
                     raise
                 time.sleep(0.5)
 
-        # Wait until the integration has connected to Harmony.
+        # The standalone is now the RPC server; Harmony dials it. A
+        # synchronous execute blocks until the Qt event loop runs, which
+        # is only reached after bootstrap_integration() has bound the RPC
+        # port - so the server is listening before we make Harmony dial.
+        client.execute("__result__ = True")
+
+        # Now that the standalone is listening, create a scene so Harmony
+        # dials out to it (it only connects once a scene is open).
+        scene_dir = harmony_launcher.create_new_scene(harmony_process)
+
+        # Wait until Harmony has connected to the standalone.
         deadline = time.monotonic() + startup_timeout
         while True:
             connected = client.execute(
@@ -218,7 +231,7 @@ def standalone_bundle(request, harmony_launcher, harmony_process):
                 break
             if time.monotonic() > deadline:
                 pytest.fail(
-                    "Standalone process never connected to Harmony.\n"
+                    "Harmony never connected to the standalone process.\n"
                     f"--- standalone output tail ---\n{tail_file(log_path)}\n"
                     f"--- Harmony windows ---\n"
                     f"{harmony_process.describe_windows()}"
@@ -229,6 +242,8 @@ def standalone_bundle(request, harmony_launcher, harmony_process):
             client.disconnect()
         process.kill()
         process.wait(timeout=10)
+        if scene_dir is not None:
+            shutil.rmtree(scene_dir, ignore_errors=True)
         raise
     finally:
         try:
@@ -255,3 +270,5 @@ def standalone_bundle(request, harmony_launcher, harmony_process):
         process.kill()
         process.wait(timeout=10)
     client.disconnect()
+    if scene_dir is not None:
+        shutil.rmtree(scene_dir, ignore_errors=True)
