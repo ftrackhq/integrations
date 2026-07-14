@@ -198,6 +198,13 @@ function HarmonyIntegration() {
 
     this.launchers = [];
 
+    // Whether the ftrack toolbar and shortcut have been built for THIS
+    // connection. A fresh HarmonyIntegration is created on every
+    // (re)connect (see ftrackConnectIntegration), so this resets on each
+    // scene switch - which is exactly what we want, because the toolbar
+    // and shortcut do NOT survive a scene switch and must be rebuilt.
+    this.ftrack_ui_built = false;
+
     /**
     * Initialize the integration, dial out to the standalone framework
     * process' RPC server and listen for incoming events.
@@ -271,12 +278,16 @@ function HarmonyIntegration() {
         // on every CONTEXT_DATA (i.e. on every (re)connection).
         ftrackRebuildMenus();
 
-        // The toolbar and shortcut persist across scene switches (unlike
-        // menu items), so build them only once. Guard on a flag stored
-        // on the persistent application so a reconnect after a scene
-        // switch does not stack duplicate toolbars/shortcuts.
-        var app = QCoreApplication.instance();
-        if (app.ftrack_ui_built) {
+        // The toolbar and shortcut do NOT survive a scene switch (Harmony
+        // tears them down along with the menu items), so they must be
+        // rebuilt on each (re)connection - same trick as the menu. Guard
+        // on the INSTANCE flag, not the persistent application: a fresh
+        // HarmonyIntegration exists per (re)connect, so the flag is false
+        // again after every scene switch (toolbar gets rebuilt), while a
+        // second CONTEXT_DATA on the same connection won't stack a
+        // duplicate. Stable ids ("ftrackToolbar"/"ftrackShortcut") also
+        // make a re-add idempotent should the toolbar ever persist.
+        if (this.ftrack_ui_built) {
             return;
         }
 
@@ -315,7 +326,7 @@ function HarmonyIntegration() {
 
         ScriptManager.addToolbar(ftrackToolbar);
 
-        app.ftrack_ui_built = true;
+        this.ftrack_ui_built = true;
     }
 
     /**
@@ -492,10 +503,10 @@ function ftrackRebuildMenus() {
 * engine's socket wrapper - on every scene open/create/close, and does
 * NOT re-invoke configure(). The TB_scene* hooks call this (after
 * re-including this file) to dial the still-listening server again; the
-* server re-sends its launcher context data so the ftrack menu is
-* rebuilt (the toolbar and shortcut persist). The listen port and
-* session id come from the process environment, which persists for
-* Harmony's whole lifetime.
+* server re-sends its launcher context data so the ftrack menu, toolbar
+* and shortcut are all rebuilt (none of them survive a scene switch).
+* The listen port and session id come from the process environment,
+* which persists for Harmony's whole lifetime.
 *
 * Always (re)connects. Harmony tears down the Qt Script engine - and
 * this engine's socket - on every scene switch, so a fresh dial is

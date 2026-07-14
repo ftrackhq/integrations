@@ -7,7 +7,7 @@
  * (dropping script-added items). This hook reconnects the integration to
  * the standalone process' RPC server after each scene open; on reconnect
  * the standalone re-sends its context data, which rebuilds the ftrack
- * menu (the toolbar and shortcut persist).
+ * menu, toolbar and shortcut (none of them survive a scene switch).
  *
  * A user-level TB_sceneOpened OVERRIDES Harmony's default one, so we
  * CHAIN: include the default, keep a reference and call it before our
@@ -69,8 +69,8 @@ TB_sceneOpened = function() {
  * immediately, without waiting for the async reconnect + context-data
  * round trip. The reconnect then restores the RPC channel (so the menu
  * actions work) and the standalone re-sends its context data, which
- * rebuilds the menu once more (idempotent, stable ids); the toolbar and
- * shortcut persist across scene switches.
+ * rebuilds the menu once more (idempotent, stable ids) and rebuilds the
+ * toolbar and shortcut, which do not survive a scene switch either.
  */
 function ftrackReconnectHook() {
     try {
