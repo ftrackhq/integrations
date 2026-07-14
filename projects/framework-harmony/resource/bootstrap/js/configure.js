@@ -293,7 +293,7 @@ function HarmonyIntegration() {
 
         var ftrackToolbar = new ScriptToolbarDef( {
             id           : "ftrackToolbar",
-            text         : "ftrack",
+            text         : "Ftrack",
             customizable : "false"
         } );
 
@@ -307,9 +307,9 @@ function HarmonyIntegration() {
             if (name == "publish") {
                 ScriptManager.addShortcut( {
                     id           : "ftrackShortcut",
-                    text         : "ftrack "+label+" ...",
+                    text         : "Ftrack "+label+" ...",
                     action       : action,
-                    longDesc     : "ftrack integration",
+                    longDesc     : "Ftrack integration",
                     order        : "256",
                     categoryId   : "ftrack",
                     categoryText : "Scripts"
@@ -490,7 +490,7 @@ function ftrackRebuildMenus() {
             targetMenuId : "File",
             id           : "ftrackMenu"+name+"ID",
             icon         : "ftrack.png",
-            text         : "ftrack "+label,
+            text         : "Ftrack "+label,
             action       : "launch_"+name+" in ./configure.js"
         } );
     }
