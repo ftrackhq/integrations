@@ -74,18 +74,9 @@ def harmony_launcher(request):
         pytest.skip(f"Cannot set up Harmony launcher: {error}")
 
 
-@pytest.fixture(scope="module")
-def harmony_process(request, harmony_launcher):
-    """A running Harmony instance with the ftrack JS package deployed.
-
-    Module-scoped: the integration holds a single client connection, so
-    each test module gets its own Harmony.
-
-    No scene is created here: Harmony only dials the RPC server once a
-    scene is open, and the server (the test in tier-1, the real
-    standalone in tier-2) must be listening first. The consuming fixture
-    therefore starts its server and then creates the scene.
-    """
+def _harmony_process_impl(request, harmony_launcher):
+    """Launch Harmony and tear it down. Shared by the module- and
+    function-scoped ``harmony_process`` fixtures."""
     config = LaunchConfig(
         dcc_executable=request.config.getoption("dcc_executable"),
         startup_timeout=request.config.getoption("dcc_startup_timeout"),
@@ -98,6 +89,34 @@ def harmony_process(request, harmony_launcher):
     yield process
 
     process.terminate()
+
+
+@pytest.fixture(scope="module")
+def harmony_process(request, harmony_launcher):
+    """A running Harmony instance with the ftrack JS package deployed.
+
+    Module-scoped: the integration holds a single client connection, so
+    each test module gets its own Harmony.
+
+    No scene is created here: Harmony only dials the RPC server once a
+    scene is open, and the server (the test in tier-1, the real
+    standalone in tier-2) must be listening first. The consuming fixture
+    therefore starts its server and then creates the scene.
+    """
+    yield from _harmony_process_impl(request, harmony_launcher)
+
+
+@pytest.fixture(scope="function")
+def harmony_process_function(request, harmony_launcher):
+    """Function-scoped Harmony: a fresh instance per test, torn down
+    between tests.
+
+    For tests that kill Harmony (see ``test_process_cleanup.py``) - only
+    one Harmony may run at a time (``assert_no_running_harmony``), so
+    each such test needs its own instance rather than a shared
+    module-scoped one.
+    """
+    yield from _harmony_process_impl(request, harmony_launcher)
 
 
 @pytest.fixture(scope="module")
@@ -154,15 +173,10 @@ class StandaloneBundle:
     log_path: str
 
 
-@pytest.fixture(scope="module")
-def standalone_bundle(request, harmony_launcher, harmony_process):
-    """Spawn the real standalone framework process next to Harmony.
-
-    Mirrors Connect's ``--run-framework-standalone`` helper: same
-    environment as Harmony (incl. ``FTRACK_APPLICATION_PID`` so the
-    watchdog monitors the right process) plus the ftrack credentials
-    Connect injects. Skips when credentials are unavailable. Yields a
-    ``StandaloneBundle`` (harness client + process handle).
+def _standalone_bundle_impl(request, harmony_launcher, harmony_process):
+    """Spawn the real standalone framework process next to Harmony and
+    tear it down. Shared by the module- and function-scoped
+    ``standalone_bundle`` fixtures.
     """
     credentials = resolve_ftrack_credentials()
     if credentials is None:
@@ -272,3 +286,33 @@ def standalone_bundle(request, harmony_launcher, harmony_process):
     client.disconnect()
     if scene_dir is not None:
         shutil.rmtree(scene_dir, ignore_errors=True)
+
+
+@pytest.fixture(scope="module")
+def standalone_bundle(request, harmony_launcher, harmony_process):
+    """Module-scoped standalone framework process next to Harmony.
+
+    Mirrors Connect's ``--run-framework-standalone`` helper: same
+    environment as Harmony (incl. ``FTRACK_APPLICATION_PID`` so the
+    watchdog monitors the right process) plus the ftrack credentials
+    Connect injects. Skips when credentials are unavailable. Yields a
+    ``StandaloneBundle`` (harness client + process handle).
+    """
+    yield from _standalone_bundle_impl(
+        request, harmony_launcher, harmony_process
+    )
+
+
+@pytest.fixture(scope="function")
+def standalone_bundle_function(
+    request, harmony_launcher, harmony_process_function
+):
+    """Function-scoped standalone bundle: a fresh Harmony + standalone
+    per test, torn down between tests.
+
+    For the process-cleanup tests, which kill Harmony and so cannot
+    share a single module-scoped instance.
+    """
+    yield from _standalone_bundle_impl(
+        request, harmony_launcher, harmony_process_function
+    )

@@ -212,6 +212,36 @@ class HarmonyProcess(DCCProcess):
         """Current window titles, to diagnose a stuck dialog."""
         return list_windows(self.process_name)
 
+    def quit(self, timeout: float = 20.0) -> None:
+        """Quit Harmony gracefully, as a user closing the app would.
+
+        Simulates a *clean* exit (distinct from ``terminate()``'s
+        SIGKILL crash): asks the app to quit via LaunchServices
+        (``osascript ... to quit``) on macOS, or SIGTERM elsewhere, then
+        SIGKILL-sweeps anything still lingering so the next launch's
+        license check is not broken.
+        """
+        if platform.system() == "Darwin":
+            _osascript(f'tell application "{self.process_name}" to quit')
+        elif self.harmony_pid:
+            try:
+                os.kill(self.harmony_pid, signal.SIGTERM)
+            except OSError:
+                pass
+
+        deadline = time.monotonic() + timeout
+        while self.is_alive() and time.monotonic() < deadline:
+            time.sleep(0.2)
+
+        # Ensure a clean slate for subsequent launches even if the
+        # graceful quit stalled (e.g. an unsaved-changes prompt).
+        if self.is_alive():
+            logger.warning(
+                "Harmony (pid=%d) did not quit gracefully, forcing.",
+                self.harmony_pid,
+            )
+            self.terminate()
+
     def terminate(self, timeout: float = 10.0) -> None:
         """Kill Harmony and any helper processes it forked.
 

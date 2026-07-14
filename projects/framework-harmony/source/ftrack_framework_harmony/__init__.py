@@ -2,6 +2,7 @@
 # :copyright: Copyright (c) 2024 ftrack
 import logging
 import os
+import re
 import subprocess
 import traceback
 import platform
@@ -102,6 +103,35 @@ def on_listen_failure_callback():
     sys.exit(-1)
 
 
+def _is_matching_harmony_pid(pid):
+    """Return True when *pid* is a live Harmony process.
+
+    ``os.kill(pid, 0)`` only proves *some* process holds the PID - once
+    Harmony exits the OS is free to reuse its PID, so a bare liveness
+    check would keep reporting Harmony as running and the watchdog would
+    never fire. Confirm the PID's command line really is Harmony (mirrors
+    the Photoshop integration's ``_is_matching_photoshop_pid``).
+    """
+    try:
+        if sys.platform in ("darwin", "linux"):
+            command = subprocess.check_output(
+                ["ps", "-p", str(pid), "-o", "command="],
+                text=True,
+            ).strip()
+            return bool(
+                re.search(r"[Hh]armony (Premium|Advanced|Essentials)", command)
+            )
+        elif sys.platform == "win32":
+            output = subprocess.check_output(
+                ["tasklist", "/FI", f"PID eq {pid}", "/FO", "CSV", "/NH"],
+                text=True,
+            )
+            return "Harmony" in output
+    except (subprocess.CalledProcessError, FileNotFoundError, ValueError):
+        return False
+    return False
+
+
 def probe_harmony_pid():
     """Return the PID of the Harmony process to monitor, or None.
 
@@ -113,10 +143,13 @@ def probe_harmony_pid():
     if expected:
         try:
             pid = int(expected)
-            os.kill(pid, 0)  # Raises OSError if the process is gone.
+        except ValueError:
+            pid = None
+        # Trust the hint only while it still resolves to Harmony - a
+        # dead or reused PID must fall through to the name-based probe
+        # (and ultimately return None) so the watchdog can shut us down.
+        if pid is not None and _is_matching_harmony_pid(pid):
             return pid
-        except (ValueError, OSError):
-            pass
 
     if sys.platform in ("darwin", "linux"):
         try:
