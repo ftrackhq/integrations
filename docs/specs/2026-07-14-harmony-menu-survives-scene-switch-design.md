@@ -98,9 +98,15 @@ keeps the proven synchronous re-registration:
    server; on connect the server re-sends CONTEXT_DATA which rebuilds
    the menu again (idempotent) **and makes the items functional** (the
    RPC channel is live).
-3. **Toolbar + shortcut** are built **once**, guarded by
-   `app.ftrack_ui_built` (they persist across scene switches; the guard
-   prevents duplicates on reconnect).
+3. **Toolbar + shortcut** are rebuilt on each (re)connection too — they
+   do **not** survive a scene switch either. They are guarded by an
+   **instance** flag `this.ftrack_ui_built` on the `HarmonyIntegration`
+   (recreated per reconnect), so they rebuild once per scene switch while
+   a second CONTEXT_DATA on the same connection can't stack a duplicate.
+   Stable ids (`ftrackToolbar`/`ftrackShortcut`) keep the re-add
+   idempotent. (See "The toolbar-persistence bug" below — the guard was
+   originally on the persistent application object, which stuck `true`
+   across scene switches and blocked every rebuild.)
 
 ## The idempotency-guard bug (found during verification)
 
@@ -125,6 +131,25 @@ aborts the stale socket when the new one connects
 (`_on_new_connection`), and the menu/toolbar re-registration is
 idempotent.
 
+## The toolbar-persistence bug (found after the flip)
+
+Same shape as the guard bug above, on a different object. The toolbar
+and shortcut were built once behind `app.ftrack_ui_built` — a flag on
+the persistent `QCoreApplication`, chosen on the (wrong) assumption that
+"the toolbar and shortcut persist across scene switches." They do not:
+Harmony tears them down with the menu items on every scene switch. But
+the flag lives on the app object, which *does* outlive scene switches,
+so after the first build it stayed `true` and every later scene switch
+skipped the rebuild — the toolbar vanished after the first switch while
+the (unguarded) menu items kept coming back.
+
+**Fix:** move the guard from the persistent application to the
+per-connection `HarmonyIntegration` instance (`this.ftrack_ui_built`),
+which is recreated on every reconnect. The flag is therefore `false`
+again after each scene switch, so the toolbar and shortcut are rebuilt
+alongside the menu, while a second CONTEXT_DATA on one connection still
+can't stack a duplicate.
+
 ## Changes by file
 
 - **`utils/tcp_rpc.py`** — server role. New `listen(on_listen_failure)`
@@ -142,8 +167,9 @@ idempotent.
   **only** shutdown trigger. `setQuitOnLastWindowClosed(False)` kept.
 - **`configure.js`** — `TCPServer` → `TCPClient` (dials out, socket
   parented to the app). `handleIntegrationContextDataCallback` rebuilds
-  the menu on every CONTEXT_DATA and guards toolbar+shortcut behind
-  `ftrack_ui_built`. `ftrackEnsureIntegration` → `ftrackConnectIntegration`
+  the menu on every CONTEXT_DATA and rebuilds toolbar+shortcut once per
+  connection, guarded by the instance flag `this.ftrack_ui_built`.
+  `ftrackEnsureIntegration` → `ftrackConnectIntegration`
   (no guard, no close-previous-server block). `shutdown` →
   `tcp_client.socket.abort()`, `aboutToQuit` best-effort only.
 - **`TB_sceneOpened.js` / `TB_sceneCreated.js`** — each hook chains the
@@ -183,8 +209,9 @@ Deploy per the build+deploy rule (`uv build` **without** `--from_source`,
 **with** `--include_resources resource/bootstrap`; deploy the Connect
 plugin; restart Connect with `FTRACK_CONNECT_PLUGIN_PATH`; relaunch
 Harmony so the new JS is deployed). Confirmed working across repeated
-File > New / File > Open: the ftrack menu stays present and clickable,
-the toolbar is not duplicated, and the standalone log shows a fresh
+File > New / File > Open: the ftrack menu, toolbar and shortcut all stay
+present and clickable, the toolbar is neither dropped nor duplicated,
+and the standalone log shows a fresh
 `Successfully established connection` + CONTEXT_DATA after **every**
 scene switch (not just the first), with startup tools running exactly
 once.
