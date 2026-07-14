@@ -625,6 +625,26 @@ class ApplicationLauncher(object):
 
             launchData["command"].extend(launch_arguments)
 
+            # When an integration injects file launch arguments (e.g. a scene
+            # for the DCC to open on startup), macOS' bare `open <app> <file>`
+            # does not reliably route the file into a fresh instance of that
+            # app. The verified form is `open -n -a <app> <file>`. Only rewrite
+            # when a hook actually injected launch arguments, so every other
+            # DCC's `open <app>` launch is left untouched. Console launch uses
+            # the executable directly (no leading "open"), so it is skipped.
+            if (
+                self.current_os == "darwin"
+                and launch_arguments
+                and len(launchData["command"]) >= 2
+                and launchData["command"][0] == "open"
+                and str(launchData["command"][1]).lower().endswith(".app")
+            ):
+                launchData["command"] = (
+                    launchData["command"][:1]
+                    + ["-n", "-a"]
+                    + launchData["command"][1:]
+                )
+
             self._notify_integration_use(results, application)
 
             if context.get("integrations"):

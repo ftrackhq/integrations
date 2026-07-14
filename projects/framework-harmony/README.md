@@ -89,6 +89,36 @@ deferred spike.
 - **Open** a published scene snapshot back into the running Harmony
   session (`scene.closeSceneAndOpenOffline`).
 
+### Launch into a scene
+
+Harmony does not initialize package scripts until a scene UI loads, so at
+the welcome/staging screen the ftrack package never starts and no ftrack
+menu, toolbar or Opener is available. To make the tools available
+immediately, the Connect launch hook stages a per-launch copy of a bundled
+blank **bootstrap scene** (`resource/bootstrap/scene/ftrack_bootstrap`) and
+passes its `.xstage` to the launch command, so Harmony boots straight into a
+scene and the integration comes up within ~10 s. The artist then uses
+`File > ftrack Open` to open their real scene, which replaces the bootstrap
+scene. The staged copy is removed when Harmony exits (by the standalone
+process watchdog).
+
+On macOS this relies on Connect launching `open -n -a <app> <scene.xstage>`
+(the launcher rewrites the bare `open <app>` form only when an integration
+injects a file argument); Windows/Linux receive the scene as a positional
+argument to the executable.
+
+This is controlled by `FTRACK_HARMONY_LAUNCH_INTO_SCENE` (default on).
+Configure it per variant in the launch config's `environment_variables`
+block (`extensions/launch/harmony-launch-{premium,advanced,essentials}.yaml`):
+
+```yaml
+environment_variables:
+  FTRACK_HARMONY_LAUNCH_INTO_SCENE: "0"   # land on the welcome screen
+```
+
+The Connect process environment is used as a fallback if the variable is not
+set in the launch config. Any of `0`/`false`/`no`/`off` disables it.
+
 Loader and asset-manager workflows are deferred (see the release notes).
 Opening a scene closes the current one — it does not prompt to save
 first (a future improvement). The scene snapshot currently zips the

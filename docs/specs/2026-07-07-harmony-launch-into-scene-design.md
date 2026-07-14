@@ -1,6 +1,6 @@
 # Harmony: make ftrack tools available at the launch screen
 
-Status: deferred / future work
+Status: implemented (approach A — launch into a bundled bootstrap scene)
 Context: F-1087 (framework-harmony MVP), PR #656
 
 ## Problem
@@ -35,7 +35,62 @@ from ftrack is a likely first action.
   ftrack package is inert at the no-scene launch screen regardless of
   transport, which is why launching straight into a scene is proposed.
 
-## Proposed approach (deferred): launch straight into a scene
+## Implemented approach (A): launch straight into a scene
+
+Never land on the launch screen. Connect launches Harmony with a bundled
+blank bootstrap scene so the full UI (and thus the ftrack package +
+`File > ftrack Open`) is live within ~10 s.
+
+### What shipped
+
+- **Bundled bootstrap scene** at
+  `projects/framework-harmony/resource/bootstrap/scene/ftrack_bootstrap`.
+  Created from a pristine `File > New` scene, then minimised empirically
+  (each variant re-opened from a *staged* path to confirm a clean, prompt-
+  free load) to 5 flat files (~24 KB): `ftrack_bootstrap.xstage`,
+  `audio.tbl`, `scene.elementTable`, `scene.versionTable`, and a
+  header-only `PALETTE_LIST`. Dropped as unnecessary: `.aux` (recovery),
+  `files.vdb` (Harmony regenerates it on open), the default pencil-texture
+  palette (1.1 MB, unreferenced by the `.xstage`), and all subdirectories
+  (Harmony recreates the structure it needs). No absolute paths and no
+  local-username metadata are committed (the `.xstage`/table `username`
+  attributes are sanitised to `ftrack`).
+- **Launch hook** (`connect-plugin/hook/discover_ftrack_framework_harmony.py`):
+  `stage_bootstrap_scene()` copies the bundled folder into a fresh
+  `tempfile.mkdtemp(prefix="ftrack_harmony_bootstrap_")` and returns the
+  staged `.xstage`, which `on_launch_integration` appends to
+  `integration["launch_arguments"]`. The temp root is exported as
+  `FTRACK_HARMONY_BOOTSTRAP_SCENE` for cleanup.
+- **Connect launcher** (`apps/connect/.../application_launcher/__init__.py`):
+  after appending integration `launch_arguments`, on macOS it rewrites
+  `["open", <app>.app, <file...>]` to `["open", "-n", "-a", <app>.app,
+  <file...>]` — but only when a hook actually injected file arguments, so
+  every other DCC's `open <app>` launch is unchanged. Windows/Linux receive
+  the scene as a positional argument with no launcher change.
+- **Cleanup** (`source/ftrack_framework_harmony/__init__.py`):
+  `cleanup_bootstrap_scene()` removes the staged temp root, called from the
+  process watchdog (`process_watchdog_callback`) just before
+  `terminate_current_process()` when Harmony exits. Best-effort; the OS also
+  reclaims the temp dir.
+- **Toggle**: `FTRACK_HARMONY_LAUNCH_INTO_SCENE` (default on). Configured per
+  variant in the launch config's `environment_variables` block
+  (`extensions/launch/harmony-launch-{premium,advanced,essentials}.yaml`);
+  `launch_into_scene_enabled()` reads it from the launch event
+  (`application["environment_variables"]`) with the Connect process
+  environment as a fallback. A falsy value (`0`/`false`/`no`/`off`) skips
+  staging so Harmony lands on the normal welcome/staging screen — today's
+  behaviour. Could later surface as a Connect launcher preference/checkbox
+  writing the same variable.
+
+### Follow-up (approach B, deferred)
+
+Present the ftrack Opener *before* launch and boot Harmony directly into the
+chosen real scene (passed via the same `launch_arguments` path), skipping the
+bootstrap-scene → real-scene switch. Reuses A's launcher plumbing; needs
+reordering the launch orchestration (chooser → launch) and a "launch blank"
+escape hatch that falls back to A.
+
+### Original proposal (retained for context)
 
 Never land on the launch screen. Have Connect launch Harmony with a
 scene so the full UI (and thus the ftrack package + `File > ftrack

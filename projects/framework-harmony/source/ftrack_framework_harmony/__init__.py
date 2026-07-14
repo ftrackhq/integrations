@@ -3,6 +3,7 @@
 import logging
 import os
 import re
+import shutil
 import subprocess
 import traceback
 import platform
@@ -191,6 +192,21 @@ def probe_harmony_pid():
     return None
 
 
+def cleanup_bootstrap_scene():
+    """Remove the staged bootstrap scene copy, if any.
+
+    The launch hook stages a throwaway copy of the bundled blank scene and
+    passes its temp root via ``FTRACK_HARMONY_BOOTSTRAP_SCENE``. Remove it
+    when the standalone shuts down so staged copies do not accumulate.
+    Best-effort: the OS also reclaims the temp directory eventually.
+    """
+    stage_root = os.environ.get("FTRACK_HARMONY_BOOTSTRAP_SCENE")
+    if not stage_root or not os.path.isdir(stage_root):
+        return
+    logger.info("Removing staged bootstrap scene: {}".format(stage_root))
+    shutil.rmtree(stage_root, ignore_errors=True)
+
+
 def process_watchdog_callback():
     """Terminate the standalone process when Harmony is no longer running.
 
@@ -200,6 +216,7 @@ def process_watchdog_callback():
     """
     if process_monitor and not process_monitor.check_running():
         logger.warning("Harmony process is gone, shutting down.")
+        cleanup_bootstrap_scene()
         terminate_current_process()
 
 

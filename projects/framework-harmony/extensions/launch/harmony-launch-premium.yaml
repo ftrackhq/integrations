@@ -40,6 +40,12 @@ search_path:
       - Toon Boom Harmony*
       - Harmony \d[\w.]+ Premium.app
 standalone_module: ftrack_framework_harmony
+environment_variables:
+  # Launch Harmony straight into a bundled blank scene so the ftrack menu,
+  # toolbar and Opener are available immediately (Harmony does not start the
+  # ftrack package at its welcome screen). Set to "0" to keep the normal
+  # welcome/staging screen instead.
+  FTRACK_HARMONY_LAUNCH_INTO_SCENE: "1"
 extensions_path:
   - extensions/common
   - extensions/harmony
