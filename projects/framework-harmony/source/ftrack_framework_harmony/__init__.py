@@ -10,9 +10,9 @@ import platform
 import sys
 
 try:
-    from PySide6 import QtWidgets, QtCore
+    from PySide6 import QtWidgets, QtCore, QtGui
 except ImportError:
-    from PySide2 import QtWidgets, QtCore
+    from PySide2 import QtWidgets, QtCore, QtGui
 
 from ftrack_framework_core.host import Host
 from ftrack_framework_core.event import EventManager
@@ -79,6 +79,56 @@ if not app:
 # terminates it: Harmony drops the socket on every scene switch and
 # simply reconnects to the still-listening server.
 app.setQuitOnLastWindowClosed(False)
+
+
+def _get_application_icon():
+    """Return icon for the Harmony standalone helper app, if available."""
+    module_dir = os.path.abspath(os.path.dirname(__file__))
+    candidates = [
+        # Resolves in both the source tree and the built Connect plugin:
+        # <root>/resource/bootstrap/icons/ftrack.png is a sibling of the
+        # module's package parent in both layouts.
+        os.path.join(
+            module_dir,
+            "..",
+            "..",
+            "resource",
+            "bootstrap",
+            "icons",
+            "ftrack.png",
+        ),
+    ]
+    # Fallback: the launch hook prepends resource/bootstrap to PYTHONPATH, so
+    # the icon is also reachable relative to a sys.path entry.
+    for path_entry in sys.path:
+        candidates.append(os.path.join(path_entry, "icons", "ftrack.png"))
+
+    for candidate in candidates:
+        if os.path.isfile(candidate):
+            icon = QtGui.QIcon(candidate)
+            if icon.isNull():
+                logger.debug(
+                    "Helper icon exists but failed to load: %s", candidate
+                )
+                continue
+            logger.info("Using helper icon: %s", candidate)
+            return icon
+    return None
+
+
+def _configure_application_identity():
+    """Set the standalone process app icon."""
+    icon = _get_application_icon()
+    if icon and not icon.isNull():
+        app.setWindowIcon(icon)
+        logger.info("Applied helper app icon.")
+    else:
+        logger.warning(
+            "No helper icon asset found, using default Python icon."
+        )
+
+
+_configure_application_identity()
 
 
 def on_run_tool_callback(tool_name, dialog_name=None, options=None):
