@@ -135,7 +135,7 @@ def sync_js_plugin(app_path, framework_extensions_paths, bootstrap_path=None):
     :param app_path: The full path to DCC executable.
     :param framework_extensions_paths: List of paths to scan for extensions.
         Currently unused, kept for backwards compatibility (JS extensions
-        support was removed in #568).
+        support has been removed).
     :param bootstrap_path: Path to the bootstrap resource folder to deploy,
         defaults to the resource/bootstrap folder within the built Connect
         plugin. The tests pass this explicitly when run against the source

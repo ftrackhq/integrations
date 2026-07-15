@@ -12,8 +12,8 @@ Harmony.
 
 Requires ftrack credentials (``FTRACK_SERVER``/``FTRACK_API_KEY``
 env vars, or a previous ftrack Connect login) - skipped without
-them. This module covers the exact bootstrap chain that failed with
-the pre-#641 builds (``registry.scan_extensions`` on Python 3.13).
+them. This module covers the exact bootstrap chain that previously
+crashed on Python 3.13 in ``registry.scan_extensions``.
 """
 
 import re
@@ -46,8 +46,9 @@ def test_client_bootstrapped(standalone_bundle):
 
 
 def test_registry_scanned(standalone_bundle):
-    """Extensions were scanned (the pre-#641 py3.13 crash site),
-    including the new opener/snapshot extensions."""
+    """Extensions were scanned (previously crashed on Python 3.13 in
+    ``registry.scan_extensions``), including the new opener/snapshot
+    extensions."""
     result = standalone_bundle.client.execute(
         "import ftrack_framework_harmony as fh\n"
         "registry = fh.client_instance.registry\n"

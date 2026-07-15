@@ -20,7 +20,7 @@
 * [feat] Automated launch/bootstrap tests via the `dcc-test-harness` library, hooking into the Connect launcher 1:1 (tier 1: JS package + menu + RPC; tier 2: full standalone-process bootstrap).
 * [doc] README aligned with the other projects and documents the two-process architecture, supported Harmony versions (22–27) and Toon Boom API validity.
 * [ci] Enable the Connect-plugin CI build for framework-harmony.
-* Note: opener/loader/asset-manager workflows remain deferred. A migration of the DCC command surface from JS-eval RPC to Toon Boom's external Python API (Harmony 24+) is tracked as a future spike; the current JS/TCP interaction model is unchanged.
+* Note: opener/loader/asset-manager workflows remain deferred. A migration of the DCC command surface from JS-eval RPC to Toon Boom's external Python API (Harmony 24+) is deferred; the current JS/TCP interaction model is unchanged.
 
 
 ## v24.6.0rc1

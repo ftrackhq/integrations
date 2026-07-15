@@ -79,7 +79,7 @@ The interaction model still relies on Harmony's Qt Script engine and the
 through Harmony 27. Toon Boom's newer external Python API
 (`from ToonBoom import harmony`, Harmony 24+) is a possible future
 alternative for the command surface — see the release notes for the
-deferred spike.
+deferred migration.
 
 ## Functionality
 

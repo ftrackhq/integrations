@@ -2,10 +2,7 @@
 
 A pytest-based test framework for DCC (Digital Content Creation) applications. Write tests in standard Python and pytest while they execute inside Maya, Nuke, Houdini, or any Qt-based DCC.
 
-> Vendored into the integrations monorepo from
-> [ftrackhq/dcc-test-harness](https://github.com/ftrackhq/dcc-test-harness)
-> @ `dev` (a273c58) so all integration projects can consume it as a
-> local path dependency.
+> Local path dependency used by the integration projects in this monorepo.
 
 ## How it works
 
