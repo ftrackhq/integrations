@@ -16,6 +16,7 @@
 | libs/constants/source/ftrack\_constants/qt/\_\_init\_\_.py                    |        1 |        0 |    100% |           |
 | libs/constants/source/ftrack\_constants/qt/theme/\_\_init\_\_.py              |        4 |        0 |    100% |           |
 | libs/constants/source/ftrack\_constants/status/\_\_init\_\_.py                |       10 |        0 |    100% |           |
+| libs/dcc-test-harness/conftest.py                                             |        6 |        1 |     83% |        18 |
 | libs/framework-core/source/ftrack\_framework\_core/\_\_init\_\_.py            |        8 |        2 |     75% |     13-14 |
 | libs/framework-core/source/ftrack\_framework\_core/configure\_logging.py      |       47 |        6 |     87% |31-35, 72-78 |
 | libs/framework-core/source/ftrack\_framework\_core/engine/\_\_init\_\_.py     |      123 |       39 |     68% |72, 90-91, 99, 122-125, 145-183, 192, 208, 212, 224, 261-278 |
@@ -45,11 +46,12 @@
 | libs/utils/source/ftrack\_utils/usage/\_\_init\_\_.py                         |        1 |        0 |    100% |           |
 | libs/utils/source/ftrack\_utils/usage/track\_usage.py                         |       24 |        1 |     96% |        28 |
 | libs/utils/source/ftrack\_utils/version/\_\_init\_\_.py                       |       43 |       17 |     60% |60-64, 71-85 |
+| projects/framework-harmony/conftest.py                                        |        6 |        1 |     83% |        14 |
 | tests/framework/unit/\_\_init\_\_.py                                          |        0 |        0 |    100% |           |
 | tests/framework/unit/test\_engine.py                                          |       49 |        0 |    100% |           |
 | tests/libraries/test\_paths.py                                                |       14 |        0 |    100% |           |
 | tests/libraries/test\_version\_parsing.py                                     |       27 |        0 |    100% |           |
-| **TOTAL**                                                                     |  **967** |  **325** | **66%** |           |
+| **TOTAL**                                                                     |  **979** |  **327** | **67%** |           |
 
 
 ## Setup coverage badge
