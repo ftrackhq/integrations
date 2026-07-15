@@ -7,6 +7,32 @@ import tomllib
 from packaging.version import InvalidVersion, Version
 
 
+class CompatVersionString(str):
+    """Version string that also mimics ``distutils.version.LooseVersion``.
+
+    Connect serializes a launched application's version to a string in the
+    event payload so it stays a comparable scalar for ftrack event-expression
+    matching. Integration launch hooks released before the move to
+    ``packaging.version.Version`` read the major component via
+    ``event['data']['application']['version'].version[0]`` -- an attribute
+    only ``LooseVersion`` exposed. This ``str`` subclass restores that access
+    pattern so previously released plugins keep working, while still behaving
+    as a plain string for matching, ``str()`` and serialization.
+    """
+
+    @property
+    def version(self):
+        """Return version components like ``LooseVersion.version``.
+
+        Numeric components are returned as ``int`` so that ``.version[0]``
+        yields the integer major version expected by legacy hooks.
+        """
+        components = []
+        for part in str(self).split("."):
+            components.append(int(part) if part.isdigit() else part)
+        return components
+
+
 #: Default expression to match version component of executable path.
 #: Will match last set of numbers in string where numbers may contain a digit
 #: followed by zero or more digits, periods, or the letters 'a', 'b', 'c' or 'v'

@@ -132,7 +132,7 @@ def main_connect(arguments=None):
 
     application = QtWidgets.QApplication([])
 
-    app_name = "ftrack Connect"
+    app_name = "Ftrack Connect"
     application.setApplicationName(app_name)
     if hasattr(application, "setApplicationDisplayName"):
         application.setApplicationDisplayName(app_name)

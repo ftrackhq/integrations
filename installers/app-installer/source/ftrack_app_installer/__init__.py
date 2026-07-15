@@ -5,11 +5,11 @@ import subprocess
 import os
 import re
 import logging
+import platform
 import plistlib
 import requests.certs
 
 import PyInstaller.__main__
-import dmgbuild
 
 
 VERSION_TEMPLATE = """
@@ -256,13 +256,21 @@ class MacOSAppInstaller(AppInstaller):
 
     def generate_installer_package(self, codesign=True):
         """Create DMG on MacOS with checksum. Returns the resulting path."""
+        # dmgbuild can only be imported on macOS (it reads platform.mac_ver()
+        # at import time), so import it here instead of at module level.
+        import dmgbuild
+
         assert os.path.isdir(self.bundle_path), "No bundle output where found!"
 
         if codesign:
             self.codesign(self.bundle_path)
 
-        dmg_name = "{0}-{1}-macOS.dmg".format(
-            self.bundle_name.replace(" ", "_").lower(), self.version
+        # Include the machine architecture (x86_64 / arm64) so the Intel and
+        # Apple Silicon builds produce distinct, self-describing artifacts.
+        dmg_name = "{0}-{1}-macOS-{2}.dmg".format(
+            self.bundle_name.replace(" ", "_").lower(),
+            self.version,
+            platform.machine(),
         )
         dmg_path = os.path.join(self.dist_path, dmg_name)
         if not os.path.exists(self.dist_path):
@@ -293,12 +301,35 @@ class MacOSAppInstaller(AppInstaller):
             "show_icon_preview": False,
         }
 
+        # WORKAROUND (F-1052): on macOS Tahoe (26) the installer background
+        # rendered as a blank grey window. dmgbuild stores the background twice
+        # in the volume's .DS_Store: a portable "icvp" alias *and* a "pBBk"
+        # bookmark. The bookmark is captured from the temporary build volume, so
+        # it is stale by the time the image is finalised; Tahoe's redesigned
+        # Finder prefers the bookmark and no longer falls back to the alias, so
+        # the picture is dropped (icon positions, stored separately, still work).
+        # DMGs that omit pBBk render correctly on Tahoe (verified against e.g.
+        # oomol). dmgbuild only writes pBBk when Bookmark.for_file() returns a
+        # value, so we neutralise it for the duration of the build, forcing
+        # Finder onto the portable alias.
+        import dmgbuild.core
+
+        _original_bookmark = dmgbuild.core.Bookmark
+
+        class _NoBackgroundBookmark:
+            @staticmethod
+            def for_file(path, **kwargs):
+                return None
+
+        dmgbuild.core.Bookmark = _NoBackgroundBookmark
         try:
             dmgbuild.build_dmg(
                 dmg_path, self.bundle_name, settings=dmg_settings
             )
         except Exception as e:
             raise Exception(f"dmg creation failed: {e}") from e
+        finally:
+            dmgbuild.core.Bookmark = _original_bookmark
         logging.info(
             " {} created, calculating md5 checksum...".format(dmg_path)
         )

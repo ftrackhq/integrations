@@ -151,7 +151,15 @@ jobs:
   installer-macos:
     name: Build Connect Installer on MacOs
     needs: [ set-variables, connect-build ]
-    runs-on: macos-15
+    # Single-key matrix so GitHub auto-appends a clean (x86_64)/(arm64) suffix to
+    # the job name, matching the Rocky job's (8)/(9) style. The runner is derived
+    # from the arch: x86_64 -> macos-15-intel (macos-13 retired 2025-12-04),
+    # arm64 -> macos-15 (Apple Silicon).
+    runs-on: ${{ matrix.arch == 'x86_64' && 'macos-15-intel' || 'macos-15' }}
+    strategy:
+      fail-fast: false # an Intel failure must not cancel the Apple Silicon build (and vice versa)
+      matrix:
+        arch: [ x86_64, arm64 ]
     env:
       CODESIGN: 'True' # A not codesigned dmg will always show damaged app. Please build locally if don't want to codesign and generate a ZIP instead of a dmg.
     steps:
@@ -161,8 +169,6 @@ jobs:
           python-version: '3.13'
       - name: install uv
         uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86  # v5
-      - name: Install npm dependencies
-        run: npm install -g appdmg
       - name: Set CPPFLAGS LDFLAGS
         shell: bash
         run: |
@@ -224,8 +230,8 @@ jobs:
           cd apps/connect/dist
           version="${{ needs.set-variables.outputs.package_version }}"
           clean_package_version="${version#v}"  # Remove leading 'v' from version
-          echo "Uploading ftrack_connect-${clean_package_version}.dmg"
-          gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack_connect-${clean_package_version}-macOS.dmg" --clobber
+          echo "Uploading ftrack_connect-${clean_package_version}-macOS-${{ matrix.arch }}.dmg"
+          gh release upload ${{ needs.set-variables.outputs.tag }} "ftrack_connect-${clean_package_version}-macOS-${{ matrix.arch }}.dmg" --clobber
 
 
   installer-rocky:
@@ -233,6 +239,7 @@ jobs:
     needs: [ set-variables, connect-build ]
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         rocky-version: [ '8', '9' ]
     container:
@@ -255,7 +262,10 @@ jobs:
       - name: install uv
         shell: bash
         run: |
-          curl -LsSf https://astral.sh/uv/install.sh | sh
+          # UV_NO_MODIFY_PATH stops the installer from writing to GITHUB_PATH;
+          # in container jobs the runner rebuilds PATH from it for later steps
+          # and loses the system dirs, making bash unresolvable.
+          curl -LsSf https://astral.sh/uv/install.sh | env UV_NO_MODIFY_PATH=1 sh
           export PATH="$HOME/.local/bin:$PATH"
           uv --version
       - name: Install Python 3.13 with uv
@@ -267,12 +277,10 @@ jobs:
         shell: bash
         run: |
           export PATH="$HOME/.local/bin:$PATH"
-          uv run --python 3.13 python --version
-      - name: Install patchelf
-        shell: bash
-        run: |
-          export PATH="$HOME/.local/bin:$PATH"
-          uv run --python 3.13 python -m pip install patchelf
+          uv run --no-project --python 3.13 python --version
+      # NOTE: patchelf is intentionally not installed. It was a requirement of
+      # the old cx_Freeze based installer (removed in #489); the PyInstaller
+      # based ftrack-app-installer does not use it.
       - name: Build Qt resources
         shell: bash
         run: |
@@ -288,6 +296,10 @@ jobs:
       - name: Upload Connect tar.gz and md5 to GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # The checkout in this container is a REST tarball without .git
+          # (git is only installed after checkout runs), so gh cannot resolve
+          # the repository from git - point it at the repo explicitly.
+          GH_REPO: ${{ github.repository }}
         shell: bash
         run: |
           echo "Listing contents of apps/connect/dist:"

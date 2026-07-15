@@ -1,9 +1,11 @@
+import json
 import re
 
 import pytest
 from packaging.version import Version
 
 from ftrack_utils.version import (
+    CompatVersionString,
     DEFAULT_VERSION_EXPRESSION,
     parse_application_version,
     resolve_marketing_version,
@@ -95,3 +97,39 @@ def test_project_version_expression_patterns_from_launch_configs_are_valid():
     ]
     for pattern in patterns:
         re.compile(pattern)
+
+
+def test_compat_version_string_exposes_loose_version_major():
+    # Old plugin hooks read the major component via ``.version[0]``.
+    assert CompatVersionString("21.0.700").version[0] == 21
+    assert CompatVersionString("2024").version[0] == 2024
+
+
+def test_compat_version_string_is_a_plain_string():
+    value = CompatVersionString("21.0.700")
+    assert isinstance(value, str)
+    assert str(value) == "21.0.700"
+    # New guarded hooks branch on ``hasattr(..., "version")``.
+    assert hasattr(value, "version") is True
+
+
+def test_compat_version_string_matches_like_a_plain_string():
+    # ftrack event-expression matching evaluates ``operator.ge(value, "19")``.
+    value = CompatVersionString("21.0.700")
+    assert (value >= "19") == ("21.0.700" >= "19")
+    assert value == "21.0.700"
+
+
+def test_compat_version_string_serializes_as_plain_string():
+    assert (
+        json.dumps({"version": CompatVersionString("21.0.700")})
+        == '{"version": "21.0.700"}'
+    )
+
+
+@pytest.mark.parametrize("value", ["21.0.700", "2024", "20.5", "14.0b2", "0"])
+def test_compat_version_string_major_matches_guard_fallback(value):
+    # The shim's ``.version[0]`` must agree with the integration hook's
+    # string-split fallback ``int(str(version).split(".")[0])``.
+    compat = CompatVersionString(value)
+    assert compat.version[0] == int(str(compat).split(".")[0])

@@ -87,6 +87,5 @@ To notarize you will also need to setup the following variables:
 
 ### Linux notes:
 
-- Install patchelf platform dependent package
-
-    $ pip install patchelf
+- No extra platform packages are required. (patchelf, needed by the old
+  cx_Freeze based installer, is not used by PyInstaller.)

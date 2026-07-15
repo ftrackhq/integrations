@@ -6,11 +6,11 @@ import logging
 from ftrack_utils.decorators import asynchronous
 
 
-logger = logging.getLogger('ftrack_utils:server.send_event')
+logger = logging.getLogger("ftrack_utils:server.send_event")
 
 
 def send_event(session, action, event_name, metadata=None):
-    '''Send usage event with *event_name* and *metadata*.'''
+    """Send usage event with *event_name* and *metadata*."""
 
     if not isinstance(metadata, list):
         metadata = [metadata]
@@ -19,11 +19,11 @@ def send_event(session, action, event_name, metadata=None):
     for data in metadata:
         payload.append(
             {
-                'action': action,
-                'data': {
-                    'type': 'event',
-                    'name': event_name,
-                    'metadata': data,
+                "action": action,
+                "data": {
+                    "type": "event",
+                    "name": event_name,
+                    "metadata": data,
                 },
             }
         )
@@ -31,11 +31,15 @@ def send_event(session, action, event_name, metadata=None):
     try:
         session.call(payload)
 
-    except Exception:
-        logger.exception('Failed to send event : {}'.format(event_name))
+    except Exception as exc:
+        # Log but don't raise - usage tracking should never break the application
+        logger.warning(
+            'Failed to send event "{}": {}'.format(event_name, exc),
+            exc_info=True,
+        )
 
 
 @asynchronous
 def send_async_event(session, action, event_name, metadata=None):
-    '''Call __send_event in a new thread.'''
+    """Call send_event in a new thread."""
     send_event(session, action, event_name, metadata)

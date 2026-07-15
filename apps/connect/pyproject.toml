@@ -1,7 +1,7 @@
 # 1. PEP 621 Project Metadata (replaces [tool.poetry])
 [project]
 name = "ftrack-connect"
-version = "25.11.0rc1"
+version = "26.7.0"
 description = "ftrack Connect desktop application."
 readme = "README.md"
 license = { text = "Apache-2.0" }
