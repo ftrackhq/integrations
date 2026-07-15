@@ -176,6 +176,9 @@ def _is_matching_harmony_pid(pid):
             output = subprocess.check_output(
                 ["tasklist", "/FI", f"PID eq {pid}", "/FO", "CSV", "/NH"],
                 text=True,
+                creationflags=subprocess.CREATE_NO_WINDOW
+                if sys.platform == "win32"
+                else 0,
             )
             return "Harmony" in output
     except (subprocess.CalledProcessError, FileNotFoundError, ValueError):
@@ -227,6 +230,7 @@ def probe_harmony_pid():
                     "/NH",
                 ],
                 text=True,
+                creationflags=subprocess.CREATE_NO_WINDOW,
             )
         except (subprocess.CalledProcessError, FileNotFoundError):
             return None
