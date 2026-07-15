@@ -41,17 +41,17 @@
 | libs/utils/source/ftrack\_utils/modules/scan\_modules.py                      |       13 |        0 |    100% |           |
 | libs/utils/source/ftrack\_utils/paths/\_\_init\_\_.py                         |       34 |       16 |     53% |     15-37 |
 | libs/utils/source/ftrack\_utils/server/\_\_init\_\_.py                        |        2 |        0 |    100% |           |
-| libs/utils/source/ftrack\_utils/server/send\_event.py                         |       16 |        2 |     88% |     34-35 |
+| libs/utils/source/ftrack\_utils/server/send\_event.py                         |       16 |        2 |     88% |     34-36 |
 | libs/utils/source/ftrack\_utils/server/track\_usage.py                        |        8 |        1 |     88% |        22 |
 | libs/utils/source/ftrack\_utils/usage/\_\_init\_\_.py                         |        1 |        0 |    100% |           |
-| libs/utils/source/ftrack\_utils/usage/track\_usage.py                         |       24 |        1 |     96% |        28 |
-| libs/utils/source/ftrack\_utils/version/\_\_init\_\_.py                       |       43 |       17 |     60% |60-64, 71-85 |
+| libs/utils/source/ftrack\_utils/usage/track\_usage.py                         |       27 |        3 |     89% | 28, 64-65 |
+| libs/utils/source/ftrack\_utils/version/\_\_init\_\_.py                       |       50 |       17 |     66% |86-90, 97-111 |
 | projects/framework-harmony/conftest.py                                        |        6 |        1 |     83% |        14 |
 | tests/framework/unit/\_\_init\_\_.py                                          |        0 |        0 |    100% |           |
 | tests/framework/unit/test\_engine.py                                          |       49 |        0 |    100% |           |
 | tests/libraries/test\_paths.py                                                |       14 |        0 |    100% |           |
-| tests/libraries/test\_version\_parsing.py                                     |       27 |        0 |    100% |           |
-| **TOTAL**                                                                     |  **979** |  **327** | **67%** |           |
+| tests/libraries/test\_version\_parsing.py                                     |       46 |        0 |    100% |           |
+| **TOTAL**                                                                     | **1008** |  **329** | **67%** |           |
 
 
 ## Setup coverage badge
