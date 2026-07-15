@@ -142,6 +142,24 @@ def list_windows(process_name: str) -> str:
     return (result.stdout or result.stderr).strip()
 
 
+def window_exists_containing(process_name: str, substring: str) -> bool:
+    """Whether *process_name* has a window whose title contains *substring*.
+
+    macOS-only accessibility probe; returns ``False`` on other
+    platforms or when the query fails (e.g. the process has no UI yet).
+    Matches on a substring so it tolerates the Harmony edition in the
+    title (``Premium``/``Advanced``/``Essentials``).
+    """
+    if platform.system() != "Darwin":
+        return False
+    result = _osascript(
+        f'tell application "System Events" to tell process '
+        f'"{process_name}" to return ((count of (windows whose name '
+        f'contains "{substring}")) > 0)'
+    )
+    return result.returncode == 0 and result.stdout.strip() == "true"
+
+
 def find_harmony_pid(process_name: str) -> Optional[int]:
     """Return the PID of the running Harmony process, if any."""
     result = subprocess.run(
@@ -472,13 +490,19 @@ class HarmonyLauncher(Launcher):
         scene_name: Optional[str] = None,
         timeout: float = 60.0,
     ) -> Optional[Path]:
-        """Create and open a new scene via File > New (accessibility).
+        """Create and open a new scene (accessibility, macOS-only).
 
         Harmony's main window stays inactive - and the ftrack JS
         package's TCP server never comes up - until a scene is open.
         Connect itself does not create a scene (a human does), so this
-        is a test-only step. A future improvement is opening a
-        committed scene fixture via File > Open instead.
+        is a test-only step.
+
+        Startup lands in one of two states depending on preferences:
+        the Welcome window (create the scene straight from its "Create
+        a New Scene" form) or the main window with an active menu bar
+        (drive File > New). Both are handled, retrying until one of
+        them becomes usable, so the tests pass with and without the
+        Welcome screen.
 
         Returns the created scene directory (for teardown cleanup),
         or ``None`` on non-macOS platforms.
@@ -488,37 +512,87 @@ class HarmonyLauncher(Launcher):
         scene_name = scene_name or f"ftrack_test_{os.getpid()}"
         process_name = harmony_process.process_name
 
-        # Open File > New... (retry until the dialog appears).
         deadline = time.monotonic() + timeout
-        dialog_up = False
         while time.monotonic() < deadline:
-            _osascript(
-                f'tell application "System Events" to tell process '
-                f'"{process_name}"\n'
-                f"  set frontmost to true\n"
-                f"  delay 0.3\n"
-                f"  try\n"
-                f'    click menu item "New..." of menu 1 of menu '
-                f'bar item "File" of menu bar 1\n'
-                f"  end try\n"
-                f"end tell"
-            )
-            time.sleep(2)
-            res = _osascript(
-                f'tell application "System Events" to tell process '
-                f'"{process_name}" to return (exists window '
-                f'"New Scene")'
-            )
-            if res.stdout.strip() == "true":
-                dialog_up = True
+            if window_exists_containing(process_name, "Welcome"):
+                # The Welcome window is modal over the main menu bar, so
+                # File > New is a no-op behind it - create from its form.
+                if self._create_scene_from_welcome(process_name, scene_name):
+                    break
+            elif self._create_scene_via_menu(process_name, scene_name):
                 break
-        if not dialog_up:
+            time.sleep(2)
+        else:
             raise RuntimeError(
-                "New Scene dialog did not appear. Windows: "
-                f"{list_windows(process_name)}"
+                "Could not create a Harmony scene (neither the Welcome "
+                "window nor the File > New dialog became usable within "
+                f"{timeout}s). Windows: {list_windows(process_name)}"
             )
 
-        # Set the scene name and click Create.
+        logger.info("Created Harmony scene %r", scene_name)
+        # Default offline scene location.
+        return Path.home() / "Documents" / "harmony" / scene_name
+
+    def _create_scene_from_welcome(
+        self, process_name: str, scene_name: str
+    ) -> bool:
+        """Fill the Welcome window's "Create a New Scene" form and submit.
+
+        Returns ``True`` once the Welcome window has closed (the scene
+        opened), ``False`` if the form could not be driven so the caller
+        can retry.
+        """
+        result = _osascript(
+            f'tell application "System Events" to tell process '
+            f'"{process_name}"\n'
+            f"  set frontmost to true\n"
+            f"  delay 0.3\n"
+            f"  set welcomeWindow to (first window whose name "
+            f'contains "Welcome")\n'
+            f'  set sceneGroup to (group "Create a New Scene" '
+            f"of welcomeWindow)\n"
+            f'  set value of text field 1 of sceneGroup to "{scene_name}"\n'
+            f"  delay 0.3\n"
+            f'  click button "Create Scene" of sceneGroup\n'
+            f"end tell"
+        )
+        if result.returncode != 0:
+            logger.warning(
+                "Welcome-window scene creation failed: %s",
+                result.stderr.strip(),
+            )
+            return False
+        # The Welcome window closes once the scene is created.
+        close_deadline = time.monotonic() + 30
+        while time.monotonic() < close_deadline:
+            if not window_exists_containing(process_name, "Welcome"):
+                return True
+            time.sleep(1)
+        return False
+
+    def _create_scene_via_menu(
+        self, process_name: str, scene_name: str
+    ) -> bool:
+        """Drive File > New... and fill the resulting "New Scene" dialog.
+
+        Returns ``True`` on success, ``False`` if the dialog did not
+        appear so the caller can retry.
+        """
+        _osascript(
+            f'tell application "System Events" to tell process '
+            f'"{process_name}"\n'
+            f"  set frontmost to true\n"
+            f"  delay 0.3\n"
+            f"  try\n"
+            f'    click menu item "New..." of menu 1 of menu '
+            f'bar item "File" of menu bar 1\n'
+            f"  end try\n"
+            f"end tell"
+        )
+        time.sleep(2)
+        if not window_exists_containing(process_name, "New Scene"):
+            return False
+
         result = _osascript(
             f'tell application "System Events" to tell process '
             f'"{process_name}"\n'
@@ -533,27 +607,38 @@ class HarmonyLauncher(Launcher):
             raise RuntimeError(
                 f"Failed to create scene: {result.stderr.strip()}"
             )
-        logger.info("Created Harmony scene %r", scene_name)
-        # Default offline scene location.
-        return Path.home() / "Documents" / "harmony" / scene_name
+        return True
 
     def _dismiss_trial_dialog(
         self, process_name: str, config: LaunchConfig
     ) -> None:
         """Poll for and click the trial dialog's "Continue Trial".
 
-        Best-effort and macOS-only; a licensed install shows no
-        dialog. Logs (but does not fail) if accessibility permission
-        is missing - the JS server simply never comes up and the
-        connecting test surfaces a clear timeout.
+        Best-effort and macOS-only. A trial install shows this dialog
+        on startup and the package's TCP server only comes up once it
+        is dismissed; a licensed install shows none. Click it as soon
+        as it appears, but stop early once Harmony has reached its
+        Welcome window (past any license gate) so a licensed install
+        doesn't wait out the whole startup window. Logs (but
+        does not fail) if accessibility permission is missing - the JS
+        server simply never comes up and the connecting test surfaces a
+        clear timeout.
         """
         if platform.system() != "Darwin":
             return
         deadline = time.monotonic() + min(config.startup_timeout, 90)
         while time.monotonic() < deadline:
+            # Click the trial confirmation first: on a trial install it
+            # is shown before the Welcome window, so this is dismissed
+            # before the early-exit below can trigger.
             clicked = click_button_if_present(process_name, ["Continue Trial"])
             if clicked:
                 logger.info("Dismissed trial dialog (%s)", clicked)
+                return
+            if window_exists_containing(process_name, "Welcome"):
+                logger.info(
+                    "No trial dialog; Harmony reached its Welcome window."
+                )
                 return
             time.sleep(2)
         logger.info(
