@@ -1,8 +1,6 @@
 # Harmony: ftrack menu that survives scene switches — invert the TCP roles
 
-Status: implemented (F-1087, framework-harmony MVP)
-Context: supersedes the transport design in the earlier scene-hook /
-"re-register the menu once" attempts.
+Status: implemented
 
 ## Problem
 
@@ -12,13 +10,14 @@ context) on **every** scene open/create/close, and does **not**
 re-invoke a package's `configure()`. Only the `TB_sceneOpened` /
 `TB_sceneCreated` hooks reliably run on a scene switch.
 
-The original transport put the **TCP server inside Harmony's JS** and
-made the **standalone Python process the client**. Because the JS server
-died with the engine on every scene switch, the menu items reappeared
-(the scene hooks re-registered them) but went **dead on click**, and the
-toolbar vanished. Attempts to rebuild the in-engine server from the
-hooks + make the standalone reconnect forever were fragile (the
-reconnect loop also broke clean shutdown by blocking the Qt event loop).
+A TCP **server** living inside Harmony's JS dies with the engine on
+every scene switch, so it structurally cannot survive them: the menu
+items can be re-registered by the scene hooks, but they go **dead on
+click** because their RPC channel is gone, and the toolbar vanishes.
+Rebuilding an in-engine server from the hooks and having the standalone
+reconnect forever is fragile — the reconnect loop also blocks the Qt
+event loop and breaks clean shutdown. The transport must therefore keep
+the server outside the engine.
 
 ## Chosen approach: invert the TCP roles
 
@@ -54,8 +53,9 @@ The Qt framed wire protocol is asymmetric **by direction, not by role**:
 - **Harmony → Python**: big-endian `int32(len)` + raw UTF-8 JSON.
 
 Python keeps *sending* CONTEXT_DATA/RPC and *receiving* replies, so both
-`_send`/`send` and `_receive`/`handleEvent` bodies were reused verbatim.
-Only the socket lifecycle moved (listen/accept instead of connect).
+send and receive bodies are direction-symmetric with the previous
+transport; only the socket lifecycle differs (listen/accept instead of
+connect).
 
 ## Handshake
 
@@ -83,11 +83,11 @@ STANDALONE (Python, long-lived)          HARMONY (JS, transient per-scene engine
 
 ## Menu restoration is belt-and-suspenders (both parts required)
 
-A pure "single source of truth via CONTEXT_DATA on reconnect" design was
-tried first and **failed**: the menu depends on an async round trip
+A pure "single source of truth via CONTEXT_DATA on reconnect" design is
+insufficient: the menu would depend on an async round trip
 (dial → accept → CONTEXT_DATA → rebuild) initiated from a transient
-scene-hook engine, so any hiccup leaves the menu gone. The robust design
-keeps the proven synchronous re-registration:
+scene-hook engine, so any hiccup leaves the menu gone. The design keeps
+a synchronous re-registration alongside it:
 
 1. **`TB_scene*` hooks** re-include `configure.js`, then call
    **`ftrackRebuildMenus()` synchronously** — the menu is back
@@ -104,87 +104,59 @@ keeps the proven synchronous re-registration:
    (recreated per reconnect), so they rebuild once per scene switch while
    a second CONTEXT_DATA on the same connection can't stack a duplicate.
    Stable ids (`ftrackToolbar`/`ftrackShortcut`) keep the re-add
-   idempotent. (See "The toolbar-persistence bug" below — the guard was
-   originally on the persistent application object, which stuck `true`
-   across scene switches and blocked every rebuild.)
+   idempotent.
 
-## The idempotency-guard bug (found during verification)
+## Invariants (load-bearing — do not regress)
 
-The first cut of the flip added an idempotency early-return to
-`ftrackConnectIntegration()`:
-`if (app.integration.tcp_client.connected) return;`. **This blocked
-every reconnect after the first** and is the reason "the menu still
-disappears after a scene change." Traced via the standalone log
-(`~/Library/Application Support/ftrack-connect/log/ftrack_framework_harmony.log`):
+- **`ftrackConnectIntegration()` must never early-return on connection
+  state.** It always creates a fresh `HarmonyIntegration` and dials. A
+  guard like `if (app.integration.tcp_client.connected) return;` breaks
+  every reconnect after the first: the new engine reads the *dead
+  old-engine copy* of `connected` as stale-**true**, returns early, never
+  re-dials, and the menu stays dead after the first scene switch.
+  Re-connecting is safe — the server aborts the stale socket when the new
+  one connects (`_on_new_connection`), and menu/toolbar re-registration
+  is idempotent.
+- **The UI-rebuild guard must live on the per-connection
+  `HarmonyIntegration` instance, never the persistent application
+  object.** The toolbar and shortcut are torn down with the menu items on
+  every scene switch, so their guard must reset per switch. A flag on the
+  persistent `QCoreApplication` outlives scene switches, sticks `true`
+  after the first build, and makes the toolbar vanish after the first
+  switch. `this.ftrack_ui_built` on the per-reconnect instance is `false`
+  again after each switch, so the toolbar and shortcut rebuild alongside
+  the menu while a second CONTEXT_DATA on one connection still can't
+  stack a duplicate.
 
-- First scene: `app.integration` is undefined → guard falls through →
-  connects fine, menu built.
-- Every subsequent switch: the new engine reads
-  `app.integration.tcp_client.connected` back from the **dead old-engine
-  copy** as stale-**true** → returns early → never re-dials → the
-  standalone logs "DCC connection dropped ... awaiting reconnect" and
-  then nothing.
+## Implementation map
 
-**Fix:** delete the guard. `ftrackConnectIntegration()` always creates a
-fresh `HarmonyIntegration` and dials. Re-connecting is safe: the server
-aborts the stale socket when the new one connects
-(`_on_new_connection`), and the menu/toolbar re-registration is
-idempotent.
-
-## The toolbar-persistence bug (found after the flip)
-
-Same shape as the guard bug above, on a different object. The toolbar
-and shortcut were built once behind `app.ftrack_ui_built` — a flag on
-the persistent `QCoreApplication`, chosen on the (wrong) assumption that
-"the toolbar and shortcut persist across scene switches." They do not:
-Harmony tears them down with the menu items on every scene switch. But
-the flag lives on the app object, which *does* outlive scene switches,
-so after the first build it stayed `true` and every later scene switch
-skipped the rebuild — the toolbar vanished after the first switch while
-the (unguarded) menu items kept coming back.
-
-**Fix:** move the guard from the persistent application to the
-per-connection `HarmonyIntegration` instance (`this.ftrack_ui_built`),
-which is recreated on every reconnect. The flag is therefore `false`
-again after each scene switch, so the toolbar and shortcut are rebuilt
-alongside the menu, while a second CONTEXT_DATA on one connection still
-can't stack a duplicate.
-
-## Changes by file
-
-- **`utils/tcp_rpc.py`** — server role. New `listen(on_listen_failure)`
-  (binds `127.0.0.1`), `_on_new_connection` (drain
-  `nextPendingConnection`, abort stale prev socket, wire per-connection
-  signals, send CONTEXT_DATA, first-accept-only startup tools). `_send`/
-  `_receive` retargeted `self.socket` → `self._connection` (framing
-  unchanged). `_on_disconnected` gutted to reset-only (server keeps
-  listening; no reconnect loop, no terminate). `send()` synchronous spin
-  gained a fail-fast guard if the connection drops mid-wait. Deleted:
-  `connect_dcc`, `_connect_to_host`, `_check_connection`, `_on_connected`,
-  indefinite retry, `_signals_connected`, the connect `QTimer`.
-- **`__init__.py`** — dropped `time.sleep(2)`; `connect_dcc(...)` →
-  `listen(on_listen_failure_callback)`. Watchdog unchanged and now the
-  **only** shutdown trigger. `setQuitOnLastWindowClosed(False)` kept.
-- **`configure.js`** — `TCPServer` → `TCPClient` (dials out, socket
-  parented to the app). `handleIntegrationContextDataCallback` rebuilds
-  the menu on every CONTEXT_DATA and rebuilds toolbar+shortcut once per
-  connection, guarded by the instance flag `this.ftrack_ui_built`.
-  `ftrackEnsureIntegration` → `ftrackConnectIntegration`
-  (no guard, no close-previous-server block). `shutdown` →
-  `tcp_client.socket.abort()`, `aboutToQuit` best-effort only.
+- **`utils/tcp_rpc.py`** — server role: `listen()` binds `127.0.0.1`;
+  `_on_new_connection` drains `nextPendingConnection`, aborts any stale
+  prior socket, wires per-connection signals, sends CONTEXT_DATA, and
+  runs startup tools on the first accept only (`_ever_connected`). The
+  send/receive framing targets the current `_connection`. On disconnect
+  it resets and keeps listening (no reconnect loop, no terminate); the
+  synchronous `send()` spin fails fast if the connection drops mid-wait.
+- **`__init__.py`** — binds the server (`listen(on_listen_failure_callback)`)
+  at bootstrap and relies on the PID watchdog as the **only** shutdown
+  trigger. `setQuitOnLastWindowClosed(False)`.
+- **`configure.js`** — `TCPClient` dials out with its socket parented to
+  the app. `handleIntegrationContextDataCallback` rebuilds the menu on
+  every CONTEXT_DATA and rebuilds toolbar+shortcut once per connection,
+  guarded by the instance flag `this.ftrack_ui_built`.
+  `ftrackConnectIntegration()` always dials afresh (no guard).
 - **`TB_sceneOpened.js` / `TB_sceneCreated.js`** — each hook chains the
-  default, then `ftrackReconnectHook()`: re-include `configure.js` →
-  `ftrackRebuildMenus()` (sync) → `ftrackConnectIntegration()` (reconnect).
-- **`discover_ftrack_framework_harmony.py`** — unchanged behaviour
-  (free-port pick → `FTRACK_INTEGRATION_LISTEN_PORT`, now the port Python
-  *binds* and Harmony dials; `FTRACK_HARMONY_PACKAGE_PATH`; stale-hook
-  cleanup + `[ftrack]` marker preserved).
-- **Tests** (`tests/`) — harness role inverted: the test process is now
-  the **server** Harmony dials. `_rpc_client.py` `connect_with_retry` →
-  `listen()`+`accept()` (framing/handshake/rpc reused). `conftest.py`
-  moves scene creation out of `harmony_process` into the consuming
-  fixtures, so the server is listening **before** Harmony dials (tier-1
-  `harmony_connection`; tier-2 `standalone_bundle`).
+  default, then re-includes `configure.js` → `ftrackRebuildMenus()`
+  (sync) → `ftrackConnectIntegration()` (reconnect).
+- **`discover_ftrack_framework_harmony.py`** — picks a free port
+  (`FTRACK_INTEGRATION_LISTEN_PORT`, the port Python *binds* and Harmony
+  dials), sets `FTRACK_HARMONY_PACKAGE_PATH`, deploys the JS, and cleans
+  up stale `[ftrack]`-marked hooks.
+- **Tests** (`tests/`) — the test process is the **server** Harmony
+  dials: `_rpc_client.py` listens/accepts (framing/handshake/rpc reused);
+  `conftest.py` creates the scene in the consuming fixtures so the server
+  listens **before** Harmony dials (tier-1 `harmony_connection`; tier-2
+  `standalone_bundle`).
 
 ## Risks / gotchas
 
@@ -203,15 +175,18 @@ can't stack a duplicate.
   previously-deployed `[ftrack]` TB_scene hooks, or a stale hook keeps
   firing and breaks scene creation.
 
-## Verification (Harmony 27 / 25, macOS)
+## Verifying (Harmony 27 / 25, macOS)
 
 Deploy per the build+deploy rule (`uv build` **without** `--from_source`,
 **with** `--include_resources resource/bootstrap`; deploy the Connect
 plugin; restart Connect with `FTRACK_CONNECT_PLUGIN_PATH`; relaunch
-Harmony so the new JS is deployed). Confirmed working across repeated
-File > New / File > Open: the ftrack menu, toolbar and shortcut all stay
-present and clickable, the toolbar is neither dropped nor duplicated,
-and the standalone log shows a fresh
-`Successfully established connection` + CONTEXT_DATA after **every**
-scene switch (not just the first), with startup tools running exactly
-once.
+Harmony so the new JS is deployed). Then repeatedly exercise File > New /
+File > Open and confirm:
+
+- the ftrack menu, toolbar and shortcut all stay present and clickable
+  after every scene switch (not just the first);
+- the toolbar is neither dropped nor duplicated;
+- the standalone log
+  (`~/Library/Application Support/ftrack-connect/log/ftrack_framework_harmony.log`)
+  shows a fresh `Successfully established connection` + CONTEXT_DATA after
+  **every** scene switch, with startup tools running exactly once.

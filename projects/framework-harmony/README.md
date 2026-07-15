@@ -102,7 +102,7 @@ scene and the integration comes up within ~10 s. The artist then uses
 scene. The staged copy is removed when Harmony exits (by the standalone
 process watchdog).
 
-On macOS this relies on Connect launching `open -n -a <app> <scene.xstage>`
+On macOS this relies on Connect launching `open -n -a <app> --args <scene.xstage>`
 (the launcher rewrites the bare `open <app>` form only when an integration
 injects a file argument); Windows/Linux receive the scene as a positional
 argument to the executable.

@@ -1,8 +1,8 @@
 # DCC integration test topology: colocate, guard root collection, one job per env
 
-Status: implemented (F-1087, framework-harmony MVP)
-Context: the Harmony integration tests broke root CI at collection time;
-this records where DCC integration tests live and how CI treats them, so
+Status: implemented
+
+This records where DCC integration tests live and how CI treats them, so
 future integrations (Maya, Maya-Deadline, …) follow the same shape.
 
 ## Problem
@@ -13,8 +13,9 @@ it recurses into every `tests/` directory it finds. The Harmony suite
 (`projects/framework-harmony/tests/`) and the harness's own suite
 (`libs/dcc-test-harness/tests/`) both `import dcc_test_harness` at module
 level — a package that is **not** on the root `pythonpath` and **not**
-installed in the root venv. Result: `ModuleNotFoundError` at *collection*
-time, before any `skipif` / `pytest.skip` can fire. CI red.
+installed in the root venv. Without a guard that is a
+`ModuleNotFoundError` at *collection* time, before any `skipif` /
+`pytest.skip` can fire.
 
 These suites are **workstation-only integration tests**: they launch a
 real DCC and exist to give developers and AI agents a fast automated
@@ -40,9 +41,9 @@ There are deliberately two categories, split by how a component is wired:
    own directory*, where its extras (and the harness path source) are
    installed.
 
-`dcc-test-harness` is squarely category 2: it was vendored from a
-standalone repo (`ftrackhq/dcc-test-harness`) and still mirrors it
-(`pyproject`, `uv.lock`, `README`, self-tests). Its dependency closure
+`dcc-test-harness` is squarely category 2: it is a self-contained package
+(`pyproject`, `uv.lock`, `README`, self-tests) that also exists as a
+standalone repo (`ftrackhq/dcc-test-harness`). Its dependency closure
 includes `ftrack-connect` (via a path source), which the flat-lib
 pythonpath mechanism cannot supply.
 
@@ -75,9 +76,16 @@ at its **package root** with:
 ```python
 try:
     import dcc_test_harness  # noqa: F401
-except ImportError:
+except ModuleNotFoundError as error:
+    if error.name != "dcc_test_harness":
+        raise
     collect_ignore = ["tests"]
 ```
+
+Catching `ModuleNotFoundError` (not the broader `ImportError`) and
+re-raising when it names a different module keeps a real broken import
+inside `dcc_test_harness` from being silently swallowed as "harness
+absent."
 
 When pytest runs from the package's own venv the import succeeds and the
 suite collects normally (the guard is a no-op). When pytest runs from the
@@ -125,14 +133,12 @@ Net: the "all CI unit tests in one place" goal is unreachable (the
 workstation suites break it by nature), and the shape it would land on is
 less consistent, not more.
 
-## Follow-ups (not this branch)
+## Current gaps
 
-- **Move the external harness repo's `tests/maya/` suite into
-  `projects/framework-maya/tests/`** with the same conftest guard — it is
-  effectively framework-maya's integration suite, not harness infra. Once
-  moved, archive `ftrackhq/dcc-test-harness` as planned. Until then the
-  Maya tests remain the one DCC suite still living outside the
-  integration they test.
-- **f-959 (Maya-Deadline):** repoint the `dcc-test-harness` path dep from
-  the sibling checkout to `../../libs/dcc-test-harness` and add the same
-  guard to `projects/framework-maya-deadline/`.
+- The Maya integration suite still lives in the external harness repo's
+  `tests/maya/` rather than `projects/framework-maya/tests/`. It is
+  effectively framework-maya's integration suite, not harness infra, and
+  the colocated+guarded model above is where it belongs.
+- `framework-maya-deadline` consumes `dcc-test-harness` from a sibling
+  checkout rather than the in-repo `../../libs/dcc-test-harness`, and does
+  not yet carry the collection guard.
