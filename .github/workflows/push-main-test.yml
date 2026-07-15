@@ -42,6 +42,33 @@ jobs:
           include-hidden-files: true
           path: .coverage.${{ matrix.python-version }}
 
+  harness-unit-pytest:
+    # Pure-unit protocol tests for the vendored dcc-test-harness lib. The
+    # DCC integration suites (e.g. projects/framework-harmony/tests) are
+    # workstation-only and self-skip out of CI via their conftest guard;
+    # only the harness' own headless unit tests run here.
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86  # v5
+
+      - name: dcc-test-harness unit tests
+        working-directory: libs/dcc-test-harness
+        run: |
+          uv sync --extra test
+          uv run pytest
+
   coverage:
     name: Coverage
     runs-on: ubuntu-22.04
