@@ -68,7 +68,15 @@ class DCCProcess:
             self.process.pid,
         )
         self.process.kill()
-        self.process.wait(timeout=timeout)
+        try:
+            self.process.wait(timeout=timeout)
+        except subprocess.TimeoutExpired:
+            logger.error(
+                "DCC process did not exit after SIGKILL within %ss "
+                "(pid=%d)",
+                timeout,
+                self.process.pid,
+            )
 
 
 class Launcher(ABC):

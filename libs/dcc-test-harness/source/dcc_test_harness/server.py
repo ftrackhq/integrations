@@ -354,6 +354,12 @@ class CommandDispatcher:
             widget.close()
             return None
 
+        if action == "get_parent":
+            parent = widget.parent()
+            if parent is None:
+                return None
+            return self._serialize_widget(parent)
+
         if action == "get_property":
             prop = args.get("property", "")
             return _make_serializable(getattr(widget, prop, None))

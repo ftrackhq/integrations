@@ -83,6 +83,7 @@ for w in QApplication.topLevelWidgets():
 
         self._client.execute(
             f"""
+import json as _json
 from PySide6.QtWidgets import (
     QApplication, QWidget, QLabel, QLineEdit, QTextEdit,
     QComboBox, QCheckBox, QRadioButton, QSpinBox,
@@ -95,7 +96,7 @@ for w in QApplication.topLevelWidgets():
         dialog = w
         break
 
-values = {values_json}
+values = _json.loads({values_json!r})
 if dialog is None:
     raise RuntimeError("Dialog not found")
 

@@ -591,4 +591,7 @@ class HarmonyLauncher(Launcher):
             stdout=log_file,
             stderr=subprocess.STDOUT,
         )
+        # The child keeps its own dup'd fd; close the parent copy so it
+        # doesn't leak one open file handle per launch.
+        log_file.close()
         return process, log_path

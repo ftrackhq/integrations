@@ -95,12 +95,10 @@ class WidgetProxy:
             "qt.widget_action",
             {
                 "widget_id": self._widget_id,
-                "action": "get_property",
-                "args": {"property": "parent"},
+                "action": "get_parent",
+                "args": {},
             },
         )
-        if result is None:
-            return None
         if isinstance(result, dict) and "widget_id" in result:
             return WidgetProxy(self._client, result)
         return None

@@ -134,7 +134,7 @@ def dcc_client(
         try:
             client.connect()
             break
-        except (DCCConnectionError, ConnectionRefusedError) as e:
+        except (DCCConnectionError, OSError) as e:
             last_error = e
             time.sleep(0.5)
     else:
@@ -145,9 +145,11 @@ def dcc_client(
 
     yield client
 
-    if dcc_process is not None:
-        client.shutdown_server()
-    client.disconnect()
+    try:
+        if dcc_process is not None:
+            client.shutdown_server()
+    finally:
+        client.disconnect()
 
 
 @pytest.fixture(scope="session")

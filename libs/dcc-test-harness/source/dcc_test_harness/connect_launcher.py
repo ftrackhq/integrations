@@ -97,11 +97,17 @@ def resolve_ftrack_credentials(
             for account in creds.get("accounts", []):
                 s = account.get("server_url")
                 k = account.get("api_key")
-                if s and k:
-                    server = server or s
-                    api_key = api_key or k
-                    api_user = api_user or account.get("api_user")
-                    break
+                if not (s and k):
+                    continue
+                # If a server is already known (e.g. from the env), only
+                # accept an account that matches it so we never pair the
+                # target server with an unrelated API key.
+                if server and s != server:
+                    continue
+                server = server or s
+                api_key = api_key or k
+                api_user = api_user or account.get("api_user")
+                break
 
     if not server or not api_key:
         return None
@@ -283,7 +289,8 @@ class ConnectLauncher(Launcher):
         env = self._apply_connect_env(env)
 
         # 4. Build startup code and command.
-        port_file = tempfile.mktemp(suffix=".port", prefix="dcc_test_")
+        fd, port_file = tempfile.mkstemp(suffix=".port", prefix="dcc_test_")
+        os.close(fd)
         startup_code = self._build_server_startup_code(
             port_file,
             config.server_port,
