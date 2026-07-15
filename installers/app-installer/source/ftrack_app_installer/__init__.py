@@ -147,7 +147,12 @@ class WindowsAppInstaller(AppInstaller):
         """Codesign artifact *path* using jsign tool in Windows"""
         bat_file = os.path.join(self.codesign_folder, "codesign.bat")
         return_code = os.system(f'{bat_file} "{path}"')
-        logging.info(f'Exitcode from code signing "{path}": {return_code}')
+        if return_code != 0:
+            raise Exception(
+                f'Code signing of "{path}" failed with exit code'
+                f" {return_code}, see jsign output above."
+            )
+        logging.info(f'Successfully code signed "{path}"')
 
     def generate_installer_package(self, codesign=True):
         # TODO: need to make the ftrack Connect.iss generic

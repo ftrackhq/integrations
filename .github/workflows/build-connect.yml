@@ -133,6 +133,23 @@ jobs:
         run: |
           uv sync --directory ${{ needs.set-variables.outputs.folder }} --extra installer
           uv run --directory ${{ needs.set-variables.outputs.folder }} ftrack-connect-installer --codesign ${CODESIGN}
+      - name: Verify Authenticode signatures
+        if: env.CODESIGN == 'True'
+        shell: pwsh
+        run: |
+          $version = "${{ needs.set-variables.outputs.package_version }}".TrimStart("v")
+          $files = @(
+            "apps/connect/dist/Ftrack Connect/Ftrack Connect.exe",
+            "apps/connect/dist/ftrack_connect-$version-win64.exe"
+          )
+          foreach ($file in $files) {
+            $sig = Get-AuthenticodeSignature -FilePath $file
+            Write-Host "$file -> $($sig.Status) ($($sig.SignerCertificate.Subject))"
+            if ($sig.Status -ne "Valid") {
+              Write-Error "Not properly signed: $file ($($sig.Status) - $($sig.StatusMessage))"
+              exit 1
+            }
+          }
       - name: Upload EXE installer to GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
