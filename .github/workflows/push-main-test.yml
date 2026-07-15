@@ -48,8 +48,12 @@ jobs:
     # workstation-only and self-skip out of CI via their conftest guard;
     # only the harness' own headless unit tests run here.
     runs-on: ubuntu-22.04
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Set up Python
         uses: actions/setup-python@v5
