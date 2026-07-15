@@ -138,8 +138,8 @@ def sync_js_plugin(app_path, framework_extensions_paths, bootstrap_path=None):
         support has been removed).
     :param bootstrap_path: Path to the bootstrap resource folder to deploy,
         defaults to the resource/bootstrap folder within the built Connect
-        plugin. The tests pass this explicitly when run against the source
-        tree.
+        plugin; pass explicitly to deploy from another location (e.g. a
+        source checkout).
     :return:
     """
     version_nr = None
@@ -328,7 +328,7 @@ def on_launch_integration(session, event):
     # this the artist lands on Harmony's welcome screen, where the ftrack
     # package never initializes. Connect appends integration launch_arguments
     # to the launch command and, on macOS, rewrites `open <app>` to
-    # `open -n -a <app> <scene>`; Windows/Linux receive the scene as a
+    # `open -n -a <app> --args <scene>`; Windows/Linux receive the scene as a
     # positional argument. Configure via the launch config's
     # environment_variables block; disable with
     # FTRACK_HARMONY_LAUNCH_INTO_SCENE=0.

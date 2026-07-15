@@ -1,14 +1,13 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2026 ftrack
 
-"""Unit tests for the Harmony launch config search expressions.
+"""Validate the Harmony launch-config search expressions.
 
 Pure config tests - no Harmony install or ftrack credentials needed.
-
-Regression: the darwin app expression used to be ``Harmony \\d[\\w.]
-<Edition>.app``, which matches exactly two version characters - so
-"Harmony 27 Premium.app" was discovered but "Harmony 25.2 Premium.app"
-never was, and the version was missing from the Connect launcher menu.
+The darwin app expression must discover both single- and multi-component
+marketing versions (e.g. "Harmony 27 Premium.app" and "Harmony 25.2
+Premium.app"); a version missing here never appears in the Connect
+launcher menu.
 """
 
 import re

@@ -11,8 +11,7 @@
  *
  * A user-level TB_sceneOpened OVERRIDES Harmony's default one, so we
  * CHAIN: include the default, keep a reference and call it before our
- * own logic - never clobber it (even though the current default only
- * prints). The default lives at
+ * own logic - never clobber it. The default lives at
  * specialFolders.resource/scripts/TB_sceneOpened.js.
  *
  * Deployed to the user scripts root by the ftrack Connect plugin (see

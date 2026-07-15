@@ -9,5 +9,7 @@
 #     uv run pytest tests/
 try:
     import dcc_test_harness  # noqa: F401
-except ImportError:
+except ModuleNotFoundError as error:
+    if error.name != "dcc_test_harness":
+        raise
     collect_ignore = ["tests"]
