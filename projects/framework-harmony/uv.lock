@@ -1,6 +1,9 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = "==3.13.*"
+
+[manifest]
+overrides = [{ name = "ftrack-connect", directory = "../../apps/connect" }]
 
 [[package]]
 name = "alabaster"
@@ -34,11 +37,11 @@ wheels = [
 
 [[package]]
 name = "certifi"
-version = "2026.2.25"
+version = "2024.12.14"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/af/2d/7bf41579a8986e348fa033a31cdd0e4121114f6bce2457e8876010b092dd/certifi-2026.2.25.tar.gz", hash = "sha256:e887ab5cee78ea814d3472169153c2d12cd43b14bd03329a39a9c6e2e80bfba7", size = 155029, upload-time = "2026-02-25T02:54:17.342Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/0f/bd/1d41ee578ce09523c81a15426705dd20969f5abf006d1afe8aeff0dd776a/certifi-2024.12.14.tar.gz", hash = "sha256:b650d30f370c2b724812bee08008be0c4163b163ddaec3f2546c1caf65f191db", size = 166010, upload-time = "2024-12-14T13:52:38.02Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/9a/3c/c17fb3ca2d9c3acff52e30b309f538586f9f5b9c9cf454f3845fc9af4881/certifi-2026.2.25-py3-none-any.whl", hash = "sha256:027692e4402ad994f1c42e52a4997a9763c646b73e4096e4d5d6db8af1d6f0fa", size = 153684, upload-time = "2026-02-25T02:54:15.766Z" },
+    { url = "https://files.pythonhosted.org/packages/a5/32/8f6669fc4798494966bf446c8c4a162e0b5d893dff088afddf76414f70e1/certifi-2024.12.14-py3-none-any.whl", hash = "sha256:1275f7a45be9464efc1173084eaa30f866fe2e47d389406136d332ed4967ec56", size = 164927, upload-time = "2024-12-14T13:52:36.114Z" },
 ]
 
 [[package]]
@@ -85,6 +88,39 @@ wheels = [
 ]
 
 [[package]]
+name = "darkdetect"
+version = "0.8.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/45/77/7575be73bf12dee231d0c6e60ce7fb7a7be4fcd58823374fc59a6e48262e/darkdetect-0.8.0.tar.gz", hash = "sha256:b5428e1170263eb5dea44c25dc3895edd75e6f52300986353cd63533fe7df8b1", size = 7681, upload-time = "2022-12-16T14:14:42.113Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f2/f2/728f041460f1b9739b85ee23b45fa5a505962ea11fd85bdbe2a02b021373/darkdetect-0.8.0-py3-none-any.whl", hash = "sha256:a7509ccf517eaad92b31c214f593dbcf138ea8a43b2935406bbd565e15527a85", size = 8955, upload-time = "2022-12-16T14:14:40.92Z" },
+]
+
+[[package]]
+name = "dcc-test-harness"
+version = "0.1.0"
+source = { directory = "../../libs/dcc-test-harness" }
+dependencies = [
+    { name = "ftrack-connect" },
+    { name = "pyyaml" },
+]
+
+[package.optional-dependencies]
+test = [
+    { name = "pytest" },
+    { name = "pytest-timeout" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "ftrack-connect", directory = "../../apps/connect" },
+    { name = "pytest", marker = "extra == 'test'", specifier = ">=8.0,<9" },
+    { name = "pytest-timeout", marker = "extra == 'test'", specifier = ">=2.3,<3" },
+    { name = "pyyaml", specifier = ">=6.0" },
+]
+provides-extras = ["test"]
+
+[[package]]
 name = "docutils"
 version = "0.22.4"
 source = { registry = "https://pypi.org/simple" }
@@ -92,6 +128,73 @@ sdist = { url = "https://files.pythonhosted.org/packages/ae/b6/03bb70946330e88ff
 wheels = [
     { url = "https://files.pythonhosted.org/packages/02/10/5da547df7a391dcde17f59520a231527b8571e6f46fc8efb02ccb370ab12/docutils-0.22.4-py3-none-any.whl", hash = "sha256:d0013f540772d1420576855455d050a2180186c91c15779301ac2ccb3eeb68de", size = 633196, upload-time = "2025-12-18T19:00:18.077Z" },
 ]
+
+[[package]]
+name = "ftrack-action-handler"
+version = "0.3.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "ftrack-python-api" },
+    { name = "future" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/44/34/2a1816fe046d9b2b8dcd1d3c628a4b07c1535b55ac9afc766ca706c45f9b/ftrack_action_handler-0.3.1.tar.gz", hash = "sha256:cb4bc8fe05e8af26d5ec2924fdee14f08b2a859c0b7304ba5f8eb519e05fd5f6", size = 23746, upload-time = "2024-05-28T12:12:34.564Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/2b/78/9130edb20fe0b5cc3e60f12da2908b9888640a18d9264bcd4e2ccd8b7078/ftrack_action_handler-0.3.1-py3-none-any.whl", hash = "sha256:4965b524a09aa1eada6b27d2cb1df1fae9b5b4caf2eb26e180709c40af1d8bb0", size = 15770, upload-time = "2024-05-28T12:12:33.288Z" },
+]
+
+[[package]]
+name = "ftrack-connect"
+version = "25.11.0rc1"
+source = { directory = "../../apps/connect" }
+dependencies = [
+    { name = "arrow" },
+    { name = "certifi" },
+    { name = "clique" },
+    { name = "darkdetect" },
+    { name = "ftrack-action-handler" },
+    { name = "ftrack-constants" },
+    { name = "ftrack-framework-core" },
+    { name = "ftrack-python-api" },
+    { name = "ftrack-utils" },
+    { name = "packaging" },
+    { name = "platformdirs" },
+    { name = "pyside6" },
+    { name = "pyyaml" },
+    { name = "qtawesome" },
+    { name = "requests" },
+    { name = "riffle" },
+    { name = "urllib3" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "arrow", specifier = ">=0.4.6,<1" },
+    { name = "certifi", specifier = ">=2024.7.4,<2025" },
+    { name = "clique", specifier = "==1.6.1" },
+    { name = "darkdetect" },
+    { name = "ftrack-action-handler" },
+    { name = "ftrack-app-installer", marker = "extra == 'installer'", directory = "../../installers/app-installer" },
+    { name = "ftrack-constants", directory = "../../libs/constants" },
+    { name = "ftrack-framework-core", directory = "../../libs/framework-core" },
+    { name = "ftrack-python-api", specifier = ">=3.1.0,<4.0.0" },
+    { name = "ftrack-utils", directory = "../../libs/utils" },
+    { name = "jinja2", marker = "extra == 'documentation'", specifier = ">=3.1,<4" },
+    { name = "libsass", marker = "extra == 'documentation'", specifier = ">=0.23.0,<1" },
+    { name = "lowdown", marker = "extra == 'documentation'", specifier = ">=0.1.0,<1" },
+    { name = "packaging", specifier = ">=25,<26" },
+    { name = "platformdirs", specifier = ">=4.0.0,<5.0.0" },
+    { name = "pyside6", specifier = "==6.6.3" },
+    { name = "pytest", marker = "extra == 'test'", specifier = ">=7,<9" },
+    { name = "pyyaml", specifier = ">=6.0.1,<7.0.0" },
+    { name = "qtawesome" },
+    { name = "requests", specifier = ">=2,<3" },
+    { name = "riffle", specifier = ">=2.0.0" },
+    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.1.0,<1.0.0" },
+    { name = "sphinx", marker = "extra == 'documentation'", specifier = ">=5,<10" },
+    { name = "sphinx-rtd-theme", marker = "extra == 'documentation'", specifier = ">=1,<3" },
+    { name = "urllib3", specifier = ">=2.6.0,<3" },
+]
+provides-extras = ["dev", "testpypi", "installer", "documentation", "test"]
 
 [[package]]
 name = "ftrack-constants"
@@ -127,7 +230,7 @@ provides-extras = ["ftrack-libs", "documentation"]
 
 [[package]]
 name = "ftrack-framework-harmony"
-version = "26.3.0rc1"
+version = "26.7.0rc1"
 source = { editable = "." }
 dependencies = [
     { name = "ftrack-python-api" },
@@ -145,9 +248,16 @@ ftrack-libs = [
     { name = "ftrack-qt-style" },
     { name = "ftrack-utils" },
 ]
+test = [
+    { name = "dcc-test-harness", extra = ["test"] },
+    { name = "pyside6" },
+    { name = "pytest" },
+    { name = "pytest-timeout" },
+]
 
 [package.metadata]
 requires-dist = [
+    { name = "dcc-test-harness", extras = ["test"], marker = "extra == 'test'", directory = "../../libs/dcc-test-harness" },
     { name = "ftrack-constants", marker = "extra == 'ftrack-libs'", directory = "../../libs/constants" },
     { name = "ftrack-framework-core", marker = "extra == 'framework-libs'", directory = "../../libs/framework-core" },
     { name = "ftrack-framework-qt", marker = "extra == 'framework-libs'", directory = "../../libs/framework-qt" },
@@ -156,8 +266,11 @@ requires-dist = [
     { name = "ftrack-qt-style", marker = "extra == 'ftrack-libs'", directory = "../../libs/qt-style" },
     { name = "ftrack-utils", marker = "extra == 'ftrack-libs'", directory = "../../libs/utils" },
     { name = "pyffmpeg", specifier = ">=2.4" },
+    { name = "pyside6", marker = "extra == 'test'", specifier = ">=6.5,<7.0.0" },
+    { name = "pytest", marker = "extra == 'test'", specifier = ">=8.0,<9" },
+    { name = "pytest-timeout", marker = "extra == 'test'", specifier = ">=2.3,<3" },
 ]
-provides-extras = ["ftrack-libs", "framework-libs"]
+provides-extras = ["ftrack-libs", "framework-libs", "test"]
 
 [[package]]
 name = "ftrack-framework-qt"
@@ -242,6 +355,12 @@ requires-dist = [
 ]
 
 [[package]]
+name = "future"
+version = "0.18.3"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/8f/2e/cf6accf7415237d6faeeebdc7832023c90e0282aa16fd3263db0eb4715ec/future-0.18.3.tar.gz", hash = "sha256:34a17436ed1e96697a86f9de3d15a3b0be01d8bc8de9c1dffd59fb8234ed5307", size = 840896, upload-time = "2023-01-13T03:15:17.607Z" }
+
+[[package]]
 name = "idna"
 version = "3.11"
 source = { registry = "https://pypi.org/simple" }
@@ -257,6 +376,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/6c/e6/7bf14eeb8f8b7251141944835abd42eb20a658d89084b7e1f3e5fe394090/imagesize-2.0.0.tar.gz", hash = "sha256:8e8358c4a05c304f1fccf7ff96f036e7243a189e9e42e90851993c558cfe9ee3", size = 1773045, upload-time = "2026-03-03T14:18:29.941Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/5f/53/fb7122b71361a0d121b669dcf3d31244ef75badbbb724af388948de543e2/imagesize-2.0.0-py2.py3-none-any.whl", hash = "sha256:5667c5bbb57ab3f1fa4bc366f4fbc971db3d5ed011fd2715fd8001f782718d96", size = 9441, upload-time = "2026-03-03T14:18:27.892Z" },
+]
+
+[[package]]
+name = "iniconfig"
+version = "2.3.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/72/34/14ca021ce8e5dfedc35312d08ba8bf51fdd999c576889fc2c24cb97f4f10/iniconfig-2.3.0.tar.gz", hash = "sha256:c76315c77db068650d49c5b56314774a7804df16fee4402c1f19d6d15d8c4730", size = 20503, upload-time = "2025-10-18T21:55:43.219Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/cb/b1/3846dd7f199d53cb17f49cba7e651e9ce294d8497c8c150530ed11865bb8/iniconfig-2.3.0-py3-none-any.whl", hash = "sha256:f631c04d2c48c52b84d0d0549c99ff3859c98df65b3101406327ecc7d53fbf12", size = 7484, upload-time = "2025-10-18T21:55:41.639Z" },
 ]
 
 [[package]]
@@ -320,6 +448,15 @@ wheels = [
 ]
 
 [[package]]
+name = "pluggy"
+version = "1.6.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/f9/e2/3e91f31a7d2b083fe6ef3fa267035b518369d9511ffab804f839851d2779/pluggy-1.6.0.tar.gz", hash = "sha256:7dcc130b76258d33b90f61b658791dede3486c3e6bfb003ee5c9bfb396dd22f3", size = 69412, upload-time = "2025-05-15T12:30:07.975Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/54/20/4d324d65cc6d9205fabedc306948156824eb9f0ee1633355a8f7ec5c66bf/pluggy-1.6.0-py3-none-any.whl", hash = "sha256:e920276dd6813095e9377c0bc5566d94c932c33b27a3e3945d8389c374dd4746", size = 20538, upload-time = "2025-05-15T12:30:06.134Z" },
+]
+
+[[package]]
 name = "pyffmpeg"
 version = "2.5.2.3.2"
 source = { registry = "https://pypi.org/simple" }
@@ -349,6 +486,79 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/c1/47/dfc9c342c9842bbe0036c7f763d2d6686bcf5eb1808ba3e170afdb282210/pyparsing-2.4.7.tar.gz", hash = "sha256:c203ec8783bf771a155b207279b9bccb8dea02d8f0c9e5f8ead507bc3246ecc1", size = 649718, upload-time = "2020-04-05T22:21:25.349Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/8a/bb/488841f56197b13700afd5658fc279a2025a39e22449b7cf29864669b15d/pyparsing-2.4.7-py2.py3-none-any.whl", hash = "sha256:ef9d7589ef3c200abe66653d3f1ab1033c3c419ae9b9bdb1240a85b024efc88b", size = 67842, upload-time = "2020-04-05T22:21:22.897Z" },
+]
+
+[[package]]
+name = "pyside6"
+version = "6.6.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pyside6-addons" },
+    { name = "pyside6-essentials" },
+    { name = "shiboken6" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/69/05/d952e68097ede1f66ef6b8d19c4807fe4887a13c771725ca31de2b20daae/PySide6-6.6.3-cp38-abi3-macosx_11_0_universal2.whl", hash = "sha256:0fece198904351fa39293b55de7f2392e9f9e7cfee061de88a77172e1013ea2c", size = 512735, upload-time = "2024-03-26T17:51:09.256Z" },
+    { url = "https://files.pythonhosted.org/packages/27/48/71939e07e19824d017bd2209ddc6b42e1a767268e21e43d5ed2dbd2d4df9/PySide6-6.6.3-cp38-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:2b1970afa9aa2d04afa8c77e277494216d915771dc8bc5b1d4e80f553e473f7b", size = 513299, upload-time = "2024-03-26T17:51:11.807Z" },
+    { url = "https://files.pythonhosted.org/packages/e2/d2/a09ce08180f34e36b2c4f9a6061a768f717c2e54635e07977cf87c8c0341/PySide6-6.6.3-cp38-abi3-manylinux_2_31_aarch64.whl", hash = "sha256:1218d3511c6ead373035688db7ad5fe1b84da30d3b3d252f7043ba5b60571fdd", size = 513296, upload-time = "2024-03-26T17:51:14.535Z" },
+    { url = "https://files.pythonhosted.org/packages/c0/a2/5e70cfd298c33f9d7a658086367999306c09d99eb75b0ad2e042fdc84279/PySide6-6.6.3-cp38-abi3-win_amd64.whl", hash = "sha256:98ac4ad46a351198ce9cdc08eec261148859c1386e149497c80c75fd1e2fc1a7", size = 520531, upload-time = "2024-03-26T17:51:16.856Z" },
+]
+
+[[package]]
+name = "pyside6-addons"
+version = "6.6.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pyside6-essentials" },
+    { name = "shiboken6" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/15/bf/5715c5e71397235e993b9a2b3b24868761f67e3fc9fcf60f7bd944a2f5e9/PySide6_Addons-6.6.3-cp38-abi3-macosx_11_0_universal2.whl", hash = "sha256:d2f363f5f2eb84e64b3e0ffeccd681592ff27582abd4247bc1ad979ae05fd3e9", size = 250159651, upload-time = "2024-03-26T17:40:35.273Z" },
+    { url = "https://files.pythonhosted.org/packages/61/b2/e440318c288e6bd68366abe05567c7f91aa2d0bcaefc5fc50e9d4bce2027/PySide6_Addons-6.6.3-cp38-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:7fb0f38a7c5da5c56bdca72149c6669c43f5aeecce583e447b4b347089023cae", size = 125913842, upload-time = "2024-03-26T17:42:18.213Z" },
+    { url = "https://files.pythonhosted.org/packages/5e/0a/910b4d3ce071079b07d8f6f7dd2a2cc0b5303e3e2046347f22c7d1fe5780/PySide6_Addons-6.6.3-cp38-abi3-manylinux_2_31_aarch64.whl", hash = "sha256:0891f9950656cee22edd557594c61a54bb326fc70682b23565ddc6cd2a6c1415", size = 111711144, upload-time = "2024-03-26T17:43:34.119Z" },
+    { url = "https://files.pythonhosted.org/packages/e5/46/1c9e3d93c412f5f712a0c530f128346a1b9cb1e2c6d71040cf8d70a13955/PySide6_Addons-6.6.3-cp38-abi3-win_amd64.whl", hash = "sha256:7d8ff1e063f3ff317ed6532ed3af240a28de2200ae2a1be454fd8ddf1b99c581", size = 104068645, upload-time = "2024-03-26T17:44:50.85Z" },
+]
+
+[[package]]
+name = "pyside6-essentials"
+version = "6.6.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "shiboken6" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/11/68/1d6ac2d72c9ccc3632424a8dc7c03d53e4bb6b82c9aca62fe848521b7a83/PySide6_Essentials-6.6.3-cp38-abi3-macosx_11_0_universal2.whl", hash = "sha256:7b15d4419ad506e3af13d5d417582089baf31c2bcc74ac53c10457db81e69a11", size = 142993901, upload-time = "2024-03-26T17:47:15.532Z" },
+    { url = "https://files.pythonhosted.org/packages/93/12/a5afa4ad3cc40625ef8432ce321a6d9d5406f0d1ae4a8cddee80f98c8597/PySide6_Essentials-6.6.3-cp38-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:d3553641712e2056808c1bf4504ac3343da9aeb671e33933d253e4e807f2eeaf", size = 80165416, upload-time = "2024-03-26T17:48:17.23Z" },
+    { url = "https://files.pythonhosted.org/packages/1e/17/387469d2029db4b9a0a7a3cf7f0e87f100227792d67ff1ce790e4109726e/PySide6_Essentials-6.6.3-cp38-abi3-manylinux_2_31_aarch64.whl", hash = "sha256:3f72f09f4971d6a376d1e29545c12dc13c78a6887e29f1c6034239c86fe65931", size = 64572995, upload-time = "2024-03-26T17:49:23.308Z" },
+    { url = "https://files.pythonhosted.org/packages/72/5e/84f70f643a9d4de4e302dad3906181ca6c186fed2cf432b22f04869bf290/PySide6_Essentials-6.6.3-cp38-abi3-win_amd64.whl", hash = "sha256:7bc9c7cb71dd24ac9631220ebed476801e2f2d3286be01a4cdf480539a3d1e5f", size = 75031889, upload-time = "2024-03-26T17:50:20.607Z" },
+]
+
+[[package]]
+name = "pytest"
+version = "8.4.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "colorama", marker = "sys_platform == 'win32'" },
+    { name = "iniconfig" },
+    { name = "packaging" },
+    { name = "pluggy" },
+    { name = "pygments" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/a3/5c/00a0e072241553e1a7496d638deababa67c5058571567b92a7eaa258397c/pytest-8.4.2.tar.gz", hash = "sha256:86c0d0b93306b961d58d62a4db4879f27fe25513d4b969df351abdddb3c30e01", size = 1519618, upload-time = "2025-09-04T14:34:22.711Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a8/a4/20da314d277121d6534b3a980b29035dcd51e6744bd79075a6ce8fa4eb8d/pytest-8.4.2-py3-none-any.whl", hash = "sha256:872f880de3fc3a5bdc88a11b39c9710c3497a547cfa9320bc3c5e62fbf272e79", size = 365750, upload-time = "2025-09-04T14:34:20.226Z" },
+]
+
+[[package]]
+name = "pytest-timeout"
+version = "2.4.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pytest" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/ac/82/4c9ecabab13363e72d880f2fb504c5f750433b2b6f16e99f4ec21ada284c/pytest_timeout-2.4.0.tar.gz", hash = "sha256:7e68e90b01f9eff71332b25001f85c75495fc4e3a836701876183c4bcfd0540a", size = 17973, upload-time = "2025-05-05T19:44:34.99Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/fa/b6/3127540ecdf1464a00e5a01ee60a1b09175f6913f0644ac748494d9c4b21/pytest_timeout-2.4.0-py3-none-any.whl", hash = "sha256:c42667e5cdadb151aeb5b26d114aff6bdf5a907f176a007a30b940d3d865b5c2", size = 14382, upload-time = "2025-05-05T19:44:33.502Z" },
 ]
 
 [[package]]
@@ -382,6 +592,30 @@ wheels = [
 ]
 
 [[package]]
+name = "qtawesome"
+version = "1.4.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "qtpy" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/cf/bc/475c8df94de4f358bbf7703747c13b16ae3c0c4cda50d5243b99cb45e2a8/qtawesome-1.4.2.tar.gz", hash = "sha256:b2bf9351beb335095006892796f072ffd9755a2d7e5113dc71918dcd9ba4ef4a", size = 2614207, upload-time = "2026-04-10T18:49:46.037Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/25/b1/da1d826ccc9258674b26dd0abcbbb1c55cab06e7fbf2697518b67edc79fc/qtawesome-1.4.2-py3-none-any.whl", hash = "sha256:dbf08524428fa2df73918ce362153254cd44f089380576d84bfaad8f40eece45", size = 2593557, upload-time = "2026-04-10T18:49:44.219Z" },
+]
+
+[[package]]
+name = "qtpy"
+version = "2.4.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "packaging" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/70/01/392eba83c8e47b946b929d7c46e0f04b35e9671f8bb6fc36b6f7945b4de8/qtpy-2.4.3.tar.gz", hash = "sha256:db744f7832e6d3da90568ba6ccbca3ee2b3b4a890c3d6fbbc63142f6e4cdf5bb", size = 66982, upload-time = "2025-02-11T15:09:25.759Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/69/76/37c0ccd5ab968a6a438f9c623aeecc84c202ab2fabc6a8fd927580c15b5a/QtPy-2.4.3-py3-none-any.whl", hash = "sha256:72095afe13673e017946cc258b8d5da43314197b741ed2890e563cf384b51aa1", size = 95045, upload-time = "2025-02-11T15:09:24.162Z" },
+]
+
+[[package]]
 name = "requests"
 version = "2.32.5"
 source = { registry = "https://pypi.org/simple" }
@@ -397,12 +631,36 @@ wheels = [
 ]
 
 [[package]]
+name = "riffle"
+version = "2.0.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "clique" },
+    { name = "pyside6" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/e7/4a/01a8bdf4f76b39bc644554b0645c316b41b2f338636f9435a2062a966f71/Riffle-2.0.0.tar.gz", hash = "sha256:1180c681d01c7d186f13b056d3f8c559a11ddf4d5a9111efc2b1e5d4c158776b", size = 22371, upload-time = "2024-04-22T09:13:33.059Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/76/f4/7c4eeb71239a4dee1d64e5c020f8abd634b582e3a6fa3537b3df92ccc927/Riffle-2.0.0-py3-none-any.whl", hash = "sha256:d81577567a2e8e6f4586de65e7106f042b8c3139f956c2aa0172238e24c6a73c", size = 17739, upload-time = "2024-04-22T09:13:31.273Z" },
+]
+
+[[package]]
 name = "roman-numerals"
 version = "4.1.0"
 source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/ae/f9/41dc953bbeb056c17d5f7a519f50fdf010bd0553be2d630bc69d1e022703/roman_numerals-4.1.0.tar.gz", hash = "sha256:1af8b147eb1405d5839e78aeb93131690495fe9da5c91856cb33ad55a7f1e5b2", size = 9077, upload-time = "2025-12-17T18:25:34.381Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/04/54/6f679c435d28e0a568d8e8a7c0a93a09010818634c3c3907fc98d8983770/roman_numerals-4.1.0-py3-none-any.whl", hash = "sha256:647ba99caddc2cc1e55a51e4360689115551bf4476d90e8162cf8c345fe233c7", size = 7676, upload-time = "2025-12-17T18:25:33.098Z" },
+]
+
+[[package]]
+name = "shiboken6"
+version = "6.6.3"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/04/bb/8818d367f5cb1eedc79f2a5dbecda36276345fa5ceb9f7e7ce333120957f/shiboken6-6.6.3-cp38-abi3-macosx_11_0_universal2.whl", hash = "sha256:67f980fec13fd9292be483b9fabfce6c3dc537a5aec196578793a4b7c49d3e96", size = 345898, upload-time = "2024-03-26T17:50:30.158Z" },
+    { url = "https://files.pythonhosted.org/packages/2a/b3/afb282bbc6f94b4ffaf28c0575adcd7dc82f5cec85269c7bc8aea5c3c2b2/shiboken6-6.6.3-cp38-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:068bb9d9f49b70f36bbd673013e032ac6c9cde5f771b134bd04611330867d9d7", size = 171454, upload-time = "2024-03-26T17:50:32.78Z" },
+    { url = "https://files.pythonhosted.org/packages/e6/90/5d22372b8f4078e87bd7c404cf8936f61c5173592de746e49f78536f27c0/shiboken6-6.6.3-cp38-abi3-manylinux_2_31_aarch64.whl", hash = "sha256:eb547c61c3360eb9086365cf42e57b2548be44f1db48b930af5e074cc73ec5d1", size = 162403, upload-time = "2024-03-26T17:50:34.949Z" },
+    { url = "https://files.pythonhosted.org/packages/98/06/4f409d6f241f276ac3233023de12d34367af9cfb1bab76bbbdefa8da8182/shiboken6-6.6.3-cp38-abi3-win_amd64.whl", hash = "sha256:b99b090361db9a7cbd5f22019ad7915819b57aab2d5920f7591f344bcd66e6d2", size = 1068502, upload-time = "2024-03-26T17:50:37.689Z" },
 ]
 
 [[package]]

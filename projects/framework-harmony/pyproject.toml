@@ -1,6 +1,6 @@
 [project]
 name = "ftrack-framework-harmony"
-version = "26.3.0rc1"
+version = "26.7.0rc1"
 description = "ftrack Harmony integration"
 readme = "README.md"
 license = { text = "Apache-2.0" }
@@ -29,6 +29,12 @@ framework-libs = [
   "ftrack-framework-core>=4.0.0, <5.0.0",
   "ftrack-framework-qt>=4.0.0, <5.0.0",
 ]
+test = [
+  "pytest>=8.0,<9",
+  "pytest-timeout>=2.3,<3",
+  "dcc-test-harness[test]",
+  "pyside6>=6.5, <7.0.0",
+]
 
 [build-system]
 requires = ["hatchling"]
@@ -44,6 +50,20 @@ ftrack-framework-qt = { path = "../../libs/framework-qt" }
 ftrack-qt = { path = "../../libs/qt" }
 ftrack-qt-style = { path = "../../libs/qt-style" }
 ftrack-utils = { path = "../../libs/utils" }
+dcc-test-harness = { path = "../../libs/dcc-test-harness" }
+ftrack-connect = { path = "../../apps/connect" }
+
+[tool.uv]
+# uv does not apply a path dependency's own tool.uv.sources
+# transitively - without this override the harness's ftrack-connect
+# dependency would resolve from PyPI.
+override-dependencies = [
+  "ftrack-connect @ file:///${PROJECT_ROOT}/../../apps/connect",
+]
+
+[tool.pytest.ini_options]
+addopts = "-v --timeout=300 --dcc-startup-timeout=180"
+testpaths = ["tests"]
 
 [[tool.uv.index]]
 name = "pypi"

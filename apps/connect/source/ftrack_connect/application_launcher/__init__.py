@@ -628,6 +628,34 @@ class ApplicationLauncher(object):
 
             launchData["command"].extend(launch_arguments)
 
+            # When an integration injects launch arguments (e.g. a scene for
+            # the DCC to open on startup), we must not let macOS' `open` treat
+            # them as *documents*: `open <app> <file>` hands <file> to the file
+            # type's default handler via LaunchServices, so when several
+            # versions of the DCC are installed a second, wrong-version instance
+            # launches alongside the one we asked for. Rewrite to
+            # `open -n -a <app> --args <args...>`, which passes the arguments
+            # straight to the launched app's process (no document routing), so
+            # only the requested version starts. Only rewrite when a hook
+            # actually injected launch arguments and this is the
+            # `open <app.app>` GUI launch, leaving every other launch untouched.
+            # Console launch uses the executable directly (no leading "open"),
+            # so it is skipped.
+            if (
+                self.current_os == "darwin"
+                and launch_arguments
+                and len(launchData["command"]) >= 2
+                and launchData["command"][0] == "open"
+                and str(launchData["command"][1]).lower().endswith(".app")
+            ):
+                launchData["command"] = [
+                    "open",
+                    "-n",
+                    "-a",
+                    launchData["command"][1],
+                    "--args",
+                ] + launchData["command"][2:]
+
             self._notify_integration_use(results, application)
 
             if context.get("integrations"):

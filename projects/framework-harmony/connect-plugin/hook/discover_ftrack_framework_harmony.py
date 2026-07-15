@@ -10,6 +10,7 @@ import re
 import shutil
 import random
 import socket
+import tempfile
 import uuid
 
 from ftrack_utils.version import get_connect_plugin_version
@@ -25,7 +26,12 @@ cwd = os.path.dirname(__file__)
 connect_plugin_path = os.path.abspath(os.path.join(cwd, ".."))
 
 # Read version number from __version__.py
-__version__ = get_connect_plugin_version(connect_plugin_path)
+try:
+    __version__ = get_connect_plugin_version(connect_plugin_path)
+except FileNotFoundError:
+    # __version__.py is generated at build time; fall back when the hook
+    # is imported from the source tree (e.g. by the tests).
+    __version__ = "0.0.0"
 
 python_dependencies = os.path.join(connect_plugin_path, "dependencies")
 
@@ -60,12 +66,80 @@ def check_port(port, host="localhost"):
         return True
 
 
-def sync_js_plugin(app_path, framework_extensions_paths):
+# Name of the bundled blank scene folder (and its .xstage basename), staged
+# per launch so Harmony boots straight into it. See stage_bootstrap_scene.
+BOOTSTRAP_SCENE_NAME = "ftrack_bootstrap"
+
+
+def launch_into_scene_enabled(launch_env=None):
+    """Whether to launch Harmony straight into the bundled bootstrap scene.
+
+    Enabled by default: the ftrack tools (menu/toolbar/opener) are otherwise
+    unavailable at Harmony's welcome screen, where the ftrack package never
+    initializes (Harmony does not run package scripts until a scene UI
+    loads).
+
+    Configure it in the launch config's ``environment_variables`` block
+    (see ``extensions/launch/harmony-launch-*.yaml``)::
+
+        environment_variables:
+          FTRACK_HARMONY_LAUNCH_INTO_SCENE: "0"
+
+    *launch_env* is that block from the launch event
+    (``event["data"]["application"]["environment_variables"]``); the Connect
+    process environment is used as a fallback. Set the value to
+    ``0``/``false``/``no``/``off`` to keep the normal welcome/staging screen.
+    """
+    value = None
+    if launch_env:
+        value = launch_env.get("FTRACK_HARMONY_LAUNCH_INTO_SCENE")
+    if value is None:
+        value = os.environ.get("FTRACK_HARMONY_LAUNCH_INTO_SCENE", "1")
+    return str(value).strip().lower() not in ("0", "false", "no", "off", "")
+
+
+def stage_bootstrap_scene():
+    """Stage a per-launch copy of the bundled blank bootstrap scene.
+
+    A Harmony scene is a folder; hand the artist a throwaway copy rather than
+    the shared bundled original. Returns ``(xstage_path, stage_root)`` where
+    *xstage_path* is the ``.xstage`` to pass to the launch command and
+    *stage_root* is the temp directory to remove on shutdown, or
+    ``(None, None)`` if the bundled scene is missing.
+    """
+    source = os.path.join(
+        connect_plugin_path,
+        "resource",
+        "bootstrap",
+        "scene",
+        BOOTSTRAP_SCENE_NAME,
+    )
+    if not os.path.isdir(source):
+        logger.warning(
+            "Bootstrap scene not found at {}; launching without a "
+            "scene.".format(source)
+        )
+        return None, None
+
+    stage_root = tempfile.mkdtemp(prefix="ftrack_harmony_bootstrap_")
+    dest = os.path.join(stage_root, BOOTSTRAP_SCENE_NAME)
+    shutil.copytree(source, dest)
+    xstage_path = os.path.join(dest, BOOTSTRAP_SCENE_NAME + ".xstage")
+    return xstage_path, stage_root
+
+
+def sync_js_plugin(app_path, framework_extensions_paths, bootstrap_path=None):
     """
     Sync the JS plugin to the user's Harmony scripts folder, removing any existing files.
 
     :param app_path: The full path to DCC executable.
     :param framework_extensions_paths: List of paths to scan for extensions.
+        Currently unused, kept for backwards compatibility (JS extensions
+        support has been removed).
+    :param bootstrap_path: Path to the bootstrap resource folder to deploy,
+        defaults to the resource/bootstrap folder within the built Connect
+        plugin; pass explicitly to deploy from another location (e.g. a
+        source checkout).
     :return:
     """
     version_nr = None
@@ -132,7 +206,7 @@ def sync_js_plugin(app_path, framework_extensions_paths):
             except Exception as e:
                 logger.error(f"Failed to delete {file_path}. Reason: {e}")
 
-    bootstrap_folder = os.path.join(
+    bootstrap_folder = bootstrap_path or os.path.join(
         connect_plugin_path, "resource", "bootstrap"
     )
 
@@ -148,6 +222,37 @@ def sync_js_plugin(app_path, framework_extensions_paths):
     dst = os.path.join(path_scripts, "icons")
     shutil.copytree(src, dst)
     logger.debug("Copied: icons")
+
+    # Deploy the scene-event hooks to the user scripts root (one level
+    # above packages/): Harmony rebuilds the menu bar whenever a scene is
+    # opened or created and drops script-added items, so these hooks
+    # re-register the ftrack menu entries. Each hook chains Harmony's
+    # default callback of the same name (never clobbers it). Never
+    # overwrite a studio's own hook (ours carry an "[ftrack]" marker).
+    scripts_root = os.path.dirname(os.path.dirname(path_scripts))
+    for hook_name in ["TB_sceneOpened.js", "TB_sceneCreated.js"]:
+        src = os.path.join(bootstrap_folder, "js", hook_name)
+        dst = os.path.join(scripts_root, hook_name)
+        if os.path.isfile(dst):
+            with open(dst, "r", errors="replace") as existing:
+                if "[ftrack]" not in existing.read():
+                    logger.warning(
+                        f"Not deploying {hook_name} - a non-ftrack "
+                        f"script already exists at {dst}. ftrack menu "
+                        f"entries will disappear after a scene switch; "
+                        f"add a call to the ftrack re-registration there."
+                    )
+                    continue
+        shutil.copy(src, dst)
+        logger.debug(f"Copied: {hook_name}")
+
+    # Return the deployed package folder (the one holding configure.js) so
+    # the launcher can expose it to the JS side. The TB_scene* hooks need
+    # this absolute path to re-include configure.js and reconnect the
+    # integration to the standalone RPC server after Harmony tears down
+    # the script engine on a scene switch (Harmony does not re-invoke the
+    # package configure()).
+    return path_scripts
 
 
 def on_launch_integration(session, event):
@@ -187,11 +292,19 @@ def on_launch_integration(session, event):
             )
 
     # Re-create the Harmony plugin taking extension into account
-    sync_js_plugin(
+    package_ftrack_path = sync_js_plugin(
         event["data"]["application"]["path"],
         event["data"]["application"]["environment_variables"][
             "FTRACK_FRAMEWORK_EXTENSIONS_PATH"
         ].split(os.pathsep),
+    )
+
+    # Expose the package root (parent of the "ftrack" folder, i.e. the
+    # Harmony "packages" dir) so the TB_scene* hooks can re-include
+    # configure.js and reconnect the integration to the standalone RPC
+    # server after a scene switch.
+    launch_data["integration"]["env"]["FTRACK_HARMONY_PACKAGE_PATH.set"] = (
+        os.path.dirname(package_ftrack_path)
     )
 
     launch_data["integration"]["env"]["FTRACK_INTEGRATION_LISTEN_PORT.set"] = (
@@ -209,6 +322,32 @@ def on_launch_integration(session, event):
     if selection:
         task = session.get("Context", selection[0]["entityId"])
         launch_data["integration"]["env"]["FTRACK_CONTEXTID.set"] = task["id"]
+
+    # Launch Harmony straight into a bundled blank "bootstrap" scene so the
+    # ftrack tools (menu/toolbar/opener) are available immediately. Without
+    # this the artist lands on Harmony's welcome screen, where the ftrack
+    # package never initializes. Connect appends integration launch_arguments
+    # to the launch command and, on macOS, rewrites `open <app>` to
+    # `open -n -a <app> --args <scene>`; Windows/Linux receive the scene as a
+    # positional argument. Configure via the launch config's
+    # environment_variables block; disable with
+    # FTRACK_HARMONY_LAUNCH_INTO_SCENE=0.
+    launch_env = event["data"]["application"].get("environment_variables", {})
+    if launch_into_scene_enabled(launch_env):
+        xstage_path, stage_root = stage_bootstrap_scene()
+        if xstage_path:
+            logger.info(
+                "Launching Harmony into bootstrap scene: {}".format(
+                    xstage_path
+                )
+            )
+            launch_data["integration"].setdefault("launch_arguments", [])
+            launch_data["integration"]["launch_arguments"].append(xstage_path)
+            # Hand the staged copy's root to the standalone helper so it can
+            # remove it when Harmony exits (see the shutdown watchdog).
+            launch_data["integration"]["env"][
+                "FTRACK_HARMONY_BOOTSTRAP_SCENE.set"
+            ] = stage_root
 
     return launch_data
 
