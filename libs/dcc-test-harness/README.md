@@ -55,6 +55,19 @@ Then install from the project directory:
 uv sync --extra test
 ```
 
+### Where the integration suites live
+
+Each DCC integration's tests are colocated with the code under test in
+`projects/<integration>/tests/`, consuming this library through the
+`test` extra + uv path source shown above. They are workstation-only
+integration tests: run them from the integration's project directory,
+where they self-skip by capability (no DCC / no credentials) and are
+kept out of repo-root `pytest`/CI by a `conftest.py` collection guard
+(`try: import dcc_test_harness / except ImportError: collect_ignore`).
+The pattern to copy is
+[`framework-harmony`](../../projects/framework-harmony). This lib's own
+`tests/` (the pure-unit protocol suite below) uses the same guard.
+
 ## Quick start
 
 If you have an ftrack integration project (e.g. `framework-maya`), the harness can launch the DCC and configure the ftrack environment automatically. No custom launcher code needed.
@@ -471,12 +484,23 @@ src/dcc_test_harness/
 
 tests/
     test_protocol.py       Protocol + client unit tests (no DCC needed)
-    maya/
+    maya/                   (upstream repo only - see TODO below)
         conftest.py        Maya scene-reset fixture
         test_smoke.py      Connection, commands, MEL, scene isolation
         test_ui.py         Widget inspection, menus, callbacks
         test_ftrack_integration.py  ftrack packages, bootstrap, menu, session, dialogs
 ```
+
+In this monorepo the harness ships only `tests/test_protocol.py` (the
+pure-unit, headless suite run by CI). The `maya/` suite above still lives
+in the upstream `ftrackhq/dcc-test-harness` repo.
+
+> **TODO (follow-up):** the `maya/` suite is effectively
+> framework-maya's integration tests, not harness infrastructure. Move it
+> into `projects/framework-maya/tests/` with the same `conftest.py`
+> collection guard used by framework-harmony, then archive the upstream
+> repo. See
+> [`docs/specs/2026-07-15-dcc-integration-test-topology-design.md`](../../docs/specs/2026-07-15-dcc-integration-test-topology-design.md).
 
 ## Custom launchers
 

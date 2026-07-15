@@ -178,6 +178,13 @@ verify the integration loads. They use the
 [`dcc-test-harness`](../../libs/dcc-test-harness) library and are skipped
 when Harmony is not installed.
 
+These are **workstation-only integration tests**: run them from this
+project directory. They self-skip by capability - no Harmony installed
+or no ftrack credentials - and are invisible to repo-root `pytest`/CI,
+which never installs `dcc-test-harness`; the project's `conftest.py`
+drops the `tests/` directory from collection when the harness import
+fails, so CI stays green without a Harmony job.
+
 Install the test dependencies from the project directory:
 
 ```bash
