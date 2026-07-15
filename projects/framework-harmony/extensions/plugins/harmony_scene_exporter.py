@@ -28,7 +28,7 @@ class HarmonySceneExporterPlugin(BasePlugin):
             # Persist the scene so the on-disk folder is up to date.
             # RPC timeouts are in milliseconds.
             save_response = harmony_connection.rpc("saveScene", timeout=120000)
-            if "result" not in save_response:
+            if not save_response.get("result"):
                 raise PluginExecutionError(
                     f"Error saving the scene: "
                     f"{save_response.get('error_message')}"
@@ -43,7 +43,7 @@ class HarmonySceneExporterPlugin(BasePlugin):
                 f"Exception saving the Harmony scene: {e}"
             )
 
-        if "result" not in scene_path_response:
+        if not scene_path_response.get("result"):
             raise PluginExecutionError(
                 f"Error resolving the scene path: "
                 f"{scene_path_response.get('error_message')}"

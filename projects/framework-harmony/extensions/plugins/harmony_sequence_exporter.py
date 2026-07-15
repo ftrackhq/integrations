@@ -23,9 +23,9 @@ class HarmonySequenceExporterPlugin(BasePlugin):
         export_format = self.options.get("export_format") or ""
 
         # A directory to render the image sequence into. get_temp_path
-        # creates it, so it must not be created again (doing so raised
-        # ``[Errno 17] File exists`` - it previously requested a temp
-        # *file* path and then called os.makedirs on it).
+        # already creates the directory, so it must not be created again
+        # (os.makedirs on an existing directory raises
+        # ``[Errno 17] File exists``).
         temp_folder = get_temp_path(is_directory=True)
 
         prefix = "image"
@@ -54,9 +54,9 @@ class HarmonySequenceExporterPlugin(BasePlugin):
                 f"Exception exporting the image sequence: {e}"
             )
 
-        if "result" not in render_response:
+        if not render_response.get("result"):
             raise PluginExecutionError(
-                f"Error exporting the image sequence: {render_response['error_message']}"
+                f"Error exporting the image sequence: {render_response.get('error_message')}"
             )
 
         # Collect the result

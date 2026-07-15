@@ -63,7 +63,7 @@ class HarmonySceneOpenerPlugin(BasePlugin):
             self.logger.exception(e)
             raise PluginExecutionError(f"Exception opening the scene: {e}")
 
-        if "result" not in open_response:
+        if not open_response.get("result"):
             raise PluginExecutionError(
                 f"Error opening the scene: "
                 f"{open_response.get('error_message')}"

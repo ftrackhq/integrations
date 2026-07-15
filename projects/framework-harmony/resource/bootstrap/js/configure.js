@@ -294,7 +294,7 @@ function HarmonyIntegration() {
         var ftrackToolbar = new ScriptToolbarDef( {
             id           : "ftrackToolbar",
             text         : "Ftrack",
-            customizable : "false"
+            customizable : false
         } );
 
         for (var idx = 0; idx < this.launchers.length; idx++) {
