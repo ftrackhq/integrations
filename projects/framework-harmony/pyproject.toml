@@ -1,6 +1,6 @@
 [project]
 name = "ftrack-framework-harmony"
-version = "26.7.0rc1"
+version = "26.7.0rc2"
 description = "ftrack Harmony integration"
 readme = "README.md"
 license = { text = "Apache-2.0" }
