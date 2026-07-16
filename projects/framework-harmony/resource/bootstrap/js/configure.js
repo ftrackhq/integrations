@@ -20,6 +20,10 @@ const REMOTE_INTEGRATION_RPC_TOPIC = _BASE_ + ".remote.integration.rpc";
 // Sent from standalone process to remote integration in order to run a function
 // within JS and return the result
 
+// Trace every evaluation of this file (package load, reconnect, and each
+// menu/toolbar action re-eval), before utils.js is included - so use the raw
+// MessageLog rather than the info() helper, which may not be defined yet.
+MessageLog.trace("[ftrack] configure.js evaluated; __packageFolder__=" + this['__packageFolder__']);
 
 if (this['__packageFolder__']) {
     MessageLog.trace("[ftrack] Including utilities");
@@ -27,15 +31,66 @@ if (this['__packageFolder__']) {
 
     info("Including harmony commands");
     include(__packageFolder__+"/ftrack/harmony_commands.js");
+}
 
-} else {
-    // Menu/toolbar launch: (re)define the launch_<name> callbacks in
-    // this evaluation's scope. app.integration can be absent right after
-    // a scene switch (Harmony tore down the engine that created it);
-    // guard so a stray evaluation no-ops instead of throwing.
-    if (QCoreApplication.instance().integration) {
-        QCoreApplication.instance().integration.createLaunchers(this);
+// Generic launcher function that all menu actions delegate to.
+function ftrackLaunchTool(toolName) {
+    MessageLog.trace("[ftrack] Launching tool: " + toolName);
+    try {
+        var app = QCoreApplication.instance();
+
+        // Get launcher data from JSON
+        var launchers = [];
+        if (app.ftrack_launchers_json) {
+            try {
+                launchers = JSON.parse(app.ftrack_launchers_json);
+            } catch (e) {
+                MessageLog.trace("[ftrack] ERROR: Could not parse ftrack_launchers_json: " + e);
+                return;
+            }
+        }
+
+        // Find the launcher by name
+        var launcher = null;
+        for (var i = 0; i < launchers.length; i++) {
+            if (launchers[i]["name"] === toolName) {
+                launcher = launchers[i];
+                break;
+            }
+        }
+
+        if (!launcher) {
+            MessageLog.trace("[ftrack] ERROR: No launcher found for tool: " + toolName);
+            return;
+        }
+
+        // Send the event
+        if (app.integration && app.integration.sendEvent) {
+            app.integration.sendEvent(
+                REMOTE_INTEGRATION_RUN_DIALOG_TOPIC,
+                {
+                    "name": launcher["name"],
+                    "dialog_name": launcher["dialog_name"],
+                    "options": launcher["options"]
+                }
+            );
+        } else {
+            MessageLog.trace("[ftrack] ERROR: integration.sendEvent not available");
+        }
+    } catch (err) {
+        MessageLog.trace("[ftrack] ERROR in ftrackLaunchTool: " + err);
     }
+}
+
+// Define specific launcher functions that delegate to the generic one.
+// These are called by menu/toolbar/shortcut actions via the absolute path
+// action string, e.g. "launch_open in /path/to/configure.js"
+function launch_open() {
+    ftrackLaunchTool("open");
+}
+
+function launch_publish() {
+    ftrackLaunchTool("publish");
 }
 
 /*
@@ -274,6 +329,9 @@ function HarmonyIntegration() {
         QCoreApplication.instance().ftrack_launchers_json =
             JSON.stringify(this.launchers);
 
+        // The top-level launch_<name> functions are statically defined in
+        // this file and read from ftrack_launchers_json when called.
+
         // Menu items are dropped on every scene switch, so rebuild them
         // on every CONTEXT_DATA (i.e. on every (re)connection).
         ftrackRebuildMenus();
@@ -301,7 +359,14 @@ function HarmonyIntegration() {
             var launcher = this.launchers[idx];
             var name = launcher["name"];
             var label = launcher["label"];
-            var action = "launch_"+name+" in ./configure.js";
+
+            // Get the absolute path to configure.js
+            var packagePath = System.getenv("FTRACK_HARMONY_PACKAGE_PATH");
+            if (!packagePath) {
+                packagePath = __packageFolder__ || "";
+            }
+            var scriptPath = packagePath + "/ftrack/configure.js";
+            var action = "launch_"+name+" in " + scriptPath;
 
             // Keyboard shortcut for the primary publish tool.
             if (name == "publish") {
@@ -327,49 +392,6 @@ function HarmonyIntegration() {
         ScriptManager.addToolbar(ftrackToolbar);
 
         this.ftrack_ui_built = true;
-    }
-
-    /**
-    * Create launchers for each tool in the integration, bind it to the global
-    * script this context to facilitate menu callbacks.
-    */
-    this.createLaunchers = function(this_) {
-        var launchers = this.launchers;
-        if (!launchers || launchers.length === 0) {
-            // Script-object properties read back through
-            // QCoreApplication.instance() can be lossy copies across
-            // script engines - fall back to the JSON string.
-            try {
-                launchers = JSON.parse(
-                    QCoreApplication.instance().ftrack_launchers_json
-                    || "[]"
-                );
-            } catch (err) {
-                launchers = [];
-            }
-        }
-        for (var idx = 0; idx < launchers.length; idx++) {
-            // Bind each launcher in its own scope - with a plain `var`
-            // loop every generated launch_<name> would close over the
-            // last launcher, so all menu items would run the same tool.
-            (function(launcher) {
-                var name = launcher["name"];
-                var dialog_name = launcher["dialog_name"];
-                var options = launcher["options"];
-
-                this_["launch_"+name] = function() {
-                    var app = QCoreApplication.instance();
-                    app.integration.sendEvent(
-                        REMOTE_INTEGRATION_RUN_DIALOG_TOPIC,
-                        {
-                            "name": name,
-                            "dialog_name": dialog_name,
-                            "options": options
-                        }
-                    )
-                }
-            })(launchers[idx]);
-        }
     }
 
     /**
@@ -478,7 +500,7 @@ function ftrackRebuildMenus() {
             QCoreApplication.instance().ftrack_launchers_json || "[]"
         );
     } catch (err) {
-        warning("Could not read ftrack launchers: " + err);
+        MessageLog.trace("[ftrack] WARNING: Could not read ftrack launchers: " + err);
         return false;
     }
     for (var idx = 0; idx < launchers.length; idx++) {
@@ -486,14 +508,26 @@ function ftrackRebuildMenus() {
         var name = launcher["name"];
         var label = launcher["label"];
 
+        // Get the absolute path to configure.js - Harmony's ScriptManager
+        // requires the full path in the action string for menu items to work.
+        // Relative paths like "./configure.js" are not resolved.
+        var packagePath = System.getenv("FTRACK_HARMONY_PACKAGE_PATH");
+        if (!packagePath) {
+            // Fallback to reading from __packageFolder__ if available
+            packagePath = __packageFolder__ || "";
+        }
+        var scriptPath = packagePath + "/ftrack/configure.js";
+        var action = "launch_"+name+" in " + scriptPath;
+
         ScriptManager.addMenuItem( {
             targetMenuId : "File",
             id           : "ftrackMenu"+name+"ID",
             icon         : "ftrack.png",
             text         : "Ftrack "+label,
-            action       : "launch_"+name+" in ./configure.js"
+            action       : action
         } );
     }
+    info("Added " + launchers.length + " ftrack menu items");
     return launchers.length > 0;
 }
 

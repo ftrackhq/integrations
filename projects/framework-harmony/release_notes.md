@@ -1,6 +1,13 @@
 # ftrack Framework Harmony integration release Notes
 
 
+## v26.7.0rc2
+2026-07-16
+
+* [fix] Clicking the ftrack Open/Publish menu, toolbar or shortcut now actually opens the dialog. The menu actions target top-level `launch_open`/`launch_publish` functions in configure.js (which Harmony's ScriptManager can resolve) instead of dynamically assigned callbacks, and the action string now uses the absolute path to configure.js (Harmony does not resolve a relative `./configure.js`); the launch functions read the tool list from the persisted launcher JSON and send the run-dialog event. The `TB_sceneOpened`/`TB_sceneCreated` hooks no longer leak `__packageFolder__` as an un-scoped global that forced later configure.js evaluations down the package-load branch.
+* [fix] Log the full traceback when running a tool/dialog fails. The run-dialog dispatch runs inside a Qt socket slot where PySide swallows exceptions, so a failure previously left no trace and no window; the standalone process now catches and logs it while still replying to Harmony.
+
+
 ## v26.7.0rc1
 2026-07-16
 

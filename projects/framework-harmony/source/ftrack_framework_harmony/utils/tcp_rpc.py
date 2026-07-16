@@ -391,11 +391,23 @@ class TCPRPCClient(QtCore.QObject):
             event["topic"]
             == constants.event.REMOTE_INTEGRATION_RUN_DIALOG_TOPIC
         ):
-            self.on_run_tool_callback(
-                event["data"]["name"],
-                event["data"]["dialog_name"],
-                event["data"]["options"],
-            )
+            # Guard the dialog-construction callback so any exception
+            # surfaces in the log instead of vanishing inside the Qt
+            # readyRead slot (PySide swallows exceptions raised in a slot).
+            # Mirrors the guarded handshake in _on_new_connection. Still
+            # reply afterwards so the DCC is not left waiting.
+            try:
+                self.on_run_tool_callback(
+                    event["data"]["name"],
+                    event["data"]["dialog_name"],
+                    event["data"]["options"],
+                )
+            except Exception:
+                self.logger.exception(
+                    f"on_run_tool_callback failed for tool "
+                    f"{event['data']['name']} (dialog: "
+                    f"{event['data']['dialog_name']})"
+                )
             self.send_reply(event, {})
 
     def send(
