@@ -85,6 +85,11 @@ ftrack-constants = { path = "../../libs/constants" }
 ftrack-utils = { path = "../../libs/utils" }
 ftrack-framework-core = { path = "../../libs/framework-core" }
 
+[tool.pytest.ini_options]
+# The launcher module lives under source/; make it importable without an
+# install so `uv run pytest tests/` works from a bare `uv sync --extra test`.
+pythonpath = ["source"]
+
 [tool.ruff]
 line-length = 79
 

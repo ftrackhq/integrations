@@ -144,7 +144,7 @@ wheels = [
 
 [[package]]
 name = "ftrack-connect"
-version = "25.11.0rc1"
+version = "26.7.0"
 source = { directory = "../../apps/connect" }
 dependencies = [
     { name = "arrow" },
