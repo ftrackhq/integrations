@@ -69,6 +69,34 @@ jobs:
           uv sync --extra test
           uv run pytest
 
+  connect-unit-pytest:
+    # Headless unit tests for ftrack Connect's application launcher (the
+    # frozen-Qt environment scrub). The launcher's frozen-path logic is
+    # fully exercisable without a frozen build - the helpers take their
+    # bundle roots as arguments - so it is covered here rather than in the
+    # workstation-only DCC suites.
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86  # v5
+
+      - name: ftrack Connect unit tests
+        working-directory: apps/connect
+        run: |
+          uv sync --extra test
+          uv run pytest tests/
+
   coverage:
     name: Coverage
     runs-on: ubuntu-22.04

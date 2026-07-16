@@ -28,7 +28,6 @@ import os
 import platform
 import shutil
 import ssl
-import tempfile
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -173,7 +172,9 @@ class StandaloneBundle:
     log_path: str
 
 
-def _standalone_bundle_impl(request, harmony_launcher, harmony_process):
+def _standalone_bundle_impl(
+    request, harmony_launcher, harmony_process, tmp_path_factory
+):
     """Spawn the real standalone framework process next to Harmony and
     tear it down. Shared by the module- and function-scoped
     ``standalone_bundle`` fixtures.
@@ -182,7 +183,9 @@ def _standalone_bundle_impl(request, harmony_launcher, harmony_process):
     if credentials is None:
         pytest.skip("ftrack credentials required")
 
-    port_file = tempfile.mktemp(prefix="harmony_standalone_", suffix=".port")
+    port_file = str(
+        tmp_path_factory.mktemp("harmony_standalone") / "standalone.port"
+    )
     extra_env = {
         "FTRACK_SERVER": credentials["server"],
         "FTRACK_API_KEY": credentials["api_key"],
@@ -289,7 +292,9 @@ def _standalone_bundle_impl(request, harmony_launcher, harmony_process):
 
 
 @pytest.fixture(scope="module")
-def standalone_bundle(request, harmony_launcher, harmony_process):
+def standalone_bundle(
+    request, harmony_launcher, harmony_process, tmp_path_factory
+):
     """Module-scoped standalone framework process next to Harmony.
 
     Mirrors Connect's ``--run-framework-standalone`` helper: same
@@ -299,13 +304,13 @@ def standalone_bundle(request, harmony_launcher, harmony_process):
     ``StandaloneBundle`` (harness client + process handle).
     """
     yield from _standalone_bundle_impl(
-        request, harmony_launcher, harmony_process
+        request, harmony_launcher, harmony_process, tmp_path_factory
     )
 
 
 @pytest.fixture(scope="function")
 def standalone_bundle_function(
-    request, harmony_launcher, harmony_process_function
+    request, harmony_launcher, harmony_process_function, tmp_path_factory
 ):
     """Function-scoped standalone bundle: a fresh Harmony + standalone
     per test, torn down between tests.
@@ -314,5 +319,5 @@ def standalone_bundle_function(
     share a single module-scoped instance.
     """
     yield from _standalone_bundle_impl(
-        request, harmony_launcher, harmony_process_function
+        request, harmony_launcher, harmony_process_function, tmp_path_factory
     )

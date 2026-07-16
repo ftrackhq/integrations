@@ -87,6 +87,111 @@ def pop_path(path, key, environment):
         )
 
 
+# Environment variables PyInstaller's PySide6 runtime hook rewrites to point
+# at Connect's own bundled Qt when Connect runs frozen. Left in a launched
+# child's environment they make the child (a DCC) load Connect's Qt plugins /
+# libraries, which are built against a different Qt minor than the DCC's own
+# ("Plugin uses incompatible Qt library" warnings, crashes, missing menus).
+FROZEN_QT_ENVIRONMENT_VARIABLES = (
+    "QT_PLUGIN_PATH",
+    "QT_QPA_PLATFORM_PLUGIN_PATH",
+    "QML_IMPORT_PATH",
+    "QML2_IMPORT_PATH",
+    "PATH",
+    "LD_LIBRARY_PATH",
+    "DYLD_LIBRARY_PATH",
+)
+
+
+def get_frozen_bundle_roots():
+    """Return the frozen-app bundle roots, or ``[]`` when not frozen.
+
+    The primary root is PyInstaller's ``sys._MEIPASS`` (the unpacked
+    bundle directory). On a macOS ``.app`` bundle ``_MEIPASS`` is
+    ``<App>.app/Contents/Frameworks`` yet the PySide6 runtime hook also
+    references ``<App>.app/Contents/Resources`` (QML), so the app-bundle
+    root is added as a second root to catch both.
+    """
+    if not getattr(sys, "frozen", False):
+        return []
+    meipass = getattr(sys, "_MEIPASS", None)
+    if not meipass:
+        return []
+    roots = [meipass]
+    normalized = os.path.normpath(meipass)
+    if normalized.endswith(os.path.join("Contents", "Frameworks")):
+        # <App>.app/Contents/Frameworks -> <App>.app
+        roots.append(os.path.dirname(os.path.dirname(normalized)))
+    return roots
+
+
+def _is_under_roots(entry, normalized_roots):
+    """Whether path *entry* is at or below any of *normalized_roots*.
+
+    *normalized_roots* are already ``normcase``+``normpath`` normalized.
+    A textual prefix compare (no ``realpath``) with an explicit
+    separator guard so a sibling like ``/opt/connect_internal_other``
+    does not match the root ``/opt/connect_internal``.
+    """
+    candidate = os.path.normcase(os.path.normpath(entry))
+    for root in normalized_roots:
+        if candidate == root or candidate.startswith(root + os.sep):
+            return True
+    return False
+
+
+def strip_frozen_qt_environment(environment, bundle_roots):
+    """Remove entries under *bundle_roots* from the frozen-Qt env vars.
+
+    For each variable in :data:`FROZEN_QT_ENVIRONMENT_VARIABLES`, split
+    on ``os.pathsep``, drop entries at or below any bundle root and keep
+    foreign (studio/system) entries in their original order. The
+    variable is re-set to the remaining entries, or popped when none
+    remain. Modifies *environment* in place and returns it. A no-op when
+    *bundle_roots* is empty.
+    """
+    if not bundle_roots:
+        return environment
+
+    normalized_roots = [
+        os.path.normcase(os.path.normpath(root)) for root in bundle_roots
+    ]
+
+    for key in FROZEN_QT_ENVIRONMENT_VARIABLES:
+        value = environment.get(key)
+        if not value:
+            continue
+        kept = [
+            entry
+            for entry in value.split(os.pathsep)
+            if not _is_under_roots(entry, normalized_roots)
+        ]
+        if kept:
+            environment[key] = os.pathsep.join(kept)
+        else:
+            environment.pop(key, None)
+
+    return environment
+
+
+def restore_loader_library_path(environment):
+    """Restore the pre-PyInstaller ``LD_LIBRARY_PATH`` (Linux/frozen).
+
+    The PyInstaller bootloader stashes the caller's original
+    ``LD_LIBRARY_PATH`` in ``LD_LIBRARY_PATH_ORIG`` and overwrites
+    ``LD_LIBRARY_PATH`` to point at the bundle. Restore the original so
+    spawned external processes do not load the bundled shared libs. This
+    is the PyInstaller-documented pattern for launching external
+    programs. Modifies *environment* in place and returns it.
+    """
+    original = environment.pop("LD_LIBRARY_PATH_ORIG", None)
+    if original is not None:
+        environment["LD_LIBRARY_PATH"] = original
+    else:
+        environment.pop("LD_LIBRARY_PATH", None)
+    return environment
+
+
 class ApplicationStore(object):
     """Discover and store available applications on this host."""
 
@@ -1066,6 +1171,37 @@ class ApplicationLauncher(object):
 
         environment.pop("PYTHONHOME", None)
         environment.pop("FTRACK_EVENT_PLUGIN_PATH", None)
+
+        # When Connect runs frozen (PyInstaller), its bundled PySide6
+        # runtime hook rewrites the Qt env vars (and, on Windows, PATH)
+        # to point at Connect's own Qt. Copied into a launched DCC those
+        # make it load Connect's Qt plugins/libraries - built against a
+        # different Qt minor than the DCC - producing "incompatible Qt
+        # library" warnings, crashes and missing menus/dialogs. Strip
+        # the bundle's own entries here so children inherit only the
+        # studio's / system Qt. Runs before the launch event is published
+        # (see _launch), so any deliberate studio Qt paths set via a
+        # launch-config or an integration hook are applied afterwards and
+        # always win. Never touches os.environ, so Connect's own UI is
+        # unaffected. See get_frozen_bundle_roots /
+        # strip_frozen_qt_environment.
+        if getattr(sys, "frozen", False):
+            snapshot = {
+                key: environment.get(key)
+                for key in FROZEN_QT_ENVIRONMENT_VARIABLES
+            }
+            if sys.platform.startswith("linux"):
+                restore_loader_library_path(environment)
+            strip_frozen_qt_environment(environment, get_frozen_bundle_roots())
+            for key, old in snapshot.items():
+                new = environment.get(key)
+                if old != new:
+                    self.logger.debug(
+                        "Scrubbed frozen Qt entries from %s: %r -> %r",
+                        key,
+                        old,
+                        new,
+                    )
 
         # Ensure SSL_CERT_FILE points to the default cert.
         if "win32" not in sys.platform:

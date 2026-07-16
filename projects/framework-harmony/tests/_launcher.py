@@ -74,6 +74,50 @@ def find_free_port() -> int:
         return sock.getsockname()[1]
 
 
+def apply_env_actions(env: dict, actions: dict) -> dict:
+    """Apply Connect-style ``KEY.action`` env actions to *env* in place.
+
+    Mirrors ftrack Connect's ``_get_integrations_environments`` action
+    dispatcher (apps/connect
+    .../application_launcher/__init__.py): a key may carry a
+    ``.set``/``.unset``/``.prepend``/``.append``/``.pop`` suffix
+    (default ``append``). Lets the tests apply a hook's returned env
+    actions exactly as Connect would before launching, so a launch
+    driven through ``LaunchConfig.extra_env`` sees the same environment
+    a real Connect launch would.
+    """
+    for raw_key, value in actions.items():
+        parts = raw_key.split(".")
+        key, action = (
+            (parts[0], parts[1]) if len(parts) == 2 else (raw_key, "append")
+        )
+        if action == "set":
+            env[key] = str(value)
+        elif action == "unset":
+            env.pop(key, None)
+        elif action == "prepend":
+            env[key] = (
+                os.pathsep.join([str(value), env[key]])
+                if env.get(key)
+                else str(value)
+            )
+        elif action == "append":
+            env[key] = (
+                os.pathsep.join([env[key], str(value)])
+                if env.get(key)
+                else str(value)
+            )
+        elif action == "pop":
+            if env.get(key):
+                env[key] = os.pathsep.join(
+                    entry
+                    for entry in env[key].split(os.pathsep)
+                    if entry.replace("\\", "/")
+                    != str(value).replace("\\", "/")
+                )
+    return env
+
+
 def _osascript(script: str) -> subprocess.CompletedProcess:
     return subprocess.run(
         ["osascript", "-e", script],

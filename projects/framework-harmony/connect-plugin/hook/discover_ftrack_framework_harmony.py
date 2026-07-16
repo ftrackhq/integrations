@@ -47,6 +47,101 @@ def on_discover_integration(session, event):
     return data
 
 
+# ---------------------------------------------------------------------------
+# This hook independently sanitizes the launch environment so a frozen
+# (PyInstaller) ftrack Connect does not hand its own bundled Qt paths to
+# Harmony: Harmony would otherwise load Connect's Qt plugins, built against
+# a different Qt minor, and warn ("incompatible Qt library") with broken
+# menus/dialogs. A hook must not depend on Connect internals, so this is a
+# self-contained twin of the launcher's scrub, using only ``os``/``sys``.
+# It is idempotent alongside a Connect that already scrubs: ``.unset`` of an
+# absent key is a no-op and ``.set`` rewrites the identical filtered value.
+# Scope is the four Qt path vars only; PATH and loader-library paths are the
+# Connect launcher's responsibility.
+#
+# See docs/specs/2026-07-15-qt-env-leak-frozen-connect-design.md.
+# TODO(remove): drop once the minimum supported Connect ships the launcher
+# scrub and this hook is redundant.
+# ---------------------------------------------------------------------------
+_FROZEN_QT_ENVIRONMENT_VARIABLES = (
+    "QT_PLUGIN_PATH",
+    "QT_QPA_PLATFORM_PLUGIN_PATH",
+    "QML_IMPORT_PATH",
+    "QML2_IMPORT_PATH",
+)
+
+
+def _frozen_bundle_roots():
+    """Bundle roots of the frozen Connect app, or ``[]`` when not frozen.
+
+    Twin of the Connect launcher's ``get_frozen_bundle_roots``. On a
+    macOS ``.app`` bundle ``sys._MEIPASS`` is
+    ``<App>.app/Contents/Frameworks`` but the PySide6 runtime hook also
+    references ``<App>.app/Contents/Resources`` (QML), so the app-bundle
+    root is added as a second root to catch both.
+    """
+    if not getattr(sys, "frozen", False):
+        return []
+    meipass = getattr(sys, "_MEIPASS", None)
+    if not meipass:
+        return []
+    roots = [meipass]
+    normalized = os.path.normpath(meipass)
+    if normalized.endswith(os.path.join("Contents", "Frameworks")):
+        roots.append(os.path.dirname(os.path.dirname(normalized)))
+    return roots
+
+
+def get_frozen_qt_environment_actions(environ=None, bundle_roots=None):
+    """Return launcher env *actions* scrubbing Connect's bundled Qt paths.
+
+    For each of the four Qt path vars, drop entries at or below a Connect
+    bundle root and keep foreign (studio/system) entries in order, then
+    express the result as a Connect launch-env action:
+
+    - all entries under bundle roots -> ``"<VAR>.unset": "1"``
+    - some foreign entries remain    -> ``"<VAR>.set": "<foreign only>"``
+    - studio-only / absent / not frozen -> no action for that var.
+
+    *environ* defaults to ``os.environ``; *bundle_roots* defaults to the
+    frozen-app roots (``[]`` when not frozen -> ``{}``). Both parameters
+    exist so tests can inject a fake frozen environment.
+    """
+    if environ is None:
+        environ = os.environ
+    if bundle_roots is None:
+        bundle_roots = _frozen_bundle_roots()
+    if not bundle_roots:
+        return {}
+
+    normalized_roots = [
+        os.path.normcase(os.path.normpath(root)) for root in bundle_roots
+    ]
+
+    def _under_root(entry):
+        candidate = os.path.normcase(os.path.normpath(entry))
+        return any(
+            candidate == root or candidate.startswith(root + os.sep)
+            for root in normalized_roots
+        )
+
+    actions = {}
+    for key in _FROZEN_QT_ENVIRONMENT_VARIABLES:
+        value = environ.get(key)
+        if not value:
+            continue
+        entries = value.split(os.pathsep)
+        kept = [entry for entry in entries if not _under_root(entry)]
+        if len(kept) == len(entries):
+            # Nothing bundle-owned - leave the studio's value untouched.
+            continue
+        if kept:
+            actions["{}.set".format(key)] = os.pathsep.join(kept)
+        else:
+            actions["{}.unset".format(key)] = "1"
+    return actions
+
+
 def check_port(port, host="localhost"):
     """
     Check if a port is free to use or not.
@@ -273,6 +368,18 @@ def on_launch_integration(session, event):
 
     if not launch_data["integration"].get("env"):
         launch_data["integration"]["env"] = {}
+
+    # Drop Connect's bundled Qt paths from the child environment when Connect
+    # runs frozen, so Harmony does not load Connect's Qt plugins (version
+    # mismatch -> "incompatible Qt library", broken menus/dialogs). No-op when
+    # Connect is not frozen or already scrubbed. Also feeds the standalone
+    # helper, harmlessly (its own frozen runtime hook re-creates these vars at
+    # bootstrap). Applied *before* any env actions already on the integration
+    # so a studio's own configured Qt action (e.g. QT_PLUGIN_PATH.prepend)
+    # runs after the scrub and takes precedence.
+    scrub_actions = get_frozen_qt_environment_actions()
+    scrub_actions.update(launch_data["integration"]["env"])
+    launch_data["integration"]["env"] = scrub_actions
 
     bootstrap_path = os.path.join(connect_plugin_path, "resource", "bootstrap")
     logger.info("Adding {} to PYTHONPATH".format(bootstrap_path))
