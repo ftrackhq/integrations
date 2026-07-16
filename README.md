@@ -4,6 +4,7 @@
 
 | Name                                                                          |    Stmts |     Miss |   Cover |   Missing |
 |------------------------------------------------------------------------------ | -------: | -------: | ------: | --------: |
+| apps/connect/conftest.py                                                      |        3 |        0 |    100% |           |
 | libs/constants/source/ftrack\_constants/\_\_init\_\_.py                       |       12 |        2 |     83% |     19-20 |
 | libs/constants/source/ftrack\_constants/framework/\_\_init\_\_.py             |        6 |        0 |    100% |           |
 | libs/constants/source/ftrack\_constants/framework/asset/\_\_init\_\_.py       |       19 |        0 |    100% |           |
@@ -51,7 +52,7 @@
 | tests/framework/unit/test\_engine.py                                          |       49 |        0 |    100% |           |
 | tests/libraries/test\_paths.py                                                |       14 |        0 |    100% |           |
 | tests/libraries/test\_version\_parsing.py                                     |       46 |        0 |    100% |           |
-| **TOTAL**                                                                     | **1008** |  **329** | **67%** |           |
+| **TOTAL**                                                                     | **1011** |  **329** | **67%** |           |
 
 
 ## Setup coverage badge
