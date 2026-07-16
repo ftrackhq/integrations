@@ -12,15 +12,44 @@ The helpers take their bundle roots as arguments, so these run
 everywhere without a frozen build.
 """
 
+import importlib.util
 import os
+from pathlib import Path
 
 import pytest
 
-from ftrack_connect.application_launcher import (
-    FROZEN_QT_ENVIRONMENT_VARIABLES,
-    restore_loader_library_path,
-    strip_frozen_qt_environment,
-)
+
+def _load_launcher_module():
+    """Load the launcher module directly from its file.
+
+    Deliberately *not* ``from ftrack_connect.application_launcher import
+    ...``: a normal import runs the package __init__
+    (ftrack_connect/__init__.py), which does ``import qtawesome`` ->
+    PySide6. On a headless CI runner that fails at import time
+    (``libEGL.so.1: cannot open shared object file``). The launcher
+    module itself has no Qt imports, so loading it by path skips the
+    package __init__ and keeps this a pure, Qt-free unit test. Do not
+    replace this with a package import.
+    """
+    launcher_path = (
+        Path(__file__).parents[2]
+        / "source"
+        / "ftrack_connect"
+        / "application_launcher"
+        / "__init__.py"
+    )
+    spec = importlib.util.spec_from_file_location(
+        "connect_application_launcher_under_test", launcher_path
+    )
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+_launcher = _load_launcher_module()
+FROZEN_QT_ENVIRONMENT_VARIABLES = _launcher.FROZEN_QT_ENVIRONMENT_VARIABLES
+restore_loader_library_path = _launcher.restore_loader_library_path
+strip_frozen_qt_environment = _launcher.strip_frozen_qt_environment
 
 SEP = os.pathsep
 

@@ -12,6 +12,8 @@
 * [fix] About; Widget plugin debug information is correctly included again.
 * [fix] Hooks; Open component directory hook updated to use new event source.host for discovery and launch.
 * [fix] Launcher; On macOS, deliver injected launch arguments through 'open --args' instead of as trailing document paths, preventing a second, wrong-version DCC instance from being started via LaunchServices when arguments are injected.
+* [fix] Launcher; When Connect runs frozen (installed), strip its own bundled Qt paths (QT_PLUGIN_PATH, QT_QPA_PLATFORM_PLUGIN_PATH, QML/QML2_IMPORT_PATH, PATH and the loader library paths) from the environment handed to launched applications, so a DCC no longer loads Connect's Qt plugins/libraries built against a different Qt minor (which produced "incompatible Qt library" warnings, crashes and missing menus/dialogs). Studio-set entries are preserved and take precedence.
+* [changed] Launcher; Launched applications no longer inherit Connect's bundled Qt plugins (strictly correct behaviour). A studio that needs specific Qt environment variables for a launched DCC must set them via the launch config's environment_variables block or an integration hook; these are applied after the scrub and win.
 * [fix] Integrations; Preserve backward compatibility for older integration plugins by serializing the launched application version as a string that still exposes a LooseVersion-style .version attribute, so launch hooks reading application['version'].version[0] keep working.
 * [changed] Build; Migrate build system from Poetry to uv and code formatting from black to ruff.
 * [changed] Build; Update Python runtime to 3.13.
