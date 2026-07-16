@@ -1,7 +1,7 @@
 # ftrack Connect release Notes
 
-## v26.7.0
-2026-07-15
+## v26.7.0rc1
+2026-07-16
 
 * [new] macOS; Provide separate Intel (x86_64) and Apple Silicon (arm64) installers. DMG filenames now carry an architecture suffix (ftrack_connect-<version>-macOS-x86_64.dmg / -arm64.dmg).
 * [changed] Performance; Add query projections to startup queries (project tree, recent actions, storage scenario check), eliminating per-entity N+1 server requests.
