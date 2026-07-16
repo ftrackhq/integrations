@@ -92,7 +92,6 @@ def pop_path(path, key, environment):
 # child's environment they make the child (a DCC) load Connect's Qt plugins /
 # libraries, which are built against a different Qt minor than the DCC's own
 # ("Plugin uses incompatible Qt library" warnings, crashes, missing menus).
-# See docs/specs/2026-07-15-qt-env-leak-frozen-connect-design.md.
 FROZEN_QT_ENVIRONMENT_VARIABLES = (
     "QT_PLUGIN_PATH",
     "QT_QPA_PLATFORM_PLUGIN_PATH",

@@ -3,16 +3,13 @@
 
 """Frozen-Qt environment scrub: hook helper + live Harmony verification.
 
-The primary verification vehicle for the fix documented in
-docs/specs/2026-07-15-qt-env-leak-frozen-connect-design.md.
-
 A frozen (PyInstaller) ftrack Connect leaks its own bundled Qt paths
 (``QT_PLUGIN_PATH`` etc.) into the environment of launched DCCs. Harmony
 then loads Connect's Qt plugins - built against a newer Qt minor than
 Harmony's own - which prints ~10 "Plugin uses incompatible Qt library"
-warnings and breaks menus/dialogs. The transitional Harmony hook helper
+warnings and breaks menus/dialogs. The Harmony hook helper
 ``get_frozen_qt_environment_actions`` emits Connect launch-env actions
-that strip those paths for users still on an unpatched frozen Connect.
+that strip those paths from the child environment.
 
 Three groups (mirroring tests/test_launch.py / tests/test_standalone.py
 gating):
@@ -207,6 +204,67 @@ def test_on_launch_integration_merges_actions(hook, tmp_path, monkeypatch):
 
     env = launch_data["integration"]["env"]
     assert env.get("QT_PLUGIN_PATH.unset") == "1"
+
+
+def test_on_launch_integration_preserves_configured_actions(
+    hook, tmp_path, monkeypatch
+):
+    """A studio's own configured Qt action survives and wins over the scrub.
+
+    Connect applies env actions in dict insertion order, so a scrub
+    ``.unset`` must be inserted *before* any pre-existing configured
+    action on the same variable: the leak is removed first, then the
+    studio's own ``.set``/``.prepend``/``.append`` re-applies and takes
+    precedence.
+    """
+    meipass = tmp_path / "_internal"
+    (meipass / "PySide6" / "plugins").mkdir(parents=True)
+    leaked = str(meipass / "PySide6" / "plugins")
+
+    monkeypatch.setattr(hook.sys, "frozen", True, raising=False)
+    monkeypatch.setattr(hook.sys, "_MEIPASS", str(meipass), raising=False)
+    # Every scrubbed var is fully bundle-owned, so each emits a ``.unset``.
+    monkeypatch.setenv("QT_PLUGIN_PATH", leaked)
+    monkeypatch.setenv("QML_IMPORT_PATH", leaked)
+    monkeypatch.setenv("QML2_IMPORT_PATH", leaked)
+
+    monkeypatch.setattr(
+        hook,
+        "sync_js_plugin",
+        lambda *args, **kwargs: "/tmp/fake/packages/ftrack",
+    )
+
+    # Configured actions already on the integration (one of each kind).
+    configured = {
+        "QT_PLUGIN_PATH.prepend": "/studio/prepend",
+        "QML_IMPORT_PATH.set": "/studio/set",
+        "QML2_IMPORT_PATH.append": "/studio/append",
+    }
+    event = {
+        "data": {
+            "integration": {"env": dict(configured)},
+            "application": {
+                "version": "25",
+                "path": "/Applications/Toon Boom Harmony 25 Premium/x",
+                "environment_variables": {
+                    "FTRACK_FRAMEWORK_EXTENSIONS_PATH": "",
+                    "FTRACK_HARMONY_LAUNCH_INTO_SCENE": "0",
+                },
+            },
+            "context": {"selection": []},
+        }
+    }
+
+    launch_data = hook.on_launch_integration(session=None, event=event)
+
+    env = launch_data["integration"]["env"]
+    keys = list(env.keys())
+    for action_key, value in configured.items():
+        var = action_key.split(".")[0]
+        # The configured action is preserved untouched ...
+        assert env[action_key] == value
+        # ... and applied after the scrub's ``.unset`` for the same var.
+        assert keys.index("{}.unset".format(var)) < keys.index(action_key)
 
 
 # ---------------------------------------------------------------------------
@@ -416,7 +474,7 @@ _FORBIDDEN_LOG_MARKERS = (
 
 
 def test_standalone_starts_with_clean_qt_log(
-    request, harmony_launcher, scrubbed_harmony
+    request, harmony_launcher, scrubbed_harmony, tmp_path
 ):
     """The standalone framework process comes up with a clean Qt log.
 
@@ -429,7 +487,6 @@ def test_standalone_starts_with_clean_qt_log(
     """
     import platform
     import ssl
-    import tempfile
     import time
 
     from dcc_test_harness.client import DCCClient
@@ -442,7 +499,7 @@ def test_standalone_starts_with_clean_qt_log(
 
     process, _bundle_root, _studio_dir = scrubbed_harmony
 
-    port_file = tempfile.mktemp(prefix="harmony_qt_scrub_", suffix=".port")
+    port_file = str(tmp_path / "harmony_qt_scrub.port")
     extra_env = {
         "FTRACK_SERVER": credentials["server"],
         "FTRACK_API_KEY": credentials["api_key"],

@@ -48,22 +48,20 @@ def on_discover_integration(session, event):
 
 
 # ---------------------------------------------------------------------------
-# TODO(remove): transitional duplicate of the ftrack Connect launcher's
-# frozen-Qt scrub (apps/connect .../application_launcher/__init__.py:
-# FROZEN_QT_ENVIRONMENT_VARIABLES / strip_frozen_qt_environment). It exists
-# only to protect users whose *already-installed* frozen Connect predates
-# that scrub: this plugin ships in a framework-harmony release that reaches
-# them before the next Connect release does. Remove once the minimum
-# supported Connect version ships the launcher scrub (> 26.6.x).
-#
-# A hook must not depend on new Connect code, so this is a self-contained
-# twin (uses only the already-imported ``os``/``sys``). It is idempotent
-# alongside a fixed Connect: ``.unset`` of an absent key is a no-op and
-# ``.set`` rewrites the identical filtered value. Scope is intentionally
-# the four Qt path vars only (PATH / loader-path handling stays
-# Connect-launcher-only, to keep this transitional surface minimal).
+# This hook independently sanitizes the launch environment so a frozen
+# (PyInstaller) ftrack Connect does not hand its own bundled Qt paths to
+# Harmony: Harmony would otherwise load Connect's Qt plugins, built against
+# a different Qt minor, and warn ("incompatible Qt library") with broken
+# menus/dialogs. A hook must not depend on Connect internals, so this is a
+# self-contained twin of the launcher's scrub, using only ``os``/``sys``.
+# It is idempotent alongside a Connect that already scrubs: ``.unset`` of an
+# absent key is a no-op and ``.set`` rewrites the identical filtered value.
+# Scope is the four Qt path vars only; PATH and loader-library paths are the
+# Connect launcher's responsibility.
 #
 # See docs/specs/2026-07-15-qt-env-leak-frozen-connect-design.md.
+# TODO(remove): drop once the minimum supported Connect ships the launcher
+# scrub and this hook is redundant.
 # ---------------------------------------------------------------------------
 _FROZEN_QT_ENVIRONMENT_VARIABLES = (
     "QT_PLUGIN_PATH",
@@ -371,17 +369,17 @@ def on_launch_integration(session, event):
     if not launch_data["integration"].get("env"):
         launch_data["integration"]["env"] = {}
 
-    # Transitional (see get_frozen_qt_environment_actions' TODO(remove)):
-    # on an already-installed frozen Connect that predates the launcher's
-    # own Qt-env scrub, drop Connect's bundled Qt paths from the child
-    # environment so Harmony does not load Connect's Qt plugins (version
-    # mismatch -> "incompatible Qt library", broken menus/dialogs). No-op
-    # when Connect is not frozen or already scrubbed. Also feeds the
-    # standalone helper, harmlessly (its own frozen runtime hook re-creates
-    # these vars at bootstrap).
-    launch_data["integration"]["env"].update(
-        get_frozen_qt_environment_actions()
-    )
+    # Drop Connect's bundled Qt paths from the child environment when Connect
+    # runs frozen, so Harmony does not load Connect's Qt plugins (version
+    # mismatch -> "incompatible Qt library", broken menus/dialogs). No-op when
+    # Connect is not frozen or already scrubbed. Also feeds the standalone
+    # helper, harmlessly (its own frozen runtime hook re-creates these vars at
+    # bootstrap). Applied *before* any env actions already on the integration
+    # so a studio's own configured Qt action (e.g. QT_PLUGIN_PATH.prepend)
+    # runs after the scrub and takes precedence.
+    scrub_actions = get_frozen_qt_environment_actions()
+    scrub_actions.update(launch_data["integration"]["env"])
+    launch_data["integration"]["env"] = scrub_actions
 
     bootstrap_path = os.path.join(connect_plugin_path, "resource", "bootstrap")
     logger.info("Adding {} to PYTHONPATH".format(bootstrap_path))

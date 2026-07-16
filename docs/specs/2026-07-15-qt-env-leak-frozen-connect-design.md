@@ -7,8 +7,7 @@ Connect's own bundled Qt paths into the child process. On Windows,
 Harmony 25.2/27 then prints ~10 `qt.core.plugin.loader: ... Plugin uses
 incompatible Qt library (6.6.0) [release]` warnings and breaks (crash,
 missing menus/dialogs). This records the root cause, the two-layer fix,
-why an alternative patch was rejected, and the removal criteria for the
-transitional layer.
+the alternative that is not used, and the scope of each layer.
 
 ## Root cause
 
@@ -46,7 +45,8 @@ Verified end-to-end:
 
 ## Fix — two layers
 
-Both land as one PR; separate release vehicles pick them up.
+The launcher scrub and the Harmony hook ship on independent release
+vehicles (ftrack Connect and the framework-harmony plugin).
 
 ### Layer 1 — Connect launcher (root fix)
 
@@ -83,13 +83,13 @@ Deliberately kept: `QT_PREFERRED_BINDING` (set intentionally for
 children), `_PYI_*` (bootloader-managed, inert for non-PyInstaller
 children), `QT_API`/`PYSIDE6_OPTION_PYTHON_ENUM` (set by qtpy via the
 `qtawesome` import — indistinguishable from studio values, not paths,
-not implicated here; see follow-ups).
+not implicated here; see Scope boundaries).
 
-### Layer 2 — Harmony hook (transitional)
+### Layer 2 — Harmony hook
 
 `projects/framework-harmony/connect-plugin/hook/
 discover_ftrack_framework_harmony.py`. A self-contained twin helper
-(hooks must not depend on new Connect code):
+(hooks must not depend on Connect internals):
 `get_frozen_qt_environment_actions(environ=None, bundle_roots=None)`.
 Defaults read `os.environ` and detect `sys.frozen`/bundle roots (same
 multi-root logic as Layer 1, incl. the macOS app root); the parameters
@@ -101,45 +101,44 @@ four Qt path vars only:
 - studio-only / absent / not frozen → no action.
 
 Merged into `launch_data["integration"]["env"]` in
-`on_launch_integration`. PATH/loader-path handling stays Layer-1-only to
-keep the transitional surface minimal.
+`on_launch_integration`, ahead of any env actions already on the
+integration so a studio's own configured Qt action takes precedence.
+PATH/loader-path handling is Layer 1's responsibility, keeping this hook's
+surface minimal.
 
-This protects users whose *already-installed* frozen Connect predates
-Layer 1: the next framework-harmony plugin release reaches them before
-the next Connect release does. Layer interplay is idempotent — on a
-fixed Connect the hook's `.unset` no-ops and `.set` rewrites the
-identical filtered value.
+The hook is independent of the Connect launcher scrub and correct
+alongside it: on a Connect that already scrubs, the hook's `.unset`
+no-ops and `.set` rewrites the identical filtered value.
 
-**Removal criteria:** remove the hook helper and its wiring once the
-minimum supported Connect version ships the Layer 1 scrub (> 26.6.x).
-The code carries a `TODO(remove)` block pointing here.
+The hook helper and its wiring are redundant once the minimum supported
+Connect version ships the Layer 1 scrub; the code carries a
+`TODO(remove)` marker pointing here.
 
-## Rejected: the standalone-side `setLibraryPaths` patch
+## Not used: standalone-side `setLibraryPaths`
 
-A coworker's patch added `QApplication.setLibraryPaths()` inside
-`ftrack_framework_harmony/__init__.py`. Rejected because it targets the
-**wrong process**: the standalone helper is Connect's own frozen exe
-re-invoked (`--run-framework-standalone`; frozen modules beat the
-plugin's `dependencies/`), so its Qt and plugins always match — it
+Calling `QApplication.setLibraryPaths()` inside
+`ftrack_framework_harmony/__init__.py` does not address this leak: it
+targets the **wrong process**. The standalone helper is Connect's own
+frozen exe re-invoked (`--run-framework-standalone`; frozen modules beat
+the plugin's `dependencies/`), so its Qt and plugins always match — it
 cannot emit these warnings. It also runs `setLibraryPaths()` *after*
-`QApplication` creation, too late for the platform plugin. Redundant next
-to the two layers.
+`QApplication` creation, too late for the platform plugin. It is
+redundant next to the two layers.
 
 ## Other DCCs
 
 Same latent leak (Houdini 21 = Qt 6.8 *silently* loads Connect's 6.6
-plugins today; Qt5 DCCs warn). No DCC-specific fix exists or is needed —
-Layer 1 covers them all once the next Connect ships.
+plugins today; Qt5 DCCs warn). No DCC-specific fix is needed — Layer 1
+covers them all through the Connect launcher.
 
 ## Tests
 
-- `apps/connect/tests/unit/test_application_launcher_environment.py` —
-  first tests in `apps/connect`; covers the frozen-path logic fully
-  (helpers take roots as arguments, no frozen build needed). Added
-  `[tool.pytest.ini_options] pythonpath = ["source"]` to
-  `apps/connect/pyproject.toml`. A `connect-unit-pytest` CI job mirrors
-  `harness-unit-pytest`.
-- `projects/framework-harmony/tests/test_qt_env_scrub.py` — the primary
+- `apps/connect/tests/unit/test_application_launcher_environment.py`
+  covers the frozen-path logic fully (helpers take roots as arguments, no
+  frozen build needed). `[tool.pytest.ini_options] pythonpath =
+  ["source"]` in `apps/connect/pyproject.toml` makes the launcher module
+  importable; a `connect-unit-pytest` CI job mirrors `harness-unit-pytest`.
+- `projects/framework-harmony/tests/test_qt_env_scrub.py` is the primary
   verification vehicle. Unit cases (action emission + `on_launch`
   wiring), tier-1 live cases (fake frozen bundle composed exactly as
   Connect does → scrubbed env verified on the *live* Harmony process via
@@ -149,15 +148,12 @@ Layer 1 covers them all once the next Connect ships.
   `incompatible Qt library` lines). A small `apply_env_actions` helper in
   `tests/_launcher.py` mirrors Connect's `_get_integrations_environments`
   dispatcher so the tests apply hook actions the way Connect would.
-  All groups pass against real Harmony 27 on the reference workstation.
 
-## Follow-ups
+## Scope boundaries
 
-- Snapshot `os.environ` before the `qtawesome` import
-  (`ftrack_connect/__init__.py`) so `QT_API`/`PYSIDE6_OPTION_PYTHON_ENUM`
-  studio values can be distinguished from qtpy-set ones.
-- Paste the hook helper into maya/nuke/houdini/max hooks on their next
-  releases (copy-paste siblings by repo convention; Adobe/Blender/Flame
-  optional) until Layer 1 is the floor and Layer 2 is removed.
-- Env scrub inside the future "clean interpreter" standalone runner
-  (`apps/connect/.../__main__.py` TODO).
+- `QT_API`/`PYSIDE6_OPTION_PYTHON_ENUM` are set by qtpy via the
+  `qtawesome` import and are indistinguishable from studio-set values, so
+  they are not scrubbed; distinguishing them would require snapshotting
+  `os.environ` before that import (`ftrack_connect/__init__.py`).
+- Other DCC hooks (maya/nuke/houdini/max) do not carry the twin helper;
+  Layer 1 covers them through the Connect launcher.

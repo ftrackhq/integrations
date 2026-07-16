@@ -5,11 +5,9 @@
 
 Covers the pure helpers ftrack Connect uses to keep its own bundled Qt
 paths (injected by PyInstaller's PySide6 runtime hook when Connect runs
-frozen) out of the environment handed to launched DCCs. See
-docs/specs/2026-07-15-qt-env-leak-frozen-connect-design.md.
-
-The helpers take their bundle roots as arguments, so these run
-everywhere without a frozen build.
+frozen) out of the environment handed to launched DCCs. The helpers take
+their bundle roots as arguments, so these run everywhere without a frozen
+build.
 """
 
 import importlib.util
