@@ -81,8 +81,14 @@ function ftrackReconnectHook() {
             );
             return;
         }
-        __packageFolder__ = packageRoot;
+        // Scope __packageFolder__ to the hook's function scope (via `this`)
+        // rather than assigning an un-scoped global: a leaked global would
+        // persist and force later configure.js evaluations (e.g. a menu
+        // action) down the package-load branch. The include still sees it
+        // (JS includes share the caller's scope); delete it right after.
+        this.__packageFolder__ = packageRoot;
         include(packageRoot + "/ftrack/configure.js");
+        delete this.__packageFolder__;
         // Restore the menu items synchronously first (does not depend on
         // the network); reconnect then makes them functional again.
         if (typeof ftrackRebuildMenus === "function") {
