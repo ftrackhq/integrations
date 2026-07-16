@@ -335,7 +335,7 @@ provides-extras = ["ftrack-libs"]
 
 [[package]]
 name = "ftrack-utils"
-version = "4.0.0"
+version = "4.0.1"
 source = { directory = "../../libs/utils" }
 dependencies = [
     { name = "clique" },

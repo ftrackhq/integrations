@@ -1,6 +1,6 @@
 [project]
 name = "ftrack-utils"
-version = "4.0.0"
+version = "4.0.1"
 description = "ftrack utils library"
 readme = "README.md"
 license = { text = "Apache-2.0" }

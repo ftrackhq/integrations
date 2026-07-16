@@ -1,5 +1,10 @@
 # ftrack Utils library release Notes
 
+## v4.0.1
+2026-07-16
+
+* [changed] Process monitor; Log the periodic "still alive" PID probe at debug level instead of info, so a launched application's watchdog no longer floods the logs on every poll. Process-detected and process-gone messages remain at info.
+
 ## v3.2.0
 2024-11-19
 
