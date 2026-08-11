@@ -2,6 +2,8 @@
 
 ## Upcoming
 
+* [fix] StandardOpenerDialog; Keep the run (OPEN) button disabled until a valid asset version is selected, so opening a task with no openable version no longer raises a misleading "Please select a version to open" error.
+* [fix] AssetVersionSelectorWidget; "Show all assets" toggle responds immediately by deferring the asset re-query so the checkbox state updates before the query runs.
 * [fixed] StandardPublisherDialog; Fix bug were _accordion_widgets_registry wasn't initialized if no tool_config available.
 * [fixed] StandardOpenerDialog, StandardPublisherDialog; Fix bug were dialog creation crashed if not tool configs. Also disabled run button.
 * [changed] RenameFileExporterPlugin; Accept folder as destination.

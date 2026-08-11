@@ -116,6 +116,12 @@ class StandardOpenerDialog(BaseContextDialog):
             self.run_button.setEnabled(False)
             return
 
+        # Keep the run (OPEN) button disabled until the version selector reports
+        # a valid asset version selection (see _on_set_plugin_option_callback).
+        # Set before building the widgets so an immediate ui_hook result that
+        # selects a version re-enables it.
+        self.run_button.setEnabled(False)
+
         # Build context widgets
         context_plugins = get_plugins(
             self.tool_config, filters={'tags': ['context']}
@@ -168,6 +174,15 @@ class StandardOpenerDialog(BaseContextDialog):
             self._progress_widget.show_overlay_signal.connect(
                 self.show_overlay_widget
             )
+
+    def _on_set_plugin_option_callback(self, plugin_reference, options):
+        '''(Override) Enable the run (OPEN) button only when a valid asset
+        version is selected.'''
+        super(StandardOpenerDialog, self)._on_set_plugin_option_callback(
+            plugin_reference, options
+        )
+        if 'asset_version_id' in options:
+            self.run_button.setEnabled(bool(options['asset_version_id']))
 
     def _on_run_button_clicked(self):
         '''(Override) Drive the progress widget'''
