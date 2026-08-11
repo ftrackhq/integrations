@@ -2,9 +2,9 @@
 # :copyright: Copyright (c) 2024 ftrack
 
 try:
-    from PySide6 import QtWidgets
+    from PySide6 import QtWidgets, QtCore
 except ImportError:
-    from PySide2 import QtWidgets
+    from PySide2 import QtWidgets, QtCore
 
 from ftrack_framework_qt.widgets import BaseWidget
 from ftrack_qt.widgets.selectors import OpenAssetSelector
@@ -83,7 +83,12 @@ class AssetVersionSelectorWidget(BaseWidget):
         self._asset_version_selector.selected_item_changed.connect(
             self._on_selected_item_changed_callback
         )
-        self._show_all.stateChanged.connect(self.populate)
+        self._show_all.stateChanged.connect(self._on_show_all_changed)
+
+    def _on_show_all_changed(self):
+        '''Defer the (blocking) re-query so the checkbox toggles immediately;
+        populate() then runs on the next event-loop iteration.'''
+        QtCore.QTimer.singleShot(0, self.populate)
 
     def populate(self):
         '''Fetch info from plugin to populate the widget'''
@@ -118,6 +123,9 @@ class AssetVersionSelectorWidget(BaseWidget):
             )
         else:
             self._label.setText('No assets found.')
+            # No selectable version: clear any stored selection so the opener
+            # dialog keeps the OPEN button disabled.
+            self.set_plugin_option('asset_version_id', None)
 
     def _on_version_changed_callback(self, version):
         '''Handle the change of selected version.'''
