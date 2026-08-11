@@ -1,6 +1,12 @@
 # ftrack Framework Harmony integration release Notes
 
 
+## v26.7.0rc2
+2026-08-11
+
+* [fix] Encoding a reviewable on macOS no longer crashes with `cannot import name 'darwin' from 'pyffmpeg.static.bin.darwin'`. pyffmpeg ships one ffmpeg binary per OS wheel, but the Connect plugin was built only on Linux, so macOS and Windows users received the Linux wheel with no matching ffmpeg payload. The plugin is now built per OS (Windows + macOS, following the framework-blender pattern) so each archive bundles the pyffmpeg wheel for its own platform.
+
+
 ## v26.7.0rc1
 2026-07-16
 
