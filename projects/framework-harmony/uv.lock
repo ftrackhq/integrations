@@ -144,7 +144,7 @@ wheels = [
 
 [[package]]
 name = "ftrack-connect"
-version = "26.7.0"
+version = "26.7.0rc1"
 source = { directory = "../../apps/connect" }
 dependencies = [
     { name = "arrow" },
@@ -230,7 +230,7 @@ provides-extras = ["ftrack-libs", "documentation"]
 
 [[package]]
 name = "ftrack-framework-harmony"
-version = "26.7.0rc1"
+version = "26.7.0rc2"
 source = { editable = "." }
 dependencies = [
     { name = "ftrack-python-api" },

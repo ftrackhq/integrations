@@ -83,6 +83,7 @@ jobs:
         needs.set-variables.outputs.package != 'framework-photoshop' &&
         needs.set-variables.outputs.package != 'framework-premiere' &&
         needs.set-variables.outputs.package != 'framework-blender' &&
+        needs.set-variables.outputs.package != 'framework-harmony' &&
         needs.set-variables.outputs.package != 'framework-aftereffects'
       }}
     runs-on: ubuntu-22.04
@@ -113,7 +114,6 @@ jobs:
         if: ${{
             needs.set-variables.outputs.package == 'framework-maya' ||
             needs.set-variables.outputs.package == 'framework-nuke' ||
-            needs.set-variables.outputs.package == 'framework-harmony' ||
             needs.set-variables.outputs.package == 'framework-houdini' ||
             needs.set-variables.outputs.package == 'framework-flame' ||
             needs.set-variables.outputs.package == 'framework-blender' ||
@@ -153,7 +153,7 @@ jobs:
     needs: set-variables
     concurrency:
       group: ci-${{ github.ref }}
-    if: ${{ needs.set-variables.outputs.package == 'framework-blender' }}
+    if: ${{ needs.set-variables.outputs.package == 'framework-blender' || needs.set-variables.outputs.package == 'framework-harmony' }}
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -184,7 +184,7 @@ jobs:
     needs: set-variables
     concurrency:
       group: ci-${{ github.event.ref || github.ref }}
-    if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' || needs.set-variables.outputs.package == 'framework-premiere' || needs.set-variables.outputs.package == 'framework-aftereffects' || needs.set-variables.outputs.package == 'framework-blender' }}
+    if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' || needs.set-variables.outputs.package == 'framework-premiere' || needs.set-variables.outputs.package == 'framework-aftereffects' || needs.set-variables.outputs.package == 'framework-blender' || needs.set-variables.outputs.package == 'framework-harmony' }}
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
@@ -232,7 +232,7 @@ jobs:
           uv run --python 3.13 --with-requirements tools/requirements-pyside6.txt python tools/build.py --remove_intermediate_folder --include_assets $(find "$PWD/projects/framework-aftereffects/dist" -type f -name "*.zxp") build_connect_plugin ${{ needs.set-variables.outputs.folder }}
           cp projects/framework-aftereffects/dist/*.zxp ${{ needs.set-variables.outputs.folder }}
       - name: build standard framework DCC integration plugin
-        if: ${{ needs.set-variables.outputs.package == 'framework-blender' }}
+        if: ${{ needs.set-variables.outputs.package == 'framework-blender' || needs.set-variables.outputs.package == 'framework-harmony' }}
         shell: bash
         run: |
           # Use --testpypi or --from_source to change where the deps are picked from
