@@ -1,12 +1,17 @@
 # ftrack RV integration release Notes
 
+## v26.5
+2026-05-19
 
-## v26.2
-2026-02-09
-* [changed] Replace .mu code with python
+* [changed] Replace .mu code with python.
+* [changed] Migrated build system from poetry to uv and adopted ruff for formatting.
+* [changed] Improved ftrack panel initialization to be more robust against missing or invalid context.
+* [changed] Expanded README and configuration documentation, including macOS environment setup guide.
+* [new] Surface context-aware error messages in the panel when initialization fails.
 * [fixed] RV 2025+ and OpenRV support.
 * [fixed] RvPkg not containing dependencies.zip.
 * [fixed] Test suite failing.
+* [fixed] macOS example launchd plist now correctly sets ftrack environment variables via `launchctl setenv`.
 
 ## v24.0
 2024-04-02
